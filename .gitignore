@@ -1,0 +1,20 @@
+# ignore everything...
+*
+
+# ...except these...
+!.gitignore
+!*.c
+!*.cpp
+!*.css
+!*.html
+!*.java
+!*.jsp
+!*.py
+!*.xml
+!*.md
+
+# ...even if they're in subdirectories
+!*/
+
+programoutputs/
+bin/
