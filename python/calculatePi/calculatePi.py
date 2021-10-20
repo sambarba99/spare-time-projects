@@ -15,7 +15,7 @@ def calcPi():
 		if 4 * b + a - c < n * c:
 			yield n
 			na = 10 * (a - n * c)
-			n = ((10 * (3 * b + a)) // c) - 10 * n # // = division without remainder
+			n = ((10 * (3 * b + a)) // c) - 10 * n
 			b *= 10
 			a = na
 		else:
@@ -37,19 +37,14 @@ pi = calcPi()
 
 digits = [next(pi) for i in range(size)]
 
-digitFreq = {i: 0 for i in range(10)}
+print(*digits, sep="")
 
-for n in digits:
-	digitFreq[n] += 1
+xPlot = list(range(10))
+yPlot = [digits.count(i) for i in xPlot]
 
-print("".join(str(d) for d in digits))
-
-left = [i for i in range(10)]
-height = digitFreq.values()
-tickLabel = left[:]
-
-plt.bar(left, height, tick_label = tickLabel, width = 0.8, color = "#0080ff")
+plt.figure(figsize=(8, 6))
+plt.bar(xPlot, yPlot, tick_label=xPlot, width=0.8, color="#0080ff")
 plt.xlabel("Digit")
 plt.ylabel("Occurrences")
-plt.title("Digit frequencies in {} digits of pi".format(size))
+plt.title(f"Digit frequencies in {size} digits of pi")
 plt.show()

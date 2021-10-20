@@ -14,7 +14,7 @@ def kmp(text, pattern):
 	if lenP > lenT:
 		raise ValueError("Pattern longer than text")
 
-	# create array for holding longest prefix suffix values for pattern
+	# Create array for holding longest prefix suffix values for pattern
 	lps = populateLPS(pattern)
 
 	positions = []
@@ -38,7 +38,7 @@ def kmp(text, pattern):
 
 def populateLPS(pattern):
 	lps = [0] * len(pattern)
-	i, length = 1, 0 # length of previous longest prefix suffix
+	i, length = 1, 0 # Length of previous longest prefix suffix
 
 	while i < len(pattern):
 		if pattern[i] == pattern[length]:
@@ -58,13 +58,8 @@ def populateLPS(pattern):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	text = "".join([chr(random.randint(65, 67)) for i in range(20)])
-	pattern = "".join([chr(random.randint(65, 67)) for i in range(3)])
+text = "".join([chr(random.randint(65, 67)) for _ in range(30)])
+pattern = "".join([chr(random.randint(65, 67)) for _ in range(3)])
+result = kmp(text, pattern)
 
-	print("   Text: {}\nPattern: {}\n\nPositions: {}".format(text, pattern, kmp(text, pattern)))
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+print(f"   Text: {text}\nPattern: {pattern}\n\nPositions: {result}")

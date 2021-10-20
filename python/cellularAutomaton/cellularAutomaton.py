@@ -3,7 +3,6 @@
 # Created 23/09/2021
 
 import pygame as pg
-import random
 import sys
 from time import sleep
 
@@ -56,7 +55,7 @@ def generatePlot(scene, ruleSet):
 # ---------------------------------------------------------------------------------------------------- #
 
 pg.init()
-pg.display.set_caption("Elemantary Cellular Automaton")
+pg.display.set_caption("Elementary Cellular Automaton")
 scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
 
 rules = [18, 30, 45, 54, 57, 60, 73, 105, 129, 137, 151, 153, 161, 165]
@@ -70,6 +69,6 @@ while True:
 
 	ruleSet = setRuleSet(rules[i])
 	generatePlot(scene, ruleSet)
-	print("Rule {}: {}".format(rules[i], ruleSet))
+	print(f"Rule {rules[i]}: {ruleSet}")
 	i = (i + 1) % len(rules)
 	sleep(2)

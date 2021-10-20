@@ -2,138 +2,72 @@
 # Author: Sam Barba
 # Created 11/09/2021
 
+from KNN import KNN
+import matplotlib.pyplot as plt
+import numpy as np
 import random
-
-# ---------------------------------------------------------------------------------------------------- #
-# ---------------------------------------------  CLASSES  -------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-class KNN:
-	def __init__(self, k):
-		self.k = k
-
-	# Training set (x) and corresponding class labels (y)
-	def fit(self, xTrain, yTrain):
-		self.xTrain = xTrain
-		self.yTrain = yTrain
-
-	def predictClasses(self, xTest):
-		return [self.__predictClass(testItem) for testItem in xTest]
-
-	def __predictClass(self, testItem):
-		# Compute distance between test sample and all training samples
-		distances = [self.__euclideanDist(testItem, trainItem) for trainItem in self.xTrain]
-
-		# Index each calculated distance, i.e.: [(0, 1.24914), (1, 0.4812)...]
-		idxAndDistances = list(enumerate(distances))
-
-		# Sort in ascending order by distance, but keep only first k training samples (nearest)
-		nearestK = sorted(idxAndDistances, key = lambda tup: tup[1])[:k]
-
-		# Get classifications of nearest k samples
-		classesOfNearestK = [self.yTrain[tup[0]] for tup in nearestK]
-
-		# Return mode of these
-		return max(set(classesOfNearestK), key = classesOfNearestK.count)
-
-	def __euclideanDist(self, testItem, trainItem):
-		return sum((float(attr1) - float(attr2)) ** 2 for attr1, attr2 in zip(testItem, trainItem)) ** 0.5
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def convertStringColToInt(data, col):
-	strVals = [row[col] for row in data]
-	uniqueStrVals = set(strVals)
-	lookup = dict(enumerate(uniqueStrVals))
-	lookup = {v: k for k, v in lookup.items()} # Dictionary inversion
+def confusionMatrix(predictions, actual):
+	numClasses = len(np.unique(actual))
+	confMat = np.zeros((numClasses, numClasses)).astype(int)
 
-	for row in data:
-		row[col] = lookup[row[col]]
+	for a, p in zip(actual, predictions):
+		confMat[a, p] += 1
 
-def evaluateCrossValidation(data, numFolds, k):
-	folds = crossValidationSplit(data, numFolds)
-	foldScores = []
-	clf = KNN(k)
+	accuracy = np.trace(confMat) / confMat.sum()
+	return confMat, accuracy
 
-	for fold in folds:
-		# Test set (x) and corresponding class labels (y) (i.e. last column)
-		xTest = [row[:-1] for row in fold]
-		yTest = [row[-1] for row in fold]
-
-		# Training set (x) and class labels (y)
-		xTrain = [[row[:-1] for row in f] for f in folds if f != fold]
-		yTrain = [[row[-1] for row in f] for f in folds if f != fold]
-
-		# 'Flatten' xTrain and yTrain
-		xTrain = sum(xTrain, [])
-		yTrain = sum(yTrain, [])
-
-		clf.fit(xTrain, yTrain)
-		predictions = clf.predictClasses(xTest)
-
-		foldScores.append(getAccuracy(predictions, yTest))
-
-	return foldScores
-
-# Split data into n folds
-def crossValidationSplit(data, numFolds):
-	random.shuffle(data)
-	foldSize = len(data) // numFolds
-	folds = [data[i:i + foldSize] for i in range(0, len(data), foldSize)]
-
-	return folds
-
-def getAccuracy(predicted, actual):
-	matches = [1 if p == a else 0 for p, a in zip(predicted, actual)]
-	return sum(matches) / len(actual)
+def plotMatrix(k, confMat, accuracy):
+	fig, ax = plt.subplots(figsize=(6, 7))
+	ax.matshow(confMat, cmap=plt.cm.Blues, alpha=0.7)
+	ax.xaxis.set_ticks_position("bottom")
+	for i in range(confMat.shape[0]):
+		for j in range(confMat.shape[1]):
+			ax.text(x=j, y=i, s=confMat[i, j], ha="center", va="center")
+	plt.xlabel("Predictions")
+	plt.ylabel("Actual")
+	plt.title(f"Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy}")
+	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	choice = input("Enter: I to use iris data,"
-		+ "\n D for diabetes data,"
-		+ "\n or T for Titanic survivor data: ").upper()[0]
+choice = input("Enter I to use iris dataset or W for wine dataset: ").upper()
+print()
 
-	if choice == "I": file = open("irisData.csv", "r")
-	elif choice == "D": file = open("diabetesData.csv", "r")
-	else: file = open("titanicSurvivorData.csv", "r")
+if choice == "I":
+	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
+else:
+	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 
+with open(path, "r") as file:
 	data = file.readlines()[1:] # Skip header
-	file.close()
-	
-	data = [row.replace("\n","").split(",") for row in data]
 
-	if choice == "T":
-		# Convert passenger sex column from male/female to 0/1
-		convertStringColToInt(data, 1)
+data = [row.replace("\n", "").split() for row in data]
+random.shuffle(data)
+data = np.array(data).astype(float)
+x, y = data[:,:-1], data[:,-1].astype(int)
 
-	numFolds = k = int(input("\nInput no. folds (= k): "))
+bestAcc = bestK = -1
+bestConfMat = None
 
-	trainingTestRatio = 1 - 1 / numFolds
-
-	print("\nTraining set to test set size ratio:", round(trainingTestRatio, 2))
-
-	foldScores = evaluateCrossValidation(data, numFolds, k)
-	print("\nFold scores:", foldScores)
-	print("\nMean accuracy: {}%\n".format(round(100 * sum(foldScores) / len(foldScores), 2)))
-
-	if choice == "I": randData = [5.2, 2.8, 3.5, 1.1]
-	elif choice == "D": randData = [4, 180, 80, 40, 500, 38, 1.5, 35]
-	else: randData = [1, 1, 30, 2, 1, 200]
-
+for k in range(3, int(len(data) ** 0.5), 2):
 	clf = KNN(k)
-	xTrain = [row[:-1] for row in data]
-	yTrain = [row[-1] for row in data]
-	clf.fit(xTrain, yTrain)
-	predictedClass = clf.predictClasses([randData])[0]
+	clf.fit(x, y)
 
-	print("Random data: {}    Predicted class (using all data): {}".format(str(randData), predictedClass))
+	predictions = [clf.predict(i) for i in x]
+	confMat, acc = confusionMatrix(predictions, y)
 
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+	if acc > bestAcc:
+		bestAcc = acc
+		bestK = k
+		bestConfMat = confMat
+
+	print(f"Accuracy with k = {k}: {acc}")
+
+plotMatrix(bestK, bestConfMat, bestAcc)

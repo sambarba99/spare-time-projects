@@ -15,17 +15,17 @@ WIDTH, HEIGHT = IMG.size
 # ---------------------------------------------------------------------------------------------------- #
 
 def hideMessageInText(binMsg):
-	containerText = [random.choice(CHARS) for i in range(len(binMsg))]
+	containerText = [random.choice(CHARS) for _ in range(len(binMsg))]
 
 	print("\nContainer text:", "".join(containerText))
 
-	for i in range(len(binMsg)):
-		n = ord(containerText[i])
-		n = setBit(n, 0, int(binMsg[i]))
-		containerText[i] = chr(n)
+	for idx, c in enumerate(binMsg):
+		n = ord(containerText[idx])
+		n = setBit(n, 0, int(c))
+		containerText[idx] = chr(n)
 
 	# Replace special characters in new text with characters that have same LSB
-	hasSpecialChars = not all(c in CHARS for c in containerText)
+	hasSpecialChars = any(c not in CHARS for c in containerText)
 	if hasSpecialChars:
 		charsEnding0 = [c for c in CHARS if ord(c) % 2 == 0]
 		charsEnding1 = [c for c in CHARS if ord(c) % 2 == 1]
@@ -89,23 +89,17 @@ def setBit(n, idx, b):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	msg = input("Enter message to hide: ")
-	binMsg = "".join([format(ord(c), "08b") for c in msg])
+msg = input("Enter message to hide: ")
+binMsg = "".join([format(ord(c), "08b") for c in msg])
 
-	print("\nIn binary:", binMsg)
+print("\nIn binary:", binMsg)
 
-	stegText = hideMessageInText(binMsg)
+stegText = hideMessageInText(binMsg)
 
-	print("\nMessage hidden in text:", stegText)
-	print("\nReading hidden message from text:\n{}".format(getMessageFromText(stegText)))
+print("\nMessage hidden in text:", stegText)
+print("\nReading hidden message from text:\n{}".format(getMessageFromText(stegText)))
 
-	stegImg = hideMessageInImage(binMsg)
-	stegImg.show()
+stegImg = hideMessageInImage(binMsg)
+stegImg.show()
 
-	print("\nReading hidden message from image:\n{}".format(getMessageFromImage(stegImg)))
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+print("\nReading hidden message from image:\n{}".format(getMessageFromImage(stegImg)))

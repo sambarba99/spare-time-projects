@@ -3,7 +3,7 @@
 # Created 20/09/2021
 
 import random
-from vertex import *
+from vertex import Vertex
 
 class Daedalus:
 	def __init__(self, rows, cols):
@@ -22,10 +22,10 @@ class Daedalus:
 			walls = current.getNeighbours(maze, True)
 
 			if walls:
-				next = random.choice(walls)
+				nextV = random.choice(walls)
 				stack.append(current)
-				self.__removeWalls(maze, current, next)
-				current = next
+				self.__removeWalls(maze, current, nextV)
+				current = nextV
 			elif stack:
 				current = stack.pop()
 			else:

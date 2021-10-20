@@ -9,7 +9,7 @@ import random
 # ---------------------------------------------------------------------------------------------------- #
 
 class Tree:
-	# without 'value' variable for sake of demo
+	# Without 'value' variable for sake of demo
 	def __init__(self, key):
 		self.key = key
 		self.leftChild = None
@@ -21,60 +21,61 @@ class Tree:
 			tree = Tree(data[1])
 			tree.leftChild = Tree.parseTuple(data[0])
 			tree.rightChild = Tree.parseTuple(data[2])
-		elif data == None:
+		elif data is None:
 			tree = None
 		else:
 			tree = Tree(data)
 		return tree
 
 	def toTuple(self):
-		if self == None:
+		if self is None:
 			return None
-		elif self.leftChild == None and self.rightChild == None: # if leaf node
+		elif self.leftChild is None and self.rightChild is None: # If leaf node
 			return self.key
 		else:
 			return Tree.toTuple(self.leftChild), self.key, Tree.toTuple(self.rightChild)
 
 	def listData(self):
-		if self == None:
+		if self is None:
 			return []
 		return Tree.listData(self.leftChild) + [self.key] + Tree.listData(self.rightChild)
 
 	def getHeight(self):
-		if self == None:
+		if self is None:
 			return 0
 		return max(Tree.getHeight(self.leftChild), Tree.getHeight(self.rightChild)) + 1
 
 	def inOrderTraversal(self):
-		if self == None: return []
+		if self is None: return []
 
 		return (Tree.inOrderTraversal(self.leftChild)
 			+ [self.key]
 			+ Tree.inOrderTraversal(self.rightChild))
 
-	def preOrderTraversal(self): # depth-first search
-		if self == None: return []
+	# Depth-first search
+	def preOrderTraversal(self):
+		if self is None: return []
 
 		return ([self.key]
 			+ Tree.preOrderTraversal(self.leftChild)
 			+ Tree.preOrderTraversal(self.rightChild))
 
 	def postOrderTraversal(self):
-		if self == None: return []
+		if self is None: return []
 
 		return (Tree.inOrderTraversal(self.leftChild)
 			+ Tree.inOrderTraversal(self.rightChild)
 			+ [self.key])
 
 	def isBST(self):
-		if self == None: return True, None, None
+		if self is None: return True, None, None
 
 		isLeftBST, minLeft, maxLeft = Tree.isBST(self.leftChild)
 		isRightBST, minRight, maxRight = Tree.isBST(self.rightChild)
 
 		isTreeBST = (isLeftBST and isRightBST and 
-			(maxLeft == None or self.key > maxLeft) and 
-			(minRight == None or self.key < minRight))
+			(maxLeft is None or self.key > maxLeft) and 
+			(minRight is None or self.key < minRight))
 
 		minKey = min(Tree.__removeNone(minLeft, self.key, minRight))
 		maxKey = max(Tree.__removeNone(maxLeft, self.key, maxRight))
@@ -82,10 +83,10 @@ class Tree:
 		return isTreeBST, minKey, maxKey
 
 	def __removeNone(*nums):
-		return [x for x in nums if x != None]
+		return [x for x in nums if x is not None]
 
 	def isBalanced(self):
-		if self == None: return True
+		if self is None: return True
 
 		leftHeight = Tree.getHeight(self.leftChild)
 		rightHeight = Tree.getHeight(self.rightChild)
@@ -98,12 +99,12 @@ class Tree:
 		if self.key == newKey:
 			return # No duplicates allowed
 		elif newKey > self.key:
-			if self.rightChild == None:
+			if self.rightChild is None:
 				self.rightChild = Tree(newKey)
 			else:
 				self.rightChild.insert(newKey)
 		else:
-			if self.leftChild == None:
+			if self.leftChild is None:
 				self.leftChild = Tree(newKey)
 			else:
 				self.leftChild.insert(newKey)
@@ -115,7 +116,7 @@ class Tree:
 	
 	def __displayAux(self):
 		# No child
-		if self.rightChild == None and self.leftChild == None:
+		if self.rightChild is None and self.leftChild is None:
 			line = str(self.key)
 			width = len(line)
 			height = 1
@@ -123,7 +124,7 @@ class Tree:
 			return [line], width, height, middle
 
 		# Only left child
-		if self.rightChild == None:
+		if self.rightChild is None:
 			lines, n, p, x = self.leftChild.__displayAux()
 			s = str(self.key)
 			u = len(s)
@@ -133,7 +134,7 @@ class Tree:
 			return [firstLine, secondLine] + shiftedLines, n + u, p + 2, n + u // 2
 
 		# Only right child
-		if self.leftChild == None:
+		if self.leftChild is None:
 			lines, n, p, x = self.rightChild.__displayAux()
 			s = str(self.key)
 			u = len(s)
@@ -161,25 +162,23 @@ class Tree:
 # ---------------------------------------------------------------------------------------------------- #
 
 def makeRandomBinaryTree():
-	file = open("names.txt", "r")
-	names = file.readlines()
-	file.close()
+	with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\peopleNames.txt", "r") as file:
+		names = file.readlines()
 
-	names = [name.replace("\n","") for name in names]
+	names = [name.replace("\n", "") for name in names]
 
 	treeKeys = random.sample(names, 15)
 
-	binaryTree = Tree(treeKeys.pop())
+	binTree = Tree(treeKeys.pop())
 
-	for name in treeKeys:
-		binaryTree.insert(name)
+	for name in treeKeys: binTree.insert(name)
 
-	return binaryTree
+	return binTree
 
-def makeBalancedBST(data, lo = 0, hi = None):
+def makeBalancedBST(data, lo=0, hi=None):
 	data.sort()
 
-	if hi == None:
+	if hi is None:
 		hi = len(data) - 1
 	if lo > hi:
 		return None
@@ -219,6 +218,6 @@ while True:
 	binaryTree.display()
 
 	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
+	if choice and choice[0] == 'X':
 		break
 	print()

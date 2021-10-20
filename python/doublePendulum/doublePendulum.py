@@ -18,7 +18,7 @@ WIDTH = 1300
 HEIGHT = 800
 FPS = 120
 
-a1 = a2 = a1vel = a2vel = 0
+a1vel = a2vel = 0
 positions = []
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -64,10 +64,10 @@ def draw(scene):
 
 	pg.display.flip()
 
-	a1vel += a1acc;
-	a2vel += a2acc;
-	a1 += a1vel;
-	a2 += a2vel;
+	a1vel += a1acc
+	a2vel += a2acc
+	a1 += a1vel
+	a2 += a2vel
 
 	# Damping
 	a1vel *= 0.9999

@@ -1,48 +1,105 @@
-# Perceptron
+# Perceptron demo
 # Author: Sam Barba
-# Created 06/09/2021
+# Created 23/11/2021
 
-LEARNING_RATE = 0.4
-INPUTS = [[0, 0], [0, 1], [1, 0], [1, 1]]
-TARGET = [0, 1, 1, 1] # Learn logical 'OR' function
-weights = [0.2, -0.4]
+import matplotlib.pyplot as plt
+import numpy as np
+from PerceptronClf import PerceptronClf
+import random
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def step(weights, inputs, threshold = 0):
-	x = -threshold
+# Split file data into train/test
+def extractData(data, trainTestRatio=0.5):
+	data = [row.replace("\n", "").split() for row in data]
+	random.shuffle(data)
+	data = np.array(data).astype(float)
 
-	for w, i in zip(weights, inputs):
-		x += w * i
+	x, y = data[:,:-1], data[:,-1].astype(int)
+	# File data is for SVM testing, so convert class -1 to 0
+	y[y == -1] = 0
 
-	return 1 if x > threshold else 0
+	split = int(len(data) * trainTestRatio)
+
+	xTrain, yTrain = x[:split], y[:split]
+	xTest, yTest = x[split:], y[split:]
+
+	return xTrain, yTrain, xTest, yTest
+
+def confusionMatrix(predictions, actual):
+	numClasses = len(np.unique(actual))
+	confMat = np.zeros((numClasses, numClasses)).astype(int)
+
+	for a, p in zip(actual, predictions):
+		confMat[a, p] += 1
+
+	accuracy = np.trace(confMat) / confMat.sum()
+	return confMat, accuracy
+
+def plotMatrix(isTraining, confMat, accuracy):
+	fig, ax = plt.subplots(figsize=(6, 7))
+	ax.matshow(confMat, cmap=plt.cm.Blues, alpha=0.7)
+	ax.xaxis.set_ticks_position("bottom")
+	for i in range(confMat.shape[0]):
+		for j in range(confMat.shape[1]):
+			ax.text(x=j, y=i, s=confMat[i, j], ha="center", va="center")
+	plt.xlabel("Predictions")
+	plt.ylabel("Actual")
+	title = "Training" if isTraining else "Test"
+	plt.title(f"{title} Confusion Matrix\nAccuracy = {accuracy}")
+	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-error = True
-epoch = 0
+# Use SVM testing data
+with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt", "r") as file:
+	data = file.readlines()[1:] # Skip header
 
-print("{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}".format("Epoch", "x1", "x2", "Target Y", "Actual Y", "Error", "w1", "w2"))
-print("-" * 88)
+xTrain, yTrain, xTest, yTest = extractData(data)
 
-while error:
-	error = False
+clf = PerceptronClf()
+clf.fit(xTrain, yTrain)
+clf.train()
 
-	for i in range(len(INPUTS)):
-		s = step(weights, INPUTS[i])
-		errorVal = TARGET[i] - s
+# Plot confusion matrices
 
-		if errorVal != 0:
-			error = True
-			weights = [w + LEARNING_RATE * inp * errorVal for w, inp in zip(weights, INPUTS[i])]
+trainPredictions = clf.predict(xTrain)
+testPredictions = clf.predict(xTest)
+trainConfMat, trainAcc = confusionMatrix(trainPredictions, yTrain)
+testConfMat, testAcc = confusionMatrix(testPredictions, yTest)
 
-		print("{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}{:^11}".format((epoch + 1), INPUTS[i][0], INPUTS[i][1], TARGET[i], s, errorVal, weights[0], weights[1]))
+plotMatrix(True, trainConfMat, trainAcc)
+plotMatrix(False, testConfMat, testAcc)
 
-	epoch += 1
+# Visualise perceptron
 
-print("\nSuccess at epoch", epoch)
-print("Final weights for x,y:", weights)
+xScatter = np.array(list(xTrain) + list(xTest))
+yScatter = np.array(list(yTrain) + list(yTest))
+
+plt.figure(figsize=(8, 8))
+for classLabel in np.unique(yScatter):
+	plt.scatter(*xScatter[yScatter == classLabel].T, alpha=0.7)
+plt.legend(["class 0", "class 1"])
+
+decisionBoundX1 = np.min(xScatter[:,0])
+decisionBoundX2 = np.max(xScatter[:,0])
+decisionBoundY1 = (-clf.weights[0] * decisionBoundX1 - clf.bias) / clf.weights[1]
+decisionBoundY2 = (-clf.weights[0] * decisionBoundX2 - clf.bias) / clf.weights[1]
+
+plt.plot([decisionBoundX1, decisionBoundX2], [decisionBoundY1, decisionBoundY2], color="black", ls="--")
+
+yMin = np.min(xScatter[:,1])
+yMax = np.max(xScatter[:,1])
+plt.ylim([yMin - 0.5, yMax + 0.5])
+
+w = ", ".join(str(round(we, 3)) for we in clf.weights)
+b = round(clf.bias, 3)
+m = round(-clf.weights[0] / clf.weights[1], 3)
+c = round(-clf.bias / clf.weights[1], 3)
+
+plt.title(f"Weights: {w}\nBias: {b}\nm: {m} | c: {c}")
+plt.show()

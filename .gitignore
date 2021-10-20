@@ -8,13 +8,18 @@
 !*.css
 !*.html
 !*.java
+!*.jpg
 !*.jsp
+!*.png
 !*.py
-!*.xml
 !*.md
 
 # ...even if they're in subdirectories
 !*/
 
+# PyCharm
+.idea/
+
 programoutputs/
 bin/
+!datasets/

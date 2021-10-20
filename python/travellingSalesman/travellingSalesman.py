@@ -9,7 +9,7 @@ import random
 GENERATIONS = 20
 POP_SIZE = 200
 MUTATION_RATE = 0.2
-ELITISM_RATE = 0.05 # Proportion of fittest individuals to avoid mutation
+ELITISM_RATE = 0.05 # Proportion of the fittest individuals to avoid mutation
 CROSSOVER_RATE = 0.8
 TOURNAMENT_SIZE = 10
 
@@ -35,7 +35,8 @@ class Vertex:
 		self.y = y
 
 	def euclideanDist(self, other):
-		return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
+		# Ignore square root for faster execution
+		return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -87,7 +88,7 @@ def crossover(parents):
 
 def mutation(offspring):
 	mutants = deepcopy(offspring)
-	mutants.sort(key = lambda ind: ind.fitness)
+	mutants.sort(key=lambda ind: ind.fitness)
 
 	for i in range(round(ELITISM_RATE * POP_SIZE), POP_SIZE):
 		if random.random() > MUTATION_RATE: continue
@@ -97,70 +98,66 @@ def mutation(offspring):
 	return mutants
 
 def findFittest(population):
-	return min(population, key = lambda ind: ind.fitness)
+	return min(population, key=lambda ind: ind.fitness)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	numV = int(input("How many vertices? "))
-	print()
+numV = int(input("How many vertices? "))
+print()
 
-	# Generate random vertices
+# Generate random vertices
 
-	allCoords = [(x, y) for x in range(100) for y in range(100)]
-	coords = random.sample(allCoords, numV)
-	vertices = [Vertex(i + 1, *coords[i]) for i in range(numV)]
+allCoords = [(x, y) for x in range(100) for y in range(100)]
+coords = random.sample(allCoords, numV)
+vertices = [Vertex(i + 1, *coords[i]) for i in range(numV)]
 
-	print("\n".join("{} ({},{})".format(v.label, v.x, v.y) for v in vertices))
+print("\n".join("{} ({},{})".format(v.label, v.x, v.y) for v in vertices))
 
-	# Initialise population and perform GA
-	population = initialisePopulation(vertices)
+# Initialise population and perform GA
+population = initialisePopulation(vertices)
 
-	bestPath = population[0]
-	meanFitnesses, bestFitnesses = [], []
+bestPath = population[0]
+meanFitnesses, bestFitnesses = [], []
 
-	for i in range(GENERATIONS):
-		evaluate(*population)
-		parents = selection(population)
-		offspring = crossover(parents)
-		mutants = mutation(offspring)
-		population = deepcopy(mutants)
+for i in range(GENERATIONS):
+	evaluate(*population)
+	parents = selection(population)
+	offspring = crossover(parents)
+	mutants = mutation(offspring)
+	population = deepcopy(mutants)
 
-		bestPopPath = findFittest(population)
-		if bestPopPath.fitness < bestPath.fitness:
-			bestPath = bestPopPath
+	bestPopPath = findFittest(population)
+	if bestPopPath.fitness < bestPath.fitness:
+		bestPath = bestPopPath
 
-		meanFitness = sum(ind.fitness for ind in population) / POP_SIZE
-		meanFitnesses.append(meanFitness)
-		bestFitnesses.append(bestPopPath.fitness)
+	meanFitness = sum(ind.fitness for ind in population) / POP_SIZE
+	meanFitnesses.append(meanFitness)
+	bestFitnesses.append(bestPopPath.fitness)
 
-	print("\n" + str(bestPath))
+print("\n" + str(bestPath))
 
-	# Plot evolution graph
+# Plot evolution graph
 
-	gens = [i + 1 for i in range(GENERATIONS)]
-	plt.plot(gens, meanFitnesses, color = "#0080ff", linewidth = 1)
-	plt.plot(gens, bestFitnesses, color = "#008000", linewidth = 1)
-	plt.annotate("Mean", (gens[:-2], meanFitnesses[:-2]))
-	plt.annotate("Best", (gens[:-2], bestFitnesses[:-2]))
-	plt.xlabel("Generation")
-	plt.ylabel("Fitness")
-	plt.show()
+gens = [i + 1 for i in range(GENERATIONS)]
+plt.figure(figsize=(8, 6))
+plt.plot(gens, meanFitnesses, color="#0080ff", linewidth=1)
+plt.plot(gens, bestFitnesses, color="#008000", linewidth=1)
+plt.annotate("Mean", (gens[-2], meanFitnesses[-2]))
+plt.annotate("Best", (gens[-2], bestFitnesses[-2]))
+plt.xlabel("Generation")
+plt.ylabel("Fitness")
+plt.show()
 
-	# Plot shortest path
+# Plot the shortest path
 
-	x = [v.x for v in bestPath.sequence]
-	y = [v.y for v in bestPath.sequence]
+x = [v.x for v in bestPath.sequence]
+y = [v.y for v in bestPath.sequence]
 
-	plt.scatter(x, y, color = "black", s = 10, zorder = 2)
-	for v in bestPath.sequence:
-		plt.annotate(v.label, (v.x, v.y))
-	plt.plot(x, y, color = "red", linewidth = 1, zorder = 1)
-	plt.show()
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+plt.figure(figsize=(8, 8))
+plt.scatter(x, y, color="black", s=10, zorder=2)
+for v in bestPath.sequence:
+	plt.annotate(v.label, (v.x, v.y))
+plt.plot(x, y, color="red", linewidth=1, zorder=1)
+plt.show()

@@ -4,53 +4,25 @@
 
 import datetime
 
-CALENDAR_PATH = "C:\\Users\\Sam Barba\\Desktop\\Programs\\programoutputs\\calendar.csv"
-DAYS_OF_WEEK = {0: "Monday",
-	1: "Tuesday",
-	2: "Wednesday",
-	3: "Thursday",
-	4: "Friday",
-	5: "Saturday",
-	6: "Sunday"}
-MONTHS = {0: "January",
-	1: "February",
-	2: "March",
-	3: "April",
-	4: "May",
-	5: "June",
-	6: "July",
-	7: "August",
-	8: "September",
-	9: "October",
-	10: "November",
-	11: "December"}
+DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 # ---------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------  CLASSES  -------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 class Calendar:
-	# No need for adding and removing methods, as inbuilt can be used
-	# i.e. self.events.append(event)
-	#      self.events.remove(event)
-	#      self.events.clear()
-	
 	def __init__(self, events):
 		self.events = events
 
 	def __repr__(self):
 		if not self.events: return "No events"
 
-		cal = []
+		return "\n".join(str(e) for e in self.events)
 
-		for i in range(len(self.events)):
-			event = str(i + 1) + ". " + str(self.events[i])
-			cal.append(event)
-
-		return "\n".join(cal)
-
-	def sortEvents(self): # Sort events chronologically
-		self.events.sort(key = lambda ev: ev.timeOld)
+	# Sort events chronologically
+	def sortEvents(self):
+		self.events.sort(key=lambda ev: ev.timeOld)
 
 	def removePastEvents(self):
 		currentDateTimeOld = daysSince112000(currentDate())
@@ -71,10 +43,12 @@ class Event:
 		dayDate = DAYS_OF_WEEK[(self.timeOld - 2) % 7] + " " + str(d) + ordinal(d) + " " + MONTHS[m - 1] + " " + str(y)
 		daysUntil = daysSince112000(self.date) - daysSince112000(currentDate())
 
-		if daysUntil > 0:
-			return "{}: {} (in {} days)".format(dayDate, self.title, daysUntil)
-		elif daysUntil == 0:
+		if daysUntil == 0:
 			return "{}: {} (today)".format(dayDate, self.title)
+		elif daysUntil == 1:
+			return "{}: {} (tomorrow)".format(dayDate, self.title)
+		elif daysUntil > 1:
+			return "{}: {} (in {} days)".format(dayDate, self.title, daysUntil)
 		else:
 			return "{}: {} ({} days ago)".format(dayDate, self.title, -daysUntil)
 
@@ -84,7 +58,7 @@ class Event:
 
 def intValid(userIn):
 	try:
-		n = int(userIn)
+		int(userIn)
 		return True
 	except:
 		return False
@@ -92,18 +66,22 @@ def intValid(userIn):
 def dateValid(date):
 	if len(date) != len("DD/MM/YYYY"): return False
 
-	for i in range(len(date)):
-		a = ord(date[i]) # ASCII value of current char
+	for idx, c in enumerate(date):
+		asciiC = ord(c)
 
-		if i in [2, 5] and a != 47:
+		if idx in [2, 5] and asciiC != 47:
 			return False # 3rd and 6th chars should be '/'
-		elif i not in [2, 5] and (a < 48 or a > 57):
+		elif idx not in [2, 5] and (asciiC < 48 or asciiC > 57):
 			return False # Rest should be numeric
 
 		d, m, y = map(int, date.split("/"))
 
-		return (y >= 2000 and 1 <= m <= 12 and 1 <= d <= daysInMonth(m, y)
-			and daysSince112000(date) > daysSince112000(currentDate()))
+		conditions = [y >= 2000,
+			1 <= m <= 12,
+			1 <= d <= daysInMonth(m, y),
+			daysSince112000(date) > daysSince112000(currentDate())]
+
+		return all(conditions)
 
 def daysInMonth(m, y):
 	if m in [4, 6, 9, 11]:
@@ -154,30 +132,27 @@ def ordinal(n):
 	else: return "th"
 
 def readFile():
-	file = open(CALENDAR_PATH, "r")
-	rows = file.readlines()
-	file.close()
+	with open("calendar.txt", "r") as file:
+		data = file.readlines()[1:] # Skip header
 
 	# Convert to grid, and skip header
-	rows = [line.split(",") for line in rows[1:]]
+	data = [row.split(",") for row in data]
 
-	# Convert each line to an event
-	return [Event(date, title, int(timeOld)) for date, title, timeOld in rows]
+	# Convert each row to an event
+	return [Event(date, title, int(timeOld)) for date, title, timeOld in data]
 
 def writeFile(calendar):
-	file = open(CALENDAR_PATH, "w")
-	file.write("Date,Title,Days since 01/01/2000")
+	with open("calendar.txt", "w") as file:
+		file.write("Date,Title,Days since 01/01/2000")
 
-	for ev in calendar.events:
-		file.write("\n{},{},{}".format(ev.date, ev.title, ev.timeOld))
-
-	file.close()
+		for ev in calendar.events:
+			file.write("\n{},{},{}".format(ev.date, ev.title, ev.timeOld))
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-print("Reading calendar CSV file...\n")
+print("Reading calendar txt file...\n")
 calendar = Calendar(readFile())
 print(len(calendar.events), "events\n")
 
@@ -209,7 +184,7 @@ while True:
 
 			writeFile(calendar)
 
-			print("\nEvent added:\n" + str(newEvent))
+			print("\nEvent added!")
 
 	elif choice == "D": # Display calendar
 		print(str(calendar))
@@ -253,7 +228,7 @@ while True:
 					if choice == "P": calendar.removePastEvents()
 					else: calendar.events.clear()
 
-					print("\n" + quant.capitalize() + " events removed")
+					print(f"\n{quant.capitalize()} events removed")
 
 			writeFile(calendar)
 

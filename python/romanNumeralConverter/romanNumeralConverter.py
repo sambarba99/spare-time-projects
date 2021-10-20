@@ -42,10 +42,10 @@ def intToNumerals(n):
 def numeralsToInt(numerals):
 	n = 0
 
-	for i in range(len(numerals)):
-		val = SINGLE_NUMERAL_VALS[numerals[i]]
+	for idx, item in enumerate(numerals):
+		val = SINGLE_NUMERAL_VALS[item]
 
-		if i + 1 < len(numerals) and SINGLE_NUMERAL_VALS[numerals[i + 1]] > val:
+		if idx + 1 < len(numerals) and SINGLE_NUMERAL_VALS[numerals[idx + 1]] > val:
 			n -= val
 		else:
 			n += val
@@ -56,18 +56,12 @@ def numeralsToInt(numerals):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	choice = int(input("Enter 1 to convert to numerals or 2 to convert from numerals: "))
-	print()
+choice = int(input("Enter 1 to convert to numerals or 2 to convert from numerals: "))
+print()
 
-	if choice == 1:
-		n = int(input("Enter the number to convert: "))
-		print("\nResult:", intToNumerals(n))
-	elif choice == 2:
-		numerals = input("Enter the numerals to convert: ").upper()
-		print("\nResult:", numeralsToInt(numerals))
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+if choice == 1:
+	n = int(input("Enter the number to convert: "))
+	print("\nResult:", intToNumerals(n))
+else:
+	numerals = input("Enter the numerals to convert: ").upper()
+	print("\nResult:", numeralsToInt(numerals))

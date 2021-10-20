@@ -3,7 +3,6 @@
 # Created 09/01/2019
 
 import os
-import shutil
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -26,7 +25,7 @@ def fileWalk(path):
 			filePath = folderName + "\\" + str(f)
 			try:
 				pathSize += os.path.getsize(filePath)
-			except:
+			except OSError:
 				print("An exception occurred")
 		print()
 
@@ -34,7 +33,7 @@ def fileWalk(path):
 	print("\nPath:", path)
 	print("Num. files in path:", n)
 
-	suffixArr = ["bytes","KB","MB","GB"]
+	suffixArr = ["bytes", "KB", "MB", "GB"]
 	pos = 0
 	while pathSize > 1024 and pos < 3:
 		pathSize /= 1024
@@ -54,12 +53,6 @@ def fileWalk(path):
 # shutil.move(sourcePath, destinationPath) = moves sourcePath to destinationPath
 # shutil.rmtree(path) = deletes all files at path
 
-pathToExplore = "C:\\Users\\Sam Barba\\Desktop"
+pathToExplore = "C:\\Users\\Sam Barba\\Desktop\\Programs\\Python"
 
 fileWalk(pathToExplore)
-
-#N = 2**10000 #fact(991)
-# writing a big number to a text file
-#bigNumFile = open("C:\\Users\\Sam Barba\\Desktop\\bigNum.txt", "w")
-#bigNumFile.write(str(N))
-#bigNumFile.close()

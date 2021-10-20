@@ -32,20 +32,14 @@ def toBaseFromDecimal(decNum, toBase):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	numStr = input("Enter a number: ").upper()
-	base = int(input("Enter its base: "))
-	print()
+inputNum = input("Enter a number: ").upper()
+base = int(input("Enter its base: "))
+print()
 
-	decNum = int(numStr) if base == 10 else toDecimalFromBase(numStr, base)
+inputNumToDec = int(inputNum) if base == 10 else toDecimalFromBase(inputNum, base)
 
-	for i in range(2, 17):
-		if i == base: continue
+for i in range(2, 17):
+	if i == base: continue
 
-		numInBaseI = toBaseFromDecimal(decNum, i)
-		print("{} from base {} to base {}: {}".format(numStr, base, i, numInBaseI))
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+	numInBaseI = toBaseFromDecimal(inputNumToDec, i)
+	print(f"{inputNum} from base {base} to base {i}: {numInBaseI}")

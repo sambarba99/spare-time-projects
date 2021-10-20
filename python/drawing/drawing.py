@@ -2,9 +2,8 @@
 # Author: Sam Barba
 # Created 29/10/2018
 
-import math
 import random
-from time import *
+from time import sleep
 import turtle
 
 t = turtle.Turtle()
@@ -24,9 +23,9 @@ def reset():
 	t.clear()
 	s.colormode(255)
 	s.tracer(10)
-	s.setup(width = 1.0, height = 1.0)
+	s.setup(width=1.0, height=1.0)
 
-def cantor(x = -600, y = 150, l = 1200):
+def cantor(x=-600.0, y=150, l=1200.0):
 	if l < 1: return
 
 	t.pu()
@@ -38,7 +37,7 @@ def cantor(x = -600, y = 150, l = 1200):
 	cantor(x, y - 40, l / 3)
 	cantor(x + l * 2 / 3, y - 40, l / 3)
 
-def dragon(lvl = 14, size = 3, h = 45):
+def dragon(lvl=14, size=3, h=45):
 	if lvl:
 		t.rt(h)
 		dragon(lvl - 1, size, 45)
@@ -49,7 +48,7 @@ def dragon(lvl = 14, size = 3, h = 45):
 		t.fd(size)
 
 # Sierpinski triangle (t.rt(90) before)
-def sierp(size = 400, lvl = 6):
+def sierp(size=400.0, lvl=6):
 	if lvl == 0:
 		for i in range(3):
 			t.fd(size)
@@ -70,7 +69,7 @@ def sierp(size = 400, lvl = 6):
 		t.end_fill()
 
 # Koch snowflake (t.goto(-600, 0) and t.rt(90) before)
-def koch(size = 1000, lvl = 6):
+def koch(size=1000.0, lvl=6):
 	if lvl > 0:
 		for i in [60, -120, 60, 0]:
 			koch(size / 3, lvl - 1)
@@ -78,7 +77,7 @@ def koch(size = 1000, lvl = 6):
 	else:
 		t.fd(size)
 
-def tSquare(x = 0, y = 0, size = 400):
+def tSquare(x=0.0, y=0.0, size=400.0):
 	if size < 4: return
 
 	t.pu()
@@ -97,7 +96,7 @@ def tSquare(x = 0, y = 0, size = 400):
 	tSquare(x + size / 2, y + size / 2, size / 2)
 
 # Fractal tree (angle = 20/30/45/90)
-def tree(angle, size = 60):
+def tree(angle, size=60):
 	if size > 5:
 		t.fd(size)
 		t.rt(angle)
@@ -129,7 +128,7 @@ def drawSquare(size, angle):
 		t.lt(90)
 	t.end_fill()
 
-def hilbert(size = 6, level = 6, angle = 90):
+def hilbert(size=6, level=6, angle=90):
 	if level == 0: return
 
 	t.rt(angle)
@@ -169,9 +168,9 @@ def randWalk(bound, step):
 			break
 
 	t.pd()
-	for i in range(len(path)):
-		t.goto(path[i])
-		c = round(mapRange(i, 0, len(path), 30, 255))
+	for idx, node in enumerate(path):
+		t.goto(node)
+		c = round(mapRange(idx, 0, len(path), 30, 255))
 		t.color((c, c, c))
 
 def mapRange(x, fromLo, fromHi, toLo, toHi):
@@ -189,9 +188,9 @@ reset()
 #reset()
 #size, angle = 300, 0
 #while size > 10:
-#    drawSquare(size, angle)
-#    size -= 0.2
-#    angle += 3
+#	drawSquare(size, angle)
+#	size -= 0.2
+#	angle += 3
 #sleep(2)
 
 #reset()
@@ -207,4 +206,4 @@ sleep(2)
 
 randWalk(400, 2)
 
-input("Press Enter to exit")
+input("Press any key to exit")

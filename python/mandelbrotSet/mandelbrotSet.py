@@ -64,7 +64,7 @@ def scaleDrawing(eventButton):
 		yOffset *= SCALE_MULT_FACTOR
 		afterZoomX = xAxis * SCALE_MULT_FACTOR
 		afterZoomY = yAxis * SCALE_MULT_FACTOR
-	elif eventButton == 5: # Scroll down
+	else: # eventButton == 5, so scrolling down
 		scale /= SCALE_MULT_FACTOR
 		xOffset /= SCALE_MULT_FACTOR
 		yOffset /= SCALE_MULT_FACTOR

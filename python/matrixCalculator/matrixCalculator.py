@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 03/09/2021
 
-from matrix import *
+from matrix import Matrix
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -47,7 +47,7 @@ while True:
 	elif choice == "D":
 		rowsA, colsA = map(int, input("Input the number of rows & columns for matrix A: ").split())
 		rowsB = colsB = colsA
-		print("B is {} x {}".format(rowsB, colsB))
+		print(f"B is {rowsB} x {colsB}")
 
 		matAline = input("\nInput matrix A ({} entries): ".format(rowsA * colsA))
 		matBline = input("Input matrix B ({} entries): ".format(rowsB * colsB))
@@ -96,7 +96,7 @@ while True:
 		choice = int(input("Enter 1 for translation, 2 for enlargement, 3 for reflection or 4 for rotation: "))
 
 		numV = int(input("\nHow many vertices? "))
-		coords = [None] * numV
+		coords = [[0] * 2] * numV
 
 		for i in range(numV):
 			coords[i] = list(map(float, input("Input x and y coords {} / {}: ".format(i + 1, numV)).split()))
@@ -104,16 +104,16 @@ while True:
 		coords = Matrix(coords)
 
 		if choice == 1:
-			dx, dy = map(float, input("\Input the change in x and change in y: ").split())
+			dx, dy = map(float, input("Input the change in x and change in y: ").split())
 			print("\nResultant coords:\n" + str(coords.translate(dx, dy)))
 		elif choice == 2:
-			k, x, y = map(float, input("\Input the enlargement factor and x, y: ").split())
+			k, x, y = map(float, input("Input the enlargement factor and x, y: ").split())
 			print("\nResultant coords:\n" + str(coords.enlarge(k, x, y)))
 		elif choice == 3:
-			m, c = map(float, input("\Input m, c for reflection line y = mx + c: ").split())
+			m, c = map(float, input("Input m, c for reflection line y = mx + c: ").split())
 			print("\nResultant coords:\n" + str(coords.reflect(m, c)))
 		elif choice == 4:
-			a, x, y = map(float, input("\Input the clockwise rotation angle (°) and x, y: ").split())
+			a, x, y = map(float, input("Input the clockwise rotation angle (°) and x, y: ").split())
 			print("\nResultant coords:\n" + str(coords.rotate(a, x, y)))
 
 	elif choice == "X":

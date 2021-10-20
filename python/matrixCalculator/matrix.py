@@ -5,18 +5,18 @@
 import math
 
 class Matrix:
-	def __init__(self, values, rows = None, cols = None):
-		self.rows = rows if rows != None else len(values)
-		self.cols = cols if cols != None else len(values[0])
+	def __init__(self, values, rows=None, cols=None):
+		self.rows = rows if rows is not None else len(values)
+		self.cols = cols if cols is not None else len(values[0])
 		self.grid = values if isinstance(values, list) else self.__createGridFromLine(values)
 
 	def __createGridFromLine(self, values):
 		floatList = list(map(float, values.split()))
-		grid = [[0] * self.cols for i in range(self.rows)]
+		grid = [[0] * self.cols for _ in range(self.rows)]
 
-		for i in range(len(floatList)):
-			row, col = i // self.cols, i % self.cols
-			grid[row][col] = floatList[i]
+		for idx, item in enumerate(floatList):
+			row, col = idx // self.cols, idx % self.cols
+			grid[row][col] = item
 
 		return grid
 
@@ -29,7 +29,7 @@ class Matrix:
 		return Matrix(resultGrid)
 
 	def mult(self, other):
-		resultGrid = [[0] * other.cols for i in range(self.rows)]
+		resultGrid = [[0] * other.cols for _ in range(self.rows)]
 
 		for i in range(self.rows):
 			for j in range(other.cols):
@@ -45,7 +45,7 @@ class Matrix:
 			return self.grid[0][0] * self.grid[1][1] - self.grid[0][1] * self.grid[1][0]
 
 		det = 0
-		subGrid = [[0] * (rows - 1) for i in range(rows - 1)]
+		subGrid = [[0] * (rows - 1) for _ in range(rows - 1)]
 
 		for i in range(rows):
 			for j in range(rows):
@@ -70,7 +70,7 @@ class Matrix:
 		return Matrix(transposedComatrixGrid)
 
 	def comatrix(self):
-		resultGrid = [[0] * self.cols for i in range(self.rows)]
+		resultGrid = [[0] * self.cols for _ in range(self.rows)]
 
 		for i in range(self.rows):
 			for j in range(self.cols):
@@ -81,7 +81,7 @@ class Matrix:
 		return Matrix(resultGrid)
 
 	def __removeRowAndCol(self, row, col):
-		subGrid = [[0]* (self.cols - 1) for i in range(self.rows - 1)]
+		subGrid = [[0] * (self.cols - 1) for _ in range(self.rows - 1)]
 		subRow = subCol = 0
 
 		for i in range(self.rows):
@@ -98,14 +98,15 @@ class Matrix:
 		return Matrix(subGrid)
 
 	def power(self, p):
+		r = Matrix(self.grid)
 		if p < 0:
-			self = self.inverse()
+			r = r.inverse()
 			p = -p
-	
-		result = Matrix(self.grid)
+
+		result = Matrix(r.grid)
 
 		while p > 1:
-			result = result.mult(self)
+			result = result.mult(r)
 			p -= 1
 
 		return result
@@ -113,7 +114,7 @@ class Matrix:
 	def rref(self):
 		rrefGrid = self.grid
 
-		pivotRow = pivotCol = 0
+		pivotRow, pivotCol = 0, 0
 
 		for row in range(self.rows):
 			# 1. Find left-most nonzero entry (pivot)
@@ -161,38 +162,45 @@ class Matrix:
 
 		return Matrix(resultGrid)
 
-	def enlarge(self, k, x, y): # enlarge by factor k about (x, y)
+	# Enlarge by factor k about (x, y)
+	def enlarge(self, k, x, y):
+		t = Matrix(self.grid)
 		if x != 0 or y != 0:
-			self = self.translate(-x, -y) # in order to enlarge from origin (0, 0)
+			t = t.translate(-x, -y) # In order to enlarge from origin (0, 0)
 
 		enlargeMatrix = Matrix([[k, 0], [0, k]])
-		result = self.mult(enlargeMatrix)
-	
-		# undo first translation if necessary
+		result = t.mult(enlargeMatrix)
+
+		# Undo first translation if necessary
 		return result.translate(x, y) if x != 0 or y != 0 else result
 
-	def reflect(self, m, c): # reflect across line y = mx + c
+	# Reflect across line y = mx + c
+	def reflect(self, m, c):
+		t = Matrix(self.grid)
 		if c != 0:
-			self = self.translate(0, -c) # reflect in y = mx
+			t = t.translate(0, -c) # Reflect in y = mx
+
 
 		r = 1 / (1 + m ** 2)
 		reflectGrid = [[1 - m ** 2, 2 * m], [2 * m, m ** 2 - 1]]
 		reflectMatrix = Matrix([[x * r for x in row] for row in reflectGrid])
 
-		result = self.mult(reflectMatrix)
+		result = t.mult(reflectMatrix)
 
 		return result.translate(0, c) if c != 0 else result
 
-	def rotate(self, a, x, y): # rotate by a° clockwise about (x, y)
+	# Rotate by a° clockwise about (x, y)
+	def rotate(self, a, x, y):
+		t = Matrix(self.grid)
 		if x != 0 or y != 0:
-			self = self.translate(-x, -y) # enlarge from origin (0, 0)
+			t = t.translate(-x, -y) # Enlarge from origin (0, 0)
 
 		a = math.radians(a)
 		rotateMatrix = Matrix([[math.cos(a), -math.sin(a)], [math.sin(a), math.cos(a)]])
 
-		result = self.mult(rotateMatrix)
+		result = t.mult(rotateMatrix)
 
-		# undo first translation if necessary
+		# Undo first translation if necessary
 		return result.translate(x, y) if x != 0 or y != 0 else result
 
 	def __repr__(self):

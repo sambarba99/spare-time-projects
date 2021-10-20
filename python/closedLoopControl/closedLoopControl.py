@@ -18,7 +18,7 @@ yLim = (plantGain * controllerGain * refInput) / (1 + plantGain * controllerGain
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-xPlot = [i for i in range(totalTime)]
+xPlot = list(range(totalTime))
 refPlot = [refInput] * totalTime
 yLimPlot = [yLim] * totalTime
 yPlot = []
@@ -30,11 +30,12 @@ for i in range(totalTime):
 
 	yPlot.append(y)
 
-plt.plot(xPlot, yPlot, color = "#0080ff")
-plt.plot(xPlot, refPlot, color = "#008000")
-plt.plot(xPlot, yLimPlot, "--", color = "#ff8000")
+plt.figure(figsize=(8, 6))
+plt.plot(xPlot, yPlot, color="#0080ff")
+plt.plot(xPlot, refPlot, color="#008000")
+plt.plot(xPlot, yLimPlot, color="#ff8000", ls="--")
 plt.legend(["y(t)", "ref", "yLim"])
 plt.xlabel("t")
 plt.ylabel("y(t)")
-plt.title("Closed-Loop Control Demo\nrefInput={}  cGain={}  pGain={}  sGain={}  delay={}".format(refInput, controllerGain, plantGain, sensorGain, timeDelay))
+plt.title(f"Closed-Loop Control Demo\nrefInput={refInput}  cGain={controllerGain}  pGain={plantGain}  sGain={sensorGain}  delay={timeDelay}")
 plt.show()

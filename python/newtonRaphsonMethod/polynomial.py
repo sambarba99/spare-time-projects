@@ -2,29 +2,39 @@
 # Author: Sam Barba
 # Created 14/10/2021
 
+import random
+
 class Polynomial:
 	def __init__(self, coefficients):
 		# Coefficients are in the form a_n, a_(n-1) ... a_0
 		self.coefficients = coefficients
 
 	# Approximate solution of f(x) = 0 via Newton-Raphson method
-	def findRoot(self, x0, tolerance = 10 ** -9, maxIter = 100000):
+	def findRoot(self, convergeThreshold=10 ** -9, maxIters=10 ** 5):
+		x0 = round(random.random(), 9) # Initial guess
+
 		df = self.derivative()
 		xn = x0
 		fxn = self(xn)
-		iter = 0
 
-		while abs(fxn) > tolerance and iter < maxIter:
+		i = 0
+		for _ in range(maxIters):
 			dfxn = df(xn)
 			if dfxn == 0:
 				print("\nZero derivative. No solution found - maybe try another initial guess?")
 				return None
 			xn = xn - fxn / dfxn
 			fxn = self(xn)
-			iter += 1
 
-		print("\nFound root after {} iterations (initial guess = {})".format(iter, x0))
-		return xn
+			if abs(fxn) < convergeThreshold:
+				break
+			i += 1
+
+		if abs(fxn) >= convergeThreshold:
+			print(f"\nNo solution found within {maxIters} iterations")
+			return None
+
+		return round(xn, 9), i + 1, x0
 
 	def derivative(self):
 		derivedCoefficients = []
@@ -44,19 +54,18 @@ class Polynomial:
 			if abs(c) == 1 and i < degree:
 				result += (" +" if c > 0 else " -")
 				if i > 0: result += " "
-				result += Polynomial.__xExpr(degree - i)
+				result += self.__xExpr(degree - i)
 			elif c != 0:
-				# If c is int
 				if c % 1 == 0: c = int(c)
 
 				if c > 0: result += " + "
 				else: result += " -" if i == 0 else " - "
 
-				result += str(abs(c)) + Polynomial.__xExpr(degree - i)
+				result += str(abs(c)) + self.__xExpr(degree - i)
 
 		return result.lstrip(" + ") # Remove leading " + "
 
-	def __xExpr(degree):
+	def __xExpr(self, degree):
 		if degree == 0: return ""
 		if degree == 1: return "x"
 		return "x^" + str(degree)

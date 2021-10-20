@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 20/09/2021
 
-from daedalus import *
+from daedalus import Daedalus
 import pygame as pg
 from time import sleep
 
@@ -18,7 +18,7 @@ def aStar(maze, startVertex, targetVertex):
 	openSet, closedSet = [startVertex], []
 
 	while openSet:
-		cheapestVertex = min(openSet, key = lambda v: (v.getFcost(), v.hCost))
+		cheapestVertex = min(openSet, key=lambda v: (v.getFcost(), v.hCost))
 
 		if cheapestVertex == targetVertex:
 			return retracePath(targetVertex, startVertex)
@@ -51,7 +51,7 @@ def dijkstra(maze, startVertex, targetVertex):
 	startVertex.cost = 0
 
 	while unvisited:
-		cheapestVertex = min(unvisited, key = lambda v: v.cost)
+		cheapestVertex = min(unvisited, key=lambda v: v.cost)
 
 		neighbours = cheapestVertex.getNeighbours(maze, False)
 		for n in neighbours:
@@ -76,7 +76,7 @@ def retracePath(targetVertex, startVertex):
 
 	return path[::-1]
 
-def draw(scene, maze, path = None):
+def draw(scene, maze, path=None):
 	for x in range(COLS):
 		for y in range(ROWS):
 			c = (0, 0, 0) if maze[x][y].isWall else (80, 80, 80)
@@ -85,7 +85,7 @@ def draw(scene, maze, path = None):
 
 	pg.display.flip()
 	
-	if path == None: return
+	if path is None: return
 
 	sleep(1)
 	for v in path:

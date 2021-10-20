@@ -18,7 +18,7 @@ def permutations(n, charSet, results):
 			else:
 				charSet[0], charSet[n - 1] = charSet[n - 1], charSet[0]
 
-def permutationsWithRepetitionLengthK(charSet, k, permutationRepetitionResults, prefix = ""):
+def permutationsWithRepetitionLengthK(charSet, k, permutationRepetitionResults, prefix=""):
 	if k == 0:
 		permutationRepetitionResults.append(prefix)
 	else:
@@ -30,20 +30,14 @@ def permutationsWithRepetitionLengthK(charSet, k, permutationRepetitionResults, 
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	charSet = input("Enter a word: ").upper()
+charSet = input("Enter a word: ").upper()
 
-	permutationResults, permutationRepetitionResults = [], []
-	permutations(len(charSet), list(charSet), permutationResults)
-	permutationsWithRepetitionLengthK(list(set(charSet)), len(charSet), permutationRepetitionResults)
+permutationResults, permutationRepetitionResults = [], []
+permutations(len(charSet), list(charSet), permutationResults)
+permutationsWithRepetitionLengthK(list(set(charSet)), len(charSet), permutationRepetitionResults)
 
-	permutationResults = sorted(list(set(permutationResults)))
-	permutationRepetitionResults.sort()
+permutationResults = sorted(list(set(permutationResults)))
+permutationRepetitionResults.sort()
 
-	print("\n{} unique permutations (no repetition) of '{}':\n{}".format(len(permutationResults), charSet, permutationResults))
-	print("\n{} permutations (with repetition) of '{}':\n{}".format(len(permutationRepetitionResults), charSet, permutationRepetitionResults))
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+print(f"\n{len(permutationResults)} unique permutations (no repetition) of '{charSet}':\n{permutationResults}")
+print(f"\n{len(permutationRepetitionResults)} permutations (with repetition) of '{charSet}':\n{permutationRepetitionResults}")

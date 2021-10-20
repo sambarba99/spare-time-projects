@@ -25,7 +25,8 @@ class Vertex:
 		self.yVel = yVel
 
 	def euclideanDist(self, other):
-		return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
+		# Ignore square root for faster execution
+		return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -44,7 +45,7 @@ def mst(graph):
 		nearestOut = outTree[0]
 		minDist = nearestIn.euclideanDist(nearestOut)
 
-		# Find nearest outside vertex to tree
+		# Find the nearest outside vertex to tree
 		for vIn in inTree:
 			for vOut in outTree:
 				dist = vIn.euclideanDist(vOut)
@@ -73,7 +74,7 @@ def drawMST(scene, graph):
 		pg.draw.line(scene, (220, 220, 220), start, end)
 
 	for v in graph:
-		pg.draw.circle(scene, ((230, 20, 20)), (v.x, v.y), 5)
+		pg.draw.circle(scene, (230, 20, 20), (v.x, v.y), 5)
 
 	pg.display.flip()
 

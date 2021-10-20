@@ -6,28 +6,20 @@
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(n, steps, t1 = 1, t2 = 2, t3 = 3):
+def solve(n, steps, t1=1, t2=2, t3=3):
 	if n > 0:
 		solve(n - 1, steps, t1, t3, t2)
-		steps.append("{}: Move disc from {} to {}".format(len(steps) + 1, t1, t3))
+		steps.append(f"Step {len(steps) + 1}: Move disc from {t1} to {t3}")
 		solve(n - 1, steps, t2, t1, t3)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	n = int(input("How many discs? "))
-	print()
+n = int(input("How many discs? "))
+print()
 
-	steps = []
-	solve(n, steps)
+steps = []
+solve(n, steps)
 
-	for s in steps:
-		print(s)
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+print(*steps, sep="\n")

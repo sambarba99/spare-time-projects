@@ -59,14 +59,8 @@ def evaluateRPN(rpnStr):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	rpnStr = infixToRPN(input("Enter an infix expression: "))
+rpnStr = infixToRPN(input("Enter an infix expression: "))
 
-	print("\nIn RPN:", rpnStr, "\n")
+print("\nIn RPN:", rpnStr, "\n")
 
-	evaluateRPN(rpnStr)
-
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if len(choice) > 0 and choice[0] == 'X':
-		break
-	print()
+evaluateRPN(rpnStr)
