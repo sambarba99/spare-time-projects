@@ -210,7 +210,7 @@ def calculateMarginals(known, msgOrder):
 with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt", "r") as file:
 	data = file.readlines()[1:] # Skip header
 
-data = [row.replace("\n", "").split() for row in data]
+data = [row.strip("\n").split() for row in data]
 data = np.array(data).astype(int)
 
 print("Data: {} exemplars, {} features".format(*data.shape))

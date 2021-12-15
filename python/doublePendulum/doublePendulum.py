@@ -4,7 +4,7 @@
 
 # Press R to reset
 
-import math
+from math import pi, sin, cos
 import pygame as pg
 import random
 import sys
@@ -30,25 +30,25 @@ def draw(scene):
 
 	scene.fill((20, 20, 20))
 
-	num1 = -G * (2 * M1 + M2) * math.sin(a1)
-	num2 = -M2 * G * math.sin(a1 - 2 * a2)
-	num3 = -2 * math.sin(a1 - a2) * M2
-	num4 = a2vel * a2vel * R2 + a1vel * a1vel * R1 * math.cos(a1 - a2)
-	den = R1 * (2 * M1 + M2 - M2 * math.cos(2 * a1 - 2 * a2))
+	num1 = -G * (2 * M1 + M2) * sin(a1)
+	num2 = -M2 * G * sin(a1 - 2 * a2)
+	num3 = -2 * sin(a1 - a2) * M2
+	num4 = a2vel * a2vel * R2 + a1vel * a1vel * R1 * cos(a1 - a2)
+	den = R1 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2))
 	a1acc = (num1 + num2 + num3 * num4) / den
 
-	num1 = 2 * math.sin(a1 - a2)
+	num1 = 2 * sin(a1 - a2)
 	num2 = a1vel * a1vel * R1 * (M1 + M2)
-	num3 = G * (M1 + M2) * math.cos(a1)
-	num4 = a2vel * a2vel * R2 * M2 * math.cos(a1 - a2)
-	den = R2 * (2 * M1 + M2 - M2 * math.cos(2 * a1 - 2 * a2))
+	num3 = G * (M1 + M2) * cos(a1)
+	num4 = a2vel * a2vel * R2 * M2 * cos(a1 - a2)
+	den = R2 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2))
 	a2acc = num1 * (num2 + num3 + num4) / den
 
-	x1 = R1 * math.sin(a1) + WIDTH / 2
-	y1 = R1 * math.cos(a1)
+	x1 = R1 * sin(a1) + WIDTH / 2
+	y1 = R1 * cos(a1)
 
-	x2 = x1 + R2 * math.sin(a2)
-	y2 = y1 + R2 * math.cos(a2)
+	x2 = x1 + R2 * sin(a2)
+	y2 = y1 + R2 * cos(a2)
 
 	positions.append([round(x2), round(y2)])
 	positions = positions[-300:]
@@ -98,8 +98,8 @@ def drawLine(scene, x1, y1, x2, y2):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-a1 = random.random() * 2 * math.pi
-a2 = random.random() * 2 * math.pi
+a1 = random.random() * 2 * pi
+a2 = random.random() * 2 * pi
 
 pg.init()
 pg.display.set_caption("Double Pendulum")
@@ -113,8 +113,8 @@ while True:
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
 			if event.key == pg.K_r:
-				a1 = random.random() * 2 * math.pi
-				a2 = random.random() * 2 * math.pi
+				a1 = random.random() * 2 * pi
+				a2 = random.random() * 2 * pi
 				a1vel = a2vel = 0
 				positions = []
 

@@ -40,7 +40,7 @@ def cantor(x=-600.0, y=150, l=1200.0):
 def dragon(lvl=14, size=3, h=45):
 	if lvl:
 		t.rt(h)
-		dragon(lvl - 1, size, 45)
+		dragon(lvl - 1, size)
 		t.lt(h * 2)
 		dragon(lvl - 1, size, -45)
 		t.rt(h)
@@ -70,7 +70,7 @@ def sierp(size=400.0, lvl=6):
 
 # Koch snowflake (t.goto(-600, 0) and t.rt(90) before)
 def koch(size=1000.0, lvl=6):
-	if lvl > 0:
+	if lvl:
 		for i in [60, -120, 60, 0]:
 			koch(size / 3, lvl - 1)
 			t.lt(i)
@@ -206,4 +206,4 @@ sleep(2)
 
 randWalk(400, 2)
 
-input("Press any key to exit")
+input("Press Enter to exit")

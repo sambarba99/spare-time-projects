@@ -3,6 +3,7 @@
 # Created 07/09/2021
 
 SIZE = 9
+
 solved = False
 board = [[0] * SIZE for _ in range(SIZE)]
 

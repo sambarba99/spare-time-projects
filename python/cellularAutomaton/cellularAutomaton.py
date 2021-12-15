@@ -19,7 +19,7 @@ def setRuleSet(n):
 
 	ruleSet = [0] * 8
 	i = 7
-	while n > 0:
+	while n:
 		ruleSet[i] = n % 2
 		n //= 2
 		i -= 1
@@ -58,7 +58,7 @@ pg.init()
 pg.display.set_caption("Elementary Cellular Automaton")
 scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
 
-rules = [18, 30, 45, 54, 57, 60, 73, 105, 129, 137, 151, 153, 161, 165]
+rules = [18, 30, 45, 54, 57, 60, 73, 105, 129, 137, 151, 153, 161, 165] # Interesting rules
 i = 0
 
 while True:

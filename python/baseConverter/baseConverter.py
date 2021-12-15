@@ -20,7 +20,7 @@ def toDecimalFromBase(numStr, fromBase):
 def toBaseFromDecimal(decNum, toBase):
 	remainders = []
 
-	while decNum > 0:
+	while decNum:
 		remainder = decNum % toBase
 		remainder = str(remainder) if remainder < 10 else str(chr(55 + remainder))
 		remainders.append(remainder)

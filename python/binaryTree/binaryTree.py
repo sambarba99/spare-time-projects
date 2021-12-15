@@ -165,7 +165,7 @@ def makeRandomBinaryTree():
 	with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\peopleNames.txt", "r") as file:
 		names = file.readlines()
 
-	names = [name.replace("\n", "") for name in names]
+	names = [name.strip("\n") for name in names]
 
 	treeKeys = random.sample(names, 15)
 

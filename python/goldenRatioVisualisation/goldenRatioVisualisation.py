@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 21/09/2021
 
-import math
+from math import pi, sin, cos
 import pygame as pg
 import sys
 from time import sleep
@@ -31,12 +31,12 @@ while True:
 		radius, angle = 1, 0
 		scene.fill((0, 0, 0))
 
-	x = math.cos(angle) * radius + SIZE / 2
-	y = math.sin(angle) * radius + SIZE / 2
+	x = cos(angle) * radius + SIZE / 2
+	y = sin(angle) * radius + SIZE / 2
 
 	pg.draw.circle(scene, (255, 160, 0), (x, y), 1)
 	pg.display.flip()
 
-	angle += 2 * math.pi * TURN_RATIO
-	angle %= 2 * math.pi
+	angle += 2 * pi * TURN_RATIO
+	angle %= 2 * pi
 	radius += 0.1

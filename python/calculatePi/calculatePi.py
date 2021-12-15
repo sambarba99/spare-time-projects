@@ -43,7 +43,7 @@ xPlot = list(range(10))
 yPlot = [digits.count(i) for i in xPlot]
 
 plt.figure(figsize=(8, 6))
-plt.bar(xPlot, yPlot, tick_label=xPlot, width=0.8, color="#0080ff")
+plt.bar(xPlot, yPlot, tick_label=xPlot, color="#0080ff")
 plt.xlabel("Digit")
 plt.ylabel("Occurrences")
 plt.title(f"Digit frequencies in {size} digits of pi")

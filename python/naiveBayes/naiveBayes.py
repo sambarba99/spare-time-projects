@@ -13,7 +13,7 @@ import random
 
 # Split file data into train/test
 def extractData(data, trainTestRatio=0.5):
-	data = [row.replace("\n", "").split() for row in data]
+	data = [row.strip("\n").split() for row in data]
 	random.shuffle(data)
 	data = np.array(data).astype(float)
 

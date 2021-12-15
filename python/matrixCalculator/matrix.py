@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 03/09/2021
 
-import math
+from math import radians, sin, cos
 
 class Matrix:
 	def __init__(self, values, rows=None, cols=None):
@@ -189,14 +189,14 @@ class Matrix:
 
 		return result.translate(0, c) if c != 0 else result
 
-	# Rotate by a° clockwise about (x, y)
+	# Rotate by a degrees clockwise about (x, y)
 	def rotate(self, a, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
 			t = t.translate(-x, -y) # Enlarge from origin (0, 0)
 
-		a = math.radians(a)
-		rotateMatrix = Matrix([[math.cos(a), -math.sin(a)], [math.sin(a), math.cos(a)]])
+		a = radians(a)
+		rotateMatrix = Matrix([[cos(a), -sin(a)], [sin(a), cos(a)]])
 
 		result = t.mult(rotateMatrix)
 

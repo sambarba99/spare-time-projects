@@ -62,7 +62,7 @@ class Cell:
 			self.colour = BACKGROUND
 
 			n = self.countNeighbourMines()
-			if n > 0:
+			if n:
 				self.text = str(n)
 			else:
 				# Recursively reveal cells with 0 neighbouring mines

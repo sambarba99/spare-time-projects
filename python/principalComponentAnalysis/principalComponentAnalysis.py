@@ -35,7 +35,7 @@ else:
 with open(path, "r") as file:
 	data = file.readlines()[1:] # Skip header
 
-data = [row.replace("\n", "").split() for row in data]
+data = [row.strip("\n").split() for row in data]
 data = np.array(data).astype(float)
 
 x, y = data[:,:-1], data[:,-1].astype(int)
@@ -45,7 +45,7 @@ xTransform, newVariability = pca.transform(x)
 
 plt.figure(figsize=(8, 8))
 for classLabel in np.unique(y):
-	plt.scatter(*xTransform[y == classLabel].T)
+	plt.scatter(*xTransform[y == classLabel].T, alpha=0.7)
 plt.legend(classes)
 plt.xlabel("Principal component 1")
 plt.ylabel("Principal component 2")

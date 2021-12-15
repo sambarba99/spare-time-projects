@@ -14,7 +14,7 @@ def partialShuffle(data, percentage=10):
 	n = round(len(data) * percentage / 100)
 	indices = np.random.choice(indices, n, replace=False)
 	mapping = dict((indices[i], indices[i - 1]) for i in range(n))
-	return [data[mapping.get(i, i)] for i in range(len(data))]
+	return np.array([data[mapping.get(i, i)] for i in range(len(data))])
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -22,24 +22,24 @@ def partialShuffle(data, percentage=10):
 
 choice = input("Enter R to generate random data, or E to enter it manually: ").upper()
 if choice == "R":
-	x = [np.random.uniform(-10, 10) for i in range(200)]
-	y = [np.random.uniform(-10, 10) for i in range(200)]
+	x = np.random.uniform(-10, 10, size=200)
+	y = np.random.uniform(-10, 10, size=200)
 	x = partialShuffle(sorted(x))
 	y = partialShuffle(sorted(y))
 else:
-	x = list(map(float, input("\nInput the X sample: ").split()))
-	y = list(map(float, input("Input the Y sample: ").split()))
+	x = np.array(list(map(float, input("\nInput the X sample: ").split())))
+	y = np.array(list(map(float, input("Input the Y sample: ").split())))
 
 n = len(x)
-sumX = sum(x)
-sumY = sum(y)
+sumX = np.sum(x)
+sumY = np.sum(y)
 meanX = sumX / n
 meanY = sumY / n
 stdX = np.std(x, ddof=1) # DDOF = 1 means sample standard deviation (not population)
 stdY = np.std(y, ddof=1)
-sumX2 = sum(i * i for i in x)
-sumY2 = sum(j * j for j in y)
-sumXY = sum(i * j for i, j in zip(x, y))
+sumX2 = np.sum(x * x)
+sumY2 = np.sum(y * y)
+sumXY = np.sum(x * y)
 
 # Pearson's coefficient
 rNum = n * sumXY - sumX * sumY
