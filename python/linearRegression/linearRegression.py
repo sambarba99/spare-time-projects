@@ -60,9 +60,8 @@ with open(path, "r") as file:
 featureNames, xTrain, yTrain, xTest, yTest, data = extractData(data)
 
 weights, bias = analyticSolution(xTrain, yTrain)
-bias = round(bias, 3)
-weights = ", ".join(str(round(i, 3)) for i in weights)
-print(f"\nAnalytic solution:\n weights = {weights}\n bias = {bias}\n")
+weights = ", ".join(f"{we:.3f}" for we in weights)
+print(f"\nAnalytic solution:\n weights = {weights}\n bias = {bias:.3f}\n")
 
 regressor = LinearRegressor()
 regressor.fit(xTrain, yTrain)
@@ -84,7 +83,7 @@ maxCorr = corrCoeffs[idxMaxCorr, -1]
 print("\nFeature names:", ", ".join(featureNames))
 print(f"Highest (abs) correlation with y ({featureNames[-1]}): {maxCorr}  (feature '{featureNames[idxMaxCorr]}')")
 
-weights = ", ".join(str(round(i, 3)) for i in regressor.weights)
+weights = ", ".join(f"{we:.3f}" for we in regressor.weights)
 xPlot = np.array(list(xTrain[:, idxMaxCorr]) + list(xTest[:, idxMaxCorr]))
 yPlot = regressor.weights[idxMaxCorr] * xPlot + regressor.bias
 yScatter = list(yTrain) + list(yTest)
@@ -93,7 +92,7 @@ plt.scatter(xPlot, yScatter, color="black", s=5)
 plt.plot(xPlot, yPlot, color="red")
 plt.xlabel(featureNames[idxMaxCorr] + " (normalised)")
 plt.ylabel(featureNames[-1] + " (normalised)")
-plt.title("Gradient descent solution\nweights = {}\nbias = {}".format(weights, round(regressor.bias, 3)))
+plt.title(f"Gradient descent solution\nweights = {weights}\nbias = {regressor.bias:.3f}")
 plt.show()
 
 # Plot MSE graph

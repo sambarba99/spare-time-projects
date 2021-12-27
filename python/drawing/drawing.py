@@ -85,7 +85,7 @@ def tSquare(x=0.0, y=0.0, size=400.0):
 	t.pd()
 	t.seth(90)
 	t.begin_fill()
-	for i in range(4):
+	for _ in range(4):
 		t.fd(size)
 		t.rt(90)
 	t.end_fill()
@@ -123,7 +123,7 @@ def drawSquare(size, angle):
 	t.seth(angle)
 	t.fillcolor((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 	t.begin_fill()
-	for i in range(4):
+	for _ in range(4):
 		t.fd(size)
 		t.lt(90)
 	t.end_fill()
@@ -150,7 +150,7 @@ def randWalk(bound, step):
 	t.pd()
 	t.seth(270)
 	t.color("red")
-	for i in range(4):
+	for _ in range(4):
 		t.fd(bound * 2)
 		t.rt(90)
 	t.pu()

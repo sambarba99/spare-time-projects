@@ -6,9 +6,9 @@ import numpy as np
 
 class NeuralNetwork:
 	# 784 input layer neurons (784 inputs from 28*28 image)
-	# Arbitrary amount of 50 hidden layer neurons
+	# Arbitrary amount of 400 hidden layer neurons
 	# 10 output layer neurons (10 prediction possibilities, 0-9)
-	def __init__(self, numInputLayerNeurons=784, numHiddenLayerNeurons=50, numOutputLayerNeurons=10):
+	def __init__(self, numInputLayerNeurons=784, numHiddenLayerNeurons=400, numOutputLayerNeurons=10):
 		self.xTrain = None
 		self.yTrain = None
 		# Sample weights from normal distribution
@@ -23,16 +23,17 @@ class NeuralNetwork:
 		self.yTrain = yTrain
 
 	def train(self, iterations=1000, learningRate=0.1):
-		for t in range(iterations):
-			if t % int(iterations * 0.05) == 0:
-				print("Training {}% done".format(round(100 * t / iterations, 1)))
+		for i in range(iterations):
+			if i % int(iterations * 0.001) == 0:
+				# Print every 0.1%
+				print(f"Training {round(100 * i / iterations, 1)}% done")
 
 			iterationLoss = []
 
 			for idx, item in enumerate(self.xTrain):
 				# Make vertical
-				inputVector = item.reshape(-1,1)
-				actual = self.yTrain[idx].reshape(-1,1)
+				inputVector = item.reshape(-1, 1)
+				actual = self.yTrain[idx].reshape(-1, 1)
 
 				hiddenLayerIn = np.dot(self.hiddenWeights, inputVector) + self.hiddenBias
 				hiddenLayerOut = self.__sigmoid(hiddenLayerIn)
@@ -56,18 +57,18 @@ class NeuralNetwork:
 
 			self.loss.append(np.average(iterationLoss))
 
-	# Return prediction vector e.g. [0.123, 0.047, 0.310, 0.968, 0.032, 0.045, 0.078, 0.123, 0.145, 0.227]
-	# np.argmax of this = 3, therefore prediction is digit '3'
+	# Return prediction vector e.g. v = [0.123, 0.047, 0.310, 0.968, 0.032, 0.045, 0.078, 0.123, 0.145, 0.227]
+	# In this case, np.argmax(v) = 3, therefore prediction is digit '3'
 	def predict(self, inputVector):
 		# Make vertical
-		inputVector = inputVector.reshape(-1,1)
+		inputVector = inputVector.reshape(-1, 1)
 
 		hiddenLayerIn = np.dot(self.hiddenWeights, inputVector) + self.hiddenBias
 		hiddenLayerOut = self.__sigmoid(hiddenLayerIn)
 		outputLayerIn = np.dot(self.outputWeights, hiddenLayerOut) + self.outputBias
 
 		# Make horizontal again
-		return self.__sigmoid(outputLayerIn).reshape(1,-1)[0]
+		return self.__sigmoid(outputLayerIn).reshape(1, -1)[0]
 
 	def __sigmoid(self, x):
 		return 1 / (1 + np.exp(-x))

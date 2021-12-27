@@ -86,9 +86,9 @@ if choice == "F":
 	with open("biasesAndWeights.txt", "r") as file:
 		params = file.read().split("\n---\n")
 
-	hiddenBias = np.array(params[0].split("\n")).astype(float).reshape(-1,1)
+	hiddenBias = np.array(params[0].split("\n")).astype(float).reshape(-1, 1)
 	hiddenWeights = np.array([line.split() for line in params[1].split("\n")]).astype(float)
-	outputBias = np.array(params[2].split("\n")).astype(float).reshape(-1,1)
+	outputBias = np.array(params[2].split("\n")).astype(float).reshape(-1, 1)
 	outputWeights = np.array([line.split() for line in params[3].split("\n")]).astype(float)
 
 	clf.hiddenBias = hiddenBias
@@ -112,7 +112,7 @@ else:
 	with open("biasesAndWeights.txt", "w") as file:
 		file.write(s)
 
-	print("Done in {}s. Saved biases and weights to file.".format(round(end - start, 3)))
+	print(f"Done in {round(end - start, 3)}s. Saved biases and weights to file.")
 
 # Plot confusion matrices
 
@@ -157,14 +157,14 @@ while drawing:
 
 userCoords = np.array(userCoords) // (DRAWING_SIZE // 27) # Make coords range from 0-27
 userCoords = np.unique(userCoords, axis=0) # Keep unique pairs only
-drawnDigit = np.zeros((28,28))
+drawnDigit = np.zeros((28, 28))
 drawnDigit[userCoords[:,1], userCoords[:,0]] = 1
 plt.figure(figsize=(4, 4))
 plt.imshow(drawnDigit, cmap="gray")
 plt.title("Drawn digit")
 plt.show()
 
-drawnDigit = drawnDigit.reshape(1,784)[0].astype(int)
+drawnDigit = drawnDigit.reshape(1, 784)[0].astype(int)
 predVector = clf.predict(drawnDigit)
 print("\nDrawn digit is: {}  ({} % sure)".format(np.argmax(predVector), round(100 * np.max(predVector), 3)))
 

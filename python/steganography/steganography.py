@@ -97,9 +97,9 @@ print("\nIn binary:", binMsg)
 stegText = hideMessageInText(binMsg)
 
 print("\nMessage hidden in text:", stegText)
-print("\nReading hidden message from text:\n{}".format(getMessageFromText(stegText)))
+print(f"\nReading hidden message from text:\n{getMessageFromText(stegText)}")
 
 stegImg = hideMessageInImage(binMsg)
 stegImg.show()
 
-print("\nReading hidden message from image:\n{}".format(getMessageFromImage(stegImg)))
+print(f"\nReading hidden message from image:\n{getMessageFromImage(stegImg)}")

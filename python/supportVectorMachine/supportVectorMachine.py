@@ -105,7 +105,7 @@ yMin = np.min(xScatter[:,1])
 yMax = np.max(xScatter[:,1])
 plt.ylim([yMin - 0.5, yMax + 0.5])
 
-w = ", ".join(str(round(we, 3)) for we in clf.weights)
+w = ", ".join(f"{we:.3f}" for we in clf.weights)
 b = round(clf.bias, 3)
 m = round(-clf.weights[0] / clf.weights[1], 3)
 c = round(-clf.bias / clf.weights[1], 3)

@@ -4,6 +4,9 @@
 
 SIZE = 9
 
+# Most difficult sudoku
+BOARD_DIFFICULT = "800000000003600000070090200050007000000045700000100030001000068008500010090000400"
+
 solved = False
 board = [[0] * SIZE for _ in range(SIZE)]
 
@@ -29,7 +32,7 @@ def solve():
 			board[x][y] = 0
 
 def isFull():
-	return all(all(board[x][y] != 0 for y in range(SIZE)) for x in range(SIZE))
+	return all(n != 0 for row in board for n in row)
 
 def findFreeSquare():
 	for x in range(SIZE):
@@ -77,6 +80,14 @@ def formatBoard():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
+choice = input("Enter 1 to use 'all zeroes' sudoku, 2 to use most difficult sudoku: ")
+
+if choice == "2":
+	for idx, n in enumerate(BOARD_DIFFICULT):
+		row, col = idx // SIZE, idx % SIZE
+		board[row][col] = int(n)
+
 solve()
 
+print("\nSolved:\n")
 print(formatBoard())

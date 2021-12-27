@@ -5,6 +5,8 @@
 from KMeans import KMeans
 import numpy as np
 
+NUM_CLUSTERS = 4
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -12,25 +14,23 @@ import numpy as np
 def makeRandomSamples(numClusters, numSamplesPerCluster=300):
 	clusterCentroidCoords = np.random.uniform(-100, 100, size=(numClusters, 2))
 
-	clusterSamples = []
+	samples = []
 	for c in clusterCentroidCoords:
-		for i in range(numSamplesPerCluster):
-			# Generate random points radially around cluster x,y
+		for _ in range(numSamplesPerCluster):
+			# Generate random points radially around centroid x,y
 			theta = np.random.uniform(0, 2 * np.pi)
 			r = np.random.uniform(0, 50)
-			sampleX = r * np.cos(theta) + c[0]
-			sampleY = r * np.sin(theta) + c[1]
-			clusterSamples.append([sampleX, sampleY])
+			x = r * np.cos(theta) + c[0]
+			y = r * np.sin(theta) + c[1]
+			samples.append([x, y])
 
-	return np.array(clusterSamples)
+	return np.array(samples)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-numClusters = int(input("Enter no. clusters: "))
+x = makeRandomSamples(NUM_CLUSTERS)
 
-x = makeRandomSamples(numClusters)
-
-kMeans = KMeans(numClusters)
+kMeans = KMeans(NUM_CLUSTERS)
 yPred = kMeans.predict(x, True)

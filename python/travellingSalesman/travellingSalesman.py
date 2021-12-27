@@ -45,7 +45,7 @@ class Vertex:
 def initialisePopulation(vertices):
 	population = []
 
-	for i in range(POP_SIZE):
+	for _ in range(POP_SIZE):
 		random.shuffle(vertices)
 		population.append(Path(vertices[:]))
 
@@ -59,7 +59,7 @@ def evaluate(*population):
 def selection(population):
 	parents = []
 
-	for i in range(POP_SIZE):
+	for _ in range(POP_SIZE):
 		tournamentIndividuals = random.sample(population, TOURNAMENT_SIZE)
 		parents.append(findFittest(tournamentIndividuals))
 
@@ -113,7 +113,7 @@ allCoords = [(x, y) for x in range(100) for y in range(100)]
 coords = random.sample(allCoords, numV)
 vertices = [Vertex(i + 1, *coords[i]) for i in range(numV)]
 
-print("\n".join("{} ({},{})".format(v.label, v.x, v.y) for v in vertices))
+print(*[f"{v.label} ({v.x},{v.y})" for v in vertices], sep="\n")
 
 # Initialise population and perform GA
 population = initialisePopulation(vertices)
@@ -121,7 +121,7 @@ population = initialisePopulation(vertices)
 bestPath = population[0]
 meanFitnesses, bestFitnesses = [], []
 
-for i in range(GENERATIONS):
+for _ in range(GENERATIONS):
 	evaluate(*population)
 	parents = selection(population)
 	offspring = crossover(parents)

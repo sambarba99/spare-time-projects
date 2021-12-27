@@ -1,4 +1,4 @@
-# K-Means model for kMeansClustering.py
+# K-Means clusterer for kMeansClustering.py
 # Author: Sam Barba
 # Created 21/11/2021
 
@@ -35,7 +35,7 @@ class KMeans:
 			self.centroids = self.__getCentroids()
 
 			# Stop if converged
-			distances = [self.__euclideanDistance(cp, c) for cp, c in zip(centroidsPrev, self.centroids)]
+			distances = [self.__euclideanDist(cp, c) for cp, c in zip(centroidsPrev, self.centroids)]
 			if sum(distances) == 0:
 				self.plot("Converged")
 				break
@@ -50,7 +50,7 @@ class KMeans:
 		clusters = [[] for _ in range(self.k)]
 
 		for sampleIdx, sample in enumerate(self.x):
-			distances = [self.__euclideanDistance(sample, point) for point in self.centroids]
+			distances = [self.__euclideanDist(sample, point) for point in self.centroids]
 			centroidIdx = np.argmin(distances)
 			clusters[centroidIdx].append(sampleIdx)
 
@@ -84,6 +84,7 @@ class KMeans:
 		for point in self.centroids:
 			plt.scatter(*point, marker="x", color="black", lw=3, s=100)
 
+		plt.legend(["Class " + str(i + 1) for i in range(len(self.clusters))])
 		plt.title(title)
 		if title != "Converged":
 			plt.show(block=False)
@@ -92,6 +93,6 @@ class KMeans:
 		else:
 			plt.show()
 
-	def __euclideanDistance(self, x1, x2):
+	def __euclideanDist(self, x1, x2):
 		# Ignore square root for faster execution
 		return ((x1 - x2) ** 2).sum()

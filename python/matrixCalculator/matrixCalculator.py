@@ -22,8 +22,8 @@ while True:
 	if choice == "A":
 		rows, cols = map(int, input("Input the number of rows & columns for the matrices: ").split())
 
-		matAline = input("\nInput matrix A ({} entries): ".format(rows * cols))
-		matBline = input("Input matrix B ({} entries): ".format(rows * cols))
+		matAline = input(f"\nInput matrix A ({rows * cols} entries): ")
+		matBline = input(f"Input matrix B ({rows * cols} entries): ")
 
 		matA = Matrix(matAline, rows, cols)
 		matB = Matrix(matBline, rows, cols)
@@ -33,11 +33,11 @@ while True:
 
 	elif choice == "M":
 		rowsA, colsA = map(int, input("Input the number of rows & columns for matrix A: ").split())
-		colsB = int(input("Input the number of columns for matrix B (rows = {}): ".format(colsA)))
+		colsB = int(input(f"Input the number of columns for matrix B (rows = {colsA}): "))
 		rowsB = colsA
 
-		matAline = input("\nInput matrix A ({} entries): ".format(rowsA * colsA))
-		matBline = input("Input matrix B ({} entries): ".format(rowsB * colsB))
+		matAline = input(f"\nInput matrix A ({rowsA * colsA} entries): ")
+		matBline = input(f"Input matrix B ({rowsB * colsB} entries): ")
 
 		matA = Matrix(matAline, rowsA, colsA)
 		matB = Matrix(matBline, rowsB, colsB)
@@ -49,8 +49,8 @@ while True:
 		rowsB = colsB = colsA
 		print(f"B is {rowsB} x {colsB}")
 
-		matAline = input("\nInput matrix A ({} entries): ".format(rowsA * colsA))
-		matBline = input("Input matrix B ({} entries): ".format(rowsB * colsB))
+		matAline = input(f"\nInput matrix A ({rowsA * colsA} entries): ")
+		matBline = input(f"Input matrix B ({rowsB * colsB} entries): ")
 
 		matA = Matrix(matAline, rowsA, colsA)
 		matB = Matrix(matBline, rowsB, colsB)
@@ -64,15 +64,15 @@ while True:
 		size = int(input("Input the size of the square matrix: "))
 		p = int(input("Input the power: "))
 
-		matLine = input("\nInput matrix M ({} entries): ".format(size * size))
+		matLine = input(f"\nInput matrix M ({size ** 2} entries): ")
 		mat = Matrix(matLine, size, size)
 
-		print("\nM^{} =\n{}".format(p, str(mat.power(p))))
+		print(f"\nM^{p} =\n{str(mat.power(p))}")
 
 	elif choice == "R":
 		rows, cols = map(int, input("Input the number of rows & columns for the matrix: ").split())
 
-		matLine = input("\nInput matrix M ({} entries): ".format(rows * cols))
+		matLine = input(f"\nInput matrix M ({rows * cols} entries): ")
 		mat = Matrix(matLine, rows, cols)
 
 		print("\nRREF(M) =\n" + str(mat.rref()))
@@ -80,7 +80,7 @@ while True:
 	elif choice == "I":
 		size = int(input("Input the size of the square matrix: "))
 
-		matLine = input("\nInput matrix M ({} entries): ".format(size * size))
+		matLine = input(f"\nInput matrix M ({size ** 2} entries): ")
 		mat = Matrix(matLine, size, size)
 
 		print("\nMatrix of cofactors:\n" + str(mat.comatrix()))
@@ -99,7 +99,7 @@ while True:
 		coords = [[0] * 2] * numV
 
 		for i in range(numV):
-			coords[i] = list(map(float, input("Input x and y coords {} / {}: ".format(i + 1, numV)).split()))
+			coords[i] = list(map(float, input(f"Input x and y coords {i + 1} / {numV}: ").split()))
 
 		coords = Matrix(coords)
 

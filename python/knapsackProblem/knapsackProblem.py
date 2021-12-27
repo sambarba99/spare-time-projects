@@ -42,7 +42,7 @@ class Item:
 		self.weight = weight
 
 	def __repr__(self):
-		return "Item {}:  value: {}  weight: {}".format(self.index, self.value, self.weight)
+		return f"Item {self.index}:  value: {self.value}  weight: {self.weight}"
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -133,7 +133,7 @@ population = initialisePopulation()
 bestKnapsack = population[0]
 meanFitnesses, bestFitnesses = [], []
 
-for i in range(GENERATIONS):
+for _ in range(GENERATIONS):
 	evaluate(allItems, *population)
 	parents = selection(population)
 	offspring = crossover(parents, allItems)

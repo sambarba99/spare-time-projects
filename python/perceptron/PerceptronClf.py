@@ -18,7 +18,7 @@ class PerceptronClf:
 	def train(self, maxIters=1000, learningRate=0.01):
 		self.weights = np.zeros(self.xTrain.shape[1])
 
-		for i in range(maxIters):
+		for _ in range(maxIters):
 			for idx, sample in enumerate(self.xTrain):
 				linearModel = np.dot(sample, self.weights) + self.bias
 				yPred = self.__unitStep(linearModel)

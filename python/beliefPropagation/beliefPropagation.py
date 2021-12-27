@@ -164,7 +164,7 @@ def factorToRVmsg(src, dest, msgs):
 				if i != dest:
 					axis = subscriptChoices[rv[2].index(i)]
 					newShape = shape.replace(axis, "")
-					subscripts = "{},{}->{}".format(shape, axis, newShape)
+					subscripts = f"{shape},{axis}->{newShape}"
 					msg = np.einsum(subscripts, msg, msgs[src][i])
 					shape = newShape
 
@@ -172,7 +172,7 @@ def factorToRVmsg(src, dest, msgs):
 
 # Belief propagation - a trick is that if an RV is known (observed), then instead of using
 # rvToFactorMsg whenever a message is sent from it, you send the known distribution instead
-# (i.e. [1,0] for False or [0,1] for True).
+# (i.e. [1, 0] for False or [0, 1] for True).
 # The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary
 # indicates that it has been observed. The value obtained using the key is the value the RV
 # has been observed as.
@@ -184,7 +184,7 @@ def calculateMarginals(known, msgOrder):
 	for src, dest in msgOrder:
 		if src < RV_TO_FACTOR: # RV
 			if src in known:
-				msgs[dest][src] = np.array([0,1] if known[src] else [1,0])
+				msgs[dest][src] = np.array([0, 1] if known[src] else [1, 0])
 			else:
 				msgs[dest][src] = rvToFactorMsg(src, dest, msgs)
 		else: # Factor
@@ -194,7 +194,7 @@ def calculateMarginals(known, msgOrder):
 	marginals = np.zeros((17, 2))
 	for idx, m in enumerate(marginals):
 		if idx in known:
-			marginals[idx, :] = np.array([0,1] if known[idx] else [1,0])
+			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
 		else:
 			marginals[idx, :] = rvToFactorMsg(idx, None, msgs)
 			marginals[idx, :] /= marginals[idx, :].sum() # Needed for numerical stability

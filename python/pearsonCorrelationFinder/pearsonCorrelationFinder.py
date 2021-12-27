@@ -63,5 +63,5 @@ if min(x) < 0 or min(y) < 0:
 	plt.axvline(color="black")
 plt.xlabel("X")
 plt.ylabel("Y")
-plt.title(f"r = {r}\nY = {round(m, 3)}X {plusMinus} {round(abs(c), 3)}")
+plt.title(f"r = {r}\nY = {m:.3f}X {plusMinus} {c:.3f}")
 plt.show()

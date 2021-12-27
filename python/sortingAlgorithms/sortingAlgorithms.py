@@ -85,9 +85,7 @@ def mergesort(arr):
 	mergesort(l) # Sort copy of first half
 	mergesort(r) # Sort copy of second half
 
-	merge(l, r, arr) # Merge sorted halves back into arr
-
-def merge(l, r, arr):
+	# Merge sorted halves back into arr
 	i = j = 0
 	while i + j < len(arr):
 		if j == len(r) or (i < len(l) and l[i] < r[j]):
@@ -133,7 +131,7 @@ def shellSort(arr):
 	gap = len(arr) // 2
 
 	while gap:
-		for idx, n in enumerate(arr[gap:], gap):
+		for idx, n in enumerate(arr[gap:], start=gap):
 			while idx >= gap and arr[idx - gap] > n:
 				arr[idx] = arr[idx - gap]
 				idx -= gap

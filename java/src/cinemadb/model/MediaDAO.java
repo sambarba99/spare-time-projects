@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cinemadb.view.Constants;
-
 public class MediaDAO {
+
+	private static final String MEDIA_PATH = "src/cinemadb/media.xml";
 
 	private XMLMediaSerialiser mediaSerialiser = XMLMediaSerialiser.getInstance();
 
@@ -27,7 +27,7 @@ public class MediaDAO {
 		try {
 			List<Media> allMedia = getAllMedia();
 
-			File xmlFile = new File(Constants.MEDIA_FILE_PATH);
+			File xmlFile = new File(MEDIA_PATH);
 			if (!xmlFile.exists()) {
 				xmlFile.getParentFile().mkdirs();
 				xmlFile.createNewFile();
@@ -56,7 +56,7 @@ public class MediaDAO {
 	public List<Media> getAllMedia() {
 		List<Media> allMedia = new ArrayList<>();
 
-		File xmlFile = new File(Constants.MEDIA_FILE_PATH);
+		File xmlFile = new File(MEDIA_PATH);
 		if (xmlFile.exists()) {
 			try {
 				allMedia = mediaSerialiser.readAll();

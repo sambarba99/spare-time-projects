@@ -120,7 +120,7 @@ def setupGame():
 	for x, y in mineCoords:
 		minefield[x][y].isMine = True
 
-	statusText = "Flags left: {}".format(NUM_MINES - flagsUsedTotal)
+	statusText = f"Flags left: {NUM_MINES - flagsUsedTotal}"
 
 # Win if: all mines are correctly flagged; and all non-mine cells are revealed
 def checkWin():
@@ -131,7 +131,7 @@ def checkWin():
 	if flagsUsedCorrectly == NUM_MINES and allNonMinesRevealed:
 		endGame(True)
 	else:
-		statusText = "Flags left: {}".format(NUM_MINES - flagsUsedTotal)
+		statusText = f"Flags left: {NUM_MINES - flagsUsedTotal}"
 
 def endGame(won):
 	global gameOver, statusText

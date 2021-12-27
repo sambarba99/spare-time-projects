@@ -18,7 +18,7 @@ class SVM:
 	def train(self, maxIters=1000, lambdaParam=0.01, learningRate=0.001):
 		self.weights = np.zeros(self.xTrain.shape[1])
 
-		for i in range(maxIters):
+		for _ in range(maxIters):
 			for idx, sample in enumerate(self.xTrain):
 				if self.yTrain[idx] * (np.dot(sample, self.weights) - self.bias) >= 1:
 					self.weights -= (2 * lambdaParam * self.weights) * learningRate

@@ -119,7 +119,7 @@ plt.plot(xPlot, yPlot, color="black", ls="--")
 plt.ylim(np.min(xScatter) * 1.1, np.max(xScatter) * 1.1)
 plt.xlabel(featureNames[indices[0]] + " (normalised)")
 plt.ylabel(featureNames[indices[1]] + " (normalised)")
-plt.title(f"Gradient descent solution\nm = {round(m, 3)}  |  c = {round(c, 3)}")
+plt.title(f"Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}")
 plt.show()
 
 # Plot cost graph

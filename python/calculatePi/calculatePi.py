@@ -35,7 +35,7 @@ size = 10 ** 3
 
 pi = calcPi()
 
-digits = [next(pi) for i in range(size)]
+digits = [next(pi) for _ in range(size)]
 
 print(*digits, sep="")
 

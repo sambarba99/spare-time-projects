@@ -1,23 +1,18 @@
-# ignore everything...
-*
+# Ignore all files...
+*.*
 
-# ...except these...
+# ...Except these...
 !.gitignore
 !*.css
-!*.html
 !*.java
 !*.jpg
-!*.jsp
 !*.png
 !*.py
 !*.md
+!*.txt
 
-# ...even if they're in subdirectories
-!*/
+# Ignore PyCharm .idea folders
+python/*/.idea/
 
-# PyCharm
-.idea/
-
-programoutputs/
-bin/
-!datasets/
+# Ignore Eclipse project bins
+java/bin/

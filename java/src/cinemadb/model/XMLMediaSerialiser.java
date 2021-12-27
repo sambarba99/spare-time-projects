@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cinemadb.view.Constants;
 import cinemadb.view.enums.Genre;
 import cinemadb.view.enums.MediaType;
 import javax.xml.namespace.QName;
@@ -23,6 +22,8 @@ import javax.xml.stream.events.XMLEvent;
 
 public class XMLMediaSerialiser {
 
+	private static final String MEDIA_PATH = "src/cinemadb/media.xml";
+
 	private static XMLMediaSerialiser instance;
 
 	private XMLMediaSerialiser() {
@@ -37,7 +38,7 @@ public class XMLMediaSerialiser {
 
 	public List<Media> readAll() throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
 		XMLEventReader reader = XMLInputFactory.newInstance()
-			.createXMLEventReader(new FileInputStream(Constants.MEDIA_FILE_PATH));
+			.createXMLEventReader(new FileInputStream(MEDIA_PATH));
 
 		List<Media> mediaList = new ArrayList<>();
 		Media media = null;
@@ -90,7 +91,7 @@ public class XMLMediaSerialiser {
 
 	public void write(List<Media> mediaList) throws XMLStreamException, FactoryConfigurationError, IOException {
 		XMLStreamWriter writer = XMLOutputFactory.newInstance()
-			.createXMLStreamWriter(new FileWriter(Constants.MEDIA_FILE_PATH));
+			.createXMLStreamWriter(new FileWriter(MEDIA_PATH));
 
 		writer.writeStartDocument();
 		writer.writeStartElement("mediaList");
