@@ -33,8 +33,7 @@ class Matrix:
 
 		for i in range(self.rows):
 			for j in range(other.cols):
-				for k in range(self.cols):
-					resultGrid[i][j] += self.grid[i][k] * other.grid[k][j]
+				resultGrid[i][j] = sum(self.grid[i][k] * other.grid[k][j] for k in range(self.cols))
 
 		return Matrix(resultGrid)
 
@@ -114,7 +113,7 @@ class Matrix:
 	def rref(self):
 		rrefGrid = self.grid
 
-		pivotRow, pivotCol = 0, 0
+		pivotCol = 0
 
 		for row in range(self.rows):
 			# 1. Find left-most nonzero entry (pivot)
@@ -180,7 +179,6 @@ class Matrix:
 		if c != 0:
 			t = t.translate(0, -c) # Reflect in y = mx
 
-
 		r = 1 / (1 + m ** 2)
 		reflectGrid = [[1 - m ** 2, 2 * m], [2 * m, m ** 2 - 1]]
 		reflectMatrix = Matrix([[x * r for x in row] for row in reflectGrid])
@@ -189,14 +187,14 @@ class Matrix:
 
 		return result.translate(0, c) if c != 0 else result
 
-	# Rotate by a degrees clockwise about (x, y)
-	def rotate(self, a, x, y):
+	# Rotate by theta degrees clockwise about (x, y)
+	def rotate(self, theta, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
 			t = t.translate(-x, -y) # Enlarge from origin (0, 0)
 
-		a = radians(a)
-		rotateMatrix = Matrix([[cos(a), -sin(a)], [sin(a), cos(a)]])
+		theta = radians(theta)
+		rotateMatrix = Matrix([[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])
 
 		result = t.mult(rotateMatrix)
 

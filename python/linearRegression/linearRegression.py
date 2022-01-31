@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 10/11/2021
 
-from LinearRegressor import LinearRegressor
+from linearregressor import LinearRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 import random

@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 21/11/2021
 
-from NaiveBayesClassifier import NaiveBayesClassifier
+from naivebayesclassifier import NaiveBayesClassifier
 import matplotlib.pyplot as plt
 import numpy as np
 import random

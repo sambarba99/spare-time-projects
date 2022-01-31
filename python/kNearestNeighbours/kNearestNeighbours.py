@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 11/09/2021
 
-from KNN import KNN
+from knnclassifier import KNN
 import matplotlib.pyplot as plt
 import numpy as np
 import random

@@ -4,7 +4,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from PerceptronClf import PerceptronClf
+from perceptronclassifier import PerceptronClf
 import random
 
 # ---------------------------------------------------------------------------------------------------- #

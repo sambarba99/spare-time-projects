@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 21/11/2021
 
-from KMeans import KMeans
+from kmeansclusterer import KMeans
 import numpy as np
 
 NUM_CLUSTERS = 4

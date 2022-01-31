@@ -5,7 +5,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-from SVM import SVM
+from svm import SVM
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #

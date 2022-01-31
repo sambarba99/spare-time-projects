@@ -6,7 +6,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import random
 
-CAP = 30
+CAP = 30 # Knapsack capacity
 NUM_ITEMS = 10
 
 GENERATIONS = 20
@@ -100,10 +100,9 @@ def mutation(offspring):
 	mutants.sort(key=lambda ind: ind.fitness, reverse=True)
 
 	for i in range(round(ELITISM_RATE * POP_SIZE), POP_SIZE):
-		if random.random() > MUTATION_RATE: continue
-
-		randIdx = random.randrange(NUM_ITEMS)
-		mutants[i].itemConfig[randIdx] = 1 - mutants[i].itemConfig[randIdx]
+		if random.random() <= MUTATION_RATE:
+			randIdx = random.randrange(NUM_ITEMS)
+			mutants[i].itemConfig[randIdx] = 1 - mutants[i].itemConfig[randIdx]
 
 	return mutants
 

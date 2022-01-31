@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 27/12/2021
 
-from DBSCANclusterer import DBSCANclusterer
+from dbscanclusterer import DBSCANclusterer
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,7 +33,7 @@ for c in coords:
 	point = {"x": c[0], "y": c[1], "label": UNDEFINED}
 	points.append(point)
 
-# Cluster samples
+# ---------------------------------- Cluster samples ---------------------------------- #
 
 if USE_FILE_DATA:
 	clusterer = DBSCANclusterer(epsilon=10, minPoints=12)
@@ -42,7 +42,7 @@ else:
 
 clusterer.predict(points)
 
-# Plot clusters
+# ---------------------------------- Plot clusters ---------------------------------- #
 
 # Unique labels excluding noise
 uniqueLabels = sorted(list(set(p["label"] for p in points if p["label"] != NOISE)))

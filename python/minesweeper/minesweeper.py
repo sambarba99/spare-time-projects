@@ -150,8 +150,8 @@ def draw(scene):
 	for x in range(COLS):
 		for y in range(ROWS):
 			pg.draw.rect(scene, minefield[x][y].colour, pg.Rect(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
-			cellLabel = font.render(minefield[x][y].text, True, LABEL_FOREGROUND)
-			scene.blit(cellLabel, (x * CELL_SIZE + GRID_OFFSET + 7, y * CELL_SIZE + GRID_OFFSET + 5))
+			cellLbl = font.render(minefield[x][y].text, True, LABEL_FOREGROUND)
+			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 7, y * CELL_SIZE + GRID_OFFSET + 5))
 
 	statusLabel = font.render(statusText, True, LABEL_FOREGROUND)
 	scene.blit(statusLabel, (GRID_OFFSET, GRID_OFFSET // 2))

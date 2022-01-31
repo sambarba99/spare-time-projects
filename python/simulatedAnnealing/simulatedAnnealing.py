@@ -1,0 +1,158 @@
+# Simulated Annealing applied to TSP
+# Author: Sam Barba
+# Created 31/01/2022
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pygame as pg
+import sys
+
+NUM_TOWNS = 30 # ~ 10^32 permutations
+TEMP_DECREASE_FACTOR = 0.999 # Cool down by 0.1% each iteration
+TEMP_THRESHOLD = 0.1
+USE_POLYGON_PATTERN = False
+
+bestCandidate = temperature = None
+
+# ---------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------  CLASSES  -------------------------------------------- #
+# ---------------------------------------------------------------------------------------------------- #
+
+class Path:
+	def __init__(self, sequence):
+		self.sequence = sequence
+
+	def totalDistance(self):
+		total = 0
+		for i in range(NUM_TOWNS - 1):
+			town1, town2 = self.sequence[i:i + 2]
+			total += self.__euclideanDist(town1, town2)
+		total += self.__euclideanDist(self.sequence[0], self.sequence[-1])
+
+		return total
+
+	def __euclideanDist(self, a, b):
+		return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+# ---------------------------------------------------------------------------------------------------- #
+# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
+# ---------------------------------------------------------------------------------------------------- #
+
+def initialise():
+	global bestCandidate, temperature
+
+	# Y coords are offset slightly so as to not obscure pygame labels
+	if USE_POLYGON_PATTERN:
+		# Generate towns in the shape of a regular polygon
+		angles = np.linspace(0, 2 * np.pi, NUM_TOWNS)
+		x = [250 * np.cos(a) + 300 for a in angles]
+		y = [250 * np.sin(a) + 320 for a in angles]
+	else:
+		# Generate random town coords
+		x = np.random.randint(20, 580, size=NUM_TOWNS)
+		y = np.random.randint(70, 580, size=NUM_TOWNS)
+
+	coords = list(zip(x, y))
+	np.random.shuffle(coords)
+	bestCandidate = Path(coords) # Initial solution (random)
+	temperature = 10 * NUM_TOWNS # Arbitrary start temperature
+
+# Generate a new candidate based on an existing candidate. First, a segment is chosen from the existing
+# candidate, then a 'coin' is flipped to choose either 'reverse' or 'shift': If reverse comes up, an
+# alternative path is generated in which the towns in the chosen segment are reversed in order of visit.
+# If shift, the segment is clipped out of its current position in the path and spliced in at a randomly
+# chosen point in the remainder of the path.
+def generateNewCandidate(candidate):
+	start, end = np.random.randint(0, NUM_TOWNS, size=2)
+	while start == end:
+		start, end = np.random.randint(0, NUM_TOWNS, size=2)
+	start, end = min(start, end), max(start, end)
+
+	sequence = candidate.sequence[:]
+	segment = sequence[start:end]
+
+	if np.random.uniform() < 0.5: # Reverse
+		sequence[start:end] = segment[::-1]
+	else: # Shift
+		sequence = sequence[:start] + sequence[end:]
+		idx = np.random.randint(len(sequence) + 1)
+		sequence[idx:idx] = segment
+
+	newCandidate = Path(sequence)
+	return newCandidate, newCandidate.totalDistance()
+
+def drawSolution(scene, candidate, totalDistance, iteration, maxIters):
+	scene.fill((20, 20, 20))
+
+	# Draw connecting lines, then dots (towns) on top
+	for i in range(NUM_TOWNS - 1):
+		town1, town2 = candidate.sequence[i:i + 2]
+		pg.draw.line(scene, (220, 220, 220), town1, town2)
+	first, last = candidate.sequence[0], candidate.sequence[-1]
+	pg.draw.line(scene, (220, 220, 220), first, last)
+
+	for town in candidate.sequence:
+		pg.draw.circle(scene, (230, 20, 20), town, 5)
+
+	# Draw labels for iteration number, temperature, current candidate total distance
+	font = pg.font.SysFont("consolas", 16)
+	iterationLblText = f"  Iteration: {iteration}/{maxIters}"
+	tempLblText = f"Temperature: {temperature:.5f}"
+	distanceLblText = f"   Distance: {totalDistance:.2f}"
+	iterationLbl = font.render(iterationLblText, True, (220, 220, 220))
+	tempLbl = font.render(tempLblText, True, (220, 220, 220))
+	distanceLbl = font.render(distanceLblText, True, (220, 220, 220))
+	scene.blit(iterationLbl, (5, 5))
+	scene.blit(tempLbl, (5, 25))
+	scene.blit(distanceLbl, (5, 45))
+
+	pg.display.flip()
+
+# ---------------------------------------------------------------------------------------------------- #
+# ----------------------------------------------  MAIN  ---------------------------------------------- #
+# ---------------------------------------------------------------------------------------------------- #
+
+pg.init()
+pg.display.set_caption("Simulated Annealing for TSP")
+scene = pg.display.set_mode((600, 600))
+pg.display.flip()
+
+# Setup
+initialise()
+bestDist = bestCandidate.totalDistance()
+bestDistanceHistory = []
+iterNum = 0
+maxIters = int(np.ceil(np.log(TEMP_THRESHOLD / temperature) / np.log(TEMP_DECREASE_FACTOR)))
+
+while temperature > TEMP_THRESHOLD:
+	for event in pg.event.get(): # Handle pygame events
+		if event.type == pg.QUIT:
+			pg.quit()
+			sys.exit(0)
+
+	iterNum += 1
+
+	newCandidate, newDist = generateNewCandidate(bestCandidate)
+
+	drawSolution(scene, newCandidate, newDist, iterNum, maxIters)
+
+	if newDist < bestDist:
+		bestCandidate, bestDist = newCandidate, newDist
+	else:
+		prob = np.exp((bestDist - newDist) / temperature)
+		if np.random.uniform() < prob:
+			bestCandidate, bestDist = newCandidate, newDist
+
+	temperature *= TEMP_DECREASE_FACTOR
+	bestDistanceHistory.append(bestDist)
+
+# Plot best candidate and evolution graph
+
+drawSolution(scene, bestCandidate, bestDist, maxIters, maxIters)
+
+plt.figure(figsize=(8, 6))
+plt.plot(range(len(bestDistanceHistory)), bestDistanceHistory, linewidth=1)
+plt.xlabel("Iteration")
+plt.ylabel("Best distance")
+plt.title("Best distance over time")
+plt.show()

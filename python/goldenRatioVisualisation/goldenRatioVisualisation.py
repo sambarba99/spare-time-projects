@@ -31,8 +31,8 @@ while True:
 		radius, angle = 1, 0
 		scene.fill((0, 0, 0))
 
-	x = cos(angle) * radius + SIZE / 2
-	y = sin(angle) * radius + SIZE / 2
+	x = radius * cos(angle) + SIZE / 2
+	y = radius * sin(angle) + SIZE / 2
 
 	pg.draw.circle(scene, (255, 160, 0), (x, y), 1)
 	pg.display.flip()

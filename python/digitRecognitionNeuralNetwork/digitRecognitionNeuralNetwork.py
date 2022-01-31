@@ -5,7 +5,7 @@
 # 1 row in data (MNIST dataset) contains 784 pixel values (i.e. 28*28 image) from 0-255, and a class label (0-9)
 
 import matplotlib.pyplot as plt
-from NeuralNetwork import NeuralNetwork
+from neuralnetworkclassifier import NeuralNetwork
 import numpy as np
 import pygame as pg
 import random
