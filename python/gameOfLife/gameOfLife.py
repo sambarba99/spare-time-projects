@@ -2,30 +2,29 @@
 # Author: Sam Barba
 # Created 21/09/2021
 
-# 1 - 3: presets
-# C: clear and reset
-# R: randomise live cells
-# Space: play/pause
+# 1 - 3: Presets
+# R: Reset and randomise
+# Space: Play/pause
 
 import pygame as pg
 import random
 import sys
 
-OSCILLATORS = [[24, 10], [35, 10], [36, 10], [24, 11], [29, 11], [30, 11], [31, 11], [35, 11], [24, 12],
-	[28, 12], [29, 12], [30, 12], [38, 12], [37, 13], [38, 13], [27, 17], [28, 17], [29, 17], [33, 17],
-	[34, 17], [35, 17], [25, 19], [30, 19], [32, 19], [37, 19], [25, 20], [30, 20], [32, 20], [37, 20],
-	[25, 21], [30, 21], [32, 21], [37, 21], [27, 22], [28, 22], [29, 22], [33, 22], [34, 22], [35, 22],
-	[27, 24], [28, 24], [29, 24], [33, 24], [34, 24], [35, 24], [25, 25], [30, 25], [32, 25], [37, 25],
-	[25, 26], [30, 26], [32, 26], [37, 26], [25, 27], [30, 27], [32, 27], [37, 27], [27, 29], [28, 29],
-	[29, 29], [33, 29], [34, 29], [35, 29], [46, 14], [46, 15], [45, 16], [47, 16], [46, 17], [46, 18],
-	[46, 19], [46, 20], [45, 21], [47, 21], [46, 22], [46, 23]]
+OSCILLATORS = [[10, 24], [10, 35], [10, 36], [11, 24], [11, 29], [11, 30], [11, 31], [11, 35], [12, 24],
+	[12, 28], [12, 29], [12, 30], [12, 38], [13, 37], [13, 38], [17, 27], [17, 28], [17, 29], [17, 33],
+	[17, 34], [17, 35], [19, 25], [19, 30], [19, 32], [19, 37], [20, 25], [20, 30], [20, 32], [20, 37],
+	[21, 25], [21, 30], [21, 32], [21, 37], [22, 27], [22, 28], [22, 29], [22, 33], [22, 34], [22, 35],
+	[24, 27], [24, 28], [24, 29], [24, 33], [24, 34], [24, 35], [25, 25], [25, 30], [25, 32], [25, 37],
+	[26, 25], [26, 30], [26, 32], [26, 37], [27, 25], [27, 30], [27, 32], [27, 37], [29, 27], [29, 28],
+	[29, 29], [29, 33], [29, 34], [29, 35], [14, 46], [15, 46], [16, 45], [16, 47], [17, 46], [18, 46],
+	[19, 46], [20, 46], [21, 45], [21, 47], [22, 46], [23, 46]]
 
-GLIDER_GUN = [[11, 15], [12, 15], [11, 16], [12, 16], [23, 13], [24, 13], [22, 14], [26, 14], [21, 15],
-	[27, 15], [21, 16], [25, 16], [27, 16], [28, 16], [21, 17], [27, 17], [22, 18], [26, 18], [23, 19],
-	[24, 19], [31, 13], [32, 13], [31, 14], [32, 14], [31, 15], [32, 15], [33, 12], [33, 16], [35, 11],
-	[35, 12], [35, 16], [35, 17], [45, 13], [46, 13], [45, 14], [46, 14]]
+GLIDER_GUN = [[15, 11], [15, 12], [16, 11], [16, 12], [13, 23], [13, 24], [14, 22], [14, 26], [15, 21],
+	[15, 27], [16, 21], [16, 25], [16, 27], [16, 28], [17, 21], [17, 27], [18, 22], [18, 26], [19, 23],
+	[19, 24], [13, 31], [13, 32], [14, 31], [14, 32], [15, 31], [15, 32], [12, 33], [16, 33], [11, 35],
+	[12, 35], [16, 35], [17, 35], [13, 45], [13, 46], [14, 45], [14, 46]]
 
-R_PENTOMINO = [[119, 68], [120, 68], [118, 69], [119, 69], [119, 70]]
+R_PENTOMINO = [[68, 119], [68, 120], [69, 118], [69, 119], [70, 119]]
 
 FPS = 6
 
@@ -39,18 +38,18 @@ running = True
 # ---------------------------------------------------------------------------------------------------- #
 
 class Cell:
-	def __init__(self, x, y):
-		self.x = x
+	def __init__(self, y, x): # Y before X, as 2D arrays are row-major
 		self.y = y
+		self.x = x
 		self.isAlive = False
 
 	def countLiveNeighbours(self, grid):
 		n = 0
-		for xOffset in range(-1, 2):
-			for yOffset in range(-1, 2):
-				checkX = self.x + xOffset
+		for yOffset in range(-1, 2):
+			for xOffset in range(-1, 2):
 				checkY = self.y + yOffset
-				if 0 <= checkX < len(grid) and 0 <= checkY < len(grid[0]) and grid[checkX][checkY].isAlive:
+				checkX = self.x + xOffset
+				if 0 <= checkY < len(grid) and 0 <= checkX < len(grid[0]) and grid[checkY][checkX].isAlive:
 					n += 1
 
 		return n - 1 if self.isAlive else n
@@ -60,45 +59,46 @@ class Cell:
 # ---------------------------------------------------------------------------------------------------- #
 
 def draw(grid, scene):
-	for x in range(cols):
-		for y in range(rows):
-			c = (255, 160, 0) if grid[x][y].isAlive else (80, 80, 80)
-			pg.draw.rect(scene, c, pg.Rect(x * cellSize, y * cellSize, cellSize, cellSize))
+	scene.fill((80, 80, 80))
+
+	for y in range(rows):
+		for x in range(cols):
+			if grid[y][x].isAlive:
+				pg.draw.rect(scene, (255, 160, 0), pg.Rect(x * cellSize, y * cellSize, cellSize, cellSize))
 
 	pg.display.flip()
 
 def update(grid):
-	nextGenGrid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
+	nextGenGrid = [[Cell(y, x) for x in range(cols)] for y in range(rows)]
 
-	for x in range(cols):
-		for y in range(rows):
-			n = grid[x][y].countLiveNeighbours(grid)
+	for y in range(rows):
+		for x in range(cols):
+			n = grid[y][x].countLiveNeighbours(grid)
 
-			if n < 2 or n > 3: nextGenGrid[x][y].isAlive = False
-			elif n == 3: nextGenGrid[x][y].isAlive = True
-			else: nextGenGrid[x][y].isAlive = grid[x][y].isAlive
+			if n < 2 or n > 3: nextGenGrid[y][x].isAlive = False
+			elif n == 3: nextGenGrid[y][x].isAlive = True
+			else: nextGenGrid[y][x].isAlive = grid[y][x].isAlive
 
-	for x in range(cols):
-		for y in range(rows):
-			grid[x][y].isAlive = nextGenGrid[x][y].isAlive
+	for y in range(rows):
+		for x in range(cols):
+			grid[y][x].isAlive = nextGenGrid[y][x].isAlive
 
 def setPattern(grid, pattern):
-	for x, y in pattern:
-		grid[x][y].isAlive = True
+	for y, x in pattern:
+		grid[y][x].isAlive = True
 
 def randomiseLiveCells(grid):
-	allCoords = [(x, y) for x in range(cols) for y in range(rows)]
+	allCoords = [(y, x) for x in range(cols) for y in range(rows)]
 	liveCellCoords = random.sample(allCoords, round(cols * rows * 0.1))
 
-	for x, y in liveCellCoords:
-		grid[x][y].isAlive = True
+	for y, x in liveCellCoords:
+		grid[y][x].isAlive = True
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Usually other way around; this is for the sake of using x,y rather than y,x
-grid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
+grid = [[Cell(y, x) for x in range(cols)] for y in range(rows)]
 randomiseLiveCells(grid)
 
 pg.init()
@@ -112,26 +112,22 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
+			if event.key in [pg.K_1, pg.K_2, pg.K_3, pg.K_r]:
+				rows, cols, cellSize = 41, 70, 22
+
+				if event.key == pg.K_3:
+					rows, cols, cellSize = 140, 240, 6
+
+				grid = [[Cell(y, x) for x in range(cols)] for y in range(rows)]
+
 			if event.key == pg.K_1: # Preset 1
-				rows, cols, cellSize = 41, 70, 22
-				grid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
 				setPattern(grid, OSCILLATORS)
-
 			elif event.key == pg.K_2: # Preset 2
-				rows, cols, cellSize = 41, 70, 22
-				grid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
 				setPattern(grid, GLIDER_GUN)
-
 			elif event.key == pg.K_3: # Preset 3
-				rows, cols, cellSize = 140, 240, 6
-				grid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
 				setPattern(grid, R_PENTOMINO)
-
-			elif event.key in [pg.K_c, pg.K_r]: # Clear and reset / randomise
-				rows, cols, cellSize = 41, 70, 22
-				grid = [[Cell(x, y) for y in range(rows)] for x in range(cols)]
+			elif event.key == pg.K_r: # Reset and randomise
 				randomiseLiveCells(grid)
-
 			elif event.key == pg.K_SPACE: # Play/pause
 				running = not running
 

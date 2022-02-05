@@ -29,9 +29,9 @@ statusText = ""
 # ---------------------------------------------------------------------------------------------------- #
 
 class Cell:
-	def __init__(self, x, y):
-		self.x = x
+	def __init__(self, y, x): # Y before X, as 2D arrays are row-major
 		self.y = y
+		self.x = x
 		self.isMine = False
 		self.isRevealed = False
 		self.isFlagged = False
@@ -70,21 +70,21 @@ class Cell:
 
 	def countNeighbourMines(self):
 		n = 0
-		for xOffset in range(-1, 2):
-			for yOffset in range(-1, 2):
-				checkX = self.x + xOffset
+		for yOffset in range(-1, 2):
+			for xOffset in range(-1, 2):
 				checkY = self.y + yOffset
-				if 0 <= checkX < COLS and 0 <= checkY < ROWS and minefield[checkX][checkY].isMine:
+				checkX = self.x + xOffset
+				if 0 <= checkY < ROWS and 0 <= checkX < COLS and minefield[checkY][checkX].isMine:
 					n += 1
 		return n
 
 	def floodReveal(self):
-		for xOffset in range(-1, 2):
-			for yOffset in range(-1, 2):
-				x = self.x + xOffset
+		for yOffset in range(-1, 2):
+			for xOffset in range(-1, 2):
 				y = self.y + yOffset
-				if 0 <= x < COLS and 0 <= y < ROWS and not minefield[x][y].isFlagged:
-					minefield[x][y].reveal(False)
+				x = self.x + xOffset
+				if 0 <= y < ROWS and 0 <= x < COLS and not minefield[y][x].isFlagged:
+					minefield[y][x].reveal(False)
 
 	def toggleFlag(self):
 		global flagsUsedTotal, flagsUsedCorrectly
@@ -109,24 +109,24 @@ class Cell:
 def setupGame():
 	global minefield, flagsUsedTotal, flagsUsedCorrectly, gameOver, statusText
 
-	minefield = [[Cell(x, y) for y in range(ROWS)] for x in range(COLS)]
+	minefield = [[Cell(y, x) for x in range(COLS)] for y in range(ROWS)]
 
 	flagsUsedTotal = flagsUsedCorrectly = 0
 	gameOver = False
 
-	allCoords = [(x, y) for x in range(COLS) for y in range(ROWS)]
+	allCoords = [(y, x) for x in range(COLS) for y in range(ROWS)]
 	mineCoords = random.sample(allCoords, NUM_MINES)
 
-	for x, y in mineCoords:
-		minefield[x][y].isMine = True
+	for y, x in mineCoords:
+		minefield[y][x].isMine = True
 
 	statusText = f"Flags left: {NUM_MINES - flagsUsedTotal}"
 
-# Win if: all mines are correctly flagged; and all non-mine cells are revealed
+# Win if: All mines are correctly flagged; and all non-mine cells are revealed
 def checkWin():
 	global statusText
 
-	allNonMinesRevealed = all(all(minefield[x][y].isMine or minefield[x][y].isRevealed for x in range(COLS)) for y in range(ROWS))
+	allNonMinesRevealed = all(cell.isMine or cell.isRevealed for row in minefield for cell in row)
 
 	if flagsUsedCorrectly == NUM_MINES and allNonMinesRevealed:
 		endGame(True)
@@ -136,9 +136,9 @@ def checkWin():
 def endGame(won):
 	global gameOver, statusText
 
-	for x in range(COLS):
-		for y in range(ROWS):
-			minefield[x][y].reveal(won)
+	for y in range(ROWS):
+		for x in range(COLS):
+			minefield[y][x].reveal(won)
 
 	gameOver = True
 	statusText = "YOU WIN! Click to reset." if won else "GAME OVER. Click to reset."
@@ -147,10 +147,10 @@ def draw(scene):
 	scene.fill(BACKGROUND)
 	font = pg.font.SysFont("consolas", 16)
 
-	for x in range(COLS):
-		for y in range(ROWS):
-			pg.draw.rect(scene, minefield[x][y].colour, pg.Rect(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
-			cellLbl = font.render(minefield[x][y].text, True, LABEL_FOREGROUND)
+	for y in range(ROWS):
+		for x in range(COLS):
+			pg.draw.rect(scene, minefield[y][x].colour, pg.Rect(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+			cellLbl = font.render(minefield[y][x].text, True, LABEL_FOREGROUND)
 			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 7, y * CELL_SIZE + GRID_OFFSET + 5))
 
 	statusLabel = font.render(statusText, True, LABEL_FOREGROUND)
@@ -169,7 +169,7 @@ def draw(scene):
 
 pg.init()
 pg.display.set_caption("Minesweeper")
-scene = pg.display.set_mode((2 * GRID_OFFSET + COLS * CELL_SIZE, 2 * GRID_OFFSET + ROWS * CELL_SIZE))
+scene = pg.display.set_mode((COLS * CELL_SIZE + 2 * GRID_OFFSET, ROWS * CELL_SIZE + 2 * GRID_OFFSET))
 
 sys.setrecursionlimit(ROWS * COLS)
 setupGame()
@@ -189,6 +189,6 @@ while True:
 				y = (y - GRID_OFFSET) // CELL_SIZE
 				if not (0 <= x < COLS and 0 <= y < ROWS): continue
 
-				minefield[x][y].handleMouseClick(event.button)
+				minefield[y][x].handleMouseClick(event.button)
 
 			draw(scene)

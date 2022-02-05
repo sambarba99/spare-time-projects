@@ -14,6 +14,7 @@ WIDTH = 750
 HEIGHT = 500
 ZOOM = 175
 SCALE_MULT_FACTOR = 3
+MAX_DETAIL = 40
 
 scale = 1
 xAxis = WIDTH / 2
@@ -35,13 +36,13 @@ def draw(scene):
 
 			# Determine whether a point is in the set
 			n = 0
-			while a * a + b * b <= 16 and n < 25:
+			while a * a + b * b <= 16 and n < MAX_DETAIL:
 				realZ = a * a - b * b + p
 				b = 2 * a * b + q
 				a = realZ
 				n += 1
 
-			c = mapRange(n, 0, 25, 0, 255)
+			c = mapRange(n, 0, MAX_DETAIL, 0, 255)
 			scene.set_at((x, y), (c, c, c))
 
 	if showAxes:

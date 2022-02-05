@@ -2,92 +2,145 @@
 # Author: Sam Barba
 # Created 07/09/2021
 
-SIZE = 9
+import pygame as pg
+import sys
 
-# Most difficult sudoku
-BOARD_DIFFICULT = "800000000003600000070090200050007000000045700000100030001000068008500010090000400"
+BOARD_SIZE = 9
+CELL_SIZE = 50
+GRID_OFFSET = 50
+GRID_COLOUR = (220, 220, 220)
 
-solved = False
-board = [[0] * SIZE for _ in range(SIZE)]
+# Puzzles in ascending order of difficulty
+PRESET_PUZZLES = {"Blank": "0" * 81,
+	"Easy": "000000000010020030000000000000000000040050060000000000000000000070080090000000000",
+	"Medium": "100000000020000000003000000000400000000050000000006000000000700000000080000000009",
+	"Hard": "120000034500000006000000000000070000000891000000020000000000000300000005670000089",
+	"Insane": "800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
+
+board = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+givenYX = [] # Y before X, as 2D arrays are row-major
+numBacktracks = 0
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve():
-	global solved
-	if isFull():
-		solved = True
-	else:
-		x, y = findFreeSquare()
+def solve(scene, difficultyLvl):
+	global numBacktracks
+
+	for event in pg.event.get():
+		if event.type == pg.QUIT:
+			pg.quit()
+			sys.exit(0)
+
+	if not isFull():
+		y, x = findFreeSquare()
 		for n in range(1, 10):
-			if legal(n, x, y):
-				board[x][y] = n
-				solve()
+			if legal(n, y, x):
+				board[y][x] = n
+				drawGrid(scene, difficultyLvl, "solving...")
+				solve(scene, difficultyLvl)
 
 		# If we're here, no numbers were legal
 		# So the previous attempt in the loop must be invalid
 		# So we reset the square in order to backtrack, so next number is tried
-		if not solved:
-			board[x][y] = 0
+		if not isFull():
+			board[y][x] = 0
+			numBacktracks += 1
+			drawGrid(scene, difficultyLvl, "solving...")
+
+def drawGrid(scene, difficultyLvl, solveStatus):
+	scene.fill((20, 20, 20))
+	lvlFont = pg.font.SysFont("consolas", 16)
+	gridFont = pg.font.SysFont("consolas", 30)
+
+	levelLbl = lvlFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, (220, 220, 220))
+	backtracksLbl = lvlFont.render(f"{numBacktracks} backtracks", True, (220, 220, 220))
+	scene.blit(levelLbl, (50, 20))
+	scene.blit(backtracksLbl, (50, 515))
+
+	for y in range(BOARD_SIZE):
+		for x in range(BOARD_SIZE):
+			n = "" if board[y][x] == 0 else str(board[y][x])
+
+			if [y, x] in givenYX:
+				# Draw already given numbers as green
+				cellLbl = gridFont.render(n, True, (0, 140, 0))
+			else:
+				cellLbl = gridFont.render(n, True, (220, 220, 220))
+			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 17, y * CELL_SIZE + GRID_OFFSET + 12))
+
+	# Thin grid lines
+	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, CELL_SIZE):
+		pg.draw.line(scene, GRID_COLOUR, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET))
+		pg.draw.line(scene, GRID_COLOUR, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i))
+
+	# Thick grid lines
+	for i in range(GRID_OFFSET + CELL_SIZE * 3, BOARD_SIZE * CELL_SIZE, CELL_SIZE * 3):
+		pg.draw.line(scene, GRID_COLOUR, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET), 5)
+		pg.draw.line(scene, GRID_COLOUR, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i), 5)
+
+	pg.display.flip()
 
 def isFull():
 	return all(n != 0 for row in board for n in row)
 
 def findFreeSquare():
-	for x in range(SIZE):
-		for y in range(SIZE):
-			if board[x][y] == 0:
-				return x, y
+	for y in range(BOARD_SIZE):
+		for x in range(BOARD_SIZE):
+			if board[y][x] == 0:
+				return y, x
 
-	return -1, -1
+	raise AssertionError("Shouldn't have got here")
 
-def valid():
-	return all(all(legal(board[x][y], x, y) for x in range(SIZE)) for y in range(SIZE))
-
-def legal(n, x, y):
-	if n == 0: return True
-
-	bigSquareX = x - (x % 3) # Smallest coords of big square
+def legal(n, y, x):
+	# Top-left coords of big square
 	bigSquareY = y - (y % 3)
+	bigSquareX = x - (x % 3)
 
 	# Check big square
-	for checkX in range(bigSquareX, bigSquareX + 3):
-		for checkY in range(bigSquareY, bigSquareY + 3):
-			if board[checkX][checkY] == n and not (checkX == x and checkY == y):
+	for checkY in range(bigSquareY, bigSquareY + 3):
+		for checkX in range(bigSquareX, bigSquareX + 3):
+			if board[checkY][checkX] == n:
 				return False
 
-	# Check column and row
-	for i in range(9):
-		if board[x][i] == n and i != y: return False
-		if board[i][y] == n and i != x: return False
+	# Check row and column
+	if n in board[y] or n in [row[x] for row in board]:
+		return False
 
 	return True
 
-def formatBoard():
-	s = ""
-	for i in range(SIZE):
-		if i in [3, 6]:
-			s += " ------+-------+------\n"
-		for j in range(SIZE):
-			if j in [3, 6]:
-				s += " |"
-			s += " " + str(board[i][j])
-		s += "\n"
-	return s
+def waitForClick():
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.MOUSEBUTTONDOWN:
+				return
+			elif event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-choice = input("Enter 1 to use 'all zeroes' sudoku, 2 to use most difficult sudoku: ")
+pg.init()
+pg.display.set_caption("Sudoku Solver")
+scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
 
-if choice == "2":
-	for idx, n in enumerate(BOARD_DIFFICULT):
-		row, col = idx // SIZE, idx % SIZE
-		board[row][col] = int(n)
+# Game loop so pygame window doesn't close automatically
+while True:
+	for difficultyLvl, config in PRESET_PUZZLES.items():
+		givenYX = []
+		numBacktracks = 0
 
-solve()
+		for idx, n in enumerate(config):
+			y, x = idx // BOARD_SIZE, idx % BOARD_SIZE
+			board[y][x] = int(n)
+			if int(n) != 0:
+				givenYX.append([y, x])
 
-print("\nSolved:\n")
-print(formatBoard())
+		drawGrid(scene, difficultyLvl, "click to solve")
+		waitForClick()
+		solve(scene, difficultyLvl)
+		drawGrid(scene, difficultyLvl, "solved! Click for next puzzle")
+		waitForClick()

@@ -3,9 +3,9 @@
 # Created 20/09/2021
 
 class Vertex:
-	def __init__(self, x, y):
-		self.x = x
+	def __init__(self, y, x): # Y before X, as 2D arrays are row-major
 		self.y = y
+		self.x = x
 
 		# For A* and Dijkstra
 		self.isWall = True
@@ -23,17 +23,16 @@ class Vertex:
 		isWall = mazeGeneration
 
 		neighbours = []
-		# Usually other way around; this is for the sake of using x,y rather than y,x
-		rows, cols = len(maze[0]), len(maze)
+		rows, cols = len(maze), len(maze[0])
 
-		if self.x - dist >= 0 and maze[self.x - dist][self.y].isWall == isWall:
-			neighbours.append(maze[self.x - dist][self.y])
-		if self.x + dist < cols and maze[self.x + dist][self.y].isWall == isWall:
-			neighbours.append(maze[self.x + dist][self.y])
-		if self.y - dist >= 0 and maze[self.x][self.y - dist].isWall == isWall:
-			neighbours.append(maze[self.x][self.y - dist])
-		if self.y + dist < rows and maze[self.x][self.y + dist].isWall == isWall:
-			neighbours.append(maze[self.x][self.y + dist])
+		if self.x - dist >= 0 and maze[self.y][self.x - dist].isWall == isWall:
+			neighbours.append(maze[self.y][self.x - dist])
+		if self.x + dist < cols and maze[self.y][self.x + dist].isWall == isWall:
+			neighbours.append(maze[self.y][self.x + dist])
+		if self.y - dist >= 0 and maze[self.y - dist][self.x].isWall == isWall:
+			neighbours.append(maze[self.y - dist][self.x])
+		if self.y + dist < rows and maze[self.y + dist][self.x].isWall == isWall:
+			neighbours.append(maze[self.y + dist][self.x])
 
 		return neighbours
 

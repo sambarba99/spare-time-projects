@@ -11,7 +11,7 @@ class Daedalus:
 		self.cols = cols
 
 	def makeMaze(self):
-		maze = [[Vertex(x, y) for y in range(self.rows)] for x in range(self.cols)]
+		maze = [[Vertex(y, x) for x in range(self.cols)] for y in range(self.rows)]
 
 		# Make top-left start
 		maze[0][0].isWall = False
@@ -32,8 +32,8 @@ class Daedalus:
 				return maze
 
 	def __removeWalls(self, maze, a, b):
-		midX = (a.x + b.x) // 2
 		midY = (a.y + b.y) // 2
-		maze[midX][midY].isWall = False
-		maze[a.x][a.y].isWall = False
-		maze[b.x][b.y].isWall = False
+		midX = (a.x + b.x) // 2
+		maze[midY][midX].isWall = False
+		maze[a.y][a.x].isWall = False
+		maze[b.y][b.x].isWall = False

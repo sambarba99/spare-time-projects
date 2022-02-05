@@ -45,7 +45,7 @@ def dist(a, b):
 
 # Dijkstra's algorithm for Shortest Path Tree
 def dijkstra(maze, startVertex, targetVertex):
-	unvisited = [maze[x][y] for x in range(COLS) for y in range(ROWS) if not maze[x][y].isWall]
+	unvisited = [vertex for row in maze for vertex in row if not vertex.isWall]
 
 	# Costs nothing to get from start to start (startVertex parent will always be None)
 	startVertex.cost = 0
@@ -76,17 +76,15 @@ def retracePath(targetVertex, startVertex):
 
 	return path[::-1]
 
-def draw(scene, maze, path=None):
-	for x in range(COLS):
-		for y in range(ROWS):
-			c = (0, 0, 0) if maze[x][y].isWall else (80, 80, 80)
+def draw(scene, maze, path):
+	for y in range(ROWS):
+		for x in range(COLS):
+			c = (0, 0, 0) if maze[y][x].isWall else (80, 80, 80)
 
 			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 	pg.display.flip()
 	
-	if path is None: return
-
 	sleep(1)
 	for v in path:
 		pg.draw.rect(scene, (255, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
@@ -105,11 +103,12 @@ scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
 while True:
 	maze = mazeGenerator.makeMaze()
-	draw(scene, maze)
 
 	startVertex = maze[0][0]
-	targetVertex = maze[COLS - 1][ROWS - 1]
+	targetVertex = maze[ROWS - 1][COLS - 1]
 
 	path = aStar(maze, startVertex, targetVertex)
+	#path = dijkstra(maze, startVertex, targetVertex)
+
 	draw(scene, maze, path)
 	sleep(2)
