@@ -26,6 +26,8 @@ numBacktracks = 0
 # ---------------------------------------------------------------------------------------------------- #
 
 def solve(scene, difficultyLvl):
+	if isFull(): return
+
 	global numBacktracks
 
 	for event in pg.event.get():
@@ -33,31 +35,31 @@ def solve(scene, difficultyLvl):
 			pg.quit()
 			sys.exit(0)
 
-	if not isFull():
-		y, x = findFreeSquare()
-		for n in range(1, 10):
-			if legal(n, y, x):
-				board[y][x] = n
-				drawGrid(scene, difficultyLvl, "solving...")
-				solve(scene, difficultyLvl)
-
-		# If we're here, no numbers were legal
-		# So the previous attempt in the loop must be invalid
-		# So we reset the square in order to backtrack, so next number is tried
-		if not isFull():
-			board[y][x] = 0
-			numBacktracks += 1
+	y, x = findFreeSquare()
+	for n in range(1, 10):
+		if legal(n, y, x):
+			board[y][x] = n
 			drawGrid(scene, difficultyLvl, "solving...")
+			solve(scene, difficultyLvl)
+
+	if isFull(): return
+
+	# If we're here, no numbers were legal
+	# So the previous attempt in the loop must be invalid
+	# So we reset the square in order to backtrack, so next number is tried
+	board[y][x] = 0
+	numBacktracks += 1
+	drawGrid(scene, difficultyLvl, "solving...")
 
 def drawGrid(scene, difficultyLvl, solveStatus):
 	scene.fill((20, 20, 20))
-	lvlFont = pg.font.SysFont("consolas", 16)
-	gridFont = pg.font.SysFont("consolas", 30)
+	statusFont = pg.font.SysFont("consolas", 16)
+	cellFont = pg.font.SysFont("consolas", 30)
 
-	levelLbl = lvlFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, (220, 220, 220))
-	backtracksLbl = lvlFont.render(f"{numBacktracks} backtracks", True, (220, 220, 220))
-	scene.blit(levelLbl, (50, 20))
-	scene.blit(backtracksLbl, (50, 515))
+	statusLbl = statusFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, GRID_COLOUR)
+	backtracksLbl = statusFont.render(f"{numBacktracks} backtracks", True, GRID_COLOUR)
+	scene.blit(statusLbl, (GRID_OFFSET, 20))
+	scene.blit(backtracksLbl, (GRID_OFFSET, 515))
 
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
@@ -65,9 +67,9 @@ def drawGrid(scene, difficultyLvl, solveStatus):
 
 			if [y, x] in givenYX:
 				# Draw already given numbers as green
-				cellLbl = gridFont.render(n, True, (0, 140, 0))
+				cellLbl = cellFont.render(n, True, (0, 140, 0))
 			else:
-				cellLbl = gridFont.render(n, True, (220, 220, 220))
+				cellLbl = cellFont.render(n, True, GRID_COLOUR)
 			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 17, y * CELL_SIZE + GRID_OFFSET + 12))
 
 	# Thin grid lines
