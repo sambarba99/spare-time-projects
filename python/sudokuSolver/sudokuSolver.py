@@ -7,8 +7,8 @@ import sys
 
 BOARD_SIZE = 9
 CELL_SIZE = 50
-GRID_OFFSET = 50
-GRID_COLOUR = (220, 220, 220)
+GRID_OFFSET = 75
+FOREGROUND = (220, 220, 220)
 
 # Puzzles in ascending order of difficulty
 PRESET_PUZZLES = {"Blank": "0" * 81,
@@ -25,7 +25,7 @@ numBacktracks = 0
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(scene, difficultyLvl):
+def solve(difficultyLvl):
 	if isFull(): return
 
 	global numBacktracks
@@ -39,8 +39,8 @@ def solve(scene, difficultyLvl):
 	for n in range(1, 10):
 		if legal(n, y, x):
 			board[y][x] = n
-			drawGrid(scene, difficultyLvl, "solving...")
-			solve(scene, difficultyLvl)
+			drawGrid(difficultyLvl, "solving...")
+			solve(difficultyLvl)
 
 	if isFull(): return
 
@@ -49,40 +49,7 @@ def solve(scene, difficultyLvl):
 	# So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0
 	numBacktracks += 1
-	drawGrid(scene, difficultyLvl, "solving...")
-
-def drawGrid(scene, difficultyLvl, solveStatus):
-	scene.fill((20, 20, 20))
-	statusFont = pg.font.SysFont("consolas", 16)
-	cellFont = pg.font.SysFont("consolas", 30)
-
-	statusLbl = statusFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, GRID_COLOUR)
-	backtracksLbl = statusFont.render(f"{numBacktracks} backtracks", True, GRID_COLOUR)
-	scene.blit(statusLbl, (GRID_OFFSET, 20))
-	scene.blit(backtracksLbl, (GRID_OFFSET, 515))
-
-	for y in range(BOARD_SIZE):
-		for x in range(BOARD_SIZE):
-			n = "" if board[y][x] == 0 else str(board[y][x])
-
-			if [y, x] in givenYX:
-				# Draw already given numbers as green
-				cellLbl = cellFont.render(n, True, (0, 140, 0))
-			else:
-				cellLbl = cellFont.render(n, True, GRID_COLOUR)
-			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 17, y * CELL_SIZE + GRID_OFFSET + 12))
-
-	# Thin grid lines
-	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, CELL_SIZE):
-		pg.draw.line(scene, GRID_COLOUR, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET))
-		pg.draw.line(scene, GRID_COLOUR, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i))
-
-	# Thick grid lines
-	for i in range(GRID_OFFSET + CELL_SIZE * 3, BOARD_SIZE * CELL_SIZE, CELL_SIZE * 3):
-		pg.draw.line(scene, GRID_COLOUR, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET), 5)
-		pg.draw.line(scene, GRID_COLOUR, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i), 5)
-
-	pg.display.flip()
+	drawGrid(difficultyLvl, "solving...")
 
 def isFull():
 	return all(n != 0 for row in board for n in row)
@@ -107,10 +74,43 @@ def legal(n, y, x):
 				return False
 
 	# Check row and column
-	if n in board[y] or n in [row[x] for row in board]:
+	if n in board[y] or n in (row[x] for row in board):
 		return False
 
 	return True
+
+def drawGrid(difficultyLvl, solveStatus):
+	scene.fill((20, 20, 20))
+	statusFont = pg.font.SysFont("consolas", 16)
+	cellFont = pg.font.SysFont("consolas", 30)
+
+	statusLbl = statusFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, FOREGROUND)
+	backtracksLbl = statusFont.render(f"{numBacktracks} backtracks", True, FOREGROUND)
+	scene.blit(statusLbl, (GRID_OFFSET, 32))
+	scene.blit(backtracksLbl, (GRID_OFFSET, 550))
+
+	for y in range(BOARD_SIZE):
+		for x in range(BOARD_SIZE):
+			n = "" if board[y][x] == 0 else str(board[y][x])
+
+			if (y, x) in givenYX:
+				# Draw already given numbers as green
+				cellLbl = cellFont.render(n, True, (0, 140, 0))
+			else:
+				cellLbl = cellFont.render(n, True, FOREGROUND)
+			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 17, y * CELL_SIZE + GRID_OFFSET + 12))
+
+	# Thin grid lines
+	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
+		pg.draw.line(scene, FOREGROUND, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET))
+		pg.draw.line(scene, FOREGROUND, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i))
+
+	# Thick grid lines
+	for i in range(GRID_OFFSET + CELL_SIZE * 3, BOARD_SIZE * CELL_SIZE, CELL_SIZE * 3):
+		pg.draw.line(scene, FOREGROUND, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET), 5)
+		pg.draw.line(scene, FOREGROUND, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i), 5)
+
+	pg.display.flip()
 
 def waitForClick():
 	while True:
@@ -132,17 +132,15 @@ scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZ
 # Game loop so pygame window doesn't close automatically
 while True:
 	for difficultyLvl, config in PRESET_PUZZLES.items():
-		givenYX = []
-		numBacktracks = 0
-
 		for idx, n in enumerate(config):
 			y, x = idx // BOARD_SIZE, idx % BOARD_SIZE
 			board[y][x] = int(n)
-			if int(n) != 0:
-				givenYX.append([y, x])
 
-		drawGrid(scene, difficultyLvl, "click to solve")
+		numBacktracks = 0
+		givenYX = [(y, x) for x in range(BOARD_SIZE) for y in range(BOARD_SIZE) if board[y][x] != 0]
+
+		drawGrid(difficultyLvl, "click to solve")
 		waitForClick()
-		solve(scene, difficultyLvl)
-		drawGrid(scene, difficultyLvl, "solved! Click for next puzzle")
+		solve(difficultyLvl)
+		drawGrid(difficultyLvl, "solved! Click for next puzzle")
 		waitForClick()

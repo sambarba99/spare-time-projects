@@ -27,7 +27,7 @@ showAxes = True
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def draw(scene):
+def draw():
 	for x in range(WIDTH):
 		for y in range(HEIGHT):
 			a = b = 0
@@ -83,7 +83,7 @@ pg.init()
 pg.display.set_caption("Mandelbrot Set")
 scene = pg.display.set_mode((WIDTH, HEIGHT))
 
-draw(scene)
+draw()
 
 while True:
 	for event in pg.event.get():
@@ -96,23 +96,23 @@ while True:
 				yOffset -= (yAxis - HEIGHT / 2)
 				xAxis = WIDTH / 2
 				yAxis = HEIGHT / 2
-				draw(scene)
+				draw()
 
 			elif event.key == pg.K_t: # Toggle axes
 				showAxes = not showAxes
-				draw(scene)
+				draw()
 
 			elif event.key == pg.K_r: # Reset
 				scale = 1
 				xAxis = xOffset = WIDTH / 2
 				yAxis = yOffset = HEIGHT / 2
 				showAxes = True
-				draw(scene)
+				draw()
 
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1: # Left click
+			if event.button == 1: # Left-click
 				xAxis, yAxis = event.pos
-				draw(scene)
+				draw()
 			elif event.button in [4, 5]: # Scrolling up/down
 				scaleDrawing(event.button)
-				draw(scene)
+				draw()

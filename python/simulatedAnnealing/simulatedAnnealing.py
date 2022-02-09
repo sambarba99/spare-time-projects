@@ -81,7 +81,7 @@ def generateNewCandidate(candidate):
 	newCandidate = Path(sequence)
 	return newCandidate, newCandidate.totalDistance()
 
-def drawSolution(scene, candidate, totalDistance, iteration, maxIters):
+def drawSolution(candidate, totalDistance, iteration, maxIters):
 	scene.fill((20, 20, 20))
 
 	# Draw connecting lines, then dots (towns) on top
@@ -134,7 +134,7 @@ while temperature > TEMP_THRESHOLD:
 
 	newCandidate, newDist = generateNewCandidate(bestCandidate)
 
-	drawSolution(scene, newCandidate, newDist, iterNum, maxIters)
+	drawSolution(newCandidate, newDist, iterNum, maxIters)
 
 	if newDist < bestDist:
 		bestCandidate, bestDist = newCandidate, newDist
@@ -148,7 +148,7 @@ while temperature > TEMP_THRESHOLD:
 
 # Plot best candidate and evolution graph
 
-drawSolution(scene, bestCandidate, bestDist, maxIters, maxIters)
+drawSolution(bestCandidate, bestDist, maxIters, maxIters)
 
 plt.figure(figsize=(8, 6))
 plt.plot(range(len(bestDistanceHistory)), bestDistanceHistory, linewidth=1)

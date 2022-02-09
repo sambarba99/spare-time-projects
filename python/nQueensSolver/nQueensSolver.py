@@ -10,7 +10,7 @@ N = 12 # N > 3
 BLANK = 0
 QUEEN = 1
 CELL_SIZE = 40
-GRID_OFFSET = 40
+GRID_OFFSET = 60
 
 board = [[BLANK] * N for _ in range(N)]
 
@@ -18,7 +18,7 @@ board = [[BLANK] * N for _ in range(N)]
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(scene, row=0):
+def solve(row=0):
 	if row == N: # If all queens placed
 		return True
 
@@ -31,20 +31,20 @@ def solve(scene, row=0):
 		if valid(row, col):
 			board[row][col] = QUEEN
 			if DRAW_STEPS:
-				drawGrid(scene, "Solving...")
-			if solve(scene, row + 1):
+				drawGrid("Solving...")
+			if solve(row + 1):
 				return True
 
 		# Reset the square in order to backtrack
 		board[row][col] = BLANK
 		if DRAW_STEPS:
-			drawGrid(scene, "Solving...")
+			drawGrid("Solving...")
 
 	return False
 
 def valid(row, col):
 	# Check row and column
-	if QUEEN in board[row] or QUEEN in [r[col] for r in board]:
+	if QUEEN in board[row] or QUEEN in (r[col] for r in board):
 		return False
 
 	# Check upper diagonal on left side
@@ -59,13 +59,13 @@ def valid(row, col):
 
 	return True
 
-def drawGrid(scene, solveStatus):
+def drawGrid(solveStatus):
 	scene.fill((20, 20, 20))
 	statusFont = pg.font.SysFont("consolas", 16)
 	cellFont = pg.font.SysFont("consolas", 24)
 
 	statusLbl = statusFont.render(f"{solveStatus}", True, (220, 220, 220))
-	scene.blit(statusLbl, (GRID_OFFSET, 14))
+	scene.blit(statusLbl, (GRID_OFFSET, 25))
 
 	for y in range(N):
 		for x in range(N):
@@ -74,7 +74,7 @@ def drawGrid(scene, solveStatus):
 				scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 13, y * CELL_SIZE + GRID_OFFSET + 8))
 
 	# Grid lines
-	for i in range(GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET, CELL_SIZE):
+	for i in range(GRID_OFFSET, N * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
 		pg.draw.line(scene, (220, 220, 220), (i, GRID_OFFSET), (i, N * CELL_SIZE + GRID_OFFSET))
 		pg.draw.line(scene, (220, 220, 220), (GRID_OFFSET, i), (N * CELL_SIZE + GRID_OFFSET, i))
 
@@ -88,8 +88,8 @@ pg.init()
 pg.display.set_caption("N Queens Solver")
 scene = pg.display.set_mode((N * CELL_SIZE + 2 * GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET))
 
-solved = solve(scene)
-drawGrid(scene, "Solved!" if solved else "No solution")
+solved = solve()
+drawGrid("Solved!" if solved else "No solution")
 
 while True:
 	for event in pg.event.get():

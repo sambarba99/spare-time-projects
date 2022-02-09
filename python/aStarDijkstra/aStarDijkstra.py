@@ -76,7 +76,7 @@ def retracePath(targetVertex, startVertex):
 
 	return path[::-1]
 
-def draw(scene, maze, path):
+def draw(maze, path):
 	for y in range(ROWS):
 		for x in range(COLS):
 			c = (0, 0, 0) if maze[y][x].isWall else (80, 80, 80)
@@ -84,10 +84,10 @@ def draw(scene, maze, path):
 			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 	pg.display.flip()
-	
+
 	sleep(1)
 	for v in path:
-		pg.draw.rect(scene, (255, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+		pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 		sleep(0.01)
 		pg.display.flip()
 
@@ -110,5 +110,5 @@ while True:
 	path = aStar(maze, startVertex, targetVertex)
 	#path = dijkstra(maze, startVertex, targetVertex)
 
-	draw(scene, maze, path)
+	draw(maze, path)
 	sleep(2)

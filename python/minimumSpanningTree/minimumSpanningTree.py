@@ -2,8 +2,8 @@
 # Author: Sam Barba
 # Created 17/09/2021
 
-# Left click: add a vertex
-# Right click: reset graph
+# Left-click: Add a vertex
+# Right-click: Reset graph
 
 import pygame as pg
 import random
@@ -62,7 +62,7 @@ def mst(graph):
 
 	return mstParents
 
-def drawMST(scene, graph):
+def drawMST(graph):
 	if not graph: return
 
 	scene.fill((20, 20, 20))
@@ -109,25 +109,24 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1: # Left click
+			if event.button == 1: # Left-click
 				if len(graph) == 30:
 					print("Size limit reached")
 					continue
 
 				x, y = event.pos
-				if x < 5: x = 5
-				if x > SIZE - 5: x = SIZE - 5
-				if y < 5: y = 5
-				if y > SIZE - 5: y = SIZE - 5
+				# Constrain x and y to range [5, SIZE - 5]
+				x = max(min(x, SIZE - 5), 5)
+				y = max(min(y, SIZE - 5), 5)
 
 				xVel, yVel = random.uniform(-3, 3), random.uniform(-3, 3)
 				graph.append(Vertex(len(graph), x, y, xVel, yVel))
 
-			elif event.button == 3: # Right click
+			elif event.button == 3: # Right-click
 				graph = []
 				scene.fill((20, 20, 20))
 				pg.display.flip()
 
-	drawMST(scene, graph)
+	drawMST(graph)
 	movePoints(graph)
 	clock.tick(FPS)

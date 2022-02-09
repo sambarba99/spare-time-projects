@@ -25,7 +25,7 @@ positions = []
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def draw(scene):
+def draw():
 	global a1, a2, a1vel, a2vel, positions
 
 	scene.fill((20, 20, 20))
@@ -118,5 +118,5 @@ while True:
 				a1vel = a2vel = 0
 				positions = []
 
-	draw(scene)
+	draw()
 	clock.tick(FPS)

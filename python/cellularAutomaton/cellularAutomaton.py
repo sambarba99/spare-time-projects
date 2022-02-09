@@ -14,7 +14,7 @@ CELL_SIZE = 2 # Size of each cell
 # ---------------------------------------------------------------------------------------------------- #
 
 def setRuleSet(n):
-	if n < 1 or n > 255:
+	if n not in range(1, 256):
 		raise ValueError("Rule no. must be 1 - 255")
 
 	ruleSet = [0] * 8
@@ -26,7 +26,7 @@ def setRuleSet(n):
 
 	return ruleSet
 
-def generatePlot(scene, ruleSet):
+def generatePlot(ruleSet):
 	gen = [0] * IMG_SIZE
 	gen[IMG_SIZE // 2] = 1 # Turn on centre pixel of first generation
 	plot = [None] * IMG_SIZE
@@ -66,12 +66,12 @@ pg.init()
 scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
 
 # Interesting rules
-rules = [18, 30, 45, 54, 57, 60, 73, 105, 137, 151, 153, 161]
+rules = [18, 30, 45, 54, 57, 73, 105, 151, 153, 161]
 i = 0
 
 while True:
 	ruleSet = setRuleSet(rules[i])
 	pg.display.set_caption(f"Elementary Cellular Automaton (rule {rules[i]}: {ruleSet})")
-	generatePlot(scene, ruleSet)
+	generatePlot(ruleSet)
 	i = (i + 1) % len(rules)
 	sleep(2)

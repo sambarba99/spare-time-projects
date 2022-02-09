@@ -12,11 +12,11 @@ COLS = 60
 GRID_OFFSET = 60
 NUM_MINES = round(ROWS * COLS * 0.1)
 BACKGROUND = (20, 20, 20)
+LABEL_FOREGROUND = (220, 220, 220)
 CELL_UNCLICKED = (80, 80, 80)
 CELL_FLAGGED = (255, 160, 0)
 MINE_WON = (0, 144, 0)
-MINE_LOST = (230, 20, 20)
-LABEL_FOREGROUND = (220, 220, 220)
+MINE_LOST = (200, 20, 20)
 
 minefield = None
 flagsUsedTotal = 0
@@ -41,13 +41,13 @@ class Cell:
 	def handleMouseClick(self, eventButton):
 		if gameOver or self.isRevealed: return
 
-		if eventButton == 1 and not self.isFlagged:
+		if eventButton == 1 and not self.isFlagged: # Left-click
 			if self.isMine:
 				endGame(False)
 			else:
 				self.reveal(False)
 				checkWin()
-		elif eventButton == 3:
+		elif eventButton == 3: # Right-click
 			self.toggleFlag()
 			checkWin()
 
@@ -74,7 +74,8 @@ class Cell:
 			for xOffset in range(-1, 2):
 				checkY = self.y + yOffset
 				checkX = self.x + xOffset
-				if 0 <= checkY < ROWS and 0 <= checkX < COLS and minefield[checkY][checkX].isMine:
+				if checkY in range(ROWS) and checkX in range(COLS) \
+					and minefield[checkY][checkX].isMine:
 					n += 1
 		return n
 
@@ -83,7 +84,8 @@ class Cell:
 			for xOffset in range(-1, 2):
 				y = self.y + yOffset
 				x = self.x + xOffset
-				if 0 <= y < ROWS and 0 <= x < COLS and not minefield[y][x].isFlagged:
+				if y in range(ROWS) and x in range(COLS) \
+					and not minefield[y][x].isFlagged:
 					minefield[y][x].reveal(False)
 
 	def toggleFlag(self):
@@ -126,7 +128,7 @@ def setupGame():
 def checkWin():
 	global statusText
 
-	allNonMinesRevealed = all(cell.isMine or cell.isRevealed for row in minefield for cell in row)
+	allNonMinesRevealed = all(cell.isRevealed for row in minefield for cell in row if not cell.isMine)
 
 	if flagsUsedCorrectly == NUM_MINES and allNonMinesRevealed:
 		endGame(True)
@@ -143,7 +145,7 @@ def endGame(won):
 	gameOver = True
 	statusText = "YOU WIN! Click to reset." if won else "GAME OVER. Click to reset."
 
-def draw(scene):
+def drawGrid():
 	scene.fill(BACKGROUND)
 	font = pg.font.SysFont("consolas", 16)
 
@@ -156,9 +158,10 @@ def draw(scene):
 	statusLabel = font.render(statusText, True, LABEL_FOREGROUND)
 	scene.blit(statusLabel, (GRID_OFFSET, GRID_OFFSET // 2))
 
-	for x in range(GRID_OFFSET, COLS * (CELL_SIZE + 1), CELL_SIZE):
+	# Grid lines
+	for x in range(GRID_OFFSET, COLS * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
 		pg.draw.line(scene, BACKGROUND, (x, GRID_OFFSET), (x, ROWS * CELL_SIZE + GRID_OFFSET))
-	for y in range(GRID_OFFSET, ROWS * (CELL_SIZE + 2), CELL_SIZE):
+	for y in range(GRID_OFFSET, ROWS * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
 		pg.draw.line(scene, BACKGROUND, (GRID_OFFSET, y), (COLS * CELL_SIZE + GRID_OFFSET, y))
 
 	pg.display.flip()
@@ -173,7 +176,7 @@ scene = pg.display.set_mode((COLS * CELL_SIZE + 2 * GRID_OFFSET, ROWS * CELL_SIZ
 
 sys.setrecursionlimit(ROWS * COLS)
 setupGame()
-draw(scene)
+drawGrid()
 
 while True:
 	for event in pg.event.get():
@@ -185,10 +188,9 @@ while True:
 				setupGame()
 			else:
 				x, y = event.pos
-				x = (x - GRID_OFFSET) // CELL_SIZE
 				y = (y - GRID_OFFSET) // CELL_SIZE
-				if not (0 <= x < COLS and 0 <= y < ROWS): continue
+				x = (x - GRID_OFFSET) // CELL_SIZE
+				if y in range(ROWS) and x in range(COLS):
+					minefield[y][x].handleMouseClick(event.button)
 
-				minefield[y][x].handleMouseClick(event.button)
-
-			draw(scene)
+			drawGrid()
