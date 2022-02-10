@@ -86,7 +86,7 @@ while True:
 		print("\nMatrix of cofactors:\n" + str(mat.comatrix()))
 
 		det = mat.determinant(size)
-		if det == 0:
+		if abs(det) < 10 ** -6:
 			print("\nNo inverse, determinant = 0")
 		else:
 			print("\nInverse:\n" + str(mat.inverse()))
@@ -96,7 +96,7 @@ while True:
 		choice = int(input("Enter 1 for translation, 2 for enlargement, 3 for reflection or 4 for rotation: "))
 
 		numV = int(input("\nHow many vertices? "))
-		coords = [[0] * 2] * numV
+		coords = [None] * numV
 
 		for i in range(numV):
 			coords[i] = list(map(float, input(f"Input x and y coords {i + 1} / {numV}: ").split()))

@@ -113,6 +113,6 @@ while True:
 			if event.button == 1: # Left-click
 				xAxis, yAxis = event.pos
 				draw()
-			elif event.button in [4, 5]: # Scrolling up/down
+			elif event.button in (4, 5): # Scrolling up/down
 				scaleDrawing(event.button)
 				draw()

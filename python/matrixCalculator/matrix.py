@@ -60,13 +60,15 @@ class Matrix:
 		return det
 
 	def inverse(self):
-		det = self.determinant(self.rows)
-		com = self.comatrix()
-		com.grid = [[x / det for x in row] for row in com.grid]
+		# Inverse of a square matrix = 1/determinant * adjugate matrix
+		# = 1/determinant * transposed cofactor matrix
 
-		# Then transpose comatrix
-		transposedComatrixGrid = [[com.grid[j][i] for j in range(self.rows)] for i in range(self.rows)]
-		return Matrix(transposedComatrixGrid)
+		det = self.determinant(self.rows)
+		comatrix = self.comatrix()
+		adjugateGrid = list(zip(*comatrix.grid)) # Transposed comatrix
+		resultGrid = [[x / det for x in row] for row in adjugateGrid]
+
+		return Matrix(resultGrid)
 
 	def comatrix(self):
 		resultGrid = [[0] * self.cols for _ in range(self.rows)]

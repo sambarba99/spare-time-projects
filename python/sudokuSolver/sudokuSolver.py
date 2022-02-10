@@ -98,7 +98,9 @@ def drawGrid(difficultyLvl, solveStatus):
 				cellLbl = cellFont.render(n, True, (0, 140, 0))
 			else:
 				cellLbl = cellFont.render(n, True, FOREGROUND)
-			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 17, y * CELL_SIZE + GRID_OFFSET + 12))
+
+			lblRect = cellLbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
+			scene.blit(cellLbl, lblRect)
 
 	# Thin grid lines
 	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):

@@ -2,9 +2,6 @@
 # Author: Sam Barba
 # Created 08/02/2022
 
-# A: Make AI play first move
-# R: Reset
-
 import pygame as pg
 import sys
 from time import sleep
@@ -38,7 +35,7 @@ def handleMouseClick(y, x):
 
 	result = findWinner()
 	# No point checking if human wins...
-	if result == TIE: statusText = "It's a tie! 'R' to reset"
+	if result == TIE: statusText = "It's a tie! Click to reset"
 	if result is None: statusText = "AI's turn (x)"
 
 	drawGrid()
@@ -89,9 +86,9 @@ def makeBestAiMove():
 
 	result = findWinner()
 	global statusText
-	if result == AI: statusText = "AI wins! 'R' to reset"
-	if result == TIE: statusText = "It's a tie! 'R' to reset"
-	if result is None: statusText = "Your turn (o)! 'R' to reset"
+	if result == AI: statusText = "AI wins! Click to reset"
+	if result == TIE: statusText = "It's a tie! Click to reset"
+	if result is None: statusText = "Your turn (o)!"
 
 def minimax(depth, alpha, beta, maximising):
 	result = findWinner()
@@ -138,7 +135,8 @@ def drawGrid():
 
 			colour = (220, 20, 20) if token == AI else (20, 120, 220)
 			cellLbl = tokenFont.render(token, True, colour)
-			scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 22, y * CELL_SIZE + GRID_OFFSET - 9))
+			lblRect = cellLbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
+			scene.blit(cellLbl, lblRect)
 
 	# Grid lines
 	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
@@ -164,8 +162,13 @@ while True:
 			sys.exit(0)
 
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			x, y = event.pos
-			handleMouseClick(y, x)
+			if findWinner() is not None: # Click to reset if game over
+				board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+				statusText = "Your turn! (Or 'A' to make AI go first)"
+				drawGrid()
+			else:
+				x, y = event.pos
+				handleMouseClick(y, x)
 
 		elif event.type == pg.KEYDOWN:
 			if event.key == pg.K_a: # Make AI play first
@@ -173,7 +176,3 @@ while True:
 				if all(cell is None for row in board for cell in row):
 					makeBestAiMove()
 					drawGrid()
-			elif event.key == pg.K_r: # Reset
-				board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-				statusText = "Your turn! (Or 'A' to make AI go first)"
-				drawGrid()

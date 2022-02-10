@@ -25,7 +25,7 @@ import javafx.util.Duration;
 /**
  * Fourier transform visualisation
  * 
- * Keys 1-3: change no. epicycles; F: draw flower; H: draw heart; P: draw pi; right-click: toggle user drawing mode
+ * Keys 1-3: Change no. epicycles; F: Draw flower; H: Draw heart; P: Draw pi; right-click: Toggle user drawing mode
  * 
  * @author Sam Barba
  */

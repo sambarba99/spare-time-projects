@@ -71,7 +71,8 @@ def drawGrid(solveStatus):
 		for x in range(N):
 			if board[y][x] == QUEEN:
 				cellLbl = cellFont.render("Q", True, (220, 150, 0))
-				scene.blit(cellLbl, (x * CELL_SIZE + GRID_OFFSET + 13, y * CELL_SIZE + GRID_OFFSET + 8))
+				lblRect = cellLbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
+				scene.blit(cellLbl, lblRect)
 
 	# Grid lines
 	for i in range(GRID_OFFSET, N * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):

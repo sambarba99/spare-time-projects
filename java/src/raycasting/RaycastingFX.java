@@ -8,7 +8,6 @@ import java.util.Random;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -16,6 +15,8 @@ import javafx.stage.Stage;
 
 /**
  * Raycasting demo
+ * 
+ * WASD: Move around; M/M: Increase/decrease POV; R: Reset
  * 
  * @author Sam Barba
  */
@@ -36,7 +37,7 @@ public class RaycastingFX extends Application {
 
 	private double sourceHeading = Math.toDegrees(Math.atan(0.6));
 
-	private double povAngle = 60;
+	private double povAngle = 90;
 
 	private List<Line> rays = new ArrayList<>();
 
@@ -50,7 +51,6 @@ public class RaycastingFX extends Application {
 	public void start(Stage primaryStage) {
 		Scene scene = new Scene(pane, WIDTH, HEIGHT);
 		scene.setOnKeyPressed(this::handleKeyPress);
-		scene.setOnMouseMoved(this::moveRaySourceMouse);
 		scene.getStylesheets().add("style.css");
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Raycasting demo");
@@ -120,19 +120,13 @@ public class RaycastingFX extends Application {
 		generateRays();
 	}
 
-	private void moveRaySourceMouse(MouseEvent e) {
-		sourceX = e.getSceneX();
-		sourceY = e.getSceneY();
-		generateRays();
-	}
-
 	private void generateRays() {
 		// Reset scene
 		pane.getChildren().removeAll(rays);
 		rays.clear();
 		rayDistances.clear();
 
-		for (double a = -povAngle / 2; a < povAngle / 2; a += 0.1) {
+		for (double a = -povAngle / 2; a < povAngle / 2; a += 0.2) {
 			double cosA = Math.cos(Math.toRadians(a + sourceHeading));
 			double sinA = Math.sin(Math.toRadians(a + sourceHeading));
 			double endX = cosA * RAY_LENGTH + sourceX;
