@@ -41,13 +41,13 @@ data = np.array(data).astype(float)
 x, y = data[:,:-1], data[:,-1].astype(int)
 
 pca = PCA()
-xTransform, newVariability = pca.transform(x)
+x_transform, new_variability = pca.transform(x)
 
 plt.figure(figsize=(8, 8))
-for classLabel in np.unique(y):
-	plt.scatter(*xTransform[y == classLabel].T, alpha=0.7)
+for class_label in np.unique(y):
+	plt.scatter(*x_transform[y == class_label].T, alpha=0.7)
 plt.legend(classes)
 plt.xlabel("Principal component 1")
 plt.ylabel("Principal component 2")
-plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {xTransform.shape}\nCaptured variability: {round(100 * newVariability, 2)}%")
+plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}\nCaptured variability: {round(100 * new_variability, 2)}%")
 plt.show()

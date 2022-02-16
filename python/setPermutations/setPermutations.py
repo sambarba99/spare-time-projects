@@ -7,37 +7,37 @@
 # ---------------------------------------------------------------------------------------------------- #
 
 # Heap's algorithm for generating all permutations of n objects
-def permutations(n, charSet, results):
+def permutations(n, char_set, results):
 	if n == 1:
-		results.append("".join(charSet))
+		results.append("".join(char_set))
 	else:
 		for i in range(n):
-			permutations(n - 1, charSet, results)
+			permutations(n - 1, char_set, results)
 			if n % 2 == 0:
-				charSet[i], charSet[n - 1] = charSet[n - 1], charSet[i]
+				char_set[i], char_set[n - 1] = char_set[n - 1], char_set[i]
 			else:
-				charSet[0], charSet[n - 1] = charSet[n - 1], charSet[0]
+				char_set[0], char_set[n - 1] = char_set[n - 1], char_set[0]
 
-def permutationsWithRepetitionLengthK(charSet, k, permutationRepetitionResults, prefix=""):
+def permutations_with_repetition_length_k(char_set, k, permutation_repetition_results, prefix=""):
 	if k == 0:
-		permutationRepetitionResults.append(prefix)
+		permutation_repetition_results.append(prefix)
 	else:
-		for c in charSet:
-			newPrefix = prefix + c
-			permutationsWithRepetitionLengthK(charSet, k - 1, permutationRepetitionResults, newPrefix)
+		for c in char_set:
+			new_prefix = prefix + c
+			permutations_with_repetition_length_k(char_set, k - 1, permutation_repetition_results, new_prefix)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-charSet = input("Enter a word: ").upper()
+char_set = input("Enter a word: ").upper()
 
-permutationResults, permutationRepetitionResults = [], []
-permutations(len(charSet), list(charSet), permutationResults)
-permutationsWithRepetitionLengthK(list(set(charSet)), len(charSet), permutationRepetitionResults)
+permutation_results, permutation_repetition_results = [], []
+permutations(len(char_set), list(char_set), permutation_results)
+permutations_with_repetition_length_k(list(set(char_set)), len(char_set), permutation_repetition_results)
 
-permutationResults = sorted(list(set(permutationResults)))
-permutationRepetitionResults.sort()
+permutation_results = sorted(list(set(permutation_results)))
+permutation_repetition_results.sort()
 
-print(f"\n{len(permutationResults)} unique permutations (no repetition) of '{charSet}':\n{permutationResults}")
-print(f"\n{len(permutationRepetitionResults)} permutations (with repetition) of '{charSet}':\n{permutationRepetitionResults}")
+print(f"\n{len(permutation_results)} unique permutations (no repetition) of '{char_set}':\n{permutation_results}")
+print(f"\n{len(permutation_repetition_results)} permutations (with repetition) of '{char_set}':\n{permutation_repetition_results}")

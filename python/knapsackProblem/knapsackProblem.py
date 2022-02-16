@@ -21,21 +21,21 @@ TOURNAMENT_SIZE = 2
 # ---------------------------------------------------------------------------------------------------- #
 
 class Knapsack:
-	def __init__(self, itemConfig):
+	def __init__(self, item_config):
 		# E.g. [False, True, True, False] means include 2nd and 3rd items
-		self.itemConfig = itemConfig
+		self.item_config = item_config
 		self.fitness = None
 
-	def calcFitness(self):
-		self.fitness = self.totalValue() if self.totalWeight() <= KNAPSACK_CAPACITY else 0
+	def calc_fitness(self):
+		self.fitness = self.total_value() if self.total_weight() <= KNAPSACK_CAPACITY else 0
 
-	def totalValue(self):
-		global allItems
-		return sum(allItems[i].value for i in range(NUM_ITEMS) if self.itemConfig[i])
+	def total_value(self):
+		global all_items
+		return sum(all_items[i].value for i in range(NUM_ITEMS) if self.item_config[i])
 
-	def totalWeight(self):
-		global allItems
-		return sum(allItems[i].weight for i in range(NUM_ITEMS) if self.itemConfig[i])
+	def total_weight(self):
+		global all_items
+		return sum(all_items[i].weight for i in range(NUM_ITEMS) if self.item_config[i])
 
 class Item:
 	def __init__(self, index, value, weight):
@@ -50,19 +50,19 @@ class Item:
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def initialisePopulation():
-	global allItems
+def initialise_population():
+	global all_items
 	population = []
 
 	for _ in range(POP_SIZE):
 		individual = Knapsack([False] * NUM_ITEMS)
-		allItemsCopy = allItems[:]
-		allItemsCopy = list(enumerate(allItemsCopy))
-		random.shuffle(allItemsCopy)
+		all_items_copy = all_items[:]
+		all_items_copy = list(enumerate(all_items_copy))
+		random.shuffle(all_items_copy)
 
-		for idx, item in allItemsCopy:
-			if individual.totalWeight() + item.weight <= KNAPSACK_CAPACITY:
-				individual.itemConfig[idx] = True
+		for idx, item in all_items_copy:
+			if individual.total_weight() + item.weight <= KNAPSACK_CAPACITY:
+				individual.item_config[idx] = True
 
 		population.append(individual)
 
@@ -70,15 +70,15 @@ def initialisePopulation():
 
 def evaluate(*population):
 	for individual in population:
-		individual.calcFitness()
+		individual.calc_fitness()
 
 # Tournament selection
 def selection(population):
 	parents = []
 
 	for i in range(POP_SIZE):
-		tournamentIndividuals = random.sample(population, TOURNAMENT_SIZE)
-		parents.append(findFittest(*tournamentIndividuals))
+		tournament_individuals = random.sample(population, TOURNAMENT_SIZE)
+		parents.append(find_fittest(*tournament_individuals))
 
 	return parents
 
@@ -89,19 +89,19 @@ def crossover(parents):
 	for i in range(POP_SIZE - 1):
 		if random.random() > CROSSOVER_RATE: continue
 
-		p1config = parents[i].itemConfig
-		p2config = parents[i + 1].itemConfig
+		p1_config = parents[i].item_config
+		p2_config = parents[i + 1].item_config
 
 		c = random.randrange(NUM_ITEMS)
 
-		off1config = p1config[:c] + p2config[c:]
-		off2config = p2config[:c] + p1config[c:]
+		off1_config = p1_config[:c] + p2_config[c:]
+		off2_config = p2_config[:c] + p1_config[c:]
 
-		off1 = Knapsack(off1config)
-		off2 = Knapsack(off2config)
+		off1 = Knapsack(off1_config)
+		off2 = Knapsack(off2_config)
 		evaluate(off1, off2)
 
-		offspring[i] = findFittest(off1, off2)
+		offspring[i] = find_fittest(off1, off2)
 
 	return offspring
 
@@ -112,12 +112,12 @@ def mutation(offspring):
 
 	for i in range(round(ELITISM_RATE * POP_SIZE), POP_SIZE):
 		if random.random() <= MUTATION_RATE:
-			randIdx = random.randrange(NUM_ITEMS)
-			mutants[i].itemConfig[randIdx] = not mutants[i].itemConfig[randIdx]
+			rand_idx = random.randrange(NUM_ITEMS)
+			mutants[i].item_config[rand_idx] = not mutants[i].item_config[rand_idx]
 
 	return mutants
 
-def findFittest(*population):
+def find_fittest(*population):
 	return max(population, key=lambda ind: ind.fitness)
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -126,22 +126,22 @@ def findFittest(*population):
 
 # Generate random items
 
-itemValues = [random.randint(50, 500) for _ in range(NUM_ITEMS)]
-itemWeights = [random.randint(1, 15) for _ in range(NUM_ITEMS)]
-allItems = [Item(i + 1, itemValues[i], itemWeights[i]) for i in range(NUM_ITEMS)]
+item_values = [random.randint(50, 500) for _ in range(NUM_ITEMS)]
+item_weights = [random.randint(1, 15) for _ in range(NUM_ITEMS)]
+all_items = [Item(i + 1, item_values[i], item_weights[i]) for i in range(NUM_ITEMS)]
 
-for item in allItems:
+for item in all_items:
 	print(str(item))
 
-print("\nTotal value:", sum(itemValues))
-print("Total weight:", sum(itemWeights))
+print("\nTotal value:", sum(item_values))
+print("Total weight:", sum(item_weights))
 print("Knapsack capacity:", KNAPSACK_CAPACITY)
 
 # Initialise population and perform GA
-population = initialisePopulation()
+population = initialise_population()
 
-bestKnapsack = population[0]
-meanFitnesses, bestFitnesses = [], []
+best_knapsack = population[0]
+mean_fitnesses, best_fitnesses = [], []
 
 for _ in range(GENERATIONS):
 	evaluate(*population)
@@ -150,17 +150,17 @@ for _ in range(GENERATIONS):
 	mutants = mutation(offspring)
 	population = deepcopy(mutants)
 
-	bestPopKnapsack = findFittest(*population)
-	if bestPopKnapsack.fitness > bestKnapsack.fitness:
-		bestKnapsack = bestPopKnapsack
+	best_pop_knapsack = find_fittest(*population)
+	if best_pop_knapsack.fitness > best_knapsack.fitness:
+		best_knapsack = best_pop_knapsack
 
-	meanFitness = sum(ind.fitness for ind in population) / POP_SIZE
-	meanFitnesses.append(meanFitness)
-	bestFitnesses.append(bestPopKnapsack.fitness)
+	mean_fitness = sum(ind.fitness for ind in population) / POP_SIZE
+	mean_fitnesses.append(mean_fitness)
+	best_fitnesses.append(best_pop_knapsack.fitness)
 
 # Display best items
 
-items = [allItems[i] for i in range(NUM_ITEMS) if bestKnapsack.itemConfig[i]]
+items = [all_items[i] for i in range(NUM_ITEMS) if best_knapsack.item_config[i]]
 print("\nBest items:", ", ".join(str(item.index) for item in items))
 print("Value:", sum(item.value for item in items))
 print("Weight left:", KNAPSACK_CAPACITY - sum(item.weight for item in items))
@@ -169,8 +169,8 @@ print("Weight left:", KNAPSACK_CAPACITY - sum(item.weight for item in items))
 
 gens = [i + 1 for i in range(GENERATIONS)]
 plt.figure(figsize=(8, 6))
-plt.plot(gens, meanFitnesses, color="#0080ff", linewidth=1)
-plt.plot(gens, bestFitnesses, color="#008000", linewidth=1)
+plt.plot(gens, mean_fitnesses, color="#0080ff", linewidth=1)
+plt.plot(gens, best_fitnesses, color="#008000", linewidth=1)
 plt.legend(["Mean fitness", "Best fitness"])
 plt.xlabel("Generation")
 plt.ylabel("Fitness")

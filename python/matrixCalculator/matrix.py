@@ -8,34 +8,34 @@ class Matrix:
 	def __init__(self, values, rows=None, cols=None):
 		self.rows = rows if rows is not None else len(values)
 		self.cols = cols if cols is not None else len(values[0])
-		self.grid = values if isinstance(values, list) else self.__createGridFromLine(values)
+		self.grid = values if isinstance(values, list) else self.__create_grid_from_line(values)
 
-	def __createGridFromLine(self, values):
-		floatList = list(map(float, values.split()))
+	def __create_grid_from_line(self, values):
+		float_list = list(map(float, values.split()))
 		grid = [[0] * self.cols for _ in range(self.rows)]
 
-		for idx, item in enumerate(floatList):
+		for idx, item in enumerate(float_list):
 			row, col = idx // self.cols, idx % self.cols
 			grid[row][col] = item
 
 		return grid
 
-	def addSubtract(self, other, add):
+	def add_subtract(self, other, add):
 		if add:
-			resultGrid = [[self.grid[i][j] + other.grid[i][j] for j in range(self.cols)] for i in range(self.rows)]
+			result_grid = [[self.grid[i][j] + other.grid[i][j] for j in range(self.cols)] for i in range(self.rows)]
 		else:
-			resultGrid = [[self.grid[i][j] - other.grid[i][j] for j in range(self.cols)] for i in range(self.rows)]
+			result_grid = [[self.grid[i][j] - other.grid[i][j] for j in range(self.cols)] for i in range(self.rows)]
 
-		return Matrix(resultGrid)
+		return Matrix(result_grid)
 
 	def mult(self, other):
-		resultGrid = [[0] * other.cols for _ in range(self.rows)]
+		result_grid = [[0] * other.cols for _ in range(self.rows)]
 
 		for i in range(self.rows):
 			for j in range(other.cols):
-				resultGrid[i][j] = sum(self.grid[i][k] * other.grid[k][j] for k in range(self.cols))
+				result_grid[i][j] = sum(self.grid[i][k] * other.grid[k][j] for k in range(self.cols))
 
-		return Matrix(resultGrid)
+		return Matrix(result_grid)
 
 	def determinant(self, rows):
 		if rows == 1:
@@ -44,18 +44,18 @@ class Matrix:
 			return self.grid[0][0] * self.grid[1][1] - self.grid[0][1] * self.grid[1][0]
 
 		det = 0
-		subGrid = [[0] * (rows - 1) for _ in range(rows - 1)]
+		sub_grid = [[0] * (rows - 1) for _ in range(rows - 1)]
 
 		for i in range(rows):
 			for j in range(rows):
 				col = 0
 				for k in range(rows):
 					if k != i:
-						subGrid[j - 1][col] = self.grid[j][k]
+						sub_grid[j - 1][col] = self.grid[j][k]
 						col += 1
-			plusMinusOne = 1 if i % 2 == 0 else -1
-			submatrix = Matrix(subGrid)
-			det += self.grid[0][i] * plusMinusOne * submatrix.determinant(rows - 1)
+			plus_minus_one = 1 if i % 2 == 0 else -1
+			submatrix = Matrix(sub_grid)
+			det += self.grid[0][i] * plus_minus_one * submatrix.determinant(rows - 1)
 
 		return det
 
@@ -65,25 +65,25 @@ class Matrix:
 
 		det = self.determinant(self.rows)
 		comatrix = self.comatrix()
-		adjugateGrid = list(zip(*comatrix.grid)) # Transposed comatrix
-		resultGrid = [[x / det for x in row] for row in adjugateGrid]
+		adjugate_grid = list(zip(*comatrix.grid)) # Transposed comatrix
+		result_grid = [[x / det for x in row] for row in adjugate_grid]
 
-		return Matrix(resultGrid)
+		return Matrix(result_grid)
 
 	def comatrix(self):
-		resultGrid = [[0] * self.cols for _ in range(self.rows)]
+		result_grid = [[0] * self.cols for _ in range(self.rows)]
 
 		for i in range(self.rows):
 			for j in range(self.cols):
-				submatrix = self.__removeRowAndCol(i, j)
-				plusMinusOne = 1 if (i + j) % 2 == 0 else -1
-				resultGrid[i][j] = submatrix.determinant(submatrix.rows) * plusMinusOne
+				submatrix = self.__remove_row_and_col(i, j)
+				plus_minus_one = 1 if (i + j) % 2 == 0 else -1
+				result_grid[i][j] = submatrix.determinant(submatrix.rows) * plus_minus_one
 
-		return Matrix(resultGrid)
+		return Matrix(result_grid)
 
-	def __removeRowAndCol(self, row, col):
-		subGrid = [[0] * (self.cols - 1) for _ in range(self.rows - 1)]
-		subRow = subCol = 0
+	def __remove_row_and_col(self, row, col):
+		sub_grid = [[0] * (self.cols - 1) for _ in range(self.rows - 1)]
+		sub_row = sub_col = 0
 
 		for i in range(self.rows):
 			if i == row: continue
@@ -91,12 +91,12 @@ class Matrix:
 			for j in range(self.cols):
 				if j == col: continue
 
-				subGrid[subRow][subCol] = self.grid[i][j]
-				subCol = (subCol + 1) % len(subGrid)
-				if subCol == 0:
-					subRow += 1
+				sub_grid[sub_row][sub_col] = self.grid[i][j]
+				sub_col = (sub_col + 1) % len(sub_grid)
+				if sub_col == 0:
+					sub_row += 1
 
-		return Matrix(subGrid)
+		return Matrix(sub_grid)
 
 	def power(self, p):
 		r = Matrix(self.grid)
@@ -113,55 +113,55 @@ class Matrix:
 		return result
 
 	def rref(self):
-		rrefGrid = self.grid
+		rref_grid = self.grid
 
-		pivotCol = 0
+		pivot_col = 0
 
 		for row in range(self.rows):
 			# 1. Find left-most nonzero entry (pivot)
-			pivotRow = row
-			while rrefGrid[pivotRow][pivotCol] == 0:
-				pivotRow += 1
-				if pivotRow == self.rows:
+			pivot_row = row
+			while rref_grid[pivot_row][pivot_col] == 0:
+				pivot_row += 1
+				if pivot_row == self.rows:
 					# Go back to initial row, but move to next column
-					pivotRow = row
-					pivotCol += 1
-					if pivotCol == self.cols:
+					pivot_row = row
+					pivot_col += 1
+					if pivot_col == self.cols:
 						# No pivot
-						return Matrix(rrefGrid)
+						return Matrix(rref_grid)
 
 			# 2. If pivot row is below current row, swap these rows (so 0s are pushed to bottom)
-			if pivotRow > row:
-				rrefGrid[pivotRow], rrefGrid[row] = rrefGrid[row], rrefGrid[pivotRow]
+			if pivot_row > row:
+				rref_grid[pivot_row], rref_grid[row] = rref_grid[row], rref_grid[pivot_row]
 
 			# 3. Scale current row such that pivot becomes 1
-			scale = rrefGrid[row][pivotCol]
+			scale = rref_grid[row][pivot_col]
 			if scale != 1:
-				rrefGrid[row] = [x / scale for x in rrefGrid[row]]
+				rref_grid[row] = [x / scale for x in rref_grid[row]]
 
 			# 4. Make entries above/below equal 0
 			for r in range(self.rows):
-				scale = rrefGrid[r][pivotCol]
+				scale = rref_grid[r][pivot_col]
 				if r != row and scale != 0:
-					rrefGrid[r] = [x - scale * y for x, y in zip(rrefGrid[r], rrefGrid[row])]
+					rref_grid[r] = [x - scale * y for x, y in zip(rref_grid[r], rref_grid[row])]
 
 			# 5. Move to next column
-			pivotCol += 1
-			if pivotCol == self.cols:
-				return Matrix(rrefGrid)
+			pivot_col += 1
+			if pivot_col == self.cols:
+				return Matrix(rref_grid)
 
-		return Matrix(rrefGrid)
+		return Matrix(rref_grid)
 
 	# ---------------------------------- Geometric transformations ---------------------------------- #
 
 	def translate(self, dx, dy):
-		resultGrid = self.grid
+		result_grid = self.grid
 
 		for i in range(self.rows):
-			resultGrid[i][0] += dx
-			resultGrid[i][1] += dy
+			result_grid[i][0] += dx
+			result_grid[i][1] += dy
 
-		return Matrix(resultGrid)
+		return Matrix(result_grid)
 
 	# Enlarge by factor k about (x, y)
 	def enlarge(self, k, x, y):
@@ -169,8 +169,8 @@ class Matrix:
 		if x != 0 or y != 0:
 			t = t.translate(-x, -y) # In order to enlarge from origin (0, 0)
 
-		enlargeMatrix = Matrix([[k, 0], [0, k]])
-		result = t.mult(enlargeMatrix)
+		enlarge_matrix = Matrix([[k, 0], [0, k]])
+		result = t.mult(enlarge_matrix)
 
 		# Undo first translation if necessary
 		return result.translate(x, y) if x != 0 or y != 0 else result
@@ -182,10 +182,10 @@ class Matrix:
 			t = t.translate(0, -c) # Reflect in y = mx
 
 		r = 1 / (1 + m ** 2)
-		reflectGrid = [[1 - m ** 2, 2 * m], [2 * m, m ** 2 - 1]]
-		reflectMatrix = Matrix([[x * r for x in row] for row in reflectGrid])
+		reflect_grid = [[1 - m ** 2, 2 * m], [2 * m, m ** 2 - 1]]
+		reflect_matrix = Matrix([[x * r for x in row] for row in reflect_grid])
 
-		result = t.mult(reflectMatrix)
+		result = t.mult(reflect_matrix)
 
 		return result.translate(0, c) if c != 0 else result
 
@@ -196,9 +196,9 @@ class Matrix:
 			t = t.translate(-x, -y) # Enlarge from origin (0, 0)
 
 		theta = radians(theta)
-		rotateMatrix = Matrix([[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])
+		rotate_matrix = Matrix([[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])
 
-		result = t.mult(rotateMatrix)
+		result = t.mult(rotate_matrix)
 
 		# Undo first translation if necessary
 		return result.translate(x, y) if x != 0 or y != 0 else result

@@ -4,38 +4,38 @@
 
 import matplotlib.pyplot as plt
 
-refInput = 1
-controllerGain = 0.67
-plantGain = 1
-sensorGain = 1
-timeDelay = 5
-totalTime = 101
+ref_input = 1
+controller_gain = 0.67
+plant_gain = 1
+sensor_gain = 1
+time_delay = 5
+total_time = 101
 
 y = 0
-yLim = (plantGain * controllerGain * refInput) / (1 + plantGain * controllerGain * sensorGain)
+yLim = (plant_gain * controller_gain * ref_input) / (1 + plant_gain * controller_gain * sensor_gain)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-xPlot = list(range(totalTime))
-refPlot = [refInput] * totalTime
-yLimPlot = [yLim] * totalTime
-yPlot = []
+x_plot = list(range(total_time))
+ref_plot = [ref_input] * total_time
+y_lim_plot = [yLim] * total_time
+y_plot = []
 
-for i in range(totalTime):
-	if i % timeDelay == 0:
-		err = refInput - y
-		y = err * controllerGain * plantGain
+for i in range(total_time):
+	if i % time_delay == 0:
+		err = ref_input - y
+		y = err * controller_gain * plant_gain
 
-	yPlot.append(y)
+	y_plot.append(y)
 
 plt.figure(figsize=(8, 6))
-plt.plot(xPlot, yPlot, color="#0080ff")
-plt.plot(xPlot, refPlot, color="#008000")
-plt.plot(xPlot, yLimPlot, color="#ff8000", ls="--")
+plt.plot(x_plot, y_plot, color="#0080ff")
+plt.plot(x_plot, ref_plot, color="#008000")
+plt.plot(x_plot, y_lim_plot, color="#ff8000", ls="--")
 plt.legend(["y(t)", "ref", "yLim"])
 plt.xlabel("t")
 plt.ylabel("y(t)")
-plt.title(f"Closed-Loop Control Demo\nrefInput={refInput}  cGain={controllerGain}  pGain={plantGain}  sGain={sensorGain}  delay={timeDelay}")
+plt.title(f"Closed-Loop Control Demo\nrefInput={ref_input}  cGain={controller_gain}  pGain={plant_gain}  sGain={sensor_gain}  delay={time_delay}")
 plt.show()

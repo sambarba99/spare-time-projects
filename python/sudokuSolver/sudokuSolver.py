@@ -18,43 +18,43 @@ PRESET_PUZZLES = {"Blank": "0" * 81,
 	"Insane": "800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
 
 board = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-givenYX = [] # Y before X, as 2D arrays are row-major
-numBacktracks = 0
+given_yx = [] # Y before X, as 2D arrays are row-major
+num_backtracks = 0
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(difficultyLvl):
-	if isFull(): return
+def solve(difficulty_lvl):
+	if is_full(): return
 
-	global numBacktracks
+	global num_backtracks
 
 	for event in pg.event.get():
 		if event.type == pg.QUIT:
 			pg.quit()
 			sys.exit(0)
 
-	y, x = findFreeSquare()
+	y, x = find_free_square()
 	for n in range(1, 10):
 		if legal(n, y, x):
 			board[y][x] = n
-			drawGrid(difficultyLvl, "solving...")
-			solve(difficultyLvl)
+			draw_grid(difficulty_lvl, "solving...")
+			solve(difficulty_lvl)
 
-	if isFull(): return
+	if is_full(): return
 
 	# If we're here, no numbers were legal
 	# So the previous attempt in the loop must be invalid
 	# So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0
-	numBacktracks += 1
-	drawGrid(difficultyLvl, "solving...")
+	num_backtracks += 1
+	draw_grid(difficulty_lvl, "solving...")
 
-def isFull():
+def is_full():
 	return all(n != 0 for row in board for n in row)
 
-def findFreeSquare():
+def find_free_square():
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
 			if board[y][x] == 0:
@@ -64,13 +64,13 @@ def findFreeSquare():
 
 def legal(n, y, x):
 	# Top-left coords of big square
-	bigSquareY = y - (y % 3)
-	bigSquareX = x - (x % 3)
+	big_square_y = y - (y % 3)
+	big_square_x = x - (x % 3)
 
 	# Check big square
-	for checkY in range(bigSquareY, bigSquareY + 3):
-		for checkX in range(bigSquareX, bigSquareX + 3):
-			if board[checkY][checkX] == n:
+	for check_y in range(big_square_y, big_square_y + 3):
+		for check_x in range(big_square_x, big_square_x + 3):
+			if board[check_y][check_x] == n:
 				return False
 
 	# Check row and column
@@ -79,28 +79,28 @@ def legal(n, y, x):
 
 	return True
 
-def drawGrid(difficultyLvl, solveStatus):
+def draw_grid(difficulty_lvl, solve_status):
 	scene.fill((20, 20, 20))
-	statusFont = pg.font.SysFont("consolas", 16)
-	cellFont = pg.font.SysFont("consolas", 30)
+	status_font = pg.font.SysFont("consolas", 16)
+	cell_font = pg.font.SysFont("consolas", 30)
 
-	statusLbl = statusFont.render(f"Difficulty: {difficultyLvl} ({solveStatus})", True, FOREGROUND)
-	backtracksLbl = statusFont.render(f"{numBacktracks} backtracks", True, FOREGROUND)
-	scene.blit(statusLbl, (GRID_OFFSET, 32))
-	scene.blit(backtracksLbl, (GRID_OFFSET, 550))
+	status_lbl = status_font.render(f"Difficulty: {difficulty_lvl} ({solve_status})", True, FOREGROUND)
+	backtracks_lbl = status_font.render(f"{num_backtracks} backtracks", True, FOREGROUND)
+	scene.blit(status_lbl, (GRID_OFFSET, 32))
+	scene.blit(backtracks_lbl, (GRID_OFFSET, 550))
 
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
 			n = "" if board[y][x] == 0 else str(board[y][x])
 
-			if (y, x) in givenYX:
+			if (y, x) in given_yx:
 				# Draw already given numbers as green
-				cellLbl = cellFont.render(n, True, (0, 140, 0))
+				cell_lbl = cell_font.render(n, True, (0, 140, 0))
 			else:
-				cellLbl = cellFont.render(n, True, FOREGROUND)
+				cell_lbl = cell_font.render(n, True, FOREGROUND)
 
-			lblRect = cellLbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
-			scene.blit(cellLbl, lblRect)
+			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
+			scene.blit(cell_lbl, lbl_rect)
 
 	# Thin grid lines
 	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
@@ -114,7 +114,7 @@ def drawGrid(difficultyLvl, solveStatus):
 
 	pg.display.flip()
 
-def waitForClick():
+def wait_for_click():
 	while True:
 		for event in pg.event.get():
 			if event.type == pg.MOUSEBUTTONDOWN:
@@ -133,16 +133,16 @@ scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZ
 
 # Game loop so pygame window doesn't close automatically
 while True:
-	for difficultyLvl, config in PRESET_PUZZLES.items():
+	for difficulty_lvl, config in PRESET_PUZZLES.items():
 		for idx, n in enumerate(config):
 			y, x = idx // BOARD_SIZE, idx % BOARD_SIZE
 			board[y][x] = int(n)
 
-		numBacktracks = 0
-		givenYX = [(y, x) for x in range(BOARD_SIZE) for y in range(BOARD_SIZE) if board[y][x] != 0]
+		num_backtracks = 0
+		given_yx = [(y, x) for x in range(BOARD_SIZE) for y in range(BOARD_SIZE) if board[y][x] != 0]
 
-		drawGrid(difficultyLvl, "click to solve")
-		waitForClick()
-		solve(difficultyLvl)
-		drawGrid(difficultyLvl, "solved! Click for next puzzle")
-		waitForClick()
+		draw_grid(difficulty_lvl, "click to solve")
+		wait_for_click()
+		solve(difficulty_lvl)
+		draw_grid(difficulty_lvl, "solved! Click for next puzzle")
+		wait_for_click()

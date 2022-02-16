@@ -9,26 +9,26 @@ import random
 # ---------------------------------------------------------------------------------------------------- #
 
 def kmp(text, pattern):
-	lenT, lenP = len(text), len(pattern)
+	len_t, len_p = len(text), len(pattern)
 
-	if lenP > lenT:
+	if len_p > len_t:
 		raise ValueError("Pattern longer than text")
 
 	# Create array for holding longest prefix suffix values for pattern
-	lps = populateLPS(pattern)
+	lps = populate_lps(pattern)
 
 	positions = []
 
 	i = j = 0
-	while i < lenT:
+	while i < len_t:
 		if text[i] == pattern[j]:
 			i += 1
 			j += 1
 
-		if j == lenP:
+		if j == len_p:
 			positions.append(i - j)
 			j = lps[j - 1]
-		elif i < lenT and text[i] != pattern[j]:
+		elif i < len_t and text[i] != pattern[j]:
 			if j != 0:
 				j = lps[j - 1]
 			else:
@@ -36,7 +36,7 @@ def kmp(text, pattern):
 
 	return positions if positions else "None"
 
-def populateLPS(pattern):
+def populate_lps(pattern):
 	lps = [0] * len(pattern)
 	i, length = 1, 0 # Length of previous longest prefix suffix
 

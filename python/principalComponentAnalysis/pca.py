@@ -5,8 +5,8 @@
 import numpy as np
 
 class PCA:
-	def __init__(self, numComponents=2):
-		self.numComponents = numComponents
+	def __init__(self, num_components=2):
+		self.num_components = num_components
 
 	def transform(self, x):
 		mean = np.mean(x, axis=0)
@@ -21,8 +21,8 @@ class PCA:
 		eigenvalues = eigenvalues[indices]
 		eigenvectors = eigenvectors[indices]
 
-		components = eigenvectors[:self.numComponents]
+		components = eigenvectors[:self.num_components]
 
-		pcaVariability = np.sum((eigenvalues / variability)[:self.numComponents])
+		pca_variability = np.sum((eigenvalues / variability)[:self.num_components])
 
-		return np.dot(x, components.T), pcaVariability
+		return np.dot(x, components.T), pca_variability

@@ -6,32 +6,32 @@ import numpy as np
 
 class PerceptronClf:
 	def __init__(self):
-		self.xTrain = None
-		self.yTrain = None
+		self.x_train = None
+		self.y_train = None
 		self.weights = None
 		self.bias = 0
 
-	def fit(self, xTrain, yTrain):
-		self.xTrain = xTrain
-		self.yTrain = yTrain
+	def fit(self, x_train, y_train):
+		self.x_train = x_train
+		self.y_train = y_train
 
-	def train(self, maxIters=1000, learningRate=0.01):
-		self.weights = np.zeros(self.xTrain.shape[1])
+	def train(self, max_iters=1000, learning_rate=0.01):
+		self.weights = np.zeros(self.x_train.shape[1])
 
-		for _ in range(maxIters):
-			for idx, sample in enumerate(self.xTrain):
-				linearModel = np.dot(sample, self.weights) + self.bias
-				yPred = self.__unitStep(linearModel)
+		for _ in range(max_iters):
+			for idx, sample in enumerate(self.x_train):
+				linear_model = np.dot(sample, self.weights) + self.bias
+				y_pred = self.__unit_step(linear_model)
 
-				update = learningRate * (self.yTrain[idx] - yPred)
+				update = learning_rate * (self.y_train[idx] - y_pred)
 
 				self.weights += update * sample
 				self.bias += update
 
 	def predict(self, inputs):
-		linearModel = np.dot(inputs, self.weights) + self.bias
-		return self.__unitStep(linearModel)
+		linear_model = np.dot(inputs, self.weights) + self.bias
+		return self.__unit_step(linear_model)
 
 	# Activation function
-	def __unitStep(self, inputs):
+	def __unit_step(self, inputs):
 		return np.where(inputs >= 0, 1, 0)

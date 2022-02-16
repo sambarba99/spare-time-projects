@@ -28,7 +28,7 @@ SINGLE_NUMERAL_VALS = {"I": 1,
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def intToNumerals(n):
+def int_to_numerals(n):
 	if n <= 0: return str(n)
 
 	numerals = ""
@@ -39,7 +39,7 @@ def intToNumerals(n):
 
 	return numerals
 
-def numeralsToInt(numerals):
+def numerals_to_int(numerals):
 	n = 0
 
 	for idx, item in enumerate(numerals):
@@ -61,7 +61,7 @@ print()
 
 if choice == 1:
 	n = int(input("Enter the number to convert: "))
-	print("\nResult:", intToNumerals(n))
+	print("\nResult:", int_to_numerals(n))
 else:
 	numerals = input("Enter the numerals to convert: ").upper()
-	print("\nResult:", numeralsToInt(numerals))
+	print("\nResult:", numerals_to_int(numerals))

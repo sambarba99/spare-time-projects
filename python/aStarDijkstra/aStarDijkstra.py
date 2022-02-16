@@ -7,71 +7,71 @@ import pygame as pg
 from time import sleep
 
 ROWS = 49
-COLS = 99
+COLS = 89
 CELL_SIZE = 18
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def aStar(maze, startVertex, targetVertex):
-	openSet, closedSet = [startVertex], []
+def a_star(maze, start_vertex, target_vertex):
+	open_set, closed_set = [start_vertex], []
 
-	while openSet:
-		cheapestVertex = min(openSet, key=lambda v: (v.getFcost(), v.hCost))
+	while open_set:
+		cheapest_vertex = min(open_set, key=lambda v: (v.get_f_cost(), v.h_cost))
 
-		if cheapestVertex == targetVertex:
-			return retracePath(targetVertex, startVertex)
+		if cheapest_vertex == target_vertex:
+			return retrace_path(target_vertex, start_vertex)
 
-		openSet.remove(cheapestVertex)
-		closedSet.append(cheapestVertex)
+		open_set.remove(cheapest_vertex)
+		closed_set.append(cheapest_vertex)
 
-		neighbours = cheapestVertex.getNeighbours(maze, False)
+		neighbours = cheapest_vertex.get_neighbours(maze, False)
 		for n in neighbours:
-			if n in closedSet: continue
+			if n in closed_set: continue
 
-			costMoveToN = cheapestVertex.gCost + dist(cheapestVertex, n)
-			if costMoveToN < n.gCost or n not in openSet:
-				n.gCost = costMoveToN
-				n.hCost = dist(n, targetVertex)
-				n.parentVertex = cheapestVertex
+			cost_move_to_n = cheapest_vertex.g_cost + dist(cheapest_vertex, n)
+			if cost_move_to_n < n.g_cost or n not in open_set:
+				n.g_cost = cost_move_to_n
+				n.h_cost = dist(n, target_vertex)
+				n.parent_vertex = cheapest_vertex
 
-				if n not in openSet:
-					openSet.append(n)
+				if n not in open_set:
+					open_set.append(n)
 
 # Manhattan distance
 def dist(a, b):
 	return abs(a.x - b.x) + abs(a.y - b.y)
 
 # Dijkstra's algorithm for Shortest Path Tree
-def dijkstra(maze, startVertex, targetVertex):
-	unvisited = [vertex for row in maze for vertex in row if not vertex.isWall]
+def dijkstra(maze, start_vertex, target_vertex):
+	unvisited = [vertex for row in maze for vertex in row if not vertex.is_wall]
 
 	# Costs nothing to get from start to start (startVertex parent will always be None)
-	startVertex.cost = 0
+	start_vertex.cost = 0
 
 	while unvisited:
-		cheapestVertex = min(unvisited, key=lambda v: v.cost)
+		cheapest_vertex = min(unvisited, key=lambda v: v.cost)
 
-		neighbours = cheapestVertex.getNeighbours(maze, False)
+		neighbours = cheapest_vertex.get_neighbours(maze, False)
 		for n in neighbours:
 			# Adjust cost and parent (weight between vertices = 1, i.e. 1 step needed)
-			if cheapestVertex.cost + 1 < n.cost:
-				n.cost = cheapestVertex.cost + 1
-				n.parentVertex = cheapestVertex
+			if cheapest_vertex.cost + 1 < n.cost:
+				n.cost = cheapest_vertex.cost + 1
+				n.parent_vertex = cheapest_vertex
 
 		# Cheapest vertex has now been visited
-		unvisited.remove(cheapestVertex)
+		unvisited.remove(cheapest_vertex)
 
-	return retracePath(targetVertex, startVertex)
+	return retrace_path(target_vertex, start_vertex)
 
-def retracePath(targetVertex, startVertex):
+def retrace_path(target_vertex, start_vertex):
 	# Trace back from end
-	current = targetVertex
+	current = target_vertex
 	path = [current]
 
-	while current != startVertex:
-		current = current.parentVertex
+	while current != start_vertex:
+		current = current.parent_vertex
 		path.append(current)
 
 	return path[::-1]
@@ -79,7 +79,7 @@ def retracePath(targetVertex, startVertex):
 def draw(maze, path):
 	for y in range(ROWS):
 		for x in range(COLS):
-			c = (0, 0, 0) if maze[y][x].isWall else (80, 80, 80)
+			c = (0, 0, 0) if maze[y][x].is_wall else (80, 80, 80)
 
 			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
@@ -95,20 +95,20 @@ def draw(maze, path):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-mazeGenerator = Daedalus(ROWS, COLS)
+maze_generator = Daedalus(ROWS, COLS)
 
 pg.init()
 pg.display.set_caption("A* and Dijkstra demo")
 scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
 while True:
-	maze = mazeGenerator.makeMaze()
+	maze = maze_generator.make_maze()
 
-	startVertex = maze[0][0]
-	targetVertex = maze[ROWS - 1][COLS - 1]
+	start_vertex = maze[0][0]
+	target_vertex = maze[ROWS - 1][COLS - 1]
 
-	path = aStar(maze, startVertex, targetVertex)
-	#path = dijkstra(maze, startVertex, targetVertex)
+	path = a_star(maze, start_vertex, target_vertex)
+	#path = dijkstra(maze, start_vertex, target_vertex)
 
 	draw(maze, path)
 	sleep(2)

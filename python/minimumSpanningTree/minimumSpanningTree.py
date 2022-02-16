@@ -13,82 +13,70 @@ SIZE = 800
 FPS = 20
 
 # ---------------------------------------------------------------------------------------------------- #
-# ---------------------------------------------  CLASSES  -------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-class Vertex:
-	def __init__(self, idx, x, y, xVel, yVel):
-		self.idx = idx
-		self.x = x
-		self.y = y
-		self.xVel = xVel
-		self.yVel = yVel
-
-	def euclideanDist(self, other):
-		# Ignore square root for faster execution
-		return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
-
-# ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 # Prim's algorithm
 def mst(graph):
-	outTree = graph[:] # Initially set all vertices as out of tree
-	inTree = []
-	mstParents = [None] * len(graph)
+	out_tree = graph[:] # Initially set all vertices as out of tree
+	in_tree = []
+	mst_parents = [None] * len(graph)
 
-	inTree.append(outTree.pop(0)) # Vertex 0 (arbitrary start) is first in tree
+	in_tree.append(out_tree.pop(0)) # Vertex 0 (arbitrary start) is first in tree
 
-	while outTree:
-		nearestIn = inTree[0]
-		nearestOut = outTree[0]
-		minDist = nearestIn.euclideanDist(nearestOut)
+	while out_tree:
+		nearest_in = in_tree[0]
+		nearest_out = out_tree[0]
+		min_dist = euclidean_dist(nearest_in, nearest_out)
 
 		# Find the nearest outside vertex to tree
-		for vIn in inTree:
-			for vOut in outTree:
-				dist = vIn.euclideanDist(vOut)
+		for v_in in in_tree:
+			for v_out in out_tree:
+				dist = euclidean_dist(v_in, v_out)
 
-				if dist < minDist:
-					minDist = dist
-					nearestOut = vOut
-					nearestIn = vIn
+				if dist < min_dist:
+					min_dist = dist
+					nearest_out = v_out
+					nearest_in = v_in
 
-		mstParents[nearestOut.idx] = nearestIn.idx
+		mst_parents[nearest_out["idx"]] = nearest_in["idx"]
 
-		inTree.append(nearestOut)
-		outTree.remove(nearestOut)
+		in_tree.append(nearest_out)
+		out_tree.remove(nearest_out)
 
-	return mstParents
+	return mst_parents
 
-def drawMST(graph):
+def euclidean_dist(a, b):
+	# Ignore square root for faster execution
+	return (a["x"] - b["x"]) ** 2 + (a["y"] - b["y"]) ** 2
+
+def draw_mst(graph):
 	if not graph: return
 
 	scene.fill((20, 20, 20))
-	mstParents = mst(graph)
+	mst_parents = mst(graph)
 
-	for i in range(1, len(graph)): # Start from 1 because mstParents[0] is None
-		start = (graph[i].x, graph[i].y)
-		end = (graph[mstParents[i]].x, graph[mstParents[i]].y)
+	for idx, v in enumerate(graph[1:], start=1): # Start from 1 because mstParents[0] is None
+		start = (v["x"], v["y"])
+		end = (graph[mst_parents[idx]]["x"], graph[mst_parents[idx]]["y"])
 		pg.draw.line(scene, (220, 220, 220), start, end)
 
 	for v in graph:
-		pg.draw.circle(scene, (230, 20, 20), (v.x, v.y), 5)
+		pg.draw.circle(scene, (230, 20, 20), (v["x"], v["y"]), 5)
 
 	pg.display.flip()
 
-def movePoints(graph):
+def move_points(graph):
 	for v in graph:
-		v.x += v.xVel
-		v.y += v.yVel
+		v["x"] += v["xVel"]
+		v["y"] += v["yVel"]
 
-		while v.x < 5 or v.x > SIZE - 5:
-			v.xVel = -v.xVel
-			v.x += v.xVel
-		while v.y < 5 or v.y > SIZE - 5:
-			v.yVel = -v.yVel
-			v.y += v.yVel
+		while v["x"] < 5 or v["x"] > SIZE - 5:
+			v["xVel"] = -v["xVel"]
+			v["x"] += v["xVel"]
+		while v["y"] < 5 or v["y"] > SIZE - 5:
+			v["yVel"] = -v["yVel"]
+			v["y"] += v["yVel"]
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -119,14 +107,15 @@ while True:
 				x = max(min(x, SIZE - 5), 5)
 				y = max(min(y, SIZE - 5), 5)
 
-				xVel, yVel = random.uniform(-3, 3), random.uniform(-3, 3)
-				graph.append(Vertex(len(graph), x, y, xVel, yVel))
+				x_vel, y_vel = random.uniform(-3, 3), random.uniform(-3, 3)
+				vertex = {"idx": len(graph), "x": x, "y": y, "xVel": x_vel, "yVel": y_vel}
+				graph.append(vertex)
 
 			elif event.button == 3: # Right-click
 				graph = []
 				scene.fill((20, 20, 20))
 				pg.display.flip()
 
-	drawMST(graph)
-	movePoints(graph)
+	draw_mst(graph)
+	move_points(graph)
 	clock.tick(FPS)

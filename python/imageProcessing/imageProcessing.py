@@ -13,62 +13,62 @@ MAX_SIZE = 600
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def binaryImage(img):
+def binary_image(img):
 	width, height = img.size
 
-	newImg = Image.new("RGB", (width, height))
+	new_img = Image.new("RGB", (width, height))
 
 	for x in range(width):
 		for y in range(height):
 			d = dist(img.getpixel((x, y)), (255, 255, 255))
 			# 97537.5 = max distance from white / 2 (ignoring square root)
-			newPixel = (255, 255, 255) if d < 97537.5 else (0, 0, 0)
-			newImg.putpixel((x, y), newPixel)
+			new_pixel = (255, 255, 255) if d < 97537.5 else (0, 0, 0)
+			new_img.putpixel((x, y), new_pixel)
 
-	return newImg
+	return new_img
 
-def nearestColour(img, rTarget, gTarget, bTarget):
+def nearest_colour(img, r_target, g_target, b_target):
 	width, height = img.size
 
-	closestDist = dist(img.getpixel((0, 0)), (rTarget, gTarget, bTarget))
-	rBest, gBest, bBest = img.getpixel((0, 0))
-	xBest = yBest = 0
+	closest_dist = dist(img.getpixel((0, 0)), (r_target, g_target, b_target))
+	r_best, g_best, b_best = img.getpixel((0, 0))
+	x_best = y_best = 0
 
 	for x in range(width):
 		for y in range(height):
-			d = dist(img.getpixel((x, y)), (rTarget, gTarget, bTarget))
+			d = dist(img.getpixel((x, y)), (r_target, g_target, b_target))
 
-			if d < closestDist:
-				closestDist = d
-				rBest, gBest, bBest = img.getpixel((x, y))
-				xBest, yBest = x, y
+			if d < closest_dist:
+				closest_dist = d
+				r_best, g_best, b_best = img.getpixel((x, y))
+				x_best, y_best = x, y
 
-	newImg = img.copy()
+	new_img = img.copy()
 	for x in range(width):
-		if abs(x - xBest) > 3:
-			newImg.putpixel((x, yBest), (255, 0, 0))
+		if abs(x - x_best) > 3:
+			new_img.putpixel((x, y_best), (255, 0, 0))
 	for y in range(height):
-		if abs(y - yBest) > 3:
-			newImg.putpixel((xBest, y), (255, 0, 0))
+		if abs(y - y_best) > 3:
+			new_img.putpixel((x_best, y), (255, 0, 0))
 
-	maxDist = 195075
-	percentageMatch = round(100 * (1 - (closestDist / maxDist) ** 0.5), 2)
-	print(f"Best RGB = {rBest} {gBest} {bBest}  ({percentageMatch} % match)")
+	max_dist = 195075
+	percentage_match = round(100 * (1 - (closest_dist / max_dist) ** 0.5), 2)
+	print(f"Best RGB = {r_best} {g_best} {b_best}  ({percentage_match} % match)")
 
-	return newImg
+	return new_img
 
-def plotHistogram(img, idx):
-	imgData = np.array(img.getdata())
-	r, g, b = imgData.T
-	rCount = np.bincount(r, minlength=256)
-	gCount = np.bincount(g, minlength=256)
-	bCount = np.bincount(b, minlength=256)
-	xPlot = list(range(256))
+def plot_histogram(img, idx):
+	img_data = np.array(img.getdata())
+	r, g, b = img_data.T
+	r_count = np.bincount(r, minlength=256)
+	g_count = np.bincount(g, minlength=256)
+	b_count = np.bincount(b, minlength=256)
+	x_plot = list(range(256))
 
 	plt.figure(figsize=(8, 6))
-	plt.plot(xPlot, rCount, color="#ff0000")
-	plt.plot(xPlot, gCount, color="#008000")
-	plt.plot(xPlot, bCount, color="#0000ff")
+	plt.plot(x_plot, r_count, color="#ff0000")
+	plt.plot(x_plot, g_count, color="#008000")
+	plt.plot(x_plot, b_count, color="#0000ff")
 	plt.legend(["R", "G", "B"])
 	plt.xlabel("RGB value")
 	plt.ylabel("Count")
@@ -76,11 +76,11 @@ def plotHistogram(img, idx):
 	plt.show()
 
 # Euclidean distance between 2 colours
-def dist(pixel, targetPixel):
+def dist(pixel, target_pixel):
 	pixel = np.array(pixel)
-	targetPixel = np.array(targetPixel)
+	target_pixel = np.array(target_pixel)
 	# Ignore square root for faster execution
-	return ((pixel - targetPixel) ** 2).sum()
+	return ((pixel - target_pixel) ** 2).sum()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -91,9 +91,9 @@ for idx, img in enumerate(imgs):
 	width, height = img.size
 
 	if max(width, height) > MAX_SIZE:
-		newWidth = MAX_SIZE if width > height else round(width / height * MAX_SIZE)
-		newHeight = MAX_SIZE if height > width else round(height / width * MAX_SIZE)
-		imgs[idx] = img.resize((newWidth, newHeight))
+		new_width = MAX_SIZE if width > height else round(width / height * MAX_SIZE)
+		new_height = MAX_SIZE if height > width else round(height / width * MAX_SIZE)
+		imgs[idx] = img.resize((new_width, new_height))
 
 choice = input("Enter 1 to create binary image"
 	+ "\nor 2 to find the nearest pixel to a certain colour: ")
@@ -101,11 +101,11 @@ choice = input("Enter 1 to create binary image"
 if choice == "1":
 	for idx, img in enumerate(imgs):
 		img.show()
-		plotHistogram(img, idx)
-		binaryImage(img).show()
+		plot_histogram(img, idx)
+		binary_image(img).show()
 else:
 	r, g, b = map(int, input("\nInput the target RGB: ").split())
 	for idx, img in enumerate(imgs):
 		img.show()
-		plotHistogram(img, idx)
-		nearestColour(img, r, g, b).show()
+		plot_histogram(img, idx)
+		nearest_colour(img, r, g, b).show()

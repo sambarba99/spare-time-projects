@@ -10,7 +10,7 @@ class Polynomial:
 		self.coefficients = coefficients
 
 	# Approximate solution of f(x) = 0 via Newton-Raphson method
-	def findRoot(self, convergeThreshold=10 ** -9, maxIters=10 ** 5):
+	def find_root(self, converge_threshold=10 ** -9, max_iters=10 ** 5):
 		x0 = round(random.random(), 9) # Initial guess
 
 		df = self.derivative()
@@ -18,7 +18,7 @@ class Polynomial:
 		fxn = self(xn)
 
 		i = 0
-		for _ in range(maxIters):
+		for _ in range(max_iters):
 			dfxn = df(xn)
 			if dfxn == 0:
 				print("\nZero derivative. No solution found - maybe try another initial guess?")
@@ -26,23 +26,23 @@ class Polynomial:
 			xn = xn - fxn / dfxn
 			fxn = self(xn)
 
-			if abs(fxn) < convergeThreshold:
+			if abs(fxn) < converge_threshold:
 				break
 			i += 1
 
-		if abs(fxn) >= convergeThreshold:
-			print(f"\nNo solution found within {maxIters} iterations")
+		if abs(fxn) >= converge_threshold:
+			print(f"\nNo solution found within {max_iters} iterations")
 			return None
 
 		return round(xn, 9), i + 1, x0
 
 	def derivative(self):
-		derivedCoefficients = []
+		derived_coefficients = []
 		exponent = len(self.coefficients) - 1
 		for i in range(len(self.coefficients) - 1):
-			derivedCoefficients.append(self.coefficients[i] * exponent)
+			derived_coefficients.append(self.coefficients[i] * exponent)
 			exponent -= 1
-		return Polynomial(derivedCoefficients)
+		return Polynomial(derived_coefficients)
 
 	def __str__(self):
 		degree = len(self.coefficients) - 1
@@ -54,18 +54,18 @@ class Polynomial:
 			if abs(c) == 1 and i < degree:
 				result += (" +" if c > 0 else " -")
 				if i > 0: result += " "
-				result += self.__xExpr(degree - i)
+				result += self.__expr(degree - i)
 			elif c != 0:
 				if c % 1 == 0: c = int(c)
 
 				if c > 0: result += " + "
 				else: result += " -" if i == 0 else " - "
 
-				result += str(abs(c)) + self.__xExpr(degree - i)
+				result += str(abs(c)) + self.__expr(degree - i)
 
 		return result.lstrip(" + ") # Remove leading " + "
 
-	def __xExpr(self, degree):
+	def __expr(self, degree):
 		if degree == 0: return ""
 		if degree == 1: return "x"
 		return "x^" + str(degree)

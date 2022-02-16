@@ -11,23 +11,23 @@ import random
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def confusionMatrix(predictions, actual):
-	numClasses = len(np.unique(actual))
-	confMat = np.zeros((numClasses, numClasses)).astype(int)
+def confusion_matrix(predictions, actual):
+	num_classes = len(np.unique(actual))
+	conf_mat = np.zeros((num_classes, num_classes)).astype(int)
 
 	for a, p in zip(actual, predictions):
-		confMat[a, p] += 1
+		conf_mat[a, p] += 1
 
-	accuracy = np.trace(confMat) / confMat.sum()
-	return confMat, accuracy
+	accuracy = np.trace(conf_mat) / conf_mat.sum()
+	return conf_mat, accuracy
 
-def plotMatrix(k, confMat, accuracy):
+def plot_matrix(k, conf_mat, accuracy):
 	fig, ax = plt.subplots(figsize=(6, 7))
-	ax.matshow(confMat, cmap=plt.cm.Blues, alpha=0.7)
+	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
-	for i in range(confMat.shape[0]):
-		for j in range(confMat.shape[1]):
-			ax.text(x=j, y=i, s=confMat[i, j], ha="center", va="center")
+	for i in range(conf_mat.shape[0]):
+		for j in range(conf_mat.shape[1]):
+			ax.text(x=j, y=i, s=conf_mat[i, j], ha="center", va="center")
 	plt.xlabel("Predictions")
 	plt.ylabel("Actual")
 	plt.title(f"Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy}")
@@ -53,21 +53,21 @@ random.shuffle(data)
 data = np.array(data).astype(float)
 x, y = data[:,:-1], data[:,-1].astype(int)
 
-bestAcc = bestK = -1
-bestConfMat = None
+best_acc = best_k = -1
+best_conf_mat = None
 
 for k in range(3, int(len(data) ** 0.5), 2):
 	clf = KNN(k)
 	clf.fit(x, y)
 
 	predictions = [clf.predict(i) for i in x]
-	confMat, acc = confusionMatrix(predictions, y)
+	conf_mat, acc = confusion_matrix(predictions, y)
 
-	if acc > bestAcc:
-		bestAcc = acc
-		bestK = k
-		bestConfMat = confMat
+	if acc > best_acc:
+		best_acc = acc
+		best_k = k
+		best_conf_mat = conf_mat
 
 	print(f"Accuracy with k = {k}: {acc}")
 
-plotMatrix(bestK, bestConfMat, bestAcc)
+plot_matrix(best_k, best_conf_mat, best_acc)

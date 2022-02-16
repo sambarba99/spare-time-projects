@@ -9,69 +9,69 @@ class KMeans:
 	def __init__(self, k):
 		self.x = None
 		self.k = k
-		self.numSamples = 0
-		self.numFeatures = 0
+		self.num_samples = 0
+		self.num_features = 0
 		self.clusters = None
 		self.centroids = None
 
-	def predict(self, x, plotSteps=False):
+	def predict(self, x, plot_steps=False):
 		self.x = x
-		self.numSamples = x.shape[0]
-		self.numFeatures = x.shape[1]
+		self.num_samples = x.shape[0]
+		self.num_features = x.shape[1]
 
 		# Initially choose random centroids
-		indices = np.random.choice(self.numSamples, self.k, replace=False)
+		indices = np.random.choice(self.num_samples, self.k, replace=False)
 		self.centroids = x[indices]
 
 		# Optimise clusters
 		while True:
 			# Create clusters by assigning samples to the closest centroids
-			self.clusters = self.__createClusters()
+			self.clusters = self.__create_clusters()
 
-			if plotSteps: self.plot("Classified samples")
+			if plot_steps: self.plot("Classified samples")
 
 			# Calculate new centroids from the clusters
-			centroidsPrev = self.centroids
-			self.centroids = self.__getCentroids()
+			centroids_prev = self.centroids
+			self.centroids = self.__get_centroids()
 
 			# Stop if converged
-			distances = [self.__euclideanDist(cp, c) for cp, c in zip(centroidsPrev, self.centroids)]
+			distances = [self.__euclidean_dist(cp, c) for cp, c in zip(centroids_prev, self.centroids)]
 			if sum(distances) == 0:
 				self.plot("Converged")
 				break
 
-			if plotSteps: self.plot("Updated centroids")
+			if plot_steps: self.plot("Updated centroids")
 
 		# Classify samples as the index of their clusters
-		return self.__getClusterLabels()
+		return self.__get_cluster_labels()
 
-	def __createClusters(self):
+	def __create_clusters(self):
 		# Assign the samples to the closest centroids to create clusters
 		clusters = [[] for _ in range(self.k)]
 
-		for sampleIdx, sample in enumerate(self.x):
-			distances = [self.__euclideanDist(sample, point) for point in self.centroids]
-			centroidIdx = np.argmin(distances)
-			clusters[centroidIdx].append(sampleIdx)
+		for sample_idx, sample in enumerate(self.x):
+			distances = [self.__euclidean_dist(sample, point) for point in self.centroids]
+			centroid_idx = np.argmin(distances)
+			clusters[centroid_idx].append(sample_idx)
 
 		return clusters
 
-	def __getCentroids(self):
+	def __get_centroids(self):
 		# Mean value of clusters
-		centroids = np.zeros((self.k, self.numFeatures))
+		centroids = np.zeros((self.k, self.num_features))
 
-		for clusterIdx, cluster in enumerate(self.clusters):
-			clusterMean = np.mean(self.x[cluster], axis=0)
-			centroids[clusterIdx] = clusterMean
+		for cluster_idx, cluster in enumerate(self.clusters):
+			cluster_mean = np.mean(self.x[cluster], axis=0)
+			centroids[cluster_idx] = cluster_mean
 
 		return centroids
 
-	def __getClusterLabels(self):
+	def __get_cluster_labels(self):
 		# For each sample, get the label of the cluster to which it was assigned
-		labels = np.zeros(self.numSamples).astype(int)
+		labels = np.zeros(self.num_samples).astype(int)
 
-		for clusterIdx, cluster in enumerate(self.clusters):
-			labels[cluster] = clusterIdx
+		for cluster_idx, cluster in enumerate(self.clusters):
+			labels[cluster] = cluster_idx
 
 		return labels
 
@@ -93,6 +93,6 @@ class KMeans:
 		else:
 			plt.show()
 
-	def __euclideanDist(self, x1, x2):
+	def __euclidean_dist(self, x1, x2):
 		# Ignore square root for faster execution
 		return ((x1 - x2) ** 2).sum()

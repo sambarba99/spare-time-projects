@@ -6,25 +6,25 @@
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def toDecimalFromBase(numStr, fromBase):
-	decNum = 0
-	power = fromBase ** (len(numStr) - 1)
+def to_decimal_from_base(num_str, from_base):
+	dec_num = 0
+	power = from_base ** (len(num_str) - 1)
 
-	for n in numStr:
+	for n in num_str:
 		val = ord(n) - ord('0') if '0' <= n <= '9' else ord(n) - ord('A') + 10
-		decNum += val * power
-		power //= fromBase
+		dec_num += val * power
+		power //= from_base
 
-	return decNum
+	return dec_num
 
-def toBaseFromDecimal(decNum, toBase):
+def to_base_from_decimal(dec_num, to_base):
 	remainders = []
 
-	while decNum:
-		remainder = decNum % toBase
+	while dec_num:
+		remainder = dec_num % to_base
 		remainder = str(remainder) if remainder < 10 else str(chr(55 + remainder))
 		remainders.append(remainder)
-		decNum //= toBase
+		dec_num //= to_base
 
 	return "".join(remainders[::-1])
 
@@ -32,14 +32,14 @@ def toBaseFromDecimal(decNum, toBase):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-inputNum = input("Enter a number: ").upper()
+input_num = input("Enter a number: ").upper()
 base = int(input("Enter its base: "))
 print()
 
-inputNumToDec = int(inputNum) if base == 10 else toDecimalFromBase(inputNum, base)
+input_num_to_dec = int(input_num) if base == 10 else to_decimal_from_base(input_num, base)
 
 for i in range(2, 17):
 	if i == base: continue
 
-	numInBaseI = toBaseFromDecimal(inputNumToDec, i)
-	print(f"{inputNum} from base {base} to base {i}: {numInBaseI}")
+	num_in_base_i = to_base_from_decimal(input_num_to_dec, i)
+	print(f"{input_num} from base {base} to base {i}: {num_in_base_i}")

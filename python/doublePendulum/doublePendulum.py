@@ -18,7 +18,7 @@ WIDTH = 1300
 HEIGHT = 800
 FPS = 120
 
-a1vel = a2vel = 0
+vel1 = vel2 = 0
 positions = []
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -26,21 +26,21 @@ positions = []
 # ---------------------------------------------------------------------------------------------------- #
 
 def draw():
-	global a1, a2, a1vel, a2vel, positions
+	global a1, a2, vel1, vel2, positions
 
 	scene.fill((20, 20, 20))
 
 	num1 = -G * (2 * M1 + M2) * sin(a1)
 	num2 = -M2 * G * sin(a1 - 2 * a2)
 	num3 = -2 * sin(a1 - a2) * M2
-	num4 = a2vel * a2vel * R2 + a1vel * a1vel * R1 * cos(a1 - a2)
+	num4 = vel2 * vel2 * R2 + vel1 * vel1 * R1 * cos(a1 - a2)
 	den = R1 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2))
 	a1acc = (num1 + num2 + num3 * num4) / den
 
 	num1 = 2 * sin(a1 - a2)
-	num2 = a1vel * a1vel * R1 * (M1 + M2)
+	num2 = vel1 * vel1 * R1 * (M1 + M2)
 	num3 = G * (M1 + M2) * cos(a1)
-	num4 = a2vel * a2vel * R2 * M2 * cos(a1 - a2)
+	num4 = vel2 * vel2 * R2 * M2 * cos(a1 - a2)
 	den = R2 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2))
 	a2acc = num1 * (num2 + num3 + num4) / den
 
@@ -60,21 +60,21 @@ def draw():
 
 	if len(positions) > 1:
 		for i in range(len(positions) - 1):
-			drawLine(scene, *positions[i], *positions[i + 1])
+			draw_line(*positions[i], *positions[i + 1])
 
 	pg.display.flip()
 
-	a1vel += a1acc
-	a2vel += a2acc
-	a1 += a1vel
-	a2 += a2vel
+	vel1 += a1acc
+	vel2 += a2acc
+	a1 += vel1
+	a2 += vel2
 
 	# Damping
-	a1vel *= 0.9999
-	a2vel *= 0.9999
+	vel1 *= 0.9999
+	vel2 *= 0.9999
 
 # Bresenham's algorithm
-def drawLine(scene, x1, y1, x2, y2):
+def draw_line(x1, y1, x2, y2):
 	dx = abs(x2 - x1)
 	dy = -abs(y2 - y1)
 	sx = 1 if x1 < x2 else -1
@@ -115,7 +115,7 @@ while True:
 			if event.key == pg.K_r:
 				a1 = random.random() * 2 * pi
 				a2 = random.random() * 2 * pi
-				a1vel = a2vel = 0
+				vel1 = vel2 = 0
 				positions = []
 
 	draw()

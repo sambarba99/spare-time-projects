@@ -22,66 +22,66 @@ while True:
 	if choice == "A":
 		rows, cols = map(int, input("Input the number of rows & columns for the matrices: ").split())
 
-		matAline = input(f"\nInput matrix A ({rows * cols} entries): ")
-		matBline = input(f"Input matrix B ({rows * cols} entries): ")
+		mat_a_line = input(f"\nInput matrix A ({rows * cols} entries): ")
+		mat_b_line = input(f"Input matrix B ({rows * cols} entries): ")
 
-		matA = Matrix(matAline, rows, cols)
-		matB = Matrix(matBline, rows, cols)
+		mat_a = Matrix(mat_a_line, rows, cols)
+		mat_b = Matrix(mat_b_line, rows, cols)
 
-		print("\nA + B =\n" + str(matA.addSubtract(matB, True)))
-		print("\nA - B =\n" + str(matA.addSubtract(matB, False)))
+		print("\nA + B =\n" + str(mat_a.add_subtract(mat_b, True)))
+		print("\nA - B =\n" + str(mat_a.add_subtract(mat_b, False)))
 
 	elif choice == "M":
-		rowsA, colsA = map(int, input("Input the number of rows & columns for matrix A: ").split())
-		colsB = int(input(f"Input the number of columns for matrix B (rows = {colsA}): "))
-		rowsB = colsA
+		rows_a, cols_a = map(int, input("Input the number of rows & columns for matrix A: ").split())
+		cols_b = int(input(f"Input the number of columns for matrix B (rows = {cols_a}): "))
+		rows_b = cols_a
 
-		matAline = input(f"\nInput matrix A ({rowsA * colsA} entries): ")
-		matBline = input(f"Input matrix B ({rowsB * colsB} entries): ")
+		mat_a_line = input(f"\nInput matrix A ({rows_a * cols_a} entries): ")
+		mat_b_line = input(f"Input matrix B ({rows_b * cols_b} entries): ")
 
-		matA = Matrix(matAline, rowsA, colsA)
-		matB = Matrix(matBline, rowsB, colsB)
+		mat_a = Matrix(mat_a_line, rows_a, cols_a)
+		mat_b = Matrix(mat_b_line, rows_b, cols_b)
 
-		print("\nA x B =\n" + str(matA.mult(matB)))
+		print("\nA x B =\n" + str(mat_a.mult(mat_b)))
 
 	elif choice == "D":
-		rowsA, colsA = map(int, input("Input the number of rows & columns for matrix A: ").split())
-		rowsB = colsB = colsA
-		print(f"B is {rowsB} x {colsB}")
+		rows_a, cols_a = map(int, input("Input the number of rows & columns for matrix A: ").split())
+		rows_b = cols_b = cols_a
+		print(f"B is {rows_b} x {cols_b}")
 
-		matAline = input(f"\nInput matrix A ({rowsA * colsA} entries): ")
-		matBline = input(f"Input matrix B ({rowsB * colsB} entries): ")
+		mat_a_line = input(f"\nInput matrix A ({rows_a * cols_a} entries): ")
+		mat_b_line = input(f"Input matrix B ({rows_b * cols_b} entries): ")
 
-		matA = Matrix(matAline, rowsA, colsA)
-		matB = Matrix(matBline, rowsB, colsB)
+		mat_a = Matrix(mat_a_line, rows_a, cols_a)
+		mat_b = Matrix(mat_b_line, rows_b, cols_b)
 
-		if matB.determinant(rowsB) == 0:
+		if mat_b.determinant(rows_b) == 0:
 			print("\nCan't divide, determinant of B is 0")
 		else:
-			print("\nA / B =\n" + str(matA.mult(matB.inverse())))
+			print("\nA / B =\n" + str(mat_a.mult(mat_b.inverse())))
 
 	elif choice == "P":
 		size = int(input("Input the size of the square matrix: "))
 		p = int(input("Input the power: "))
 
-		matLine = input(f"\nInput matrix M ({size ** 2} entries): ")
-		mat = Matrix(matLine, size, size)
+		mat_line = input(f"\nInput matrix M ({size ** 2} entries): ")
+		mat = Matrix(mat_line, size, size)
 
 		print(f"\nM^{p} =\n{str(mat.power(p))}")
 
 	elif choice == "R":
 		rows, cols = map(int, input("Input the number of rows & columns for the matrix: ").split())
 
-		matLine = input(f"\nInput matrix M ({rows * cols} entries): ")
-		mat = Matrix(matLine, rows, cols)
+		mat_line = input(f"\nInput matrix M ({rows * cols} entries): ")
+		mat = Matrix(mat_line, rows, cols)
 
 		print("\nRREF(M) =\n" + str(mat.rref()))
 
 	elif choice == "I":
 		size = int(input("Input the size of the square matrix: "))
 
-		matLine = input(f"\nInput matrix M ({size ** 2} entries): ")
-		mat = Matrix(matLine, size, size)
+		mat_line = input(f"\nInput matrix M ({size ** 2} entries): ")
+		mat = Matrix(mat_line, size, size)
 
 		print("\nMatrix of cofactors:\n" + str(mat.comatrix()))
 
@@ -95,11 +95,11 @@ while True:
 	elif choice == "G":
 		choice = int(input("Enter 1 for translation, 2 for enlargement, 3 for reflection or 4 for rotation: "))
 
-		numV = int(input("\nHow many vertices? "))
-		coords = [None] * numV
+		num_v = int(input("\nHow many vertices? "))
+		coords = [None] * num_v
 
-		for i in range(numV):
-			coords[i] = list(map(float, input(f"Input x and y coords {i + 1} / {numV}: ").split()))
+		for i in range(num_v):
+			coords[i] = list(map(float, input(f"Input x and y coords {i + 1} / {num_v}: ").split()))
 
 		coords = Matrix(coords)
 

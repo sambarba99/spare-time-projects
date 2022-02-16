@@ -12,8 +12,8 @@ import random
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extractData(data, trainTestRatio=0.5):
-	featureNames = data.pop(0).strip("\n").split(",")
+def extract_data(data, train_test_ratio=0.5):
+	feature_names = data.pop(0).strip("\n").split(",")
 
 	data = [row.strip("\n").split() for row in data]
 	random.shuffle(data)
@@ -24,14 +24,14 @@ def extractData(data, trainTestRatio=0.5):
 
 	x, y = data[:,:-1], data[:,-1]
 
-	split = int(len(data) * trainTestRatio)
+	split = int(len(data) * train_test_ratio)
 
-	xTrain, yTrain = x[:split], y[:split]
-	xTest, yTest = x[split:], y[split:]
+	x_train, y_train = x[:split], y[:split]
+	x_test, y_test = x[split:], y[split:]
 
-	return featureNames, xTrain, yTrain, xTest, yTest, data
+	return feature_names, x_train, y_train, x_test, y_test, data
 
-def analyticSolution(x, y):
+def analytic_solution(x, y):
 	# Adding dummy x0 = 1 makes the first weight w0 equal the bias
 	x = [[1] + list(i) for i in list(x)]
 	x = np.array(x)
@@ -57,50 +57,50 @@ else:
 with open(path, "r") as file:
 	data = file.readlines()
 
-featureNames, xTrain, yTrain, xTest, yTest, data = extractData(data)
+feature_names, x_train, y_train, x_test, y_test, data = extract_data(data)
 
-weights, bias = analyticSolution(xTrain, yTrain)
+weights, bias = analytic_solution(x_train, y_train)
 weights = ", ".join(f"{we:.3f}" for we in weights)
 print(f"\nAnalytic solution:\n weights = {weights}\n bias = {bias:.3f}\n")
 
 regressor = LinearRegressor()
-regressor.fit(xTrain, yTrain)
+regressor.fit(x_train, y_train)
 regressor.train()
 
-print("Training MSE:", regressor.costHistory[-1] / len(xTrain))
-print("Test MSE:", regressor.cost(xTest, yTest, regressor.weights, regressor.bias) / len(xTest))
+print("Training MSE:", regressor.cost_history[-1] / len(x_train))
+print("Test MSE:", regressor.cost(x_test, y_test, regressor.weights, regressor.bias) / len(x_test))
 
 # Plot regression line using column with the strongest correlation with y variable
 
-corrCoeffs = np.corrcoef(data.T)
+corr_coeffs = np.corrcoef(data.T)
 # Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
-corrCoeffs[-1,-1] = 0
+corr_coeffs[-1,-1] = 0
 
 # Index of column that has the strongest correlation with y
-idxMaxCorr = np.argmax(np.abs(corrCoeffs[:,-1]))
-maxCorr = corrCoeffs[idxMaxCorr, -1]
+idx_max_corr = np.argmax(np.abs(corr_coeffs[:, -1]))
+max_corr = corr_coeffs[idx_max_corr, -1]
 
-print("\nFeature names:", ", ".join(featureNames))
-print(f"Highest (abs) correlation with y ({featureNames[-1]}): {maxCorr}  (feature '{featureNames[idxMaxCorr]}')")
+print("\nFeature names:", ", ".join(feature_names))
+print(f"Highest (abs) correlation with y ({feature_names[-1]}): {max_corr}  (feature '{feature_names[idx_max_corr]}')")
 
 weights = ", ".join(f"{we:.3f}" for we in regressor.weights)
-xPlot = np.array(list(xTrain[:, idxMaxCorr]) + list(xTest[:, idxMaxCorr]))
-yPlot = regressor.weights[idxMaxCorr] * xPlot + regressor.bias
-yScatter = list(yTrain) + list(yTest)
+x_plot = np.array(list(x_train[:, idx_max_corr]) + list(x_test[:, idx_max_corr]))
+y_plot = regressor.weights[idx_max_corr] * x_plot + regressor.bias
+y_scatter = list(y_train) + list(y_test)
 plt.figure(figsize=(10, 8))
-plt.scatter(xPlot, yScatter, color="black", s=5)
-plt.plot(xPlot, yPlot, color="red")
-plt.xlabel(featureNames[idxMaxCorr] + " (normalised)")
-plt.ylabel(featureNames[-1] + " (normalised)")
+plt.scatter(x_plot, y_scatter, color="black", s=5)
+plt.plot(x_plot, y_plot, color="red")
+plt.xlabel(feature_names[idx_max_corr] + " (normalised)")
+plt.ylabel(feature_names[-1] + " (normalised)")
 plt.title(f"Gradient descent solution\nweights = {weights}\nbias = {regressor.bias:.3f}")
 plt.show()
 
 # Plot MSE graph
 
-xPlot = list(range(len(regressor.costHistory)))
-yPlot = np.array(regressor.costHistory) / len(xTrain)
+x_plot = list(range(len(regressor.cost_history)))
+y_plot = np.array(regressor.cost_history) / len(x_train)
 plt.figure(figsize=(8, 6))
-plt.plot(xPlot, yPlot, color="red")
+plt.plot(x_plot, y_plot, color="red")
 plt.xlabel("Training iteration")
 plt.ylabel("Mean square error")
 plt.title("MSE during training")

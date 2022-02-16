@@ -10,30 +10,30 @@ class Daedalus:
 		self.rows = rows
 		self.cols = cols
 
-	def makeMaze(self):
+	def make_maze(self):
 		maze = [[Vertex(y, x) for x in range(self.cols)] for y in range(self.rows)]
 
 		# Make top-left start
-		maze[0][0].isWall = False
+		maze[0][0].is_wall = False
 		current = maze[0][0]
 		stack = []
 
 		while True:
-			walls = current.getNeighbours(maze, True)
+			walls = current.get_neighbours(maze, True)
 
 			if walls:
-				nextV = random.choice(walls)
+				next_v = random.choice(walls)
 				stack.append(current)
-				self.__removeWalls(maze, current, nextV)
-				current = nextV
+				self.__remove_walls(maze, current, next_v)
+				current = next_v
 			elif stack:
 				current = stack.pop()
 			else:
 				return maze
 
-	def __removeWalls(self, maze, a, b):
-		midY = (a.y + b.y) // 2
-		midX = (a.x + b.x) // 2
-		maze[midY][midX].isWall = False
-		maze[a.y][a.x].isWall = False
-		maze[b.y][b.x].isWall = False
+	def __remove_walls(self, maze, a, b):
+		mid_y = (a.y + b.y) // 2
+		mid_x = (a.x + b.x) // 2
+		maze[mid_y][mid_x].is_wall = False
+		maze[a.y][a.x].is_wall = False
+		maze[b.y][b.x].is_wall = False

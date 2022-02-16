@@ -9,7 +9,7 @@ import numpy as np
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def partialShuffle(data, percentage=10):
+def partial_shuffle(data, percentage=10):
 	indices = list(range(len(data)))
 	n = round(len(data) * percentage / 100)
 	indices = np.random.choice(indices, n, replace=False)
@@ -24,44 +24,44 @@ choice = input("Enter R to generate random data, or E to enter it manually: ").u
 if choice == "R":
 	x = np.random.uniform(-10, 10, size=200)
 	y = np.random.uniform(-10, 10, size=200)
-	x = partialShuffle(sorted(x))
-	y = partialShuffle(sorted(y))
+	x = partial_shuffle(sorted(x))
+	y = partial_shuffle(sorted(y))
 else:
 	x = np.array(list(map(float, input("\nInput the X sample: ").split())))
 	y = np.array(list(map(float, input("Input the Y sample: ").split())))
 
 n = len(x)
-sumX = np.sum(x)
-sumY = np.sum(y)
-meanX = sumX / n
-meanY = sumY / n
-stdX = np.std(x, ddof=1) # DDOF = 1 means sample standard deviation (not population)
-stdY = np.std(y, ddof=1)
-sumX2 = np.sum(x * x)
-sumY2 = np.sum(y * y)
-sumXY = np.sum(x * y)
+sum_x = np.sum(x)
+sum_y = np.sum(y)
+mean_x = sum_x / n
+mean_y = sum_y / n
+std_x = np.std(x, ddof=1) # DDOF = 1 means sample standard deviation (not population)
+std_y = np.std(y, ddof=1)
+sum_x2 = np.sum(x * x)
+sum_y2 = np.sum(y * y)
+sum_xy = np.sum(x * y)
 
 # Pearson's coefficient
-rNum = n * sumXY - sumX * sumY
-rDenom1 = n * sumX2 - sumX ** 2
-rDenom2 = n * sumY2 - sumY ** 2
-r = rNum / ((rDenom1 * rDenom2) ** 0.5)
+r_num = n * sum_xy - sum_x * sum_y
+r_denom1 = n * sum_x2 - sum_x ** 2
+r_denom2 = n * sum_y2 - sum_y ** 2
+r = r_num / ((r_denom1 * r_denom2) ** 0.5)
 
 # Regression line y = mx + c
-m = r * stdY / stdX
-c = meanY - m * meanX
+m = r * std_y / std_x
+c = mean_y - m * mean_x
 
-xPlot = [min(x), max(x)]
-yPlot = [m * i + c for i in xPlot]
-plusMinus = "+" if c >= 0 else "-"
+x_plot = [min(x), max(x)]
+y_plot = [m * i + c for i in x_plot]
+plus_minus = "+" if c >= 0 else "-"
 
 plt.figure(figsize=(8, 8))
 plt.scatter(x, y, color="black", alpha=0.4)
-plt.plot(xPlot, yPlot, color="red")
+plt.plot(x_plot, y_plot, color="red")
 if min(x) < 0 or min(y) < 0:
 	plt.axhline(color="black")
 	plt.axvline(color="black")
 plt.xlabel("X")
 plt.ylabel("Y")
-plt.title(f"r = {r}\nY = {m:.3f}X {plusMinus} {c:.3f}")
+plt.title(f"r = {r}\nY = {m:.3f}X {plus_minus} {c:.3f}")
 plt.show()

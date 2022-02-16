@@ -19,27 +19,27 @@ dp = p.derivative()
 choice = input("\nEnter 1 to find a root of f(x), or 2 to find a stationary point of f(x): ")
 
 if choice == "1":
-	solution = p.findRoot()
+	solution = p.find_root()
 else:
-	solution = dp.findRoot()
+	solution = dp.find_root()
 
 if solution is not None:
-	root, iters, initialGuess = solution
+	root, iters, initial_guess = solution
 
 	if abs(root) <= 0.01: # If root is close to 0
 		start, end = -1, 1
 	else:
 		start, end = root - abs(root), root + abs(root)
 
-	xPlot = list(np.linspace(start, end))
-	yPlot = [p(x) for x in xPlot]
-	yDerivPlot = [dp(x) for x in xPlot]
-	yMin = min(yPlot + yDerivPlot)
-	yMax = max(yPlot + yDerivPlot)
+	x_plot = list(np.linspace(start, end))
+	y_plot = [p(x) for x in x_plot]
+	y_deriv_plot = [dp(x) for x in x_plot]
+	yMin = min(y_plot + y_deriv_plot)
+	yMax = max(y_plot + y_deriv_plot)
 
 	plt.figure(figsize=(8, 8))
-	plt.plot(xPlot, yPlot, color="#0080ff")
-	plt.plot(xPlot, yDerivPlot, color="#ff8000")
+	plt.plot(x_plot, y_plot, color="#0080ff")
+	plt.plot(x_plot, y_deriv_plot, color="#ff8000")
 	plt.axhline(color="black")
 	plt.vlines(root, yMin, yMax, color="red", ls="--")
 	plt.legend(["f(x)", "f'(x) = " + str(dp)])
@@ -48,10 +48,10 @@ if solution is not None:
 	if choice == "1":
 		plt.title(f"f(x) = {str(p)}"
 			+ f"\nRoot: x = {root}"
-			+ f"\nFound after {iters} iterations (initial guess = {initialGuess})")
+			+ f"\nFound after {iters} iterations (initial guess = {initial_guess})")
 	else:
 		rootY = round(p(root), 9)
 		plt.title(f"f(x) = {str(p)}"
 			+ f"\nStationary point: {root}, {rootY}"
-			+ f"\nFound after {iters} iterations (initial guess = {initialGuess})")
+			+ f"\nFound after {iters} iterations (initial guess = {initial_guess})")
 	plt.show()

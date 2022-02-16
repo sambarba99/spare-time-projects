@@ -11,8 +11,8 @@ import random
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extractData(data, trainTestRatio=0.5):
-	featureNames = data.pop(0).strip("\n").split(",")
+def extract_data(data, train_test_ratio=0.5):
+	feature_names = data.pop(0).strip("\n").split(",")
 
 	data = [row.strip("\n").split() for row in data]
 	random.shuffle(data)
@@ -20,55 +20,55 @@ def extractData(data, trainTestRatio=0.5):
 
 	x, y = data[:,:-1], data[:,-1].astype(int)
 
-	split = int(len(data) * trainTestRatio)
+	split = int(len(data) * train_test_ratio)
 
-	xTrain, yTrain = x[:split], y[:split]
-	xTest, yTest = x[split:], y[split:]
+	x_train, y_train = x[:split], y[:split]
+	x_test, y_test = x[split:], y[split:]
 
-	return featureNames, xTrain, yTrain, xTest, yTest
+	return feature_names, x_train, y_train, x_test, y_test
 
-def buildTree(x, y, maxDepth=1000):
+def build_tree(x, y, max_depth=1000):
 	# Generate leaf node if either stopping condition has been reached
-	if maxDepth == 1 or np.all(y == y[0]):
+	if max_depth == 1 or np.all(y == y[0]):
 		classes, counts = np.unique(y, return_counts=True)
 		return {"leaf": True, "class": classes[np.argmax(counts)]}
 	else:
-		move = findBestSplit(x, y)
-		left = buildTree(x[move["leftIndices"]], y[move["leftIndices"]], maxDepth - 1)
-		right = buildTree(x[move["rightIndices"]], y[move["rightIndices"]], maxDepth - 1)
+		move = find_best_split(x, y)
+		left = build_tree(x[move["leftIndices"]], y[move["leftIndices"]], max_depth - 1)
+		right = build_tree(x[move["rightIndices"]], y[move["rightIndices"]], max_depth - 1)
 
 		return {"leaf": False,
 			"feature": move["feature"],
 			"splitThreshold": move["splitThreshold"],
-			"infogain": move["infogain"],
+			"infoGain": move["infoGain"],
 			"left": left,
 			"right": right}
 
 # Given a dataset and its target values, find the optimal combination 
 # of feature and split point that yields maximum information gain
-def findBestSplit(x, y):
-	parentEntropy = calculateEntropy(y)
-	best = {"infogain": -1}
+def find_best_split(x, y):
+	parent_entropy = calculate_entropy(y)
+	best = {"infoGain": -1}
 
 	# Loop every possible split of every dimension
 	for i in range(x.shape[1]):
-		for splitThreshold in np.unique(x[:,i]):
-			leftIndices = np.where(x[:,i] <= splitThreshold)
-			rightIndices = np.where(x[:,i] > splitThreshold)
-			left = y[leftIndices]
-			right = y[rightIndices]
-			infogain = parentEntropy - len(left) / len(y) * calculateEntropy(left) - len(right) / len(y) * calculateEntropy(right)
+		for split_threshold in np.unique(x[:,i]):
+			left_indices = np.where(x[:,i] <= split_threshold)
+			right_indices = np.where(x[:,i] > split_threshold)
+			left = y[left_indices]
+			right = y[right_indices]
+			info_gain = parent_entropy - len(left) / len(y) * calculate_entropy(left) - len(right) / len(y) * calculate_entropy(right)
 
-			if infogain > best["infogain"]:
+			if info_gain > best["infoGain"]:
 				best = {"feature": i,
-					"splitThreshold": splitThreshold,
-					"infogain": infogain,
-					"leftIndices": leftIndices,
-					"rightIndices": rightIndices}
+					"splitThreshold": split_threshold,
+					"infoGain": info_gain,
+					"leftIndices": left_indices,
+					"rightIndices": right_indices}
 
 	return best
 
-def calculateEntropy(y):
+def calculate_entropy(y):
 	if len(y) <= 1: return 0
 
 	counts = np.bincount(y)
@@ -77,39 +77,39 @@ def calculateEntropy(y):
 	return -(probs * np.log2(probs)).sum()
 
 # Test different max depth values and create tree with best one
-def makeBestTree(xTrain, yTrain, xTest, yTest):
-	bestTree = None
-	bestDepth = bestTrainAcc = bestTestAcc = -1
+def make_best_tree(x_train, y_train, x_test, y_test):
+	best_tree = None
+	best_depth = best_train_acc = best_test_acc = -1
 	depth = 2
 
 	while True:
-		tree, trainAcc, testAcc = evaluate(xTrain, yTrain, xTest, yTest, depth)
-		print(f"Depth {depth}: training accuracy = {trainAcc} | test accuracy = {testAcc}")
+		tree, train_acc, test_acc = evaluate(x_train, y_train, x_test, y_test, depth)
+		print(f"Depth {depth}: training accuracy = {train_acc} | test accuracy = {test_acc}")
 
-		conditions = [trainAcc >= bestTrainAcc,
-			testAcc >= bestTestAcc,
-			not (trainAcc == bestTrainAcc and testAcc == bestTestAcc)]
+		conditions = [train_acc >= best_train_acc,
+			test_acc >= best_test_acc,
+			not (train_acc == best_train_acc and test_acc == best_test_acc)]
 
 		if all(conditions):
-			bestTree = tree
-			bestDepth = depth
-			bestTrainAcc = trainAcc
-			bestTestAcc = testAcc
+			best_tree = tree
+			best_depth = depth
+			best_train_acc = train_acc
+			best_test_acc = test_acc
 		else:
 			break # No improvement, so stop
 
 		depth += 1
 
-	return bestTree, bestDepth
+	return best_tree, best_depth
 
-def evaluate(xTrain, yTrain, xTest, yTest, maxDepth):
-	tree = buildTree(xTrain, yTrain, maxDepth)
-	trainPredictions = np.array([predict(tree, sample) for sample in xTrain])
-	testPredictions = np.array([predict(tree, sample) for sample in xTest])
-	trainAcc = (trainPredictions == yTrain).sum() / len(yTrain)
-	testAcc = (testPredictions == yTest).sum() / len(yTest)
+def evaluate(x_train, y_train, x_test, y_test, max_depth):
+	tree = build_tree(x_train, y_train, max_depth)
+	train_predictions = np.array([predict(tree, sample) for sample in x_train])
+	test_predictions = np.array([predict(tree, sample) for sample in x_test])
+	train_acc = (train_predictions == y_train).sum() / len(y_train)
+	test_acc = (test_predictions == y_test).sum() / len(y_test)
 
-	return tree, trainAcc, testAcc
+	return tree, train_acc, test_acc
 
 def predict(tree, sample):
 	if tree["leaf"]:
@@ -120,38 +120,38 @@ def predict(tree, sample):
 		else:
 			return predict(tree["right"], sample)
 
-def printTree(tree, classes, indent=0):
-	global featureNames
+def print_tree(tree, classes, indent=0):
+	global feature_names
 
 	if tree["leaf"]:
 		print(" " * indent + classes[tree["class"]])
 	else:
 		f = tree["feature"]
-		print("{}x{} ({}) <= {}".format(" " * indent, f, featureNames[f], tree["splitThreshold"]))
-		printTree(tree["left"], classes, indent + 4)
-		print("{}x{} ({}) > {}".format(" " * indent, f, featureNames[f], tree["splitThreshold"]))
-		printTree(tree["right"], classes, indent + 4)
+		print("{}x{} ({}) <= {}".format(" " * indent, f, feature_names[f], tree["splitThreshold"]))
+		print_tree(tree["left"], classes, indent + 4)
+		print("{}x{} ({}) > {}".format(" " * indent, f, feature_names[f], tree["splitThreshold"]))
+		print_tree(tree["right"], classes, indent + 4)
 
-def confusionMatrix(predictions, actual):
-	numClasses = len(np.unique(actual))
-	confMat = np.zeros((numClasses, numClasses)).astype(int)
+def confusion_matrix(predictions, actual):
+	num_classes = len(np.unique(actual))
+	conf_mat = np.zeros((num_classes, num_classes)).astype(int)
 
 	for a, p in zip(actual, predictions):
-		confMat[a, p] += 1
+		conf_mat[a, p] += 1
 
-	accuracy = np.trace(confMat) / confMat.sum()
-	return confMat, accuracy
+	accuracy = np.trace(conf_mat) / conf_mat.sum()
+	return conf_mat, accuracy
 
-def plotMatrix(isTraining, confMat, accuracy):
+def plot_matrix(is_training, conf_mat, accuracy):
 	fig, ax = plt.subplots(figsize=(6, 7))
-	ax.matshow(confMat, cmap=plt.cm.Blues, alpha=0.7)
+	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
-	for i in range(confMat.shape[0]):
-		for j in range(confMat.shape[1]):
-			ax.text(x=j, y=i, s=confMat[i, j], ha="center", va="center")
+	for i in range(conf_mat.shape[0]):
+		for j in range(conf_mat.shape[1]):
+			ax.text(x=j, y=i, s=conf_mat[i, j], ha="center", va="center")
 	plt.xlabel("Predictions")
 	plt.ylabel("Actual")
-	title = "Training" if isTraining else "Test"
+	title = "Training" if is_training else "Test"
 	plt.title(f"{title} Confusion Matrix\nAccuracy = {accuracy}")
 	plt.show()
 
@@ -185,20 +185,20 @@ else:
 with open(path, "r") as file:
 	data = file.readlines()
 
-featureNames, xTrain, yTrain, xTest, yTest = extractData(data)
+feature_names, x_train, y_train, x_test, y_test = extract_data(data)
 
-tree, depth = makeBestTree(xTrain, yTrain, xTest, yTest)
+tree, depth = make_best_tree(x_train, y_train, x_test, y_test)
 
 print(f"\nOptimal tree (depth {depth}):\n")
 
-printTree(tree, classes)
+print_tree(tree, classes)
 
 # Plot confusion matrices
 
-trainPredictions = [predict(tree, i) for i in xTrain]
-testPredictions = [predict(tree, i) for i in xTest]
-trainConfMat, trainAcc = confusionMatrix(trainPredictions, yTrain)
-testConfMat, testAcc = confusionMatrix(testPredictions, yTest)
+train_predictions = [predict(tree, i) for i in x_train]
+test_predictions = [predict(tree, i) for i in x_test]
+train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
+test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
-plotMatrix(True, trainConfMat, trainAcc)
-plotMatrix(False, testConfMat, testAcc)
+plot_matrix(True, train_conf_mat, train_acc)
+plot_matrix(False, test_conf_mat, test_acc)

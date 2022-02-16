@@ -14,63 +14,63 @@ WIDTH, HEIGHT = IMG.size
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def hideMessageInText(binMsg):
-	containerText = [random.choice(CHARS) for _ in range(len(binMsg))]
+def hide_message_in_text(bin_msg):
+	container_text = [random.choice(CHARS) for _ in range(len(bin_msg))]
 
-	print("\nContainer text:", "".join(containerText))
+	print("\nContainer text:", "".join(container_text))
 
-	for idx, c in enumerate(binMsg):
-		n = ord(containerText[idx])
-		n = setBit(n, 0, int(c))
-		containerText[idx] = chr(n)
+	for idx, c in enumerate(bin_msg):
+		n = ord(container_text[idx])
+		n = set_bit(n, 0, int(c))
+		container_text[idx] = chr(n)
 
 	# Replace special characters in new text with characters that have same LSB
-	hasSpecialChars = any(c not in CHARS for c in containerText)
-	if hasSpecialChars:
-		charsEnding0 = [c for c in CHARS if ord(c) % 2 == 0]
-		charsEnding1 = [c for c in CHARS if ord(c) % 2 == 1]
+	has_special_chars = any(c not in CHARS for c in container_text)
+	if has_special_chars:
+		chars_ending_0 = [c for c in CHARS if ord(c) % 2 == 0]
+		chars_ending_1 = [c for c in CHARS if ord(c) % 2 == 1]
 
-		for idx, c in enumerate(containerText):
+		for idx, c in enumerate(container_text):
 			if c not in CHARS:
-				containerText[idx] = random.choice(charsEnding0 if ord(c) % 2 == 0 else charsEnding1)
+				container_text[idx] = random.choice(chars_ending_0 if ord(c) % 2 == 0 else chars_ending_1)
 
-	return "".join(containerText)
+	return "".join(container_text)
 
-def getMessageFromText(stegText):
+def get_message_from_text(steg_text):
 	# Least significant bit of each char
-	binary = [str(ord(c) & 1) for c in stegText]
+	binary = [str(ord(c) & 1) for c in steg_text]
 
 	chunks = [binary[i:i + 8] for i in range(0, len(binary), 8)]
 	msg = [chr(int("".join(c), 2)) for c in chunks]
 
 	return "".join(msg)
 
-def hideMessageInImage(binMsg):
+def hide_message_in_image(bin_msg):
 	pixels = IMG.getdata()
-	pixelsNeeded = ceil(len(binMsg) / 3)
+	pixels_needed = ceil(len(bin_msg) / 3)
 
-	if pixelsNeeded > len(pixels):
+	if pixels_needed > len(pixels):
 		raise ValueError("Not enough pixels in image")
 
-	stegImg = IMG.copy()
+	steg_img = IMG.copy()
 	msgIdx = 0
 
-	for i in range(pixelsNeeded):
+	for i in range(pixels_needed):
 		pixel = list(pixels[i])
 
 		for j in range(3):
-			if msgIdx < len(binMsg):
-				pixel[j] = setBit(pixel[j], 0, int(binMsg[msgIdx]))
+			if msgIdx < len(bin_msg):
+				pixel[j] = set_bit(pixel[j], 0, int(bin_msg[msgIdx]))
 				msgIdx += 1
 
 		x, y = i % WIDTH, i // WIDTH
-		stegImg.putpixel((x, y), tuple(pixel))
+		steg_img.putpixel((x, y), tuple(pixel))
 
-	return stegImg
+	return steg_img
 
-def getMessageFromImage(stegImg):
+def get_message_from_image(steg_img):
 	# Least significant bit of each RGB value of each pixel
-	pixels = stegImg.getdata()
+	pixels = steg_img.getdata()
 	binary = [(pixels[y][x] & 1) for y in range(len(pixels)) for x in range(3)]
 	binary = [str(b) for b in binary]
 
@@ -80,7 +80,7 @@ def getMessageFromImage(stegImg):
 	return "".join(msg[:100]) + " (...)"
 
 # Set idx:th bit of number 'n' to 'b'
-def setBit(n, idx, b):
+def set_bit(n, idx, b):
 	mask = 1 << idx
 	n &= ~mask
 	return n | mask if b == 1 else n
@@ -90,16 +90,16 @@ def setBit(n, idx, b):
 # ---------------------------------------------------------------------------------------------------- #
 
 msg = input("Enter message to hide: ")
-binMsg = "".join([format(ord(c), "08b") for c in msg])
+bin_msg = "".join([format(ord(c), "08b") for c in msg])
 
-print("\nIn binary:", binMsg)
+print("\nIn binary:", bin_msg)
 
-stegText = hideMessageInText(binMsg)
+steg_text = hide_message_in_text(bin_msg)
 
-print("\nMessage hidden in text:", stegText)
-print(f"\nReading hidden message from text:\n{getMessageFromText(stegText)}")
+print("\nMessage hidden in text:", steg_text)
+print(f"\nReading hidden message from text:\n{get_message_from_text(steg_text)}")
 
-stegImg = hideMessageInImage(binMsg)
-stegImg.show()
+steg_img = hide_message_in_image(bin_msg)
+steg_img.show()
 
-print(f"\nReading hidden message from image:\n{getMessageFromImage(stegImg)}")
+print(f"\nReading hidden message from image:\n{get_message_from_image(steg_img)}")

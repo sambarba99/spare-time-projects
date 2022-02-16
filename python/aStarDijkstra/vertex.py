@@ -8,33 +8,33 @@ class Vertex:
 		self.x = x
 
 		# For A* and Dijkstra
-		self.isWall = True
-		self.parentVertex = None
+		self.is_wall = True
+		self.parent_vertex = None
 
 		# For A* only
-		self.gCost = 0
-		self.hCost = 0
+		self.g_cost = 0
+		self.h_cost = 0
 
 		# For Dijkstra only
 		self.cost = 10 ** 9 # Inf
 
-	def getNeighbours(self, maze, mazeGeneration):
-		dist = 2 if mazeGeneration else 1
-		isWall = mazeGeneration
+	def get_neighbours(self, maze, maze_generation):
+		dist = 2 if maze_generation else 1
+		isWall = maze_generation
 
 		neighbours = []
 		rows, cols = len(maze), len(maze[0])
 
-		if self.x - dist >= 0 and maze[self.y][self.x - dist].isWall == isWall:
+		if self.x - dist >= 0 and maze[self.y][self.x - dist].is_wall == isWall:
 			neighbours.append(maze[self.y][self.x - dist])
-		if self.x + dist < cols and maze[self.y][self.x + dist].isWall == isWall:
+		if self.x + dist < cols and maze[self.y][self.x + dist].is_wall == isWall:
 			neighbours.append(maze[self.y][self.x + dist])
-		if self.y - dist >= 0 and maze[self.y - dist][self.x].isWall == isWall:
+		if self.y - dist >= 0 and maze[self.y - dist][self.x].is_wall == isWall:
 			neighbours.append(maze[self.y - dist][self.x])
-		if self.y + dist < rows and maze[self.y + dist][self.x].isWall == isWall:
+		if self.y + dist < rows and maze[self.y + dist][self.x].is_wall == isWall:
 			neighbours.append(maze[self.y + dist][self.x])
 
 		return neighbours
 
-	def getFcost(self):
-		return self.gCost + self.hCost
+	def get_f_cost(self):
+		return self.g_cost + self.h_cost

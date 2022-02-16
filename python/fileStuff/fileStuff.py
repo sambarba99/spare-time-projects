@@ -10,40 +10,40 @@ from time import perf_counter
 # ---------------------------------------------------------------------------------------------------- #
 
 # Depth-first search of path, summing up file sizes
-def fileWalk(path):
-	n = pathSize = 0
+def file_walk(path):
+	n = path_size = 0
 
 	if os.path.isfile(path):
-		n, pathSize = 1, os.path.getsize(path)
+		n, path_size = 1, os.path.getsize(path)
 
-	for folderName, subfolders, filenames in os.walk(path):
-		print("Current folder:", folderName)
+	for folder_name, subfolders, filenames in os.walk(path):
+		print("Current folder:", folder_name)
 		for s in subfolders:
 			print("Subfolder:", s)
 		for f in filenames:
 			n += 1
-			filePath = folderName + "\\" + str(f)
-			fileSize = os.path.getsize(filePath)
-			pathSize += fileSize
-			fileSize, suffix = getSuffix(fileSize)
-			print(f"File inside: {f} ({fileSize} {suffix})")
+			file_path = folder_name + "\\" + str(f)
+			file_size = os.path.getsize(file_path)
+			path_size += file_size
+			file_size, suffix = get_suffix(file_size)
+			print(f"File inside: {f} ({file_size} {suffix})")
 		print()
 
 	print("-" * 50)
 	print(f"\n{n} files in {path}")
 
-	pathSize, suffix = getSuffix(pathSize)
-	print(f"Path size = {pathSize} {suffix}")
+	path_size, suffix = get_suffix(path_size)
+	print(f"Path size = {path_size} {suffix}")
 
-def getSuffix(pathSize):
-	suffixArr = ["bytes", "KB", "MB", "GB"]
+def get_suffix(path_size):
+	suffix_arr = ["bytes", "KB", "MB", "GB"]
 	idx = 0
 
-	while pathSize >= 1024 and idx < 3:
-		pathSize /= 1024
+	while path_size >= 1024 and idx < 3:
+		path_size /= 1024
 		idx += 1
 
-	return round(pathSize, 2), suffixArr[idx]
+	return round(path_size, 2), suffix_arr[idx]
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -57,7 +57,7 @@ def getSuffix(pathSize):
 # shutil.rmtree(path) = deletes all files at path
 
 start = perf_counter()
-fileWalk("C:\\Users\\Sam Barba\\Desktop\\Programs")
+file_walk("C:\\Users\\Sam Barba\\Desktop\\Programs")
 end = perf_counter()
 
 print(f"Walked in {round(1000 * (end - start))} ms")

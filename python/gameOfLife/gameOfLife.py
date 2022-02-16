@@ -30,45 +30,45 @@ running = True
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def updateGrid():
+def update_grid():
 	global grid # 2D array of Booleans (true = alive)
-	nextGenGrid = [[False] * COLS for _ in range(ROWS)]
+	next_gen_grid = [[False] * COLS for _ in range(ROWS)]
 
 	for y in range(ROWS):
 		for x in range(COLS):
-			n = countLiveNeighbours(y, x)
+			n = count_live_neighbours(y, x)
 
 			if n < 2 or n > 3:
-				nextGenGrid[y][x] = False
+				next_gen_grid[y][x] = False
 			elif n == 3:
-				nextGenGrid[y][x] = True
+				next_gen_grid[y][x] = True
 			else:
-				nextGenGrid[y][x] = grid[y][x]
+				next_gen_grid[y][x] = grid[y][x]
 
-	grid = nextGenGrid[:]
+	grid = next_gen_grid[:]
 
-def countLiveNeighbours(y, x):
+def count_live_neighbours(y, x):
 	n = 0
-	for yOffset in range(-1, 2):
-		for xOffset in range(-1, 2):
-			checkY = y + yOffset
-			checkX = x + xOffset
+	for y_offset in range(-1, 2):
+		for x_offset in range(-1, 2):
+			check_y = y + y_offset
+			check_x = x + x_offset
 
-			if checkY in range(ROWS) and checkX in range(COLS) \
-				and grid[checkY][checkX]:
+			if check_y in range(ROWS) and check_x in range(COLS) \
+				and grid[check_y][check_x]:
 				n += 1
 
 	return n - 1 if grid[y][x] else n
 
-def setPattern(pattern):
+def set_pattern(pattern):
 	global grid
 	grid = [[(y, x) in pattern for x in range(COLS)] for y in range(ROWS)]
 
-def randomiseLiveCells():
+def randomise_live_cells():
 	global grid
 	grid = [[random.random() < 0.2 for _ in range(COLS)] for _ in range(ROWS)]
 
-def drawGrid():
+def draw_grid():
 	scene.fill((50, 50, 50))
 
 	for y in range(ROWS):
@@ -82,7 +82,7 @@ def drawGrid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-randomiseLiveCells()
+randomise_live_cells()
 
 pg.init()
 pg.display.set_caption("Game of Life")
@@ -95,13 +95,13 @@ while True:
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
 			if event.key == pg.K_1: # Preset 1
-				setPattern(GLIDER_GUN)
+				set_pattern(GLIDER_GUN)
 			elif event.key == pg.K_2: # Preset 2
-				setPattern(R_PENTOMINO)
+				set_pattern(R_PENTOMINO)
 			elif event.key == pg.K_r: # Reset and randomise
-				randomiseLiveCells()
+				randomise_live_cells()
 			elif event.key == pg.K_SPACE: # Play/pause
 				running = not running
 
-	drawGrid()
-	if running: updateGrid()
+	draw_grid()
+	if running: update_grid()

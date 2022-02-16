@@ -85,12 +85,12 @@ RV_TO_FACTOR = 17 # For converting variables to factors for factor graph
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def calculateProbDistributions():
+def calculate_prob_distributions():
 	for idx, rv in enumerate(rvs):
 		indices = rv[2]
 
-		for bitPermutation in generateBitPermutations(len(indices)):
-			bits = list(bitPermutation[1:])
+		for bit_permutation in generate_bit_permutations(len(indices)):
+			bits = list(bit_permutation[1:])
 			bits2 = bits[:]
 			bits2[0] = 1 - bits[0]
 
@@ -99,16 +99,16 @@ def calculateProbDistributions():
 
 			rvs[idx][0][tuple(bits)] = alpha / (alpha + beta)
 
-def generateBitPermutations(nBits):
-	if nBits < 1:
+def generate_bit_permutations(n_bits):
+	if n_bits < 1:
 		yield slice(None),
 	else:
-		for head in generateBitPermutations(nBits - 1):
+		for head in generate_bit_permutations(n_bits - 1):
 			yield head + (0,)
 			yield head + (1,)
 
 # Calculate edges of factor graph - much simpler computation than on a Bayesian network
-def calculateEdges():
+def calculate_edges():
 	edges = []
 
 	for rv in rvs:
@@ -121,8 +121,8 @@ def calculateEdges():
 
 # Convert list of edges into a valid message order (a message can only be sent from node A to node B
 # once A has received all of its messages, except for the message from B)
-def calculateMessageOrder(edges):
-	msgOrder = []
+def calculate_message_order(edges):
+	msg_order = []
 	flags = defaultdict(dict)
 	for a, b in edges:
 		flags[a][b] = flags[b][a] = False
@@ -136,37 +136,37 @@ def calculateMessageOrder(edges):
 				# If received messages from all neighbours except destination...
 				if all(flags[src][d] for d in flags[src] if d != dest):
 					tup = (src, dest)
-					if tup not in msgOrder:
-						msgOrder.append(tup)
+					if tup not in msg_order:
+						msg_order.append(tup)
 						flags[dest][src] = check = True
 
-	return msgOrder
+	return msg_order
 
-def rvToFactorMsg(src, dest, msgs):
+def rv_to_factor_msg(src, dest, msgs):
 	msg = np.ones(2)
-	incomingMessages = [msgs[src][d] for d in msgs[src] if d != dest]
+	incoming_messages = [msgs[src][d] for d in msgs[src] if d != dest]
 
-	if incomingMessages:
-		msg = np.prod(incomingMessages, axis=0)
+	if incoming_messages:
+		msg = np.prod(incoming_messages, axis=0)
 
 	return msg
 
-def factorToRVmsg(src, dest, msgs):
+def factor_to_rv_msg(src, dest, msgs):
 	msg = np.ones(2)
-	subscriptChoices = "ijkl"
+	subscript_choices = "ijkl"
 
 	for rv in rvs:
 		if rv[2][0] == src - RV_TO_FACTOR:
 			msg = rv[0]
-			shape = subscriptChoices[:msg.ndim]
+			shape = subscript_choices[:msg.ndim]
 
 			for i in msgs[src]:
 				if i != dest:
-					axis = subscriptChoices[rv[2].index(i)]
-					newShape = shape.replace(axis, "")
-					subscripts = f"{shape},{axis}->{newShape}"
+					axis = subscript_choices[rv[2].index(i)]
+					new_shape = shape.replace(axis, "")
+					subscripts = f"{shape},{axis}->{new_shape}"
 					msg = np.einsum(subscripts, msg, msgs[src][i])
-					shape = newShape
+					shape = new_shape
 
 	return msg
 
@@ -178,17 +178,17 @@ def factorToRVmsg(src, dest, msgs):
 # has been observed as.
 # This function returns a 17x2 matrix, such that [rv, 0] is the probability of RV being False,
 # and [rv, 1] is the probability of being True.
-def calculateMarginals(known, msgOrder):
+def calculate_marginals(known, msg_order):
 	msgs = defaultdict(dict) # [dest][src] = msg
 
-	for src, dest in msgOrder:
+	for src, dest in msg_order:
 		if src < RV_TO_FACTOR: # RV
 			if src in known:
 				msgs[dest][src] = np.array([0, 1] if known[src] else [1, 0])
 			else:
-				msgs[dest][src] = rvToFactorMsg(src, dest, msgs)
+				msgs[dest][src] = rv_to_factor_msg(src, dest, msgs)
 		else: # Factor
-			msgs[dest][src] = factorToRVmsg(src, dest, msgs)
+			msgs[dest][src] = factor_to_rv_msg(src, dest, msgs)
 
 	# Calculate and return marginal distributions ("beliefs")
 	marginals = np.zeros((17, 2))
@@ -196,7 +196,7 @@ def calculateMarginals(known, msgOrder):
 		if idx in known:
 			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
 		else:
-			marginals[idx, :] = rvToFactorMsg(idx, None, msgs)
+			marginals[idx, :] = rv_to_factor_msg(idx, None, msgs)
 			marginals[idx, :] /= marginals[idx, :].sum() # Needed for numerical stability
 
 	return marginals
@@ -219,7 +219,7 @@ print("No. broken machines:", len(data) - data[:, nti["he"]].sum())
 
 # 2. Display RVs and their calculated probability distributions
 
-calculateProbDistributions()
+calculate_prob_distributions()
 
 print("\nRVs:\n")
 for rv in rvs:
@@ -231,15 +231,15 @@ for rv in rvs:
 	else:
 		# Conditional
 		print(f"{rv[1]}:")
-		for bitPermutation in generateBitPermutations(len(indices) - 1):
-			eventName = itn[indices[0]]
-			bits = ",".join([str(i) for i in bitPermutation[1:]])
-			conditionals = rv[0][bitPermutation]
-			print(f"    P({eventName}|{bits}) = {conditionals}")
+		for bit_permutation in generate_bit_permutations(len(indices) - 1):
+			event_name = itn[indices[0]]
+			bits = ",".join([str(i) for i in bit_permutation[1:]])
+			conditionals = rv[0][bit_permutation]
+			print(f"    P({event_name}|{bits}) = {conditionals}")
 
 # 3. Display factor graph
 
-edges = calculateEdges()
+edges = calculate_edges()
 print(f"\nGenerated {len(edges)} factor graph edges:\n")
 for idx, e in enumerate(edges):
 	print(f"{e[0]} ({itn[e[0]]}) - {e[1]}", end="    ")
@@ -248,21 +248,21 @@ for idx, e in enumerate(edges):
 
 # 4. Display message order
 
-msgOrder = calculateMessageOrder(edges)
-msgOrderStr = ", ".join(str(m[0]) + "->" + str(m[1]) for m in msgOrder)
-print(f"\nMessage order ({len(msgOrder)} messages):\n\n{msgOrderStr}")
+msg_order = calculate_message_order(edges)
+msg_order_str = ", ".join(str(m[0]) + "->" + str(m[1]) for m in msg_order)
+print(f"\nMessage order ({len(msg_order)} messages):\n\n{msg_order_str}")
 
 # 5. Display marginals ("beliefs")
 
 print("\nMarginals with no observations:\n")
 known = {}
-marginals = calculateMarginals(known, msgOrder)
+marginals = calculate_marginals(known, msg_order)
 for idx, m in enumerate(marginals):
 	print(f"P({itn[idx]}) = {m}")
 
 print("\nMarginals if water reservoir empty:\n")
 known = {nti["wr"]: True}
-marginals = calculateMarginals(known, msgOrder)
+marginals = calculate_marginals(known, msg_order)
 for idx, m in enumerate(marginals):
 	print(f"P({itn[idx]}) = {m}")
 print()
@@ -274,10 +274,10 @@ machines = {"Machine A": {nti["me"]: True},
 	"Machine C": {nti["pa"]: False, nti["he"]: False},
 	"Machine D": {nti["pa"]: True, nti["wv"]: True, nti["vp"]: True}}
 
-for machineName, observations in machines.items():
-	print(machineName + ":")
+for machine_name, observations in machines.items():
+	print(machine_name + ":")
 	for k, v in observations.items():
 		print(f"    {itn[k]}: {v}")
-	marginals = calculateMarginals(observations, msgOrder)
+	marginals = calculate_marginals(observations, msg_order)
 	idx = np.argmax(marginals[:7,1]) # Consider only the failure marginals (first 7 rows)
 	print(f"    Most likely issue = {itn[idx]}")

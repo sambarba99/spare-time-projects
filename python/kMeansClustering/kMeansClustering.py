@@ -11,12 +11,12 @@ NUM_CLUSTERS = 4
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def makeRandomSamples(numClusters, numSamplesPerCluster=300):
-	clusterCentroidCoords = np.random.uniform(-100, 100, size=(numClusters, 2))
+def make_random_samples(num_clusters, num_samples_per_cluster=300):
+	cluster_centroid_coords = np.random.uniform(-100, 100, size=(num_clusters, 2))
 
 	samples = []
-	for c in clusterCentroidCoords:
-		for _ in range(numSamplesPerCluster):
+	for c in cluster_centroid_coords:
+		for _ in range(num_samples_per_cluster):
 			# Generate random points radially around centroid x,y
 			theta = np.random.uniform(0, 2 * np.pi)
 			r = np.random.uniform(0, 50)
@@ -30,7 +30,7 @@ def makeRandomSamples(numClusters, numSamplesPerCluster=300):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-x = makeRandomSamples(NUM_CLUSTERS)
+x = make_random_samples(NUM_CLUSTERS)
 
-kMeans = KMeans(NUM_CLUSTERS)
-yPred = kMeans.predict(x, True)
+k_means = KMeans(NUM_CLUSTERS)
+y_pred = k_means.predict(x, True)

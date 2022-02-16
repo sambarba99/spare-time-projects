@@ -36,19 +36,19 @@ for c in coords:
 # ---------------------------------- Cluster samples ---------------------------------- #
 
 if USE_FILE_DATA:
-	clusterer = DBSCANclusterer(epsilon=10, minPoints=12)
+	clusterer = DBSCANclusterer(epsilon=10, min_points=12)
 else:
-	clusterer = DBSCANclusterer(epsilon=20, minPoints=17)
+	clusterer = DBSCANclusterer(epsilon=20, min_points=17)
 
 clusterer.predict(points)
 
 # ---------------------------------- Plot clusters ---------------------------------- #
 
 # Unique labels excluding noise
-uniqueLabels = sorted(list(set(p["label"] for p in points if p["label"] != NOISE)))
+unique_labels = sorted(list(set(p["label"] for p in points if p["label"] != NOISE)))
 
 # + 1 to include a 'cluster' for noise samples
-clusters = [[] for _ in range(len(uniqueLabels) + 1)]
+clusters = [[] for _ in range(len(unique_labels) + 1)]
 
 for p in points:
 	# Any noise coords go into clusters[0], as noise label = 0
@@ -63,7 +63,7 @@ for idx, c in enumerate(clusters):
 	else:
 		plt.scatter(*np.array(c).T, alpha=0.7)
 
-legend = [f"Class {str(i)} ({len(clusters[i])} samples)" for i in uniqueLabels]
+legend = [f"Class {str(i)} ({len(clusters[i])} samples)" for i in unique_labels]
 if clusters[0]: # If there is noise...
 	legend.insert(0, f"Noise ({len(clusters[0])} samples)")
 

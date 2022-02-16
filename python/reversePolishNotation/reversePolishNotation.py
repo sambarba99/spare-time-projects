@@ -13,54 +13,54 @@ OPS = {"^": {"prec": 3, "left-assoc": False, "calc": lambda op1, op2: op1 ** op2
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def infixToRPN(infixStr):
-	opStack = []
+def infix_to_rpn(infix_str):
+	op_stack = []
 	rpn = []
 
-	for token in infixStr.split():
+	for token in infix_str.split():
 		if token in OPS.keys():
-			while (opStack and opStack[-1] != "("
-				and (OPS[opStack[-1]]["prec"] > OPS[token]["prec"]
-					or (OPS[opStack[-1]]["prec"] == OPS[token]["prec"]
+			while (op_stack and op_stack[-1] != "("
+				and (OPS[op_stack[-1]]["prec"] > OPS[token]["prec"]
+					or (OPS[op_stack[-1]]["prec"] == OPS[token]["prec"]
 						and OPS[token]["left-assoc"]))):
 
-				rpn.append(opStack.pop())
+				rpn.append(op_stack.pop())
 
-			opStack.append(token)
+			op_stack.append(token)
 
 		elif token == "(":
-			opStack.append(token)
+			op_stack.append(token)
 
 		elif token == ")":
-			while opStack[-1] != "(":
-				rpn.append(opStack.pop())
-			opStack.pop()
+			while op_stack[-1] != "(":
+				rpn.append(op_stack.pop())
+			op_stack.pop()
 
 		else:
 			rpn.append(token)
 
-	if opStack:
-		rpn += opStack[::-1]
+	if op_stack:
+		rpn += op_stack[::-1]
 
 	return " ".join(rpn)
 
-def evaluateRPN(rpnStr):
-	rpnStack = []
+def evaluate_rpn(rpn_str):
+	rpn_stack = []
 
-	for token in rpnStr.split():
+	for token in rpn_str.split():
 		if token in OPS.keys():
-			operand2, operand1 = float(rpnStack.pop()), float(rpnStack.pop())
-			rpnStack.append(OPS[token]["calc"](operand1, operand2))
+			operand2, operand1 = float(rpn_stack.pop()), float(rpn_stack.pop())
+			rpn_stack.append(OPS[token]["calc"](operand1, operand2))
 		else:
-			rpnStack.append(token)
-		print(rpnStack)
+			rpn_stack.append(token)
+		print(rpn_stack)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-rpnStr = infixToRPN(input("Enter an infix expression: "))
+rpn_str = infix_to_rpn(input("Enter an infix expression: "))
 
-print("\nIn RPN:", rpnStr, "\n")
+print("\nIn RPN:", rpn_str, "\n")
 
-evaluateRPN(rpnStr)
+evaluate_rpn(rpn_str)

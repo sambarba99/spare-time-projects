@@ -6,56 +6,56 @@ import numpy as np
 
 class LinearRegressor:
 	def __init__(self):
-		self.xTrain = None
-		self.yTrain = None
+		self.x_train = None
+		self.y_train = None
 		self.weights = None
 		self.bias = 0
-		self.costHistory = []
+		self.cost_history = []
 
-	def fit(self, xTrain, yTrain):
-		self.xTrain = xTrain
-		self.yTrain = yTrain
+	def fit(self, x_train, y_train):
+		self.x_train = x_train
+		self.y_train = y_train
 
 	# Gradient descent
-	def train(self, learningRate=0.0001, convergeThreshold=10 ** -9):
+	def train(self, learning_rate=0.0001, converge_threshold=10 ** -9):
 		# Initial guesses and error
-		weightsCurrent = np.zeros(self.xTrain.shape[1])
-		biasCurrent = 0
-		eCurrent = self.cost(self.xTrain, self.yTrain, weightsCurrent, biasCurrent)
-		self.costHistory.append(eCurrent)
+		weights_current = np.zeros(self.x_train.shape[1])
+		bias_current = 0
+		e_current = self.cost(self.x_train, self.y_train, weights_current, bias_current)
+		self.cost_history.append(e_current)
 
 		while True:
-			weightDeriv, biasDeriv = self.__calculateGradients(weightsCurrent, biasCurrent)
+			weight_deriv, bias_deriv = self.__calculate_gradients(weights_current, bias_current)
 
-			weightsNew = weightsCurrent - weightDeriv * learningRate
-			biasNew = biasCurrent - biasDeriv * learningRate
-			eNew = self.cost(self.xTrain, self.yTrain, weightsNew, biasNew)
-			self.costHistory.append(eNew)
+			weights_new = weights_current - weight_deriv * learning_rate
+			bias_new = bias_current - bias_deriv * learning_rate
+			e_new = self.cost(self.x_train, self.y_train, weights_new, bias_new)
+			self.cost_history.append(e_new)
 
 			# Stop if converged
-			if abs(eNew - eCurrent) < convergeThreshold:
+			if abs(e_new - e_current) < converge_threshold:
 				break
 
 			# Decrease step size if error increases
-			if eNew > eCurrent:
-				learningRate *= 0.9
+			if e_new > e_current:
+				learning_rate *= 0.9
 
 			# Take the step
-			weightsCurrent, biasCurrent, eCurrent = weightsNew, biasNew, eNew
+			weights_current, bias_current, e_current = weights_new, bias_new, e_new
 
-		self.weights = weightsCurrent
-		self.bias = biasCurrent
+		self.weights = weights_current
+		self.bias = bias_current
 
-	def __calculateGradients(self, weights, bias):
-		yPredictions = np.dot(self.xTrain, weights) + bias
-		weightsDeriv = 2 * np.dot(self.xTrain.T, yPredictions - self.yTrain)
-		biasDeriv = 2 * (yPredictions - self.yTrain).sum()
-		return weightsDeriv, biasDeriv
+	def __calculate_gradients(self, weights, bias):
+		y_predictions = np.dot(self.x_train, weights) + bias
+		weights_deriv = 2 * np.dot(self.x_train.T, y_predictions - self.y_train)
+		bias_deriv = 2 * (y_predictions - self.y_train).sum()
+		return weights_deriv, bias_deriv
 
 	# Least squares error
 	def cost(self, x, y, weights, bias):
-		yPredictions = np.dot(x, weights) + bias
-		return ((y - yPredictions) ** 2).sum()
+		y_predictions = np.dot(x, weights) + bias
+		return ((y - y_predictions) ** 2).sum()
 
 	def predict(self, inputs):
 		return np.dot(inputs, self.weights) + self.bias

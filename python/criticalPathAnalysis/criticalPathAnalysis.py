@@ -6,7 +6,7 @@
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def forwardPass(data):
+def forward_pass(data):
 	# Early start, early finish
 	es = [0] * len(data["CODE"])
 	ef = es[:]
@@ -19,7 +19,7 @@ def forwardPass(data):
 	data["ES"] = es
 	data["EF"] = ef
 
-def backwardPass(data):
+def backward_pass(data):
 	# Late start, late finish
 	ls = [0] * len(data["CODE"])
 	lf = ls[:]
@@ -44,7 +44,7 @@ def backwardPass(data):
 	data["LS"] = ls
 	data["LF"] = lf
 
-def computeSlack(data):
+def compute_slack(data):
 	slack = [ls - es for ls, es in zip(data["LS"], data["ES"])]
 	critical = ["YES" if s == 0 else "NO" for s in slack]
 
@@ -75,9 +75,9 @@ data = {"CODE": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 
 # 1. Compute CPA
 
-forwardPass(data)
-backwardPass(data)
-computeSlack(data)
+forward_pass(data)
+backward_pass(data)
+compute_slack(data)
 
 # 2. Print data as table
 
@@ -98,12 +98,12 @@ for i in data["CODE"]:
 
 # 3. Print critical path info
 
-criticalPath = []
-criticalDuration = 0
+critical_path = []
+critical_duration = 0
 for idx, slackValue in enumerate(data["SLACK"]):
 	if slackValue == 0:
-		criticalPath.append(idx) # idx = data["CODE"][idx]
-		criticalDuration += data["DURATION"][idx]
+		critical_path.append(idx) # idx = data["CODE"][idx]
+		critical_duration += data["DURATION"][idx]
 
-print(f"\nCritical path: {criticalPath}")
-print(f"Critical duration: {criticalDuration}")
+print(f"\nCritical path: {critical_path}")
+print(f"Critical duration: {critical_duration}")

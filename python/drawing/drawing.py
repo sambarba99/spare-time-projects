@@ -77,7 +77,7 @@ def koch(size=1000.0, lvl=6):
 	else:
 		t.fd(size)
 
-def tSquare(x=0.0, y=0.0, size=400.0):
+def t_square(x=0.0, y=0.0, size=400.0):
 	if size < 4: return
 
 	t.pu()
@@ -90,10 +90,10 @@ def tSquare(x=0.0, y=0.0, size=400.0):
 		t.rt(90)
 	t.end_fill()
 
-	tSquare(x - size / 2, y - size / 2, size / 2)
-	tSquare(x - size / 2, y + size / 2, size / 2)
-	tSquare(x + size / 2, y - size / 2, size / 2)
-	tSquare(x + size / 2, y + size / 2, size / 2)
+	t_square(x - size / 2, y - size / 2, size / 2)
+	t_square(x - size / 2, y + size / 2, size / 2)
+	t_square(x + size / 2, y - size / 2, size / 2)
+	t_square(x + size / 2, y + size / 2, size / 2)
 
 # Fractal tree (angle = 20/30/45/90)
 def tree(angle, size=60):
@@ -119,7 +119,7 @@ def spiral(angle):
 		t.fd(i)
 		t.lt(angle)
 
-def drawSquare(size, angle):
+def draw_square(size, angle):
 	t.seth(angle)
 	t.fillcolor((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 	t.begin_fill()
@@ -143,7 +143,7 @@ def hilbert(size=6, level=6, angle=90):
 	hilbert(size, level - 1, -angle)
 	t.rt(angle)
 
-def randWalk(bound, step):
+def rand_walk(bound, step):
 	t.dot(10000, "black")
 	t.pu()
 	t.goto(bound, bound)
@@ -170,10 +170,10 @@ def randWalk(bound, step):
 	t.pd()
 	for idx, node in enumerate(path):
 		t.goto(node)
-		c = round(mapRange(idx, 0, len(path), 30, 255))
+		c = round(map_range(idx, 0, len(path), 30, 255))
 		t.color((c, c, c))
 
-def mapRange(x, fromLo, fromHi, toLo, toHi):
+def map_range(x, fromLo, fromHi, toLo, toHi):
 	return (x - fromLo) * (toHi - toLo) / (fromHi - fromLo) + toLo
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -188,7 +188,7 @@ reset()
 #reset()
 #size, angle = 300, 0
 #while size > 10:
-#	drawSquare(size, angle)
+#	draw_square(size, angle)
 #	size -= 0.2
 #	angle += 3
 #sleep(2)
@@ -197,13 +197,13 @@ reset()
 #hilbert()
 #sleep(2)
 
-#tSquare()
+#t_square()
 #sleep(2)
 #reset()
 
 dragon()
 sleep(2)
 
-randWalk(400, 2)
+rand_walk(400, 2)
 
 input("Press Enter to exit")

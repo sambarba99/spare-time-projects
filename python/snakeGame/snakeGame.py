@@ -21,89 +21,89 @@ EAST = [1, 0]
 WEST = [-1, 0]
 
 snake = None
-foodPos = None
+food_pos = None
 heading = None
 score = None
-gameOver = None
+game_over = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def setup():
-	global snake, heading, score, gameOver
+	global snake, heading, score, game_over
 
 	# x, y coords of head of snake are snake[0]
 	snake = [[COLS // 2 - i, ROWS // 2 - 1] for i in range(3)]
 	heading = EAST
 	score = 0
-	gameOver = False
-	generateFood()
+	game_over = False
+	generate_food()
 
-def moveSnake():
-	snakeCopy = snake[:]
-	newHead = [s + h for s, h in zip(snake[0], heading)]
+def move_snake():
+	snake_copy = snake[:]
+	new_head = [s + h for s, h in zip(snake[0], heading)]
 
 	for i in range(1, len(snake)):
-		snake[i] = snakeCopy[i - 1]
+		snake[i] = snake_copy[i - 1]
 
-	snake[0] = newHead
+	snake[0] = new_head
 
-def generateFood():
-	global foodPos
+def generate_food():
+	global food_pos
 
-	foodPos = [random.randrange(COLS), random.randrange(ROWS)]
-	while foodPos in snake:
-		foodPos = [random.randrange(COLS), random.randrange(ROWS)]
+	food_pos = [random.randrange(COLS), random.randrange(ROWS)]
+	while food_pos in snake:
+		food_pos = [random.randrange(COLS), random.randrange(ROWS)]
 
-def checkEatenFood():
+def check_eaten_food():
 	global score
 
-	if snake[0] == foodPos:
+	if snake[0] == food_pos:
 		score += 1
 		snake.append(snake[-1])
-		generateFood()
+		generate_food()
 
-def checkGameOver():
-	global gameOver
+def check_game_over():
+	global game_over
 
 	head = snake[0]
 
 	# Game over if snake has headed out of grid, or into its tail
-	gameOver = head[0] not in range(COLS) \
+	game_over = head[0] not in range(COLS) \
 		or head[1] not in range(ROWS) \
 		or head in snake[1:]
 
-def drawGrid():
+def draw_grid():
 	scene.fill((0, 0, 0))
 	font = pg.font.SysFont("consolas", 20)
 
 	# Draw snake (light blue head, dark blue tail or all red if game over)
-	headX, headY = snake[0]
-	headColour = (255, 0, 0) if gameOver else (0, 128, 255)
-	tailColour = (255, 0, 0) if gameOver else (0, 0, 255)
-	pg.draw.rect(scene, headColour, pg.Rect(headX * CELL_SIZE, headY * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	head_x, head_y = snake[0]
+	head_colour = (255, 0, 0) if game_over else (0, 128, 255)
+	tail_colour = (255, 0, 0) if game_over else (0, 0, 255)
+	pg.draw.rect(scene, head_colour, pg.Rect(head_x * CELL_SIZE, head_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 	for x, y in snake[1:]:
-		pg.draw.rect(scene, tailColour, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+		pg.draw.rect(scene, tail_colour, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 	# Draw food
-	pg.draw.rect(scene, (255, 128, 0), pg.Rect(foodPos[0] * CELL_SIZE, foodPos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	pg.draw.rect(scene, (255, 128, 0), pg.Rect(food_pos[0] * CELL_SIZE, food_pos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 	# Score label
-	scoreLbl = font.render(f"Score: {score}", True, (220, 220, 220))
-	scene.blit(scoreLbl, (10, 10))
+	score_lbl = font.render(f"Score: {score}", True, (220, 220, 220))
+	scene.blit(score_lbl, (10, 10))
 
 	pg.display.flip()
 
-	if gameOver:
+	if game_over:
 		sleep(1)
 		scene.fill((0, 0, 0))
-		lblTexts = ["GAME OVER", f"Score: {score}", "Press any key to reset"]
-		for idx, lblText in enumerate(lblTexts):
-			lbl = font.render(lblText, True, (0, 180, 0))
+		lbl_texts = ["GAME OVER", f"Score: {score}", "Press any key to reset"]
+		for idx, lbl_text in enumerate(lbl_texts):
+			lbl = font.render(lbl_text, True, (0, 180, 0))
 			offset = 40 * (idx - 1)
-			lblRect = lbl.get_rect(center=(CELL_SIZE * COLS / 2, CELL_SIZE * ROWS / 2 + offset))
-			scene.blit(lbl, lblRect)
+			lbl_rect = lbl.get_rect(center=(CELL_SIZE * COLS / 2, CELL_SIZE * ROWS / 2 + offset))
+			scene.blit(lbl, lbl_rect)
 		pg.display.flip()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -123,7 +123,7 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
-			if gameOver: # Press any key to reset
+			if game_over: # Press any key to reset
 				setup()
 			elif event.key in (pg.K_w, pg.K_UP) and heading != SOUTH:
 				heading = NORTH
@@ -135,12 +135,12 @@ while True:
 				heading = WEST
 			break
 
-	if not gameOver:
-		drawGrid()
-		moveSnake()
-		checkGameOver()
-		checkEatenFood()
+	if not game_over:
+		draw_grid()
+		move_snake()
+		check_game_over()
+		check_eaten_food()
 
-		if gameOver: drawGrid() # Draw "GAME OVER" screen
+		if game_over: draw_grid() # Draw "GAME OVER" screen
 
 	clock.tick(FPS)

@@ -9,7 +9,7 @@ from time import perf_counter
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def bubbleSort(arr):
+def bubble_sort(arr):
 	swap = True
 
 	while swap:
@@ -20,7 +20,7 @@ def bubbleSort(arr):
 				arr[idx], arr[idx + 1] = arr[idx + 1], n
 				swap = True
 
-def cocktailShakerSort(arr):
+def cocktail_shaker_sort(arr):
 	swap = True
 
 	while swap:
@@ -38,7 +38,7 @@ def cocktailShakerSort(arr):
 				arr[idx], arr[idx + 1] = arr[idx + 1], n
 				swap = True
 
-def combSort(arr):
+def comb_sort(arr):
 	gap = len(arr)
 	k = 1.3
 	done = False
@@ -56,7 +56,7 @@ def combSort(arr):
 				done = False
 			i += 1
 
-def countingSort(arr):
+def counting_sort(arr):
 	counts = [0] * (max(arr) + 1)
 
 	for i in arr:
@@ -68,7 +68,7 @@ def countingSort(arr):
 
 	arr[:] = output
 
-def insertionSort(arr):
+def insertion_sort(arr):
 	for idx, n in enumerate(arr[1:], start=1):
 		j = idx - 1
 		while j >= 0 and arr[j] > n:
@@ -76,14 +76,14 @@ def insertionSort(arr):
 			j -= 1
 		arr[j + 1] = n
 
-def mergesort(arr):
+def merge_sort(arr):
 	if len(arr) <= 1: return
 
 	mid = len(arr) // 2
 	l, r = arr[:mid], arr[mid:]
 
-	mergesort(l) # Sort copy of first half
-	mergesort(r) # Sort copy of second half
+	merge_sort(l) # Sort copy of first half
+	merge_sort(r) # Sort copy of second half
 
 	# Merge sorted halves back into arr
 	i = j = 0
@@ -107,10 +107,10 @@ def quicksort(arr):
 	quicksort(greater)
 	arr[:] = less + equal + greater
 
-def radixSort(arr): # Least Significant Digit
-	maxDigits = len(str(max(arr)))
+def radix_sort(arr): # Least Significant Digit
+	max_digits = len(str(max(arr)))
 
-	for i in range(maxDigits):
+	for i in range(max_digits):
 		buckets = [[] for _ in range(10)]
 
 		for n in arr:
@@ -119,15 +119,15 @@ def radixSort(arr): # Least Significant Digit
 
 		arr[:] = sum(buckets, start=[]) # Flatten buckets list
 
-def selectionSort(arr):
+def selection_sort(arr):
 	for idx, n in enumerate(arr[:-1]):
-		minIdx = idx
+		min_idx = idx
 		for j in range(idx + 1, len(arr)):
-			if arr[j] < arr[minIdx]:
-				minIdx = j
-		arr[idx], arr[minIdx] = arr[minIdx], n
+			if arr[j] < arr[min_idx]:
+				min_idx = j
+		arr[idx], arr[min_idx] = arr[min_idx], n
 
-def shellSort(arr):
+def shell_sort(arr):
 	gap = len(arr) // 2
 
 	while gap:
@@ -138,13 +138,13 @@ def shellSort(arr):
 			arr[idx] = n
 		gap = 1 if gap == 2 else (gap * 5) // 11
 
-def testFunction(sortFunc, arr):
-	print("Sorting with {:.<25}".format("'" + sortFunc.__name__ + "'"), end="")
+def test_function(sort_func, arr):
+	print("Sorting with {:.<28}".format("'" + sort_func.__name__ + "'"), end="")
 	start = perf_counter()
-	sortFunc(arr)
+	sort_func(arr)
 	end = perf_counter()
-	timeTaken = round((end - start) * 1000)
-	print(f" done in {timeTaken} ms")
+	time_taken = round((end - start) * 1000)
+	print(f" done in {time_taken} ms")
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -154,14 +154,14 @@ size = 10 ** 4
 
 nums = [random.randrange(size) for _ in range(size)]
 
-testFunction(sorted, nums[:])
-testFunction(bubbleSort, nums[:])
-testFunction(cocktailShakerSort, nums[:])
-testFunction(combSort, nums[:])
-testFunction(countingSort, nums[:])
-testFunction(insertionSort, nums[:])
-testFunction(mergesort, nums[:])
-testFunction(quicksort, nums[:])
-testFunction(radixSort, nums[:])
-testFunction(selectionSort, nums[:])
-testFunction(shellSort, nums[:])
+test_function(sorted, nums[:])
+test_function(bubble_sort, nums[:])
+test_function(cocktail_shaker_sort, nums[:])
+test_function(comb_sort, nums[:])
+test_function(counting_sort, nums[:])
+test_function(insertion_sort, nums[:])
+test_function(merge_sort, nums[:])
+test_function(quicksort, nums[:])
+test_function(radix_sort, nums[:])
+test_function(selection_sort, nums[:])
+test_function(shell_sort, nums[:])
