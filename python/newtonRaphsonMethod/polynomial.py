@@ -21,8 +21,8 @@ class Polynomial:
 		for _ in range(max_iters):
 			dfxn = df(xn)
 			if dfxn == 0:
-				print("\nZero derivative. No solution found - maybe try another initial guess?")
-				return None
+				return "Zero derivative: No solution"
+
 			xn = xn - fxn / dfxn
 			fxn = self(xn)
 
@@ -31,10 +31,9 @@ class Polynomial:
 			i += 1
 
 		if abs(fxn) >= converge_threshold:
-			print(f"\nNo solution found within {max_iters} iterations")
-			return None
+			return "No solution found"
 
-		return round(xn, 9), i + 1, x0
+		return xn, i + 1, x0
 
 	def derivative(self):
 		derived_coefficients = []

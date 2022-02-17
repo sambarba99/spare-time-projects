@@ -52,14 +52,13 @@ def nearest_colour(img, r_target, g_target, b_target):
 			new_img.putpixel((x_best, y), (255, 0, 0))
 
 	max_dist = 195075
-	percentage_match = round(100 * (1 - (closest_dist / max_dist) ** 0.5), 2)
-	print(f"Best RGB = {r_best} {g_best} {b_best}  ({percentage_match} % match)")
+	percentage_match = 100 * (1 - (closest_dist / max_dist) ** 0.5)
+	print(f"Best RGB = {r_best} {g_best} {b_best}  ({percentage_match:.2f} % match)")
 
 	return new_img
 
 def plot_histogram(img, idx):
-	img_data = np.array(img.getdata())
-	r, g, b = img_data.T
+	r, g, b = np.array(img.getdata()).T
 	r_count = np.bincount(r, minlength=256)
 	g_count = np.bincount(g, minlength=256)
 	b_count = np.bincount(b, minlength=256)

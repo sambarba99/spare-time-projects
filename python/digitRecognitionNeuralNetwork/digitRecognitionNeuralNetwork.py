@@ -112,7 +112,7 @@ else:
 	with open("biasesAndWeights.txt", "w") as file:
 		file.write(s)
 
-	print(f"Done in {round(end - start, 3)}s. Saved biases and weights to file.")
+	print(f"Done in {(end - start):.3f}s. Saved biases and weights to file.")
 
 # Plot confusion matrices
 
@@ -166,7 +166,7 @@ plt.show()
 
 drawn_digit = drawn_digit.reshape(1, 784)[0].astype(int)
 pred_vector = clf.predict(drawn_digit)
-print("\nDrawn digit is: {}  ({} % sure)".format(np.argmax(pred_vector), round(100 * np.max(pred_vector), 3)))
+print(f"\nDrawn digit is: {np.argmax(pred_vector)}  ({(100 * np.max(pred_vector)):.1f}% sure)")
 
 # Plot loss graph
 

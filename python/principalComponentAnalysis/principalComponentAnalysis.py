@@ -49,5 +49,5 @@ for class_label in np.unique(y):
 plt.legend(classes)
 plt.xlabel("Principal component 1")
 plt.ylabel("Principal component 2")
-plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}\nCaptured variability: {round(100 * new_variability, 2)}%")
+plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}\nCaptured variability: {new_variability:.3f}")
 plt.show()

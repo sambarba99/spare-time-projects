@@ -117,7 +117,7 @@ def radix_sort(arr): # Least Significant Digit
 			idx = (n // (10 ** i)) % 10
 			buckets[idx].append(n)
 
-		arr[:] = sum(buckets, start=[]) # Flatten buckets list
+		arr[:] = [n for b in buckets for n in b]
 
 def selection_sort(arr):
 	for idx, n in enumerate(arr[:-1]):
@@ -143,8 +143,8 @@ def test_function(sort_func, arr):
 	start = perf_counter()
 	sort_func(arr)
 	end = perf_counter()
-	time_taken = round((end - start) * 1000)
-	print(f" done in {time_taken} ms")
+	time_taken = (end - start) * 1000
+	print(f" done in {time_taken:.0f} ms")
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

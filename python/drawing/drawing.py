@@ -2,208 +2,175 @@
 # Author: Sam Barba
 # Created 29/10/2018
 
+from pen import Pen
+import pygame as pg
 import random
-from time import sleep
-import turtle
+import sys
 
-t = turtle.Turtle()
-s = turtle.Screen()
+WIDTH = 1500.0
+HEIGHT = 900.0
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def reset():
-	t.goto(0, 0)
-	t.seth(90)
-	t.hideturtle()
-	t.speed(0)
-	t.pensize(1)
-	t.color("black")
-	t.clear()
-	s.colormode(255)
-	s.tracer(10)
-	s.setup(width=1.0, height=1.0)
+def cantor(x=WIDTH * 0.05, y=HEIGHT / 3, l=WIDTH * 0.9):
+	if l > 1:
+		pen.go_to(x, y)
+		pen.move(l)
+		cantor(x, y + 40, l / 3)
+		cantor(x + l * 2 / 3, y + 40, l / 3)
 
-def cantor(x=-600.0, y=150, l=1200.0):
-	if l < 1: return
-
-	t.pu()
-	t.goto(x, y)
-	t.pd()
-	t.seth(0)
-	t.fd(l)
-	sleep(0.05)
-	cantor(x, y - 40, l / 3)
-	cantor(x + l * 2 / 3, y - 40, l / 3)
-
-def dragon(lvl=14, size=3, h=45):
+def dragon(lvl=14, size=4, theta=45):
 	if lvl:
-		t.rt(h)
+		pen.turn(theta)
 		dragon(lvl - 1, size)
-		t.lt(h * 2)
+		pen.turn(-theta * 2)
 		dragon(lvl - 1, size, -45)
-		t.rt(h)
+		pen.turn(theta)
 	else:
-		t.fd(size)
+		pen.move(size)
 
-# Sierpinski triangle (t.rt(90) before)
-def sierp(size=400.0, lvl=6):
+def sierpinski_triangle(size=HEIGHT, lvl=7):
 	if lvl == 0:
 		for i in range(3):
-			t.fd(size)
-			t.lt(120)
+			pen.move(size)
+			pen.turn(-120)
 	else:
-		t.begin_fill()
-		sierp(size / 2, lvl - 1)
-		t.fd(size / 2)
-		sierp(size / 2, lvl - 1)
-		t.bk(size / 2)
-		t.lt(60)
-		t.fd(size / 2)
-		t.rt(60)
-		sierp(size / 2, lvl - 1)
-		t.lt(60)
-		t.bk(size / 2)
-		t.rt(60)
-		t.end_fill()
+		sierpinski_triangle(size / 2, lvl - 1)
+		pen.move(size / 2)
+		sierpinski_triangle(size / 2, lvl - 1)
+		pen.move(-size / 2)
+		pen.turn(-60)
+		pen.move(size / 2)
+		pen.turn(60)
+		sierpinski_triangle(size / 2, lvl - 1)
+		pen.turn(-60)
+		pen.move(-size / 2)
+		pen.turn(60)
 
-# Koch snowflake (t.goto(-600, 0) and t.rt(90) before)
-def koch(size=1000.0, lvl=6):
+def koch_snowflake(size=WIDTH * 0.95, lvl=6):
 	if lvl:
-		for i in [60, -120, 60, 0]:
-			koch(size / 3, lvl - 1)
-			t.lt(i)
+		for angle in [-60, 120, -60, 0]:
+			koch_snowflake(size / 3, lvl - 1)
+			pen.turn(angle)
 	else:
-		t.fd(size)
+		pen.move(size)
 
-def t_square(x=0.0, y=0.0, size=400.0):
+def t_square(x=WIDTH / 2, y=HEIGHT / 2, size=HEIGHT * 0.45):
 	if size < 4: return
 
-	t.pu()
-	t.goto(x - size / 2, y - size / 2)
-	t.pd()
-	t.seth(90)
-	t.begin_fill()
+	pen.go_to(x - size / 2, y - size / 2)
 	for _ in range(4):
-		t.fd(size)
-		t.rt(90)
-	t.end_fill()
+		pen.move(size)
+		pen.turn(90)
 
 	t_square(x - size / 2, y - size / 2, size / 2)
 	t_square(x - size / 2, y + size / 2, size / 2)
 	t_square(x + size / 2, y - size / 2, size / 2)
 	t_square(x + size / 2, y + size / 2, size / 2)
 
-# Fractal tree (angle = 20/30/45/90)
-def tree(angle, size=60):
-	if size > 5:
-		t.fd(size)
-		t.rt(angle)
-		tree(size - 5, angle)
-		t.lt(angle * 2)
-		tree(size - 5, angle)
-		t.rt(angle)
-		t.bk(size)
+def tree(angle, size=HEIGHT * 0.2):
+	if size > 10:
+		pen.move(size)
+		pen.turn(angle)
+		tree(angle, size * 0.75)
+		pen.turn(-angle * 2)
+		tree(angle, size * 0.75)
+		pen.turn(angle)
+		pen.move(-size)
 
-# Spirals:
-def spirals():
-	for i in [45, 51, 60, 72, 90, 103, 120, 144, 168, 179]:
-		spiral(i)
-		sleep(1)
-		reset()
-
-# Spiral:
 def spiral(angle):
 	for i in range(300):
-		t.fd(i)
-		t.lt(angle)
+		pen.move(i)
+		pen.turn(-angle)
 
-def draw_square(size, angle):
-	t.seth(angle)
-	t.fillcolor((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-	t.begin_fill()
-	for _ in range(4):
-		t.fd(size)
-		t.lt(90)
-	t.end_fill()
+def hilbert(size=5, level=7, angle=90):
+	if level:
+		pen.turn(angle)
+		hilbert(size, level - 1, -angle)
+		pen.move(size)
+		pen.turn(-angle)
+		hilbert(size, level - 1, angle)
+		pen.move(size)
+		hilbert(size, level - 1, angle)
+		pen.turn(-angle)
+		pen.move(size)
+		hilbert(size, level - 1, -angle)
+		pen.turn(angle)
 
-def hilbert(size=6, level=6, angle=90):
-	if level == 0: return
-
-	t.rt(angle)
-	hilbert(size, level - 1, -angle)
-	t.fd(size)
-	t.lt(angle)
-	hilbert(size, level - 1, angle)
-	t.fd(size)
-	hilbert(size, level - 1, angle)
-	t.lt(angle)
-	t.fd(size)
-	hilbert(size, level - 1, -angle)
-	t.rt(angle)
-
-def rand_walk(bound, step):
-	t.dot(10000, "black")
-	t.pu()
-	t.goto(bound, bound)
-	t.pd()
-	t.seth(270)
-	t.color("red")
-	for _ in range(4):
-		t.fd(bound * 2)
-		t.rt(90)
-	t.pu()
-	t.goto(0, 0)
-	t.color("black")
-
-	path = [t.pos()]
+def rand_walk(step=2):
+	path = [pen.pos()]
 
 	while True:
-		angle = random.choice([-90, 0, 90, 180])
-		t.seth(angle)
-		t.fd(step)
-		path.append(t.pos())
-		if abs(t.pos()[0]) > bound or abs(t.pos()[1]) > bound:
+		pen.turn(random.choice([0, 90, 180, 270]))
+		pen.move(step, draw=False)
+		path.append(pen.pos())
+
+		if not 0 <= pen.x < WIDTH or not 0 <= pen.y < HEIGHT:
 			break
 
-	t.pd()
-	for idx, node in enumerate(path):
-		t.goto(node)
+	for idx, point in enumerate(path[:-1]):
+		start_x, start_y = point
+		end_x, end_y = path[idx + 1]
 		c = round(map_range(idx, 0, len(path), 30, 255))
-		t.color((c, c, c))
+		pg.draw.line(scene, (c, c, c), (start_x, start_y), (end_x, end_y))
 
-def map_range(x, fromLo, fromHi, toLo, toHi):
-	return (x - fromLo) * (toHi - toLo) / (fromHi - fromLo) + toLo
+	pg.display.flip()
+
+def map_range(x, from_lo, from_hi, to_lo, to_hi):
+	return (x - from_lo) * (to_hi - to_lo) / (from_hi - from_lo) + to_lo
+
+def reset(x=WIDTH / 2, y=HEIGHT/2, heading=-90):
+	scene.fill((0, 0, 0))
+	pen.go_to(x, y)
+	pen.heading = heading
+	wait_for_click()
+
+def wait_for_click():
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.MOUSEBUTTONDOWN:
+				return
+			elif event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-reset()
+pg.init()
+pg.display.set_caption("Python Drawing")
+scene = pg.display.set_mode((int(WIDTH), int(HEIGHT)))
 
-#spirals()
-#sleep(2)
+pen = Pen(scene, WIDTH / 2, HEIGHT / 2, 0)
 
-#reset()
-#size, angle = 300, 0
-#while size > 10:
-#	draw_square(size, angle)
-#	size -= 0.2
-#	angle += 3
-#sleep(2)
-
-#reset()
-#hilbert()
-#sleep(2)
-
-#t_square()
-#sleep(2)
-#reset()
+wait_for_click()
+cantor()
+reset(WIDTH * 0.35, HEIGHT * 0.35, 0)
 
 dragon()
-sleep(2)
+reset(WIDTH * 0.22, HEIGHT * 0.93, 0)
 
-rand_walk(400, 2)
+sierpinski_triangle()
+reset(WIDTH * 0.03, HEIGHT * 0.65, 0)
 
-input("Press Enter to exit")
+koch_snowflake()
+reset(heading=0)
+
+t_square()
+for angle in [10, 20, 30]:
+	reset(y=HEIGHT * 0.9)
+	tree(angle)
+
+for angle in [45, 51, 60, 72, 103, 120, 144, 168]:
+	reset()
+	spiral(angle)
+reset(WIDTH * 0.71, HEIGHT * 0.84, 180)
+
+hilbert()
+reset()
+
+rand_walk()
+wait_for_click()

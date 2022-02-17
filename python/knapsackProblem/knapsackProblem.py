@@ -110,7 +110,7 @@ def mutation(offspring):
 	mutants = deepcopy(offspring)
 	mutants.sort(key=lambda ind: ind.fitness, reverse=True)
 
-	for i in range(round(ELITISM_RATE * POP_SIZE), POP_SIZE):
+	for i in range(int(ELITISM_RATE * POP_SIZE), POP_SIZE):
 		if random.random() <= MUTATION_RATE:
 			rand_idx = random.randrange(NUM_ITEMS)
 			mutants[i].item_config[rand_idx] = not mutants[i].item_config[rand_idx]

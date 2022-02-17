@@ -97,9 +97,8 @@ y_max = np.max(x_scatter[:, 1])
 plt.ylim([y_min - 0.5, y_max + 0.5])
 
 w = ", ".join(f"{we:.3f}" for we in clf.weights)
-b = round(clf.bias, 3)
-m = round(-clf.weights[0] / clf.weights[1], 3)
-c = round(-clf.bias / clf.weights[1], 3)
+m = -clf.weights[0] / clf.weights[1]
+c = -clf.bias / clf.weights[1]
 
-plt.title(f"Weights: {w}\nBias: {b}\nm: {m} | c: {c}")
+plt.title(f"Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f} | c: {c:.3f}")
 plt.show()

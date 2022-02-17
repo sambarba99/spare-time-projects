@@ -26,7 +26,8 @@ class NeuralNetwork:
 		for i in range(iterations):
 			if i % int(iterations * 0.001) == 0:
 				# Print every 0.1%
-				print(f"Training {round(100 * i / iterations, 1)}% done")
+				progress = 100 * i / iterations
+				print(f"Training {progress:.1f}% done")
 
 			iteration_loss = []
 
