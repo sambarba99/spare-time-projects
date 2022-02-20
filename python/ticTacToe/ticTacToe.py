@@ -126,7 +126,8 @@ def draw_grid():
 	token_font = pg.font.SysFont("consolas", 140)
 
 	status_lbl = status_font.render(status_text, True, FOREGROUND)
-	scene.blit(status_lbl, (GRID_OFFSET, 35))
+	lbl_rect = status_lbl.get_rect(center=(BOARD_SIZE * CELL_SIZE / 2 + GRID_OFFSET, 40))
+	scene.blit(status_lbl, lbl_rect)
 
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
@@ -143,7 +144,7 @@ def draw_grid():
 		pg.draw.line(scene, FOREGROUND, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET))
 		pg.draw.line(scene, FOREGROUND, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i))
 
-	pg.display.flip()
+	pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

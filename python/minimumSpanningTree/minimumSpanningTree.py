@@ -64,19 +64,19 @@ def draw_mst(graph):
 	for v in graph:
 		pg.draw.circle(scene, (230, 20, 20), (v["x"], v["y"]), 5)
 
-	pg.display.flip()
+	pg.display.update()
 
 def move_points(graph):
 	for v in graph:
-		v["x"] += v["xVel"]
-		v["y"] += v["yVel"]
+		v["x"] += v["x-vel"]
+		v["y"] += v["y-vel"]
 
 		while v["x"] < 5 or v["x"] > SIZE - 5:
-			v["xVel"] = -v["xVel"]
-			v["x"] += v["xVel"]
+			v["x-vel"] = -v["x-vel"]
+			v["x"] += v["x-vel"]
 		while v["y"] < 5 or v["y"] > SIZE - 5:
-			v["yVel"] = -v["yVel"]
-			v["y"] += v["yVel"]
+			v["y-vel"] = -v["y-vel"]
+			v["y"] += v["y-vel"]
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -88,7 +88,7 @@ pg.init()
 pg.display.set_caption("Minimum Spanning Tree")
 scene = pg.display.set_mode((SIZE, SIZE))
 scene.fill((20, 20, 20))
-pg.display.flip()
+pg.display.update()
 clock = pg.time.Clock()
 
 while True:
@@ -108,13 +108,13 @@ while True:
 				y = max(min(y, SIZE - 5), 5)
 
 				x_vel, y_vel = random.uniform(-3, 3), random.uniform(-3, 3)
-				vertex = {"idx": len(graph), "x": x, "y": y, "xVel": x_vel, "yVel": y_vel}
+				vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
 				graph.append(vertex)
 
 			elif event.button == 3: # Right-click
 				graph = []
 				scene.fill((20, 20, 20))
-				pg.display.flip()
+				pg.display.update()
 
 	draw_mst(graph)
 	move_points(graph)

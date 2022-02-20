@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from neuralnetworkclassifier import NeuralNetwork
 import numpy as np
 import pygame as pg
-import random
 import time
 
 DRAWING_SIZE = 500
@@ -21,7 +20,7 @@ DRAWING_SIZE = 500
 def extract_data(data, train_test_ratio=0.5):
 	data = [row.strip("\n").split() for row in data]
 
-	random.shuffle(data)
+	np.random.shuffle(data)
 	data = np.array(data).astype(float)
 
 	split = int(len(data) * train_test_ratio)
@@ -144,13 +143,13 @@ while drawing:
 				x, y = event.pos
 				user_coords.append([x, y])
 				scene.set_at((x, y), (255, 255, 255))
-				pg.display.flip()
+				pg.display.update()
 		elif event.type == pg.MOUSEMOTION:
 			if left_button_down:
 				x, y = event.pos
 				user_coords.append([x, y])
 				scene.set_at((x, y), (255, 255, 255))
-				pg.display.flip()
+				pg.display.update()
 		elif event.type == pg.MOUSEBUTTONUP:
 			if event.button == 1:
 				left_button_down = False

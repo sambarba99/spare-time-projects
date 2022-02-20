@@ -62,7 +62,7 @@ def draw():
 		for i in range(len(positions) - 1):
 			draw_line(*positions[i], *positions[i + 1])
 
-	pg.display.flip()
+	pg.display.update()
 
 	vel1 += a1acc
 	vel2 += a2acc
@@ -98,8 +98,8 @@ def draw_line(x1, y1, x2, y2):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-a1 = random.random() * 2 * pi
-a2 = random.random() * 2 * pi
+a1 = random.uniform(0, 2 * pi)
+a2 = random.uniform(0, 2 * pi)
 
 pg.init()
 pg.display.set_caption("Double Pendulum")
@@ -113,8 +113,8 @@ while True:
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
 			if event.key == pg.K_r:
-				a1 = random.random() * 2 * pi
-				a2 = random.random() * 2 * pi
+				a1 = random.uniform(0, 2 * pi)
+				a2 = random.uniform(0, 2 * pi)
 				vel1 = vel2 = 0
 				positions = []
 

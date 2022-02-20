@@ -4,7 +4,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 from svm import SVM
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -14,7 +13,7 @@ from svm import SVM
 # Split file data into train/test
 def extract_data(data, train_test_ratio=0.5):
 	data = [row.strip("\n").split() for row in data]
-	random.shuffle(data)
+	np.random.shuffle(data)
 	data = np.array(data).astype(float)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)

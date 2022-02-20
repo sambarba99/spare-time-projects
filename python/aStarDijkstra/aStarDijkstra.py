@@ -8,7 +8,7 @@ from time import sleep
 
 ROWS = 49
 COLS = 89
-CELL_SIZE = 18
+CELL_SIZE = 15
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -83,13 +83,13 @@ def draw(maze, path):
 
 			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-	pg.display.flip()
+	pg.display.update()
 
 	sleep(1)
 	for v in path:
 		pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 		sleep(0.01)
-		pg.display.flip()
+		pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

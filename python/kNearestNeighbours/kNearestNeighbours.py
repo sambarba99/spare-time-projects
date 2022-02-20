@@ -5,7 +5,6 @@
 from knnclassifier import KNN
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -49,7 +48,7 @@ with open(path, "r") as file:
 	data = file.readlines()[1:] # Skip header
 
 data = [row.strip("\n").split() for row in data]
-random.shuffle(data)
+np.random.shuffle(data)
 data = np.array(data).astype(float)
 x, y = data[:,:-1], data[:,-1].astype(int)
 

@@ -112,7 +112,7 @@ def draw_grid(difficulty_lvl, solve_status):
 		pg.draw.line(scene, FOREGROUND, (i, GRID_OFFSET), (i, BOARD_SIZE * CELL_SIZE + GRID_OFFSET), 5)
 		pg.draw.line(scene, FOREGROUND, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i), 5)
 
-	pg.display.flip()
+	pg.display.update()
 
 def wait_for_click():
 	while True:

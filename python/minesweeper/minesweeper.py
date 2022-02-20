@@ -156,8 +156,9 @@ def draw_grid():
 			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
 			scene.blit(cell_lbl, lbl_rect)
 
-	status_label = font.render(status_text, True, LABEL_FOREGROUND)
-	scene.blit(status_label, (GRID_OFFSET, GRID_OFFSET // 2))
+	status_lbl = font.render(status_text, True, LABEL_FOREGROUND)
+	lbl_rect = status_lbl.get_rect(center=(COLS * CELL_SIZE / 2 + GRID_OFFSET, 35))
+	scene.blit(status_lbl, lbl_rect)
 
 	# Grid lines
 	for x in range(GRID_OFFSET, COLS * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
@@ -165,7 +166,7 @@ def draw_grid():
 	for y in range(GRID_OFFSET, ROWS * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
 		pg.draw.line(scene, BACKGROUND, (GRID_OFFSET, y), (COLS * CELL_SIZE + GRID_OFFSET, y))
 
-	pg.display.flip()
+	pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

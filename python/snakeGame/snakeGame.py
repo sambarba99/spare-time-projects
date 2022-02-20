@@ -93,7 +93,7 @@ def draw_grid():
 	score_lbl = font.render(f"Score: {score}", True, (220, 220, 220))
 	scene.blit(score_lbl, (10, 10))
 
-	pg.display.flip()
+	pg.display.update()
 
 	if game_over:
 		sleep(1)
@@ -104,7 +104,7 @@ def draw_grid():
 			offset = 40 * (idx - 1)
 			lbl_rect = lbl.get_rect(center=(CELL_SIZE * COLS / 2, CELL_SIZE * ROWS / 2 + offset))
 			scene.blit(lbl, lbl_rect)
-		pg.display.flip()
+		pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

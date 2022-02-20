@@ -26,7 +26,7 @@ while True:
 			pg.quit()
 			sys.exit(0)
 
-	if radius > SIZE * 0.48:
+	if radius > SIZE * 0.45:
 		sleep(1)
 		radius, angle = 1, 0
 		scene.fill((0, 0, 0))
@@ -35,7 +35,7 @@ while True:
 	y = radius * sin(angle) + SIZE / 2
 
 	pg.draw.circle(scene, (255, 160, 0), (x, y), 1)
-	pg.display.flip()
+	pg.display.update()
 
 	angle += 2 * pi * TURN_RATIO
 	angle %= 2 * pi

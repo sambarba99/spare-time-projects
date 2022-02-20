@@ -106,7 +106,7 @@ def draw_solution(candidate, total_distance, iteration, max_iters):
 	scene.blit(temp_lbl, (5, 25))
 	scene.blit(distance_lbl, (5, 45))
 
-	pg.display.flip()
+	pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -115,7 +115,6 @@ def draw_solution(candidate, total_distance, iteration, max_iters):
 pg.init()
 pg.display.set_caption("Simulated Annealing for TSP")
 scene = pg.display.set_mode((600, 600))
-pg.display.flip()
 
 # Setup
 initialise()

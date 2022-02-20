@@ -5,7 +5,6 @@
 from logisticregressor import LogisticRegressor
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -16,7 +15,7 @@ def extract_data(data, train_test_ratio=0.5):
 	feature_names = data.pop(0).strip("\n").split(",")
 
 	data = [row.strip("\n").split() for row in data]
-	random.shuffle(data)
+	np.random.shuffle(data)
 	data = np.array(data).astype(float)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)

@@ -44,13 +44,13 @@ def generate_plot(ruleset):
 		gen = next_gen[:]
 
 	scene.fill((20, 20, 20))
-	pg.display.flip()
+	pg.display.update()
 	sleep(1)
 	for y in range(IMG_SIZE):
 		for x in range(IMG_SIZE):
 			c = (220, 220, 220) if plot[y][x] == 1 else (20, 20, 20)
 			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-		pg.display.flip()
+		pg.display.update()
 		sleep(0.01)
 
 		for event in pg.event.get():

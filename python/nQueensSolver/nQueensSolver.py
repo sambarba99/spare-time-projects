@@ -79,7 +79,7 @@ def draw_grid(solve_status):
 		pg.draw.line(scene, (220, 220, 220), (i, GRID_OFFSET), (i, N * CELL_SIZE + GRID_OFFSET))
 		pg.draw.line(scene, (220, 220, 220), (GRID_OFFSET, i), (N * CELL_SIZE + GRID_OFFSET, i))
 
-	pg.display.flip()
+	pg.display.update()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

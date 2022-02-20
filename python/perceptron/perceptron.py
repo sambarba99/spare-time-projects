@@ -5,7 +5,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from perceptronclassifier import PerceptronClf
-import random
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -14,7 +13,7 @@ import random
 # Split file data into train/test
 def extract_data(data, train_test_ratio=0.5):
 	data = [row.strip("\n").split() for row in data]
-	random.shuffle(data)
+	np.random.shuffle(data)
 	data = np.array(data).astype(float)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)

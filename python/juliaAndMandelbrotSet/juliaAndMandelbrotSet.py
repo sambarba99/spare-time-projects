@@ -82,7 +82,7 @@ def draw():
 		pg.draw.line(scene, (255, 255, 255), (0, round(y_axis)), (WIDTH, round(y_axis)))
 		pg.draw.line(scene, (255, 255, 255), (round(x_axis), 0), (round(x_axis), HEIGHT))
 
-	pg.display.flip()
+	pg.display.update()
 
 def linear_interpolate(colour1, colour2, t):
 	return tuple(round(c1 + t * (c2 - c1)) for c1, c2 in zip(colour1, colour2))
