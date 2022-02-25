@@ -10,7 +10,7 @@ NOISE = 0
 class DBSCANclusterer:
 	def __init__(self, epsilon, min_points):
 		self.epsilon = epsilon
-		self.minPoints = min_points
+		self.min_points = min_points
 
 	def predict(self, points):
 		c = 1 # Cluster counter
@@ -19,7 +19,7 @@ class DBSCANclusterer:
 			if point["label"] != UNDEFINED: continue # Skip defined labels
 
 			neighbours = [p for p in points if self.__euclidean_dist(p, point) <= self.epsilon]
-			if len(neighbours) < self.minPoints:
+			if len(neighbours) < self.min_points:
 				point["label"] = NOISE
 				continue
 
@@ -32,7 +32,7 @@ class DBSCANclusterer:
 
 				n["label"] = c
 				neighbours = [p for p in points if self.__euclidean_dist(p, n) <= self.epsilon]
-				if len(neighbours) >= self.minPoints:
+				if len(neighbours) >= self.min_points:
 					neighbours_to_expand.extend(n for n in neighbours if n not in neighbours_to_expand)
 
 			c += 1 # Next cluster label

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def calcPi():
+def calc_pi():
 	a, b, c, d, e, n = 0, 1, 1, 1, 3, 3
 
 	while True:
@@ -33,7 +33,7 @@ def calcPi():
 
 size = 10 ** 3
 
-pi = calcPi()
+pi = calc_pi()
 
 digits = [next(pi) for _ in range(size)]
 

@@ -13,7 +13,7 @@ def forward_pass(data):
 
 	for idx, p in enumerate(data["PREDECESSORS"]):
 		if p is not None:
-			es[idx] = max(ef[taskCode] for taskCode in p)
+			es[idx] = max(ef[task_code] for task_code in p)
 		ef[idx] = es[idx] + data["DURATION"][idx]
 
 	data["ES"] = es
@@ -27,17 +27,17 @@ def backward_pass(data):
 
 	for idx, p in reversed(list(enumerate(data["PREDECESSORS"]))):
 		if p is not None:
-			for taskCode in p:
-				if successors[taskCode] is None:
-					successors[taskCode] = [idx] # idx = data["CODE"][idx]
+			for task_code in p:
+				if successors[task_code] is None:
+					successors[task_code] = [idx] # idx = data["CODE"][idx]
 				else:
-					successors[taskCode].append(idx) # idx = data["CODE"][idx]
+					successors[task_code].append(idx) # idx = data["CODE"][idx]
 
 	for idx, s in reversed(list(enumerate(successors))):
 		if s is None:
 			lf[idx] = max(data["EF"])
 		else:
-			lf[idx] = min(ls[taskCode] for taskCode in s)
+			lf[idx] = min(ls[task_code] for task_code in s)
 		ls[idx] = lf[idx] - data["DURATION"][idx]
 
 	data["SUCCESSORS"] = successors
@@ -100,8 +100,8 @@ for i in data["CODE"]:
 
 critical_path = []
 critical_duration = 0
-for idx, slackValue in enumerate(data["SLACK"]):
-	if slackValue == 0:
+for idx, slack_value in enumerate(data["SLACK"]):
+	if slack_value == 0:
 		critical_path.append(idx) # idx = data["CODE"][idx]
 		critical_duration += data["DURATION"][idx]
 

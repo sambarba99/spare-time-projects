@@ -70,12 +70,12 @@ class Cell:
 
 	def count_neighbour_mines(self):
 		n = 0
-		for yOffset in range(-1, 2):
-			for xOffset in range(-1, 2):
-				checkY = self.y + yOffset
-				checkX = self.x + xOffset
-				if checkY in range(ROWS) and checkX in range(COLS) \
-					and minefield[checkY][checkX].is_mine:
+		for y_offset in range(-1, 2):
+			for x_offset in range(-1, 2):
+				check_y = self.y + y_offset
+				check_x = self.x + x_offset
+				if check_y in range(ROWS) and check_x in range(COLS) \
+					and minefield[check_y][check_x].is_mine:
 					n += 1
 		return n
 

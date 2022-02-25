@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-IMG_SRCS = ["test" + str(i + 1) + ".jpg" for i in range(7)]
+IMG_SRCS = [f"test{i}.jpg" for i in range(1, 5)]
 MAX_SIZE = 600
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -100,11 +100,11 @@ choice = input("Enter 1 to create binary image"
 if choice == "1":
 	for idx, img in enumerate(imgs):
 		img.show()
-		plot_histogram(img, idx)
+		plot_histogram(img, idx + 1)
 		binary_image(img).show()
 else:
 	r, g, b = map(int, input("\nInput the target RGB: ").split())
 	for idx, img in enumerate(imgs):
 		img.show()
-		plot_histogram(img, idx)
+		plot_histogram(img, idx + 1)
 		nearest_colour(img, r, g, b).show()

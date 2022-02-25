@@ -11,7 +11,7 @@ class Polynomial:
 
 	# Approximate solution of f(x) = 0 via Newton-Raphson method
 	def find_root(self, converge_threshold=10 ** -9, max_iters=10 ** 5):
-		x0 = round(random.random(), 9) # Initial guess
+		x0 = random.random() # Initial guess
 
 		df = self.derivative()
 		xn = x0

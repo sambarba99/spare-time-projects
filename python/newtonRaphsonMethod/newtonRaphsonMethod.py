@@ -42,27 +42,27 @@ def handle_button_click(coefficients, find_root):
 		x_plot = list(np.linspace(start, end))
 		y_plot = [p(x) for x in x_plot]
 		y_deriv_plot = [dp(x) for x in x_plot]
-		yMin = min(y_plot + y_deriv_plot)
-		yMax = max(y_plot + y_deriv_plot)
+		y_min = min(y_plot + y_deriv_plot)
+		y_max = max(y_plot + y_deriv_plot)
 
 		plt.figure(figsize=(6, 6))
 		plt.plot(x_plot, y_plot, color="#0080ff")
 		plt.plot(x_plot, y_deriv_plot, color="#ff8000")
 		plt.axhline(color="black")
-		plt.vlines(root, yMin, yMax, color="red", ls="--")
+		plt.vlines(root, y_min, y_max, color="red", ls="--")
 		plt.legend(["f(x)", "f'(x) = " + str(dp)])
 		plt.xlabel("x")
 		plt.ylabel("f(x) and f'(x)")
 
 		if find_root:
 			plt.title(f"f(x) = {str(p)}"
-				+ f"\nRoot: x = {root:.9f}"
-				+ f"\nFound after {iters} iterations (initial guess = {initial_guess})")
+				+ f"\nRoot: x = {root:.6f}"
+				+ f"\nFound after {iters} iterations (initial guess = {initial_guess:.6f})")
 		else:
-			rootY = p(root)
+			root_y = p(root)
 			plt.title(f"f(x) = {str(p)}"
-				+ f"\nStationary point: {root:.9f}, {rootY:.9f}"
-				+ f"\nFound after {iters} iterations (initial guess = {initial_guess})")
+				+ f"\nStationary point: {root:.6f}, {root_y:.6f}"
+				+ f"\nFound after {iters} iterations (initial guess = {initial_guess:.6f})")
 		plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #

@@ -171,7 +171,7 @@ def factor_to_rv_msg(src, dest, msgs):
 	return msg
 
 # Belief propagation - a trick is that if an RV is known (observed), then instead of using
-# rvToFactorMsg whenever a message is sent from it, you send the known distribution instead
+# rv_to_factor_msg whenever a message is sent from it, you send the known distribution instead
 # (i.e. [1, 0] for False or [0, 1] for True).
 # The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary
 # indicates that it has been observed. The value obtained using the key is the value the RV

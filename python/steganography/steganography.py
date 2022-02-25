@@ -53,15 +53,15 @@ def hide_message_in_image(bin_msg):
 		raise ValueError("Not enough pixels in image")
 
 	steg_img = IMG.copy()
-	msgIdx = 0
+	msg_idx = 0
 
 	for i in range(pixels_needed):
 		pixel = list(pixels[i])
 
 		for j in range(3):
-			if msgIdx < len(bin_msg):
-				pixel[j] = set_bit(pixel[j], 0, int(bin_msg[msgIdx]))
-				msgIdx += 1
+			if msg_idx < len(bin_msg):
+				pixel[j] = set_bit(pixel[j], 0, int(bin_msg[msg_idx]))
+				msg_idx += 1
 
 		x, y = i % WIDTH, i // WIDTH
 		steg_img.putpixel((x, y), tuple(pixel))

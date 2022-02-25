@@ -2,23 +2,63 @@
 # Author: Sam Barba
 # Created 20/09/2021
 
+import tkinter as tk
+
+steps = None
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(n, steps, t1=1, t2=2, t3=3):
+def solve_and_write_steps():
+	global steps
+
+	steps = []
+
+	num_discs = slider.get()
+	solve(num_discs)
+
+	steps_lbl.configure(text=f"Steps ({len(steps)}):")
+
+	output_steps.configure(state="normal")
+	output_steps.delete("1.0", tk.END)
+	output_steps.insert("1.0", "\n".join(steps))
+	output_steps.tag_add("center", "1.0", tk.END)
+	output_steps.configure(state="disabled")
+
+def solve(n, t1=1, t2=2, t3=3):
+	global steps
+
 	if n:
-		solve(n - 1, steps, t1, t3, t2)
-		steps.append(f"Step {len(steps) + 1}: Move disc from {t1} to {t3}")
-		solve(n - 1, steps, t2, t1, t3)
+		solve(n - 1, t1, t3, t2)
+		steps.append(f"{len(steps) + 1}: Move disc from {t1} to {t3}")
+		solve(n - 1, t2, t1, t3)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-n = 4
+root = tk.Tk()
+root.title("Towers of Hanoi solver")
+root.configure(width=500, height=700, bg="#141414")
+root.eval("tk::PlaceWindow . center")
 
-steps = []
-solve(n, steps)
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
 
-print(*steps, sep="\n")
+select_ratio_lbl = tk.Label(frame, text="Select no. discs:", font="consolas", bg="#0080ff")
+select_ratio_lbl.place(relwidth=0.8, relheight=0.05, relx=0.5, rely=0.07, anchor="center")
+
+slider = tk.Scale(frame, from_=1, to=12, orient="horizontal", font="consolas", command=lambda l: solve_and_write_steps())
+slider.place(relwidth=0.8, relheight=0.09, relx=0.5, rely=0.16, anchor="center")
+
+steps_lbl = tk.Label(frame, font="consolas", bg="#0080ff")
+steps_lbl.place(relwidth=0.8, relheight=0.05, relx=0.5, rely=0.25, anchor="center")
+
+output_steps = tk.Text(frame, bg="#dcdcdc", font="consolas", state="disabled")
+output_steps.tag_configure("center", justify="center")
+output_steps.place(relwidth=0.8, relheight=0.65, relx=0.5, rely=0.61, anchor="center")
+
+solve_and_write_steps()
+
+root.mainloop()
