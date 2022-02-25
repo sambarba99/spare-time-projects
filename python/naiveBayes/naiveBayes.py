@@ -11,10 +11,12 @@ import numpy as np
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	data = [row.strip("\n").split() for row in data]
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)
 
@@ -69,10 +71,7 @@ elif choice == "T":
 else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 
-with open(path, "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-x_train, y_train, x_test, y_test = extract_data(data)
+x_train, y_train, x_test, y_test = extract_data(path)
 
 clf = NaiveBayesClassifier()
 clf.fit(x_train, y_train)

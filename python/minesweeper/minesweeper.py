@@ -29,7 +29,7 @@ status_text = ""
 # ---------------------------------------------------------------------------------------------------- #
 
 class Cell:
-	def __init__(self, y, x): # Y before X, as 2D arrays are row-major
+	def __init__(self, y, x):  # Y before X, as 2D arrays are row-major
 		self.y = y
 		self.x = x
 		self.is_mine = False
@@ -41,13 +41,13 @@ class Cell:
 	def handle_mouse_click(self, event_button):
 		if game_over or self.is_revealed: return
 
-		if event_button == 1 and not self.is_flagged: # Left-click
+		if event_button == 1 and not self.is_flagged:  # Left-click
 			if self.is_mine:
 				end_game(False)
 			else:
 				self.reveal(False)
 				check_win()
-		elif event_button == 3: # Right-click
+		elif event_button == 3:  # Right-click
 			self.toggle_flag()
 			check_win()
 
@@ -97,7 +97,7 @@ class Cell:
 				flags_used_correctly -= 1
 			self.colour = CELL_UNCLICKED
 			self.is_flagged = False
-		elif NUM_MINES - flags_used_total > 0: # If there are flags left to use
+		elif NUM_MINES - flags_used_total > 0:  # If there are flags left to use
 			flags_used_total += 1
 			if self.is_mine:
 				flags_used_correctly += 1
@@ -116,7 +116,7 @@ def setup_game():
 	flags_used_total = flags_used_correctly = 0
 	game_over = False
 
-	all_coords = [(y, x) for x in range(COLS) for y in range(ROWS)]
+	all_coords = [(y, x) for y in range(ROWS) for x in range(COLS)]
 	mine_coords = random.sample(all_coords, NUM_MINES)
 
 	for y, x in mine_coords:
@@ -186,7 +186,7 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if game_over: # Reset
+			if game_over:  # Reset
 				setup_game()
 			else:
 				x, y = event.pos

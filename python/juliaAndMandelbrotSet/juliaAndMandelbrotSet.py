@@ -73,7 +73,7 @@ def draw():
 				idx = i / MAX_ITERATIONS * len(RGB_PALETTE)
 				colour1 = RGB_PALETTE[int(idx) % len(RGB_PALETTE)]
 				colour2 = RGB_PALETTE[int(idx + 1) % len(RGB_PALETTE)]
-				colour = linear_interpolate(colour1, colour2, idx % 1) # Mod 1 to get fractional part
+				colour = linear_interpolate(colour1, colour2, idx % 1)  # Mod 1 to get fractional part
 				scene.set_at((x, y), colour)
 			else:
 				scene.set_at((x, y), (0, 0, 0))
@@ -119,20 +119,20 @@ while True:
 			sys.exit(0)
 
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1: # Left-click
+			if event.button == 1:  # Left-click
 				print("Setting origin... ", end="")
 				x_axis, y_axis = event.pos
 				draw()
 				print("Done")
 
 		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_c: # Centre image around origin
+			if event.key == pg.K_c:  # Centre image around origin
 				print("Centering image around origin... ", end="")
 				centre_around_origin()
 				draw()
 				print("Done")
 
-			elif event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0): # Magnify
+			elif event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
 				if event.key == pg.K_0:
 					factor = 100
 				else:
@@ -145,13 +145,13 @@ while True:
 				draw()
 				print("Done")
 
-			elif event.key == pg.K_t: # Toggle axes
+			elif event.key == pg.K_t:  # Toggle axes
 				print("Toggling axes... ", end="")
 				show_axes = not show_axes
 				draw()
 				print("Done")
 
-			elif event.key == pg.K_r: # Reset
+			elif event.key == pg.K_r:  # Reset
 				print("Resetting... ", end="")
 				scale = 200
 				x_axis = x_offset = WIDTH / 2

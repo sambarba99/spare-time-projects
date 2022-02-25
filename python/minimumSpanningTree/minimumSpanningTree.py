@@ -18,11 +18,11 @@ FPS = 20
 
 # Prim's algorithm
 def mst(graph):
-	out_tree = graph[:] # Initially set all vertices as out of tree
+	out_tree = graph[:]  # Initially set all vertices as out of tree
 	in_tree = []
 	mst_parents = [None] * len(graph)
 
-	in_tree.append(out_tree.pop(0)) # Vertex 0 (arbitrary start) is first in tree
+	in_tree.append(out_tree.pop(0))  # Vertex 0 (arbitrary start) is first in tree
 
 	while out_tree:
 		nearest_in = in_tree[0]
@@ -56,7 +56,7 @@ def draw_mst(graph):
 	scene.fill((20, 20, 20))
 	mst_parents = mst(graph)
 
-	for idx, v in enumerate(graph[1:], start=1): # Start from 1 because mstParents[0] is None
+	for idx, v in enumerate(graph[1:], start=1):  # Start from 1 because mstParents[0] is None
 		start = (v["x"], v["y"])
 		end = (graph[mst_parents[idx]]["x"], graph[mst_parents[idx]]["y"])
 		pg.draw.line(scene, (220, 220, 220), start, end)
@@ -97,7 +97,7 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1: # Left-click
+			if event.button == 1:  # Left-click
 				if len(graph) == 30:
 					print("Size limit reached")
 					continue
@@ -111,7 +111,7 @@ while True:
 				vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
 				graph.append(vertex)
 
-			elif event.button == 3: # Right-click
+			elif event.button == 3:  # Right-click
 				graph = []
 				scene.fill((20, 20, 20))
 				pg.display.update()

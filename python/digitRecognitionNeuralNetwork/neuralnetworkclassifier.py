@@ -40,7 +40,7 @@ class NeuralNetwork:
 				hidden_layer_out = self.__sigmoid(hidden_layer_in)
 
 				output_layer_in = np.dot(self.output_weights, hidden_layer_out) + self.output_bias
-				output_layer_out = self.__sigmoid(output_layer_in) # Prediction vector
+				output_layer_out = self.__sigmoid(output_layer_in)  # Prediction vector
 
 				error = actual - output_layer_out
 				delta_output_layer_out = error * self.__sigmoid_derivative(output_layer_out)
@@ -54,9 +54,9 @@ class NeuralNetwork:
 				self.hidden_weights += np.dot(input_vector, delta_hidden_layer.T).T * learning_rate
 				self.hidden_bias += delta_hidden_layer.sum(axis=0, keepdims=True) * learning_rate
 
-				iteration_loss.append(np.average(self.__calculate_loss(output_layer_out, actual)))
+				iteration_loss.append(np.mean(self.__calculate_loss(output_layer_out, actual)))
 
-			self.loss.append(np.average(iteration_loss))
+			self.loss.append(np.mean(iteration_loss))
 
 	# Return prediction vector e.g. v = [0.123, 0.047, 0.310, 0.968, 0.032, 0.045, 0.078, 0.123, 0.145, 0.227]
 	# In this case, np.argmax(v) = 3, therefore prediction is digit '3'

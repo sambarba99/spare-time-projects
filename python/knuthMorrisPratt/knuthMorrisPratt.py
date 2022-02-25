@@ -38,7 +38,7 @@ def kmp(text, pattern):
 
 def populate_lps(pattern):
 	lps = [0] * len(pattern)
-	i, length = 1, 0 # Length of previous longest prefix suffix
+	i, length = 1, 0  # Length of previous longest prefix suffix
 
 	while i < len(pattern):
 		if pattern[i] == pattern[length]:

@@ -115,7 +115,7 @@ def draw():
 
 	if path is None: return
 
-	time_interval = 5 / len(path) # Want drawing to last around 5s
+	time_interval = 5 / len(path)  # Want drawing to last around 5s
 
 	for v in path:
 		for event in pg.event.get():

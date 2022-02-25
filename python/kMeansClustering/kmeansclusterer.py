@@ -78,13 +78,13 @@ class KMeans:
 	def plot(self, title):
 		plt.figure(figsize=(8, 8))
 
-		for c in self.clusters:
-			plt.scatter(*self.x[c].T, alpha=0.7)
+		for idx, c in enumerate(self.clusters):
+			plt.scatter(*self.x[c].T, alpha=0.7, label=f"Class {idx}")
 
 		for point in self.centroids:
-			plt.scatter(*point, marker="x", color="black", lw=3, s=100)
+			plt.scatter(*point, color="black", lw=3, marker="x", s=100)
 
-		plt.legend(["Class " + str(i + 1) for i in range(len(self.clusters))])
+		plt.legend()
 		plt.title(title)
 		if title != "Converged":
 			plt.show(block=False)

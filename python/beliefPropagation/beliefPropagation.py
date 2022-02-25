@@ -2,7 +2,6 @@
 # Author: Sam Barba
 # Created 29/11/2021
 
-from collections import defaultdict
 import numpy as np
 
 # Each dataset row is a fully observed coffee machine, with the state of every random variable.
@@ -79,7 +78,7 @@ rvs = [(p_ne, "P(ne)", [nti["ne"]], "F"),
 	(p_me_gw_gh, "P(me|gw,gh)", [nti["me"], nti["gw"], nti["gh"]], "D"),
 	(p_he_me_fh, "P(he|me,fh)", [nti["he"], nti["me"], nti["fh"]], "D")]
 
-RV_TO_FACTOR = 17 # For converting variables to factors for factor graph
+RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -122,17 +121,20 @@ def calculate_edges():
 # Convert list of edges into a valid message order (a message can only be sent from node A to node B
 # once A has received all of its messages, except for the message from B)
 def calculate_message_order(edges):
-	msg_order = []
-	flags = defaultdict(dict)
+	flags = {}  # Nested dict
 	for a, b in edges:
+		if a not in flags: flags[a] = {}
+		if b not in flags: flags[b] = {}
 		flags[a][b] = flags[b][a] = False
 
+	msg_order = []
 	check = True
+
 	while check:
 		check = False
 
 		for src in flags:
-			for dest in flags[src]: # For all destinations of this source...
+			for dest in flags[src]:  # For all destinations of this source...
 				# If received messages from all neighbours except destination...
 				if all(flags[src][d] for d in flags[src] if d != dest):
 					tup = (src, dest)
@@ -141,6 +143,38 @@ def calculate_message_order(edges):
 						flags[dest][src] = check = True
 
 	return msg_order
+
+# Belief propagation - a trick is that if an RV is known (observed), then instead of using
+# rv_to_factor_msg whenever a message is sent from it, you send the known distribution instead
+# (i.e. [1, 0] for False or [0, 1] for True).
+# The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary
+# indicates that it has been observed. The value obtained using the key is the value the RV
+# has been observed as.
+# This function returns a 17x2 matrix, such that [rv, 0] is the probability of RV being False,
+# and [rv, 1] is the probability of being True.
+def calculate_marginals(known, msg_order):
+	# Nested dict, accessed via [dest][src] = msg
+	msgs = {dest: {} for _, dest in msg_order}
+
+	for src, dest in msg_order:
+		if src < RV_TO_FACTOR:  # RV
+			if src in known:
+				msgs[dest][src] = np.array([0, 1] if known[src] else [1, 0])
+			else:
+				msgs[dest][src] = rv_to_factor_msg(src, dest, msgs)
+		else:  # Factor
+			msgs[dest][src] = factor_to_rv_msg(src, dest, msgs)
+
+	# Calculate and return marginal distributions ("beliefs")
+	marginals = np.zeros((17, 2))
+	for idx, m in enumerate(marginals):
+		if idx in known:
+			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
+		else:
+			marginals[idx, :] = rv_to_factor_msg(idx, None, msgs)
+			marginals[idx, :] /= marginals[idx, :].sum()  # Needed for numerical stability
+
+	return marginals
 
 def rv_to_factor_msg(src, dest, msgs):
 	msg = np.ones(2)
@@ -170,51 +204,19 @@ def factor_to_rv_msg(src, dest, msgs):
 
 	return msg
 
-# Belief propagation - a trick is that if an RV is known (observed), then instead of using
-# rv_to_factor_msg whenever a message is sent from it, you send the known distribution instead
-# (i.e. [1, 0] for False or [0, 1] for True).
-# The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary
-# indicates that it has been observed. The value obtained using the key is the value the RV
-# has been observed as.
-# This function returns a 17x2 matrix, such that [rv, 0] is the probability of RV being False,
-# and [rv, 1] is the probability of being True.
-def calculate_marginals(known, msg_order):
-	msgs = defaultdict(dict) # [dest][src] = msg
-
-	for src, dest in msg_order:
-		if src < RV_TO_FACTOR: # RV
-			if src in known:
-				msgs[dest][src] = np.array([0, 1] if known[src] else [1, 0])
-			else:
-				msgs[dest][src] = rv_to_factor_msg(src, dest, msgs)
-		else: # Factor
-			msgs[dest][src] = factor_to_rv_msg(src, dest, msgs)
-
-	# Calculate and return marginal distributions ("beliefs")
-	marginals = np.zeros((17, 2))
-	for idx, m in enumerate(marginals):
-		if idx in known:
-			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
-		else:
-			marginals[idx, :] = rv_to_factor_msg(idx, None, msgs)
-			marginals[idx, :] /= marginals[idx, :].sum() # Needed for numerical stability
-
-	return marginals
-
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# 1. Get data as ints
+# 1. Get machine data
 
-with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt", "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-data = [row.strip("\n").split() for row in data]
+data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt", dtype=str, delimiter="\n")
+# Skip header and convert to ints
+data = [row.split() for row in data[1:]]
 data = np.array(data).astype(int)
 
 print("Data: {} exemplars, {} features".format(*data.shape))
-print("No. working machines:", data[:, nti["he"]].sum()) # Works only if 'he' is true ("makes hot espresso")
+print("No. working machines:", data[:, nti["he"]].sum())  # Works only if 'he' is true ("makes hot espresso")
 print("No. broken machines:", len(data) - data[:, nti["he"]].sum())
 
 # 2. Display RVs and their calculated probability distributions
@@ -279,5 +281,5 @@ for machine_name, observations in machines.items():
 	for k, v in observations.items():
 		print(f"    {itn[k]}: {v}")
 	marginals = calculate_marginals(observations, msg_order)
-	idx = np.argmax(marginals[:7,1]) # Consider only the failure marginals (first 7 rows)
+	idx = np.argmax(marginals[:7,1])  # Consider only the failure marginals (first 7 rows)
 	print(f"    Most likely issue = {itn[idx]}")

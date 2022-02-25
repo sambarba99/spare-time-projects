@@ -30,7 +30,7 @@ class Tree:
 	def to_tuple(self):
 		if self is None:
 			return None
-		elif self.left_child is None and self.right_child is None: # If leaf node
+		elif self.left_child is None and self.right_child is None:  # If leaf node
 			return self.key
 		else:
 			return Tree.to_tuple(self.left_child), self.key, Tree.to_tuple(self.right_child)
@@ -97,7 +97,7 @@ class Tree:
 
 	def insert(self, new_key):
 		if self.key == new_key:
-			return # No duplicates allowed
+			return  # No duplicates allowed
 		elif new_key > self.key:
 			if self.right_child is None:
 				self.right_child = Tree(new_key)

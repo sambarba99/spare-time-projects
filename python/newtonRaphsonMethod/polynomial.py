@@ -11,7 +11,7 @@ class Polynomial:
 
 	# Approximate solution of f(x) = 0 via Newton-Raphson method
 	def find_root(self, converge_threshold=10 ** -9, max_iters=10 ** 5):
-		x0 = random.random() # Initial guess
+		x0 = random.random()  # Initial guess
 
 		df = self.derivative()
 		xn = x0
@@ -62,7 +62,7 @@ class Polynomial:
 
 				result += str(abs(c)) + self.__expr(degree - i)
 
-		return result.lstrip(" + ") # Remove leading " + "
+		return result.lstrip(" + ")  # Remove leading " + "
 
 	def __expr(self, degree):
 		if degree == 0: return ""

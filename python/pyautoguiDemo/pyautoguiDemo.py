@@ -5,7 +5,7 @@
 import numpy as np
 import pyautogui as pag
 
-pag.PAUSE = 1 # 1 sec pause between PyAutoGUI calls
+pag.PAUSE = 1  # 1 sec pause between PyAutoGUI calls
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -43,7 +43,7 @@ def facebook_messenger_test():
 	for i in range(1, 6):
 		write_msg(f"{i}^{i} = {i**i}")
 
-def whatsapp_web_test(): # Ensure whatsapp web is active via phone
+def whatsapp_web_test():  # Ensure whatsapp web is active via phone
 	pag.hotkey("win")
 	write_msg("google chrome")
 	pag.click(300, 50, duration=0.5)

@@ -34,25 +34,25 @@ def handle_button_click(coefficients, find_root):
 	if solution is not None:
 		root, iters, initial_guess = solution
 
-		if abs(root) <= 0.01: # If root is close to 0
+		if abs(root) <= 0.01:  # If root is close to 0
 			start, end = -1, 1
 		else:
 			start, end = root - abs(root), root + abs(root)
 
-		x_plot = list(np.linspace(start, end))
+		x_plot = np.linspace(start, end)
 		y_plot = [p(x) for x in x_plot]
 		y_deriv_plot = [dp(x) for x in x_plot]
 		y_min = min(y_plot + y_deriv_plot)
 		y_max = max(y_plot + y_deriv_plot)
 
 		plt.figure(figsize=(6, 6))
-		plt.plot(x_plot, y_plot, color="#0080ff")
-		plt.plot(x_plot, y_deriv_plot, color="#ff8000")
+		plt.plot(x_plot, y_plot, color="#0080ff", label="f(x)")
+		plt.plot(x_plot, y_deriv_plot, color="#ff8000", label=f"f'(x) = {str(dp)}")
 		plt.axhline(color="black")
 		plt.vlines(root, y_min, y_max, color="red", ls="--")
-		plt.legend(["f(x)", "f'(x) = " + str(dp)])
 		plt.xlabel("x")
 		plt.ylabel("f(x) and f'(x)")
+		plt.legend()
 
 		if find_root:
 			plt.title(f"f(x) = {str(p)}"

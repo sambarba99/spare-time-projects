@@ -17,7 +17,7 @@ class LinearRegressor:
 		self.y_train = y_train
 
 	# Gradient descent
-	def train(self, learning_rate=0.0001, converge_threshold=10 ** -9):
+	def train(self, learning_rate=10 ** -4, converge_threshold=10 ** -9):
 		# Initial guesses and error
 		weights_current = np.zeros(self.x_train.shape[1])
 		bias_current = 0

@@ -54,7 +54,7 @@ class LogisticRegressor:
 		return weight_deriv, bias_deriv
 
 	def cost(self, x, y, weights, bias):
-		epsilon = 10 ** -6 # To avoid log errors
+		epsilon = 10 ** -6  # To avoid log errors
 		linear_model = np.dot(x, weights) + bias
 		probs = self.__sigmoid(linear_model)
 		return -(y * np.log(probs + epsilon) + (1 - y) * np.log(1 - probs + epsilon)).sum() / len(x)

@@ -11,10 +11,12 @@ from perceptronclassifier import PerceptronClf
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	data = [row.strip("\n").split() for row in data]
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)
 	# File data is for SVM testing, so convert class -1 to 0
@@ -54,11 +56,7 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Use SVM testing data
-with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt", "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-x_train, y_train, x_test, y_test = extract_data(data)
+x_train, y_train, x_test, y_test = extract_data("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt")
 
 clf = PerceptronClf()
 clf.fit(x_train, y_train)
@@ -76,13 +74,12 @@ plot_matrix(False, test_conf_mat, test_acc)
 
 # Visualise perceptron
 
-x_scatter = np.array(list(x_train) + list(x_test))
-y_scatter = np.array(list(y_train) + list(y_test))
+x_scatter = np.append(x_train, x_test, axis=0)
+y_scatter = np.append(y_train, y_test)
 
 plt.figure(figsize=(8, 8))
 for class_label in np.unique(y_scatter):
-	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7)
-plt.legend(["class 0", "class 1"])
+	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f"Class {class_label}")
 
 decision_bound_x1 = np.min(x_scatter[:, 0])
 decision_bound_x2 = np.max(x_scatter[:, 0])
@@ -100,4 +97,5 @@ m = -clf.weights[0] / clf.weights[1]
 c = -clf.bias / clf.weights[1]
 
 plt.title(f"Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f} | c: {c:.3f}")
+plt.legend()
 plt.show()

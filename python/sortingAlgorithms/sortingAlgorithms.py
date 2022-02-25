@@ -82,8 +82,8 @@ def merge_sort(arr):
 	mid = len(arr) // 2
 	l, r = arr[:mid], arr[mid:]
 
-	merge_sort(l) # Sort copy of first half
-	merge_sort(r) # Sort copy of second half
+	merge_sort(l)  # Sort copy of first half
+	merge_sort(r)  # Sort copy of second half
 
 	# Merge sorted halves back into arr
 	i = j = 0
@@ -107,7 +107,7 @@ def quicksort(arr):
 	quicksort(greater)
 	arr[:] = less + equal + greater
 
-def radix_sort(arr): # Least Significant Digit
+def radix_sort(arr):  # Least Significant Digit
 	max_digits = len(str(max(arr)))
 
 	for i in range(max_digits):

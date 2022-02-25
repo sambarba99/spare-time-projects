@@ -7,7 +7,7 @@ import pygame as pg
 import tkinter as tk
 
 SIZE = 900
-GOLDEN_RATIO = (5 ** 0.5 - 1) / 2 # ~0.61803
+GOLDEN_RATIO = (5 ** 0.5 - 1) / 2  # ~0.61803
 
 turn_ratio = None
 

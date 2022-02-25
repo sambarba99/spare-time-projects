@@ -65,7 +65,7 @@ class Matrix:
 
 		det = self.determinant(self.rows)
 		comatrix = self.comatrix()
-		adjugate_grid = list(zip(*comatrix.grid)) # Transposed comatrix
+		adjugate_grid = list(zip(*comatrix.grid))  # Transposed comatrix
 		result_grid = [[x / det for x in row] for row in adjugate_grid]
 
 		return Matrix(result_grid)
@@ -167,7 +167,7 @@ class Matrix:
 	def enlarge(self, k, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
-			t = t.translate(-x, -y) # In order to enlarge from origin (0, 0)
+			t = t.translate(-x, -y)  # In order to enlarge from origin (0, 0)
 
 		enlarge_matrix = Matrix([[k, 0], [0, k]])
 		result = t.mult(enlarge_matrix)
@@ -179,7 +179,7 @@ class Matrix:
 	def reflect(self, m, c):
 		t = Matrix(self.grid)
 		if c != 0:
-			t = t.translate(0, -c) # Reflect in y = mx
+			t = t.translate(0, -c)  # Reflect in y = mx
 
 		r = 1 / (1 + m ** 2)
 		reflect_grid = [[1 - m ** 2, 2 * m], [2 * m, m ** 2 - 1]]
@@ -193,7 +193,7 @@ class Matrix:
 	def rotate(self, theta, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
-			t = t.translate(-x, -y) # Enlarge from origin (0, 0)
+			t = t.translate(-x, -y)  # Enlarge from origin (0, 0)
 
 		theta = radians(theta)
 		rotate_matrix = Matrix([[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])

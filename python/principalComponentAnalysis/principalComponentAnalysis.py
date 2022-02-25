@@ -32,10 +32,9 @@ else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 	classes = ["class 0", "class 1", "class 2"]
 
-with open(path, "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-data = [row.strip("\n").split() for row in data]
+data = np.genfromtxt(path, dtype=str, delimiter="\n")
+# Skip header and convert to floats
+data = [row.split() for row in data[1:]]
 data = np.array(data).astype(float)
 
 x, y = data[:,:-1], data[:,-1].astype(int)
@@ -44,10 +43,10 @@ pca = PCA()
 x_transform, new_variability = pca.transform(x)
 
 plt.figure(figsize=(8, 8))
-for class_label in np.unique(y):
-	plt.scatter(*x_transform[y == class_label].T, alpha=0.7)
-plt.legend(classes)
+for idx, class_label in enumerate(np.unique(y)):
+	plt.scatter(*x_transform[y == class_label].T, alpha=0.7, label=classes[idx])
 plt.xlabel("Principal component 1")
 plt.ylabel("Principal component 2")
 plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}\nCaptured variability: {new_variability:.3f}")
+plt.legend()
 plt.show()

@@ -7,8 +7,8 @@ import numpy as np
 import pygame as pg
 import sys
 
-NUM_TOWNS = 30 # ~ 10^32 permutations
-TEMP_DECREASE_FACTOR = 0.999 # Cool down by 0.1% each iteration
+NUM_TOWNS = 30  # ~ 10^32 permutations
+TEMP_DECREASE_FACTOR = 0.999  # Cool down by 0.1% each iteration
 TEMP_THRESHOLD = 0.1
 USE_POLYGON_PATTERN = False
 
@@ -54,8 +54,8 @@ def initialise():
 
 	coords = list(zip(x, y))
 	np.random.shuffle(coords)
-	best_candidate = Path(coords) # Initial solution (random)
-	temperature = 10 * NUM_TOWNS # Arbitrary start temperature
+	best_candidate = Path(coords)  # Initial solution (random)
+	temperature = 10 * NUM_TOWNS  # Arbitrary start temperature
 
 # Generate a new candidate based on an existing candidate. First, a segment is chosen from the existing
 # candidate, then a 'coin' is flipped to choose either 'reverse' or 'shift': If reverse comes up, an
@@ -71,9 +71,9 @@ def generate_new_candidate(candidate):
 	sequence = candidate.sequence[:]
 	segment = sequence[start:end]
 
-	if np.random.uniform() < 0.5: # Reverse
+	if np.random.uniform() < 0.5:  # Reverse
 		sequence[start:end] = segment[::-1]
-	else: # Shift
+	else:  # Shift
 		sequence = sequence[:start] + sequence[end:]
 		idx = np.random.randint(len(sequence) + 1)
 		sequence[idx:idx] = segment
@@ -124,7 +124,7 @@ iter_num = 0
 max_iters = int(np.ceil(np.log(TEMP_THRESHOLD / temperature) / np.log(TEMP_DECREASE_FACTOR)))
 
 while temperature > TEMP_THRESHOLD:
-	for event in pg.event.get(): # Handle pygame events
+	for event in pg.event.get():  # Handle pygame events
 		if event.type == pg.QUIT:
 			pg.quit()
 			sys.exit(0)
@@ -150,8 +150,8 @@ while temperature > TEMP_THRESHOLD:
 draw_solution(best_candidate, best_dist, max_iters, max_iters)
 
 plt.figure(figsize=(8, 6))
-plt.plot(range(len(best_distance_history)), best_distance_history, linewidth=1)
+plt.plot(best_distance_history, lw=1)
 plt.xlabel("Iteration")
 plt.ylabel("Best distance")
-plt.title("Best distance over time")
+plt.title("Best distance per iteration")
 plt.show()

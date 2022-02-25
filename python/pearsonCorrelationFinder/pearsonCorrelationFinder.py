@@ -35,7 +35,7 @@ sum_x = np.sum(x)
 sum_y = np.sum(y)
 mean_x = sum_x / n
 mean_y = sum_y / n
-std_x = np.std(x, ddof=1) # DDOF = 1 means sample standard deviation (not population)
+std_x = np.std(x, ddof=1)  # DDOF = 1 means sample standard deviation (not population)
 std_y = np.std(y, ddof=1)
 sum_x2 = np.sum(x * x)
 sum_y2 = np.sum(y * y)

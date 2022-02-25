@@ -29,9 +29,9 @@ def backward_pass(data):
 		if p is not None:
 			for task_code in p:
 				if successors[task_code] is None:
-					successors[task_code] = [idx] # idx = data["CODE"][idx]
+					successors[task_code] = [idx]  # idx = data["CODE"][idx]
 				else:
-					successors[task_code].append(idx) # idx = data["CODE"][idx]
+					successors[task_code].append(idx)  # idx = data["CODE"][idx]
 
 	for idx, s in reversed(list(enumerate(successors))):
 		if s is None:
@@ -102,7 +102,7 @@ critical_path = []
 critical_duration = 0
 for idx, slack_value in enumerate(data["SLACK"]):
 	if slack_value == 0:
-		critical_path.append(idx) # idx = data["CODE"][idx]
+		critical_path.append(idx)  # idx = data["CODE"][idx]
 		critical_duration += data["DURATION"][idx]
 
 print(f"\nCritical path: {critical_path}")

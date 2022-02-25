@@ -10,12 +10,13 @@ import numpy as np
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	feature_names = data.pop(0).strip("\n").split(",")
-
-	data = [row.strip("\n").split() for row in data]
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	feature_names = data[0].strip("\n").split(",")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)
 
@@ -71,7 +72,7 @@ def calculate_entropy(y):
 	if len(y) <= 1: return 0
 
 	counts = np.bincount(y)
-	probs = counts[np.nonzero(counts)] / len(y) # np.nonzero ensures that we're not doing log(0) after
+	probs = counts[np.nonzero(counts)] / len(y)  # np.nonzero ensures that we're not doing log(0) after
 
 	return -(probs * np.log2(probs)).sum()
 
@@ -95,7 +96,7 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 			best_train_acc = train_acc
 			best_test_acc = test_acc
 		else:
-			break # No improvement, so stop
+			break  # No improvement, so stop
 
 		depth += 1
 
@@ -181,10 +182,7 @@ else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 	classes = ["class 0", "class 1", "class 2"]
 
-with open(path, "r") as file:
-	data = file.readlines()
-
-feature_names, x_train, y_train, x_test, y_test = extract_data(data)
+feature_names, x_train, y_train, x_test, y_test = extract_data(path)
 
 tree, depth = make_best_tree(x_train, y_train, x_test, y_test)
 

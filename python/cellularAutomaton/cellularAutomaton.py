@@ -6,8 +6,8 @@ import pygame as pg
 import sys
 from time import sleep
 
-IMG_SIZE = 369 # Rows and columns
-CELL_SIZE = 2 # Size of each cell
+IMG_SIZE = 369
+CELL_SIZE = 2
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -28,10 +28,10 @@ def set_ruleset(n):
 
 def generate_plot(ruleset):
 	gen = [0] * IMG_SIZE
-	gen[IMG_SIZE // 2] = 1 # Turn on centre pixel of first generation
+	gen[IMG_SIZE // 2] = 1  # Turn on centre pixel of first generation
 	plot = [None] * IMG_SIZE
 
-	for y in range(IMG_SIZE): # Y before X, as 2D arrays are row-major
+	for y in range(IMG_SIZE):  # Y before X, as 2D arrays are row-major
 		plot[y] = gen[:]
 		next_gen = [0] * IMG_SIZE
 

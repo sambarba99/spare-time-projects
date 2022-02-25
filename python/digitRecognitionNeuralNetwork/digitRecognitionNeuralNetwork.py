@@ -17,11 +17,12 @@ DRAWING_SIZE = 500
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	data = [row.strip("\n").split() for row in data]
-
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	split = int(len(data) * train_test_ratio)
 
@@ -72,10 +73,7 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt", "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-x_train, y_train, x_test, y_test = extract_data(data)
+x_train, y_train, x_test, y_test = extract_data("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt")
 
 clf = NeuralNetwork()
 
@@ -154,8 +152,8 @@ while drawing:
 			if event.button == 1:
 				left_button_down = False
 
-user_coords = np.array(user_coords) // (DRAWING_SIZE // 27) # Make coords range from 0-27
-user_coords = np.unique(user_coords, axis=0) # Keep unique pairs only
+user_coords = np.array(user_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
+user_coords = np.unique(user_coords, axis=0)  # Keep unique pairs only
 drawn_digit = np.zeros((28, 28))
 drawn_digit[user_coords[:, 1], user_coords[:, 0]] = 1
 plt.figure(figsize=(4, 4))
@@ -170,10 +168,8 @@ print(f"\nDrawn digit is: {np.argmax(pred_vector)}  ({(100 * np.max(pred_vector)
 # Plot loss graph
 
 if choice != "F":
-	x_plot = list(range(len(clf.loss)))
-	y_plot = clf.loss
 	plt.figure(figsize=(8, 6))
-	plt.plot(x_plot, y_plot, color="red")
+	plt.plot(clf.loss, color="red")
 	plt.xlabel("Training iteration")
 	plt.ylabel("Mean loss")
 	plt.title("Loss")

@@ -11,12 +11,13 @@ import numpy as np
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	feature_names = data.pop(0).strip("\n").split(",")
-
-	data = [row.strip("\n").split() for row in data]
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	feature_names = data[0].strip("\n").split(",")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	# Normalise data (x and y) (column-wise)
 	data = (data - np.mean(data, axis=0)) / np.std(data, axis=0)
@@ -53,10 +54,7 @@ elif choice == "C":
 else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\medicalInsuranceData.txt"
 
-with open(path, "r") as file:
-	data = file.readlines()
-
-feature_names, x_train, y_train, x_test, y_test, data = extract_data(data)
+feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
 
 weights, bias = analytic_solution(x_train, y_train)
 weights = ", ".join(f"{we:.3f}" for we in weights)
@@ -83,11 +81,11 @@ print("\nFeature names:", ", ".join(feature_names))
 print(f"Highest (abs) correlation with y ({feature_names[-1]}): {max_corr}  (feature '{feature_names[idx_max_corr]}')")
 
 weights = ", ".join(f"{we:.3f}" for we in regressor.weights)
-x_plot = np.array(list(x_train[:, idx_max_corr]) + list(x_test[:, idx_max_corr]))
+x_plot = np.append(x_train[:, idx_max_corr], x_test[:, idx_max_corr])
 y_plot = regressor.weights[idx_max_corr] * x_plot + regressor.bias
-y_scatter = list(y_train) + list(y_test)
+y_scatter = np.append(y_train, y_test)
 plt.figure(figsize=(10, 8))
-plt.scatter(x_plot, y_scatter, color="black", s=5)
+plt.scatter(x_plot, y_scatter, color="black", alpha=0.6, s=10)
 plt.plot(x_plot, y_plot, color="red")
 plt.xlabel(feature_names[idx_max_corr] + " (normalised)")
 plt.ylabel(feature_names[-1] + " (normalised)")
@@ -96,10 +94,9 @@ plt.show()
 
 # Plot MSE graph
 
-x_plot = list(range(len(regressor.cost_history)))
 y_plot = np.array(regressor.cost_history) / len(x_train)
 plt.figure(figsize=(8, 6))
-plt.plot(x_plot, y_plot, color="red")
+plt.plot(y_plot, color="red")
 plt.xlabel("Training iteration")
 plt.ylabel("Mean square error")
 plt.title("MSE during training")

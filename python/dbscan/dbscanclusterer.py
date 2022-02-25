@@ -13,10 +13,10 @@ class DBSCANclusterer:
 		self.min_points = min_points
 
 	def predict(self, points):
-		c = 1 # Cluster counter
+		c = 1  # Cluster counter
 
 		for point in points:
-			if point["label"] != UNDEFINED: continue # Skip defined labels
+			if point["label"] != UNDEFINED: continue  # Skip defined labels
 
 			neighbours = [p for p in points if self.__euclidean_dist(p, point) <= self.epsilon]
 			if len(neighbours) < self.min_points:
@@ -35,7 +35,7 @@ class DBSCANclusterer:
 				if len(neighbours) >= self.min_points:
 					neighbours_to_expand.extend(n for n in neighbours if n not in neighbours_to_expand)
 
-			c += 1 # Next cluster label
+			c += 1  # Next cluster label
 
 	def __euclidean_dist(self, p1, p2):
 		coords1 = np.array([p1["x"], p1["y"]])

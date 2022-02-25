@@ -89,25 +89,25 @@ def execute_instructions(instructions, turn_angle, start_heading):
 	for cmd in instructions:
 		x, y, heading, step_size = state
 
-		if cmd in "AB": # Move forward
+		if cmd in "AB":  # Move forward
 			next_x = step_size * np.cos(np.radians(heading)) + x
 			next_y = step_size * np.sin(np.radians(heading)) + y
 			state = [next_x, next_y, heading, step_size]
 			coords_to_draw.append([x, y, next_x, next_y])
 
-		elif cmd == "<": # Decrease step size
+		elif cmd == "<":  # Decrease step size
 			state = [x, y, heading, step_size * 0.59]
 
-		elif cmd == "+": # Turn clockwise
+		elif cmd == "+":  # Turn clockwise
 			state = [x, y, heading + turn_angle, step_size]
 
-		elif cmd == "-": # Turn anti-clockwise
+		elif cmd == "-":  # Turn anti-clockwise
 			state = [x, y, heading - turn_angle, step_size]
 
-		elif cmd == "[": # Save current state
+		elif cmd == "[":  # Save current state
 			saved_states.append(state)
 
-		elif cmd == "]": # Return to last saved state
+		elif cmd == "]":  # Return to last saved state
 			state = saved_states.pop()
 
 	coords_to_draw = scale_and_centre_image(coords_to_draw)
@@ -127,8 +127,8 @@ def execute_instructions(instructions, turn_angle, start_heading):
 	wait_for_click()
 
 def scale_and_centre_image(coords):
-	# Calculate scale factor k: We want image to fill 85% of either screen's width
-	# or height, depending on if the image is wider than it is tall or vice-versa
+	# Calculate scale factor k: Image must fill 85% of either screen's width or height,
+	# depending on if the image is wider than it is tall or vice-versa
 
 	coords = np.array(coords).astype(float)
 	min_x = np.min(coords[:,[0, 2]])

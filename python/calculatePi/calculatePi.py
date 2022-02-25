@@ -39,7 +39,7 @@ digits = [next(pi) for _ in range(size)]
 
 print(*digits, sep="")
 
-x_plot = list(range(10))
+x_plot = range(10)
 y_plot = [digits.count(i) for i in x_plot]
 
 plt.figure(figsize=(8, 6))

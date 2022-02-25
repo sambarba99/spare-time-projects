@@ -31,7 +31,7 @@ running = True
 # ---------------------------------------------------------------------------------------------------- #
 
 def update_grid():
-	global grid # 2D array of Booleans (true = alive)
+	global grid  # 2D array of Booleans (true = alive)
 	next_gen_grid = [[False] * COLS for _ in range(ROWS)]
 
 	for y in range(ROWS):
@@ -94,13 +94,13 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_1: # Preset 1
+			if event.key == pg.K_1:  # Preset 1
 				set_pattern(GLIDER_GUN)
-			elif event.key == pg.K_2: # Preset 2
+			elif event.key == pg.K_2:  # Preset 2
 				set_pattern(R_PENTOMINO)
-			elif event.key == pg.K_r: # Reset and randomise
+			elif event.key == pg.K_r:  # Reset and randomise
 				randomise_live_cells()
-			elif event.key == pg.K_SPACE: # Play/pause
+			elif event.key == pg.K_SPACE:  # Play/pause
 				running = not running
 
 	draw_grid()

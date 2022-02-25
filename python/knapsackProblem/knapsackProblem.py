@@ -12,7 +12,7 @@ NUM_ITEMS = 100
 GENERATIONS = 50
 POP_SIZE = 100
 MUTATION_RATE = 0.2
-ELITISM_RATE = 0.2 # Proportion of the fittest individuals to avoid mutation
+ELITISM_RATE = 0.2  # Proportion of the fittest individuals to avoid mutation
 CROSSOVER_RATE = 0.8
 TOURNAMENT_SIZE = 2
 
@@ -167,12 +167,11 @@ print("Weight left:", KNAPSACK_CAPACITY - sum(item.weight for item in items))
 
 # Plot evolution graph
 
-gens = [i + 1 for i in range(GENERATIONS)]
 plt.figure(figsize=(8, 6))
-plt.plot(gens, mean_fitnesses, color="#0080ff", linewidth=1)
-plt.plot(gens, best_fitnesses, color="#008000", linewidth=1)
-plt.legend(["Mean fitness", "Best fitness"])
+plt.plot(mean_fitnesses, color="#0080ff", lw=1, label="Mean fitness")
+plt.plot(best_fitnesses, color="#008000", lw=1, label="Best fitness")
 plt.xlabel("Generation")
 plt.ylabel("Fitness")
-plt.title("Mean vs. best fitness of each generation")
+plt.title("Mean fitness and best fitness of each generation")
+plt.legend()
 plt.show()

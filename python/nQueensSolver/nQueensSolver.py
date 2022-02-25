@@ -6,7 +6,7 @@ import pygame as pg
 import sys
 
 DRAW_STEPS = True
-N = 12 # N > 3
+N = 12  # N > 3
 BLANK = 0
 QUEEN = 1
 CELL_SIZE = 40
@@ -19,7 +19,7 @@ board = [[BLANK] * N for _ in range(N)]
 # ---------------------------------------------------------------------------------------------------- #
 
 def solve(row=0):
-	if row == N: # If all queens placed
+	if row == N:  # If all queens placed
 		return True
 
 	for event in pg.event.get():

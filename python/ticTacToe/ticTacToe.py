@@ -40,7 +40,7 @@ def handle_mouse_click(y, x):
 
 	draw_grid()
 
-	if result is None: # AI's turn
+	if result is None:  # AI's turn
 		sleep(1)
 		make_best_ai_move()
 		draw_grid()
@@ -163,7 +163,7 @@ while True:
 			sys.exit(0)
 
 		elif event.type == pg.MOUSEBUTTONDOWN:
-			if find_winner() is not None: # Click to reset if game over
+			if find_winner() is not None:  # Click to reset if game over
 				board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
 				status_text = "Your turn! (Or 'A' to make AI go first)"
 				draw_grid()
@@ -172,7 +172,7 @@ while True:
 				handle_mouse_click(y, x)
 
 		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_a: # Make AI play first
+			if event.key == pg.K_a:  # Make AI play first
 				# If no moves have been played yet
 				if all(cell is None for row in board for cell in row):
 					make_best_ai_move()

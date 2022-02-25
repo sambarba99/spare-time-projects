@@ -18,7 +18,7 @@ PRESET_PUZZLES = {"Blank": "0" * 81,
 	"Insane": "800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
 
 board = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-given_yx = [] # Y before X, as 2D arrays are row-major
+given_yx = []  # Y before X, as 2D arrays are row-major
 num_backtracks = 0
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -139,7 +139,7 @@ while True:
 			board[y][x] = int(n)
 
 		num_backtracks = 0
-		given_yx = [(y, x) for x in range(BOARD_SIZE) for y in range(BOARD_SIZE) if board[y][x] != 0]
+		given_yx = [(y, x) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE) if board[y][x] != 0]
 
 		draw_grid(difficulty_lvl, "click to solve")
 		wait_for_click()

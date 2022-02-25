@@ -11,17 +11,16 @@ NOISE = 0
 
 # Change these
 USE_FILE_DATA = True
-NUM_POINTS = 500 # If not using file data
+NUM_POINTS = 500  # If not using file data
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 if USE_FILE_DATA:
-	with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\dbscanData.txt", "r") as file:
-		coords = file.readlines()[1:] # Skip header
-
-	coords = [row.strip("\n").split() for row in coords]
+	coords = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\dbscanData.txt", dtype=str, delimiter="\n")
+	# Skip header and convert to floats
+	coords = [row.split() for row in coords[1:]]
 	coords = np.array(coords).astype(float)
 else:
 	# Create random samples
@@ -57,15 +56,11 @@ for p in points:
 
 plt.figure(figsize=(8, 8))
 for idx, c in enumerate(clusters):
-	if idx == 0:
-		if clusters[0]: # If there is noise...
-			plt.scatter(*np.array(c).T, c="black") # ... Plot as black
+	if idx == 0 and clusters[0]:
+		# If there's noise, plot it as black
+		plt.scatter(*np.array(c).T, c="black", label=f"Noise ({len(c)} samples)")
 	else:
-		plt.scatter(*np.array(c).T, alpha=0.7)
+		plt.scatter(*np.array(c).T, alpha=0.7, label=f"Cluster {idx} ({len(c)} samples)")
 
-legend = [f"Class {str(i)} ({len(clusters[i])} samples)" for i in unique_labels]
-if clusters[0]: # If there is noise...
-	legend.insert(0, f"Noise ({len(clusters[0])} samples)")
-
-plt.legend(legend)
+plt.legend()
 plt.show()

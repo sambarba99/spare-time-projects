@@ -35,7 +35,7 @@ class NaiveBayesClassifier:
 
 	def predict(self, inputs):
 		posteriors = []
-		epsilon = 10 ** -6 # To avoid log errors
+		epsilon = 10 ** -6  # To avoid log errors
 
 		# Calculate posterior probability for each class
 		for class_idx, c in enumerate(self.classes):

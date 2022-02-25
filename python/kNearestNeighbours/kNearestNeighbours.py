@@ -44,12 +44,12 @@ if choice == "I":
 else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 
-with open(path, "r") as file:
-	data = file.readlines()[1:] # Skip header
-
-data = [row.strip("\n").split() for row in data]
-np.random.shuffle(data)
+data = np.genfromtxt(path, dtype=str, delimiter="\n")
+# Skip header and convert to floats
+data = [row.split() for row in data[1:]]
 data = np.array(data).astype(float)
+np.random.shuffle(data)
+
 x, y = data[:,:-1], data[:,-1].astype(int)
 
 best_acc = best_k = -1

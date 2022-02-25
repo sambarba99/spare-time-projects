@@ -123,7 +123,7 @@ while True:
 			pg.quit()
 			sys.exit(0)
 		elif event.type == pg.KEYDOWN:
-			if game_over: # Press any key to reset
+			if game_over:  # Press any key to reset
 				setup()
 			elif event.key in (pg.K_w, pg.K_UP) and heading != SOUTH:
 				heading = NORTH
@@ -141,6 +141,6 @@ while True:
 		check_game_over()
 		check_eaten_food()
 
-		if game_over: draw_grid() # Draw "GAME OVER" screen
+		if game_over: draw_grid()  # Draw "GAME OVER" screen
 
 	clock.tick(FPS)

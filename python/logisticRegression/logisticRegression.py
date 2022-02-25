@@ -11,12 +11,13 @@ import numpy as np
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(data, train_test_ratio=0.5):
-	feature_names = data.pop(0).strip("\n").split(",")
-
-	data = [row.strip("\n").split() for row in data]
-	np.random.shuffle(data)
+def extract_data(path, train_test_ratio=0.5):
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	feature_names = data[0].strip("\n").split(",")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
+	np.random.shuffle(data)
 
 	x, y = data[:,:-1], data[:,-1].astype(int)
 
@@ -71,10 +72,7 @@ else:
 	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
 	classes = ["did not survive", "survived"]
 
-with open(path, "r") as file:
-	data = file.readlines()
-
-feature_names, x_train, y_train, x_test, y_test, data = extract_data(data)
+feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
 
 regressor = LogisticRegressor()
 regressor.fit(x_train, y_train)
@@ -106,27 +104,25 @@ print(f"2nd highest (abs) correlation with y (class): {max_corr[1]}  (feature '{
 w1, w2 = regressor.weights[indices]
 m = -w1 / w2
 c = -regressor.bias / w2
-x_scatter = np.array(list(x_train[:, indices]) + list(x_test[:, indices]))
-y_scatter = np.array(list(y_train) + list(y_test))
+x_scatter = np.append(x_train[:, indices], x_test[:, indices], axis=0)
+y_scatter = np.append(y_train, y_test)
 x_plot = np.array([np.min(x_scatter, axis=0)[0], np.max(x_scatter, axis=0)[0]])
 y_plot = m * x_plot + c
 plt.figure(figsize=(8, 8))
-for class_label in np.unique(y_scatter):
-	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7)
-plt.legend(classes)
+for idx, class_label in enumerate(np.unique(y_scatter)):
+	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=classes[idx])
 plt.plot(x_plot, y_plot, color="black", ls="--")
 plt.ylim(np.min(x_scatter) * 1.1, np.max(x_scatter) * 1.1)
 plt.xlabel(feature_names[indices[0]] + " (normalised)")
 plt.ylabel(feature_names[indices[1]] + " (normalised)")
 plt.title(f"Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}")
+plt.legend()
 plt.show()
 
 # Plot cost graph
 
-x_plot = list(range(len(regressor.cost_history)))
-y_plot = regressor.cost_history
 plt.figure(figsize=(8, 6))
-plt.plot(x_plot, y_plot, color="red")
+plt.plot(regressor.cost_history, color="red")
 plt.xlabel("Training iteration")
 plt.ylabel("Cost")
 plt.title("Cost during training")
