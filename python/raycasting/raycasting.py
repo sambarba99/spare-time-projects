@@ -34,8 +34,8 @@ def generate_walls(num_walls=5):
 	walls = []
 
 	for _ in range(num_walls):
-		start_x = np.random.randint(0, WIDTH)
-		start_y = np.random.randint(0, HEIGHT)
+		start_x = np.random.randint(WIDTH)
+		start_y = np.random.randint(HEIGHT)
 		if np.random.random() < 0.5:
 			end_x = start_x
 			end_y = start_y + np.random.choice([-200, 200])

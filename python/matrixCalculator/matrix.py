@@ -193,9 +193,9 @@ class Matrix:
 	def rotate(self, theta, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
-			t = t.translate(-x, -y)  # Enlarge from origin (0, 0)
+			t = t.translate(-x, -y)
 
-		theta = radians(theta)
+		theta = radians(-theta)  # Minus theta because clockwise rotation
 		rotate_matrix = Matrix([[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])
 
 		result = t.mult(rotate_matrix)

@@ -63,9 +63,9 @@ def initialise():
 # If shift, the segment is clipped out of its current position in the path and spliced in at a randomly
 # chosen point in the remainder of the path.
 def generate_new_candidate(candidate):
-	start, end = np.random.randint(0, NUM_TOWNS, size=2)
+	start, end = np.random.randint(NUM_TOWNS, size=2)
 	while start == end:
-		start, end = np.random.randint(0, NUM_TOWNS, size=2)
+		start, end = np.random.randint(NUM_TOWNS, size=2)
 	start, end = min(start, end), max(start, end)
 
 	sequence = candidate.sequence[:]
