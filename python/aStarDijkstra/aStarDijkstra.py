@@ -138,7 +138,7 @@ generate_and_draw_maze()
 
 root = tk.Tk()
 root.title("A*/Dijkstra Maze Solver")
-root.configure(width=300, height=200, bg="#141414")
+root.configure(width=350, height=200, bg="#141414")
 
 frame = tk.Frame(root, bg="#0080ff")
 frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")

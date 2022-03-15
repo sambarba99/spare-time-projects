@@ -75,17 +75,17 @@ root.title("File Path Walker")
 root.configure(width=600, height=680, bg="#141414")
 root.eval("tk::PlaceWindow . center")
 
-upper_frame = tk.Frame(root, bg="#0080ff")
-upper_frame.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.15, anchor="center")
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.15, anchor="center")
 
-enter_path_lbl = tk.Label(upper_frame, text="Enter a file path:", font="consolas", bg="#0080ff")
+enter_path_lbl = tk.Label(frame, text="Enter a file path:", font="consolas", bg="#0080ff")
 enter_path_lbl.place(relwidth=0.9, relheight=0.18, relx=0.5, rely=0.22, anchor="center")
 
-entry_box = tk.Entry(upper_frame, font="consolas", justify="center")
+entry_box = tk.Entry(frame, font="consolas", justify="center")
 entry_box.place(relwidth=0.9, relheight=0.19, relx=0.5, rely=0.43, anchor="center")
 entry_box.insert(0, os.path.expanduser("~") + "\\Desktop")
 
-button = tk.Button(upper_frame, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
+button = tk.Button(frame, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
 button.place(relwidth=0.2, relheight=0.26, relx=0.5, rely=0.76, anchor="center")
 
 discovered_files_lbl = tk.Label(root, text="Discovered files:", font="consolas", bg="#141414", fg="#dcdcdc")

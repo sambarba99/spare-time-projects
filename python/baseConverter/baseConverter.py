@@ -8,8 +8,14 @@ import tkinter as tk
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def convert(num_str, from_base):
-	global output_txt
+def convert(*args):
+	global sv_num, sv_from_base, output_txt
+
+	if len(sv_num.get()) == 0 or len(sv_from_base.get()) == 0:
+		return
+
+	num_str = sv_num.get()
+	from_base = int(sv_from_base.get())
 
 	input_num_to_dec = int(num_str) if from_base == 10 else to_decimal_from_base(num_str, from_base)
 
@@ -58,24 +64,28 @@ root.title("Base Converter")
 root.configure(width=650, height=480, bg="#141414")
 root.eval("tk::PlaceWindow . center")
 
-upper_frame = tk.Frame(root, bg="#0080ff")
-upper_frame.place(relwidth=0.75, relheight=0.23, relx=0.5, rely=0.18, anchor="center")
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.5, relheight=0.3, relx=0.5, rely=0.19, anchor="center")
 
-enter_num_lbl = tk.Label(upper_frame, text="Enter a number:", font="consolas", bg="#0080ff")
-enter_base_lbl = tk.Label(upper_frame, text="Enter its base:", font="consolas", bg="#0080ff")
-enter_num_lbl.place(relwidth=0.5, relheight=0.27, relx=0.2, rely=0.28, anchor="center")
-enter_base_lbl.place(relwidth=0.5, relheight=0.27, relx=0.2, rely=0.72, anchor="center")
+enter_num_lbl = tk.Label(frame, text="Enter a number:", font="consolas", bg="#0080ff")
+enter_base_lbl = tk.Label(frame, text="Enter its base:", font="consolas", bg="#0080ff")
+enter_num_lbl.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.14, anchor="center")
+enter_base_lbl.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.59, anchor="center")
 
-num_entry = tk.Entry(upper_frame, font="consolas", justify="center")
-base_entry = tk.Entry(upper_frame, font="consolas", justify="center")
-num_entry.place(relwidth=0.3, relheight=0.27, relx=0.5, rely=0.28, anchor="center")
-base_entry.place(relwidth=0.3, relheight=0.27, relx=0.5, rely=0.72, anchor="center")
+sv_num = tk.StringVar(value="2000")
+sv_from_base = tk.StringVar(value="10")
+sv_num.trace_add(mode="write", callback=convert)
+sv_from_base.trace_add(mode="write", callback=convert)
 
-button = tk.Button(upper_frame, text="Convert to\nother bases", font="consolas", command=lambda: convert(num_entry.get().lower(), int(base_entry.get())))
-button.place(relwidth=0.25, relheight=0.5, relx=0.81, rely=0.5, anchor="center")
+num_entry = tk.Entry(frame, textvariable=sv_num, font="consolas", justify="center")
+base_entry = tk.Entry(frame, textvariable=sv_from_base,font="consolas", justify="center")
+num_entry.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.35, anchor="center")
+base_entry.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.8, anchor="center")
 
 output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
 output_txt.tag_configure("center", justify="center")
-output_txt.place(relwidth=0.9, relheight=0.57, relx=0.5, rely=0.65, anchor="center")
+output_txt.place(relwidth=0.9, relheight=0.57, relx=0.5, rely=0.66, anchor="center")
+
+convert()
 
 root.mainloop()

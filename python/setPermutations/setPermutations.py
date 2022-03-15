@@ -8,8 +8,10 @@ import tkinter as tk
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def calculate(char_set):
-	global output_no_reps_txt, output_with_reps_txt
+def calculate(*args):
+	global sv, output_no_reps_txt, output_with_reps_txt
+
+	char_set = sv.get()
 
 	permutation_results = []
 	permutations(len(char_set), list(char_set), permutation_results)
@@ -65,33 +67,35 @@ def permutations_with_repetition_length_k(char_set, k, permutation_repetition_re
 
 root = tk.Tk()
 root.title("Permutations demo")
-root.configure(width=700, height=700, bg="#141414")
+root.configure(width=700, height=600, bg="#141414")
 root.eval("tk::PlaceWindow . center")
 
-upper_frame = tk.Frame(root, bg="#0080ff")
-upper_frame.place(relwidth=0.5, relheight=0.23, relx=0.5, rely=0.15, anchor="center")
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.5, relheight=0.12, relx=0.5, rely=0.1, anchor="center")
 
-enter_word_lbl = tk.Label(upper_frame, text="Enter a word:", font="consolas", bg="#0080ff")
-enter_word_lbl.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor="center")
+enter_word_lbl = tk.Label(frame, text="Enter a word:", font="consolas", bg="#0080ff")
+enter_word_lbl.place(relwidth=0.8, relheight=0.33, relx=0.5, rely=0.25, anchor="center")
 
-entry_box = tk.Entry(upper_frame, font="consolas", justify="center")
-entry_box.place(relwidth=0.5, relheight=0.16, relx=0.5, rely=0.37, anchor="center")
+sv = tk.StringVar(value="hello")
+sv.trace_add(mode="write", callback=calculate)
 
-button = tk.Button(upper_frame, text="Find\npermutations", font="consolas", command=lambda: calculate(entry_box.get().upper()))
-button.place(relwidth=0.4, relheight=0.35, relx=0.5, rely=0.7, anchor="center")
+entry_box = tk.Entry(frame, textvariable=sv, font="consolas", justify="center")
+entry_box.place(relwidth=0.5, relheight=0.37, relx=0.5, rely=0.62, anchor="center")
 
 result_no_reps_lbl = tk.Label(root, text="No repetition:", font="consolas", bg="#141414", fg="#dcdcdc")
-result_no_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.3, anchor="center")
+result_no_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.21, anchor="center")
 
 output_no_reps_txt = tk.Text(root, font="consolas", bg="#dcdcdc", state="disabled")
 output_no_reps_txt.tag_configure("center", justify="center")
-output_no_reps_txt.place(relwidth=0.9, relheight=0.29, relx=0.5, rely=0.47, anchor="center")
+output_no_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.4, anchor="center")
 
 result_with_reps_lbl = tk.Label(root, text="With repetition:", font="consolas", bg="#141414", fg="#dcdcdc")
-result_with_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.65, anchor="center")
+result_with_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.6, anchor="center")
 
 output_with_reps_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
 output_with_reps_txt.tag_configure("center", justify="center")
-output_with_reps_txt.place(relwidth=0.9, relheight=0.29, relx=0.5, rely=0.82, anchor="center")
+output_with_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.79, anchor="center")
+
+calculate()
 
 root.mainloop()

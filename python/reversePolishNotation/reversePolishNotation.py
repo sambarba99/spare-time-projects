@@ -78,16 +78,16 @@ root.title("Infix to RPN Converter")
 root.configure(width=400, height=500, bg="#141414")
 root.eval("tk::PlaceWindow . center")
 
-upper_frame = tk.Frame(root, bg="#0080ff")
-upper_frame.place(relwidth=0.9, relheight=0.27, relx=0.5, rely=0.18, anchor="center")
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.9, relheight=0.27, relx=0.5, rely=0.18, anchor="center")
 
-enter_exp_lbl = tk.Label(upper_frame, text="Enter an infix expression:", font="consolas", bg="#0080ff")
+enter_exp_lbl = tk.Label(frame, text="Enter an infix expression:", font="consolas", bg="#0080ff")
 enter_exp_lbl.place(relwidth=0.8, relheight=0.18, relx=0.5, rely=0.2, anchor="center")
 
-entry_box = tk.Entry(upper_frame, font="consolas", justify="center")
+entry_box = tk.Entry(frame, font="consolas", justify="center")
 entry_box.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.42, anchor="center")
 
-button = tk.Button(upper_frame, text="Convert", font="consolas", command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
+button = tk.Button(frame, text="Convert", font="consolas", command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
 button.place(relwidth=0.3, relheight=0.26, relx=0.5, rely=0.74, anchor="center")
 
 rpn_result_lbl = tk.Label(root, text="In RPN:", font="consolas", bg="#141414", fg="#dcdcdc")

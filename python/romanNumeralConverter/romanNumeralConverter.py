@@ -67,17 +67,17 @@ root.title("Roman Numeral Converter")
 root.configure(width=400, height=270, bg="#141414")
 root.eval("tk::PlaceWindow . center")
 
-upper_frame = tk.Frame(root, bg="#0080ff")
-upper_frame.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.38, anchor="center")
+frame = tk.Frame(root, bg="#0080ff")
+frame.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.38, anchor="center")
 
-enter_num_lbl = tk.Label(upper_frame, text="Enter a number or numerals:", font="consolas", bg="#0080ff")
+enter_num_lbl = tk.Label(frame, text="Enter a number or numerals:", font="consolas", bg="#0080ff")
 enter_num_lbl.place(relwidth=0.9, relheight=0.17, relx=0.5, rely=0.17, anchor="center")
 
-entry_box = tk.Entry(upper_frame, font="consolas", justify="center")
+entry_box = tk.Entry(frame, font="consolas", justify="center")
 entry_box.place(relwidth=0.8, relheight=0.17, relx=0.5, rely=0.36, anchor="center")
 
-btn_int_to_numerals = tk.Button(upper_frame, text="Convert to\nnumerals", font="consolas", command=lambda: int_to_numerals(int(entry_box.get())))
-btn_numerals_to_int = tk.Button(upper_frame, text="Convert to\ninteger", font="consolas", command=lambda: numerals_to_int(entry_box.get().upper()))
+btn_int_to_numerals = tk.Button(frame, text="Convert to\nnumerals", font="consolas", command=lambda: int_to_numerals(int(entry_box.get())))
+btn_numerals_to_int = tk.Button(frame, text="Convert to\ninteger", font="consolas", command=lambda: numerals_to_int(entry_box.get().upper()))
 btn_int_to_numerals.place(relwidth=0.38, relheight=0.35, relx=0.3, rely=0.73, anchor="center")
 btn_numerals_to_int.place(relwidth=0.38, relheight=0.35, relx=0.7, rely=0.73, anchor="center")
 

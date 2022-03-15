@@ -157,20 +157,20 @@ class Agent:
 			trajectory.reverse()
 			g = 0
 			for idx, step in enumerate(trajectory):
-				state, action, reward = step
-				g = self.gamma * g + reward
+				state_s, action_s, reward_s = step
+				g = self.gamma * g + reward_s
 
 				# First visit check
 				check_list = [(state, action) for state, action, _ in trajectory[idx + 1:]]
-				if (state, action) not in check_list:
-					# Update with any new states
-					if state not in rewards:
-						rewards[state] = {a: [] for a in self.env.actions}
-					if state not in self.q_table:
-						self.q_table[state] = np.zeros(4)
+				if (state_s, action_s) not in check_list:
+					# Update with any new states/actions
+					if state_s not in rewards:
+						rewards[state_s] = {}
+					if action_s not in rewards[state_s]:
+						rewards[state_s][action_s] = []
 
-					rewards[state][action].append(g)
-					self.q_table[state][action] = np.mean(rewards[state][action])
+					rewards[state_s][action_s].append(g)
+					self.q_table[state_s][action_s] = np.mean(rewards[state_s][action_s])
 
 		self.__render_q_table(print_table=True)
 
@@ -180,10 +180,9 @@ class Agent:
 		for _ in range(num_training_episodes):
 			state = self.env.start
 			terminal = False
-			if state not in self.q_table:
+			if state not in self.q_table:  # Update with start state
 				self.q_table[state] = np.zeros(4)
 
-			# Choose action from current state, derived from Q-table (in this case epsilon-greedy)
 			action = self.__choose_action_epsilon_greedy(state)
 
 			while not terminal:
@@ -194,10 +193,7 @@ class Agent:
 
 				new_action = self.__choose_action_epsilon_greedy(new_state)
 
-				# Calculate new Q-value estimate of current state-action pair
-				current_q = self.q_table[state][action]
-				new_q = current_q + self.alpha * (reward + self.gamma * self.q_table[new_state][new_action] - current_q)
-				self.q_table[state][action] = new_q
+				self.q_table[state][action] += self.alpha * (reward + self.gamma * self.q_table[new_state][new_action] - self.q_table[state][action])
 
 				state, action = new_state, new_action
 
@@ -209,26 +205,19 @@ class Agent:
 		for _ in range(num_training_episodes):
 			state = self.env.start
 			terminal = False
+			if state not in self.q_table:  # Update with start state
+				self.q_table[state] = np.zeros(4)
 
 			while not terminal:
-				if state not in self.q_table:  # Update with any new states
-					self.q_table[state] = np.zeros(4)
-
-				# Choose action from current state, derived from Q-table (in this case epsilon-greedy)
 				action = self.__choose_action_epsilon_greedy(state)
 
-				# Observe new state and reward after taking chosen action
 				new_state, reward, terminal = self.env.step(state, action)
 
 				if new_state not in self.q_table:  # Update with any new states
 					self.q_table[new_state] = np.zeros(4)
 
-				# Calculate new Q-value estimate of current state-action pair
-				current_q = self.q_table[state][action]
-				new_q = current_q + self.alpha * (reward + self.gamma * max(self.q_table[new_state]) - current_q)
-				self.q_table[state][action] = new_q
+				self.q_table[state][action] += self.alpha * (reward + self.gamma * max(self.q_table[new_state]) - self.q_table[state][action])
 
-				# Move to new state
 				state = new_state
 
 		self.__render_q_table(print_table=True)

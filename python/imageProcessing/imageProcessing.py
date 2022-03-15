@@ -18,7 +18,7 @@ selected_img = None
 # ---------------------------------------------------------------------------------------------------- #
 
 def select_img(img):
-	global selected_img, btn_to_binary_img
+	global selected_img
 
 	selected_img = img
 	plt.imshow(selected_img)
