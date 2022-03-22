@@ -7,12 +7,12 @@ import pygame as pg
 import sys
 
 # Below are rules that generate interesting geometry
-# A,B: Move forward
-# +: Turn clockwise
-# -: Turn anti-clockwise
-# <: Decrease step size
-# [: Save current state
-# ]: Return to last saved state
+# A,B: move forward
+# +: turn clockwise
+# -: turn anti-clockwise
+# <: decrease step size
+# [: save current state
+# ]: return to last saved state
 # Other characters are ignored (simply placeholders)
 
 BINARY_TREE = {"ruleset": {"axiom": "A0", "0": "<[+A0]-A0"},
@@ -127,7 +127,7 @@ def execute_instructions(instructions, turn_angle, start_heading):
 	wait_for_click()
 
 def scale_and_centre_image(coords):
-	# Calculate scale factor k: Image must fill 85% of either screen's width or height,
+	# Calculate scale factor k: image must fill 85% of either screen's width or height,
 	# depending on if the image is wider than it is tall or vice-versa
 
 	coords = np.array(coords).astype(float)

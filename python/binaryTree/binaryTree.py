@@ -162,7 +162,7 @@ class Tree:
 # ---------------------------------------------------------------------------------------------------- #
 
 def make_random_binary_tree():
-	with open("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\peopleNames.txt", "r") as file:
+	with open("peopleNames.txt", "r") as file:
 		names = file.readlines()
 
 	names = [name.strip("\n") for name in names]

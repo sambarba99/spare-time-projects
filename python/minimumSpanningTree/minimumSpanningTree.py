@@ -2,8 +2,8 @@
 # Author: Sam Barba
 # Created 17/09/2021
 
-# Left-click: Add a vertex
-# Right-click: Reset graph
+# Left-click: add a vertex
+# Right-click: reset graph
 
 import pygame as pg
 import random

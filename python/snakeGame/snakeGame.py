@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 10/02/2022
 
-# WASD or arrow keys: Move snake around
+# WASD or arrow keys: move snake around
 
 import pygame as pg
 import random

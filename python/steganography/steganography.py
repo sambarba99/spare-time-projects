@@ -79,7 +79,7 @@ def get_message_from_image(steg_img):
 
 	return "".join(msg[:100]) + " (...)"
 
-# Set idx:th bit of number 'n' to 'b'
+# Set (idx)th bit of number 'n' to 'b'
 def set_bit(n, idx, b):
 	mask = 1 << idx
 	n &= ~mask

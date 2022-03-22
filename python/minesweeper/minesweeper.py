@@ -124,7 +124,7 @@ def setup_game():
 
 	status_text = f"Flags left: {NUM_MINES - flags_used_total}"
 
-# Win if: All mines are correctly flagged; and all non-mine cells are revealed
+# Win if: all mines are correctly flagged; and all non-mine cells are revealed
 def check_win():
 	global status_text
 

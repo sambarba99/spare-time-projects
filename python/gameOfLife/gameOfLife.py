@@ -2,10 +2,10 @@
 # Author: Sam Barba
 # Created 21/09/2021
 
-# 1: Preset pattern 1 (glider gun)
-# 2: Preset pattern 2 (R pentomino)
-# R: Reset and randomise
-# Space: Play/pause
+# 1: preset pattern 1 (glider gun)
+# 2: preset pattern 2 (R pentomino)
+# R: reset and randomise
+# Space: play/pause
 
 import pygame as pg
 import random

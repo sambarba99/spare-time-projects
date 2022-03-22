@@ -2,10 +2,10 @@
 # Author: Sam Barba
 # Created 11/03/2022
 
-# 1/2/3: Toggle separation/alignment/cohesion
+# 1/2/3: toggle separation/alignment/cohesion
 # Q/W: +/- perception radius
 # A/S: +/- max steering force
-# R: Reset parameter values
+# R: reset parameter values
 
 from boid import Boid
 import numpy as np

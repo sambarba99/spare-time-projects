@@ -2,11 +2,11 @@
 # Author: Sam Barba
 # Created 22/09/2021
 
-# Click: Select point to set as origin (0,0)
-# C: Centre image around origin (0,0)
-# Num keys 2,4,8,0: Magnify around origin by 2/4/8/100 times, respectively
-# T: Toggle axes
-# R: Reset
+# Click: select point to set as origin (0,0)
+# C: centre image around origin (0,0)
+# Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
+# T: toggle axes
+# R: reset
 
 from math import log
 import pygame as pg
@@ -20,7 +20,7 @@ RGB_PALETTE = [(0, 20, 100), (30, 100, 200), (230, 255, 255), (255, 170, 0)]
 # Set to true if drawing Mandelbrot set
 mandelbrot_set = True
 
-# Or, change these a,b values: A complex number c is defined as c = a + bi.
+# Or, change these a,b values: a complex number c is defined as c = a + bi.
 # For a given c, the Julia set is the set of all complex z for which the iteration z = z^2 + c does not diverge.
 # For almost all values of c, these sets are fractals.
 # Interesting a,b pairs:

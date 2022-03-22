@@ -58,7 +58,7 @@ def initialise():
 	temperature = 10 * NUM_TOWNS  # Arbitrary start temperature
 
 # Generate a new candidate based on an existing candidate. First, a segment is chosen from the existing
-# candidate, then a 'coin' is flipped to choose either 'reverse' or 'shift': If reverse comes up, an
+# candidate, then a 'coin' is flipped to choose either 'reverse' or 'shift': if reverse comes up, an
 # alternative path is generated in which the towns in the chosen segment are reversed in order of visit.
 # If shift, the segment is clipped out of its current position in the path and spliced in at a randomly
 # chosen point in the remainder of the path.

@@ -2,9 +2,9 @@
 # Author: Sam Barba
 # Created 08/03/2022
 
-# WASD: Move around
-# T: Toggle POV/bird's-eye view
-# R: Reset
+# WASD: move around
+# T: toggle POV/bird's-eye view
+# R: reset
 
 import numpy as np
 import pygame as pg
@@ -98,8 +98,8 @@ def draw_pov_mode():
 
 	wall_segment_width = WIDTH // len(rays)
 
-	ray_lengths = [r["length"] for r in rays if r["length"]]
-	longest = max(ray_lengths) if ray_lengths else RAY_MAX_LENGTH
+	ray_lengths = [r["length"] for r in rays]
+	longest = max(ray_lengths)
 
 	for idx, r in enumerate(rays):
 		d = r["length"]
