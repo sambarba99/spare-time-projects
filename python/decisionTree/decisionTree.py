@@ -5,6 +5,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+feature_names = None
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -57,7 +59,8 @@ def find_best_split(x, y):
 			right_indices = np.where(x[:,i] > split_threshold)
 			left = y[left_indices]
 			right = y[right_indices]
-			info_gain = parent_entropy - len(left) / len(y) * calculate_entropy(left) - len(right) / len(y) * calculate_entropy(right)
+			info_gain = parent_entropy - len(left) / len(y) * calculate_entropy(left) \
+				- len(right) / len(y) * calculate_entropy(right)
 
 			if info_gain > best["infoGain"]:
 				best = {"feature": i,
@@ -159,43 +162,49 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-choice = input("Enter B to use breast tumour dataset,"
-	+ "\nI for iris dataset,"
-	+ "\nP for pulsar dataset,"
-	+ "\nT for Titanic dataset,"
-	+ "\nor W for wine dataset: ").upper()
-print()
+def main():
+	global feature_names
 
-if choice == "B":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-	classes = ["malignant", "benign"]
-elif choice == "I":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
-	classes = ["setosa", "versicolor", "virginica"]
-elif choice == "P":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-	classes = ["not pulsar", "pulsar"]
-elif choice == "T":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-	classes = ["did not survive", "survived"]
-else:
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
-	classes = ["class 0", "class 1", "class 2"]
+	choice = input("Enter B to use breast tumour dataset,"
+		+ "\nI for iris dataset,"
+		+ "\nP for pulsar dataset,"
+		+ "\nT for Titanic dataset,"
+		+ "\nor W for wine dataset: ").upper()
+	print()
 
-feature_names, x_train, y_train, x_test, y_test = extract_data(path)
+	if choice == "B":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
+		classes = ["malignant", "benign"]
+	elif choice == "I":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
+		classes = ["setosa", "versicolor", "virginica"]
+	elif choice == "P":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
+		classes = ["not pulsar", "pulsar"]
+	elif choice == "T":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
+		classes = ["did not survive", "survived"]
+	else:
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
+		classes = ["class 0", "class 1", "class 2"]
 
-tree, depth = make_best_tree(x_train, y_train, x_test, y_test)
+	feature_names, x_train, y_train, x_test, y_test = extract_data(path)
 
-print(f"\nOptimal tree (depth {depth}):\n")
+	tree, depth = make_best_tree(x_train, y_train, x_test, y_test)
 
-print_tree(tree, classes)
+	print(f"\nOptimal tree (depth {depth}):\n")
 
-# Plot confusion matrices
+	print_tree(tree, classes)
 
-train_predictions = [predict(tree, i) for i in x_train]
-test_predictions = [predict(tree, i) for i in x_test]
-train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	# Plot confusion matrices
 
-plot_matrix(True, train_conf_mat, train_acc)
-plot_matrix(False, test_conf_mat, test_acc)
+	train_predictions = [predict(tree, i) for i in x_train]
+	test_predictions = [predict(tree, i) for i in x_test]
+	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+
+	plot_matrix(True, train_conf_mat, train_acc)
+	plot_matrix(False, test_conf_mat, test_acc)
+
+if __name__ == "__main__":
+	main()

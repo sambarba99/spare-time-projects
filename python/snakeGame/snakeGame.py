@@ -87,7 +87,8 @@ def draw_grid():
 		pg.draw.rect(scene, tail_colour, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 	# Draw food
-	pg.draw.rect(scene, (255, 128, 0), pg.Rect(food_pos[0] * CELL_SIZE, food_pos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	pg.draw.rect(scene, (255, 128, 0), pg.Rect(food_pos[0] * CELL_SIZE, food_pos[1] * CELL_SIZE,
+		CELL_SIZE, CELL_SIZE))
 
 	# Score label
 	score_lbl = font.render(f"Score: {score}", True, (220, 220, 220))
@@ -110,37 +111,38 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Snake Game")
-scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
-clock = pg.time.Clock()
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Snake Game")
+	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
+	clock = pg.time.Clock()
 
-setup()
+	setup()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.KEYDOWN:
-			if game_over:  # Press any key to reset
-				setup()
-			elif event.key in (pg.K_w, pg.K_UP) and heading != SOUTH:
-				heading = NORTH
-			elif event.key in (pg.K_s, pg.K_DOWN) and heading != NORTH:
-				heading = SOUTH
-			elif event.key in (pg.K_d, pg.K_RIGHT) and heading != WEST:
-				heading = EAST
-			elif event.key in (pg.K_a, pg.K_LEFT) and heading != EAST:
-				heading = WEST
-			break
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.KEYDOWN:
+				if game_over:  # Press any key to reset
+					setup()
+				elif event.key in (pg.K_w, pg.K_UP) and heading != SOUTH:
+					heading = NORTH
+				elif event.key in (pg.K_s, pg.K_DOWN) and heading != NORTH:
+					heading = SOUTH
+				elif event.key in (pg.K_d, pg.K_RIGHT) and heading != WEST:
+					heading = EAST
+				elif event.key in (pg.K_a, pg.K_LEFT) and heading != EAST:
+					heading = WEST
+				break
 
-	if not game_over:
-		draw_grid()
-		move_snake()
-		check_game_over()
-		check_eaten_food()
+		if not game_over:
+			draw_grid()
+			move_snake()
+			check_game_over()
+			check_eaten_food()
 
-		if game_over: draw_grid()  # Draw "GAME OVER" screen
+			if game_over: draw_grid()  # Draw "GAME OVER" screen
 
-	clock.tick(FPS)
+		clock.tick(FPS)

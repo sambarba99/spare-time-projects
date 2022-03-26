@@ -9,8 +9,6 @@ import tkinter as tk
 SIZE = 900
 GOLDEN_RATIO = (5 ** 0.5 - 1) / 2  # ~0.61803
 
-turn_ratio = None
-
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -41,26 +39,29 @@ def set_turn_ratio_and_draw(ratio=None):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Golden ratio visualiser")
-scene = pg.display.set_mode((SIZE, SIZE))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Golden ratio visualiser")
+	scene = pg.display.set_mode((SIZE, SIZE))
 
-root = tk.Tk()
-root.title("Golden Ratio Visualiser")
-root.configure(width=300, height=200, bg="#141414")
+	root = tk.Tk()
+	root.title("Golden Ratio Visualiser")
+	root.configure(width=300, height=200, bg="#141414")
 
-frame = tk.Frame(root, bg="#0080ff")
-frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
+	frame = tk.Frame(root, bg="#0080ff")
+	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
 
-select_ratio_lbl = tk.Label(frame, text="Select a turn ratio:", font="consolas", bg="#0080ff")
-select_ratio_lbl.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.18, anchor="center")
+	select_ratio_lbl = tk.Label(frame, text="Select a turn ratio:", font="consolas", bg="#0080ff")
+	select_ratio_lbl.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.18, anchor="center")
 
-slider = tk.Scale(frame, from_=0.5, to=1, resolution=0.001, orient="horizontal", font="consolas", command=lambda l: set_turn_ratio_and_draw())
-slider.place(relwidth=0.8, relheight=0.3, relx=0.5, rely=0.44, anchor="center")
+	slider = tk.Scale(frame, from_=0.5, to=1, resolution=0.001, orient="horizontal", font="consolas",
+		command=lambda l: set_turn_ratio_and_draw())
+	slider.place(relwidth=0.8, relheight=0.3, relx=0.5, rely=0.44, anchor="center")
 
-btn_set_to_golden_ratio = tk.Button(frame, text="Set to golden ratio", font="consolas", command=lambda: set_turn_ratio_and_draw(GOLDEN_RATIO))
-btn_set_to_golden_ratio.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.77, anchor="center")
+	btn_set_to_golden_ratio = tk.Button(frame, text="Set to golden ratio", font="consolas",
+		command=lambda: set_turn_ratio_and_draw(GOLDEN_RATIO))
+	btn_set_to_golden_ratio.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.77, anchor="center")
 
-set_turn_ratio_and_draw(0.5)
+	set_turn_ratio_and_draw(0.5)
 
-root.mainloop()
+	root.mainloop()

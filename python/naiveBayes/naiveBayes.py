@@ -54,35 +54,36 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-choice = input("Enter B to use breast tumour dataset,"
-	+ "\nI for iris dataset,"
-	+ "\nP for pulsar dataset,"
-	+ "\nT for Titanic dataset,"
-	+ "\nor W for wine dataset: ").upper()
+if __name__ == "__main__":
+	choice = input("Enter B to use breast tumour dataset,"
+		+ "\nI for iris dataset,"
+		+ "\nP for pulsar dataset,"
+		+ "\nT for Titanic dataset,"
+		+ "\nor W for wine dataset: ").upper()
 
-if choice == "B":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-elif choice == "I":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
-elif choice == "P":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-elif choice == "T":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-else:
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
+	if choice == "B":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
+	elif choice == "I":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
+	elif choice == "P":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
+	elif choice == "T":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
+	else:
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
 
-x_train, y_train, x_test, y_test = extract_data(path)
+	x_train, y_train, x_test, y_test = extract_data(path)
 
-clf = NaiveBayesClassifier()
-clf.fit(x_train, y_train)
-clf.train()
+	clf = NaiveBayesClassifier()
+	clf.fit(x_train, y_train)
+	clf.train()
 
-# Plot confusion matrices
+	# Plot confusion matrices
 
-train_predictions = [clf.predict(i) for i in x_train]
-test_predictions = [clf.predict(i) for i in x_test]
-train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	train_predictions = [clf.predict(i) for i in x_train]
+	test_predictions = [clf.predict(i) for i in x_test]
+	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
-plot_matrix(True, train_conf_mat, train_acc)
-plot_matrix(False, test_conf_mat, test_acc)
+	plot_matrix(True, train_conf_mat, train_acc)
+	plot_matrix(False, test_conf_mat, test_acc)

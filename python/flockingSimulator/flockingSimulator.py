@@ -40,7 +40,7 @@ do_separation = True
 do_alignment = True
 do_cohesion = True
 
-flock = None
+flock = scene = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -55,7 +55,7 @@ def generate_boids(n=50):
 	flock = [Boid(percep_radius, max_steering_force, WIDTH, HEIGHT) for _ in range(n)]
 
 def draw():
-	global flock
+	global flock, scene
 
 	scene.fill((20, 20, 20))
 
@@ -123,75 +123,82 @@ def get_slider_val(slider, min_val, max_val):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Flocking Simulator")
-scene = pg.display.set_mode((WIDTH, HEIGHT))
-clock = pg.time.Clock()
+def main():
+	global percep_radius_slider, max_steering_force_slider, max_vel_slider, scene, \
+		do_separation, do_alignment, do_cohesion
 
-generate_boids()
+	pg.init()
+	pg.display.set_caption("Flocking Simulator")
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
+	clock = pg.time.Clock()
 
-done = True
-key = None
+	generate_boids()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
+	done = True
+	key = None
 
-		elif event.type == pg.KEYDOWN:
-			done = False
-			key = event.key
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
 
-			if key == pg.K_r:  # Reset params (move sliders to centre)
-				do_separation = do_alignment = do_cohesion = True
+			elif event.type == pg.KEYDOWN:
+				done = False
+				key = event.key
 
-				percep_radius_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 - 7],
-					[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
-				max_steering_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
-					[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
-				max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
-					[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
-			elif key == pg.K_1:
-				do_separation = not do_separation
-			elif key == pg.K_2:
-				do_alignment = not do_alignment
-			elif key == pg.K_3:
-				do_cohesion = not do_cohesion
+				if key == pg.K_r:  # Reset params (move sliders to centre)
+					do_separation = do_alignment = do_cohesion = True
 
-		elif event.type == pg.KEYUP:
-			done = True
+					percep_radius_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 - 7],
+						[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
+					max_steering_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
+						[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
+					max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
+						[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
+				elif key == pg.K_1:
+					do_separation = not do_separation
+				elif key == pg.K_2:
+					do_alignment = not do_alignment
+				elif key == pg.K_3:
+					do_cohesion = not do_cohesion
 
-	if not done:
-		if key == pg.K_q:
-			if percep_radius_slider[0][0] > SLIDER_MIN_X:
-				percep_radius_slider[0][0] -= 1
-				percep_radius_slider[1][0] -= 1
-		if key == pg.K_w:
-			if percep_radius_slider[0][0] < SLIDER_MAX_X:
-				percep_radius_slider[0][0] += 1
-				percep_radius_slider[1][0] += 1
-		if key == pg.K_a:
-			if max_steering_force_slider[0][0] > SLIDER_MIN_X:
-				max_steering_force_slider[0][0] -= 1
-				max_steering_force_slider[1][0] -= 1
-		if key == pg.K_s:
-			if max_steering_force_slider[0][0] < SLIDER_MAX_X:
-				max_steering_force_slider[0][0] += 1
-				max_steering_force_slider[1][0] += 1
+			elif event.type == pg.KEYUP:
+				done = True
 
-		perception_radius = get_slider_val(percep_radius_slider, MIN_PERCEP_RADIUS, MAX_PERCEP_RADIUS)
-		max_steering_force = get_slider_val(max_steering_force_slider, MIN_STEERING_FORCE, MAX_STEERING_FORCE)
+		if not done:
+			if key == pg.K_q:
+				if percep_radius_slider[0][0] > SLIDER_MIN_X:
+					percep_radius_slider[0][0] -= 1
+					percep_radius_slider[1][0] -= 1
+			if key == pg.K_w:
+				if percep_radius_slider[0][0] < SLIDER_MAX_X:
+					percep_radius_slider[0][0] += 1
+					percep_radius_slider[1][0] += 1
+			if key == pg.K_a:
+				if max_steering_force_slider[0][0] > SLIDER_MIN_X:
+					max_steering_force_slider[0][0] -= 1
+					max_steering_force_slider[1][0] -= 1
+			if key == pg.K_s:
+				if max_steering_force_slider[0][0] < SLIDER_MAX_X:
+					max_steering_force_slider[0][0] += 1
+					max_steering_force_slider[1][0] += 1
+
+			perception_radius = get_slider_val(percep_radius_slider, MIN_PERCEP_RADIUS, MAX_PERCEP_RADIUS)
+			max_steering_force = get_slider_val(max_steering_force_slider, MIN_STEERING_FORCE, MAX_STEERING_FORCE)
+
+			for boid in flock:
+				boid.perception_radius = perception_radius
+				boid.max_steering_force = max_steering_force
 
 		for boid in flock:
-			boid.perception_radius = perception_radius
-			boid.max_steering_force = max_steering_force
+			boid.apply_behaviour(flock, do_separation, do_alignment, do_cohesion)
+		for boid in flock:
+			boid.update()
 
-	for boid in flock:
-		boid.apply_behaviour(flock, do_separation, do_alignment, do_cohesion)
-	for boid in flock:
-		boid.update()
+		draw()
 
-	draw()
+		clock.tick(FPS)
 
-	clock.tick(FPS)
+if __name__ == "__main__":
+	main()

@@ -136,7 +136,8 @@ def draw_grid():
 
 			colour = (220, 20, 20) if token == AI else (20, 120, 220)
 			cell_lbl = token_font.render(token, True, colour)
-			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
+			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
+				(y + 0.5) * CELL_SIZE + GRID_OFFSET))
 			scene.blit(cell_lbl, lbl_rect)
 
 	# Grid lines
@@ -150,30 +151,31 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Tic Tac Toe")
-scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Tic Tac Toe")
+	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
 
-draw_grid()
+	draw_grid()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
 
-		elif event.type == pg.MOUSEBUTTONDOWN:
-			if find_winner() is not None:  # Click to reset if game over
-				board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-				status_text = "Your turn! (Or 'A' to make AI go first)"
-				draw_grid()
-			else:
-				x, y = event.pos
-				handle_mouse_click(y, x)
-
-		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_a:  # Make AI play first
-				# If no moves have been played yet
-				if all(cell is None for row in board for cell in row):
-					make_best_ai_move()
+			elif event.type == pg.MOUSEBUTTONDOWN:
+				if find_winner() is not None:  # Click to reset if game over
+					board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+					status_text = "Your turn! (Or 'A' to make AI go first)"
 					draw_grid()
+				else:
+					x, y = event.pos
+					handle_mouse_click(y, x)
+
+			elif event.type == pg.KEYDOWN:
+				if event.key == pg.K_a:  # Make AI play first
+					# If no moves have been played yet
+					if all(cell is None for row in board for cell in row):
+						make_best_ai_move()
+						draw_grid()

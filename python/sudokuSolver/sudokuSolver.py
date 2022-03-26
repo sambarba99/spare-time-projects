@@ -99,7 +99,8 @@ def draw_grid(difficulty_lvl, solve_status):
 			else:
 				cell_lbl = cell_font.render(n, True, FOREGROUND)
 
-			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
+			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
+				(y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
 			scene.blit(cell_lbl, lbl_rect)
 
 	# Thin grid lines
@@ -127,22 +128,24 @@ def wait_for_click():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Sudoku Solver")
-scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Sudoku Solver")
+	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET,
+		BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
 
-# Game loop so pygame window doesn't close automatically
-while True:
-	for difficulty_lvl, config in PRESET_PUZZLES.items():
-		for idx, n in enumerate(config):
-			y, x = idx // BOARD_SIZE, idx % BOARD_SIZE
-			board[y][x] = int(n)
+	# Game loop so pygame window doesn't close automatically
+	while True:
+		for difficulty_lvl, config in PRESET_PUZZLES.items():
+			for idx, n in enumerate(config):
+				y, x = idx // BOARD_SIZE, idx % BOARD_SIZE
+				board[y][x] = int(n)
 
-		num_backtracks = 0
-		given_yx = [(y, x) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE) if board[y][x] != 0]
+			num_backtracks = 0
+			given_yx = [(y, x) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE) if board[y][x] != 0]
 
-		draw_grid(difficulty_lvl, "click to solve")
-		wait_for_click()
-		solve(difficulty_lvl)
-		draw_grid(difficulty_lvl, "solved! Click for next puzzle")
-		wait_for_click()
+			draw_grid(difficulty_lvl, "click to solve")
+			wait_for_click()
+			solve(difficulty_lvl)
+			draw_grid(difficulty_lvl, "solved! Click for next puzzle")
+			wait_for_click()

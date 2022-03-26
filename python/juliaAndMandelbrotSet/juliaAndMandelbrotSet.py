@@ -35,13 +35,14 @@ scale = 200
 x_axis = x_offset = WIDTH / 2
 y_axis = y_offset = HEIGHT / 2
 show_axes = True
+scene = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def draw():
-	global a, b
+	global a, b, scene
 
 	for x in range(WIDTH):
 		for y in range(HEIGHT):
@@ -106,56 +107,62 @@ def magnify(factor):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Julia/Mandelbrot Set")
-scene = pg.display.set_mode((WIDTH, HEIGHT))
+def main():
+	global scene, show_axes
 
-draw()
+	pg.init()
+	pg.display.set_caption("Julia/Mandelbrot Set")
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
+	draw()
 
-		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1:  # Left-click
-				print("Setting origin... ", end="")
-				x_axis, y_axis = event.pos
-				draw()
-				print("Done")
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
 
-		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_c:  # Centre image around origin
-				print("Centering image around origin... ", end="")
-				centre_around_origin()
-				draw()
-				print("Done")
+			elif event.type == pg.MOUSEBUTTONDOWN:
+				if event.button == 1:  # Left-click
+					print("Setting origin... ", end="")
+					x_axis, y_axis = event.pos
+					draw()
+					print("Done")
 
-			elif event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
-				if event.key == pg.K_0:
-					factor = 100
-				else:
-					# Subtract 48 to get magnification factor ('2' key id = 50)
-					factor = event.key - 48
+			elif event.type == pg.KEYDOWN:
+				if event.key == pg.K_c:  # Centre image around origin
+					print("Centering image around origin... ", end="")
+					centre_around_origin()
+					draw()
+					print("Done")
 
-				print(f"Magnifying by {factor}... ", end="")
-				magnify(factor)
-				centre_around_origin()
-				draw()
-				print("Done")
+				elif event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
+					if event.key == pg.K_0:
+						factor = 100
+					else:
+						# Subtract 48 to get magnification factor ('2' key id = 50)
+						factor = event.key - 48
 
-			elif event.key == pg.K_t:  # Toggle axes
-				print("Toggling axes... ", end="")
-				show_axes = not show_axes
-				draw()
-				print("Done")
+					print(f"Magnifying by {factor}... ", end="")
+					magnify(factor)
+					centre_around_origin()
+					draw()
+					print("Done")
 
-			elif event.key == pg.K_r:  # Reset
-				print("Resetting... ", end="")
-				scale = 200
-				x_axis = x_offset = WIDTH / 2
-				y_axis = y_offset = HEIGHT / 2
-				show_axes = True
-				draw()
-				print("Done")
+				elif event.key == pg.K_t:  # Toggle axes
+					print("Toggling axes... ", end="")
+					show_axes = not show_axes
+					draw()
+					print("Done")
+
+				elif event.key == pg.K_r:  # Reset
+					print("Resetting... ", end="")
+					scale = 200
+					x_axis = x_offset = WIDTH / 2
+					y_axis = y_offset = HEIGHT / 2
+					show_axes = True
+					draw()
+					print("Done")
+
+if __name__ == "__main__":
+	main()

@@ -41,12 +41,12 @@ def file_walk(path):
 			discovered_files.append(f"File inside: {f} ({file_size:.2f} {suffix})")
 		n += len(filenames)
 
-	end = perf_counter()
+	interval = perf_counter() - start
 
 	path_size, suffix = get_suffix(path_size)
 
 	path_size_output = f"{n} files in path (size = {path_size:.2f} {suffix})\n" \
-		f"Walked in {(1000 * (end - start)):.0f} ms"
+		f"Walked in {(1000 * interval):.0f} ms"
 
 	discovered_files_output_txt.configure(state="normal")
 	discovered_files_output_txt.delete("1.0", tk.END)
@@ -70,32 +70,33 @@ def get_suffix(path_size):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-root = tk.Tk()
-root.title("File Path Walker")
-root.configure(width=600, height=680, bg="#141414")
-root.eval("tk::PlaceWindow . center")
+if __name__ == "__main__":
+	root = tk.Tk()
+	root.title("File Path Walker")
+	root.configure(width=600, height=680, bg="#141414")
+	root.eval("tk::PlaceWindow . center")
 
-frame = tk.Frame(root, bg="#0080ff")
-frame.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.15, anchor="center")
+	frame = tk.Frame(root, bg="#0080ff")
+	frame.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.15, anchor="center")
 
-enter_path_lbl = tk.Label(frame, text="Enter a file path:", font="consolas", bg="#0080ff")
-enter_path_lbl.place(relwidth=0.9, relheight=0.18, relx=0.5, rely=0.22, anchor="center")
+	enter_path_lbl = tk.Label(frame, text="Enter a file path:", font="consolas", bg="#0080ff")
+	enter_path_lbl.place(relwidth=0.9, relheight=0.18, relx=0.5, rely=0.22, anchor="center")
 
-entry_box = tk.Entry(frame, font="consolas", justify="center")
-entry_box.place(relwidth=0.9, relheight=0.19, relx=0.5, rely=0.43, anchor="center")
-entry_box.insert(0, os.path.expanduser("~") + "\\Desktop")
+	entry_box = tk.Entry(frame, font="consolas", justify="center")
+	entry_box.place(relwidth=0.9, relheight=0.19, relx=0.5, rely=0.43, anchor="center")
+	entry_box.insert(0, os.path.expanduser("~") + "\\Desktop")
 
-button = tk.Button(frame, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
-button.place(relwidth=0.2, relheight=0.26, relx=0.5, rely=0.76, anchor="center")
+	button = tk.Button(frame, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
+	button.place(relwidth=0.2, relheight=0.26, relx=0.5, rely=0.76, anchor="center")
 
-discovered_files_lbl = tk.Label(root, text="Discovered files:", font="consolas", bg="#141414", fg="#dcdcdc")
-discovered_files_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.29, anchor="center")
+	discovered_files_lbl = tk.Label(root, text="Discovered files:", font="consolas", bg="#141414", fg="#dcdcdc")
+	discovered_files_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.29, anchor="center")
 
-discovered_files_output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
-discovered_files_output_txt.tag_configure("center", justify="center")
-discovered_files_output_txt.place(relwidth=0.9, relheight=0.48, relx=0.5, rely=0.55, anchor="center")
+	discovered_files_output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	discovered_files_output_txt.tag_configure("center", justify="center")
+	discovered_files_output_txt.place(relwidth=0.9, relheight=0.48, relx=0.5, rely=0.55, anchor="center")
 
-path_size_output_lbl = tk.Label(root, font="consolas", bg="#dcdcdc")
-path_size_output_lbl.place(relwidth=0.9, relheight=0.14, relx=0.5, rely=0.89, anchor="center")
+	path_size_output_lbl = tk.Label(root, font="consolas", bg="#dcdcdc")
+	path_size_output_lbl.place(relwidth=0.9, relheight=0.14, relx=0.5, rely=0.89, anchor="center")
 
-root.mainloop()
+	root.mainloop()

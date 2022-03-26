@@ -195,30 +195,31 @@ def make_balanced_bst(data, lo=0, hi=None):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-while True:
-	binary_tree = make_random_binary_tree()
-	while binary_tree.is_balanced():
+if __name__ == "__main__":
+	while True:
 		binary_tree = make_random_binary_tree()
+		while binary_tree.is_balanced():
+			binary_tree = make_random_binary_tree()
 
-	print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
-	print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
-	print("{:>21}:  {}".format("Is Binary Search Tree", binary_tree.is_bst()[0]))
-	print("{:>21}:  {}".format("Is balanced", binary_tree.is_balanced()), "\n")
+		print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
+		print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
+		print("{:>21}:  {}".format("Is Binary Search Tree", binary_tree.is_bst()[0]))
+		print("{:>21}:  {}".format("Is balanced", binary_tree.is_balanced()), "\n")
 
-	binary_tree.display()
+		binary_tree.display()
 
-	binary_tree = make_balanced_bst(binary_tree.list_data())
+		binary_tree = make_balanced_bst(binary_tree.list_data())
 
-	print("\n{:-^50}\n".format(" After balancing "))
-	print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
-	print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
-	print("{:>21}:  {}".format("In-order traversal", binary_tree.in_order_traversal()))
-	print("{:>21}:  {}".format("Pre-order traversal", binary_tree.pre_order_traversal()))
-	print("{:>21}:  {}".format("Post-order traversal", binary_tree.post_order_traversal()), "\n")
+		print("\n{:-^50}\n".format(" After balancing "))
+		print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
+		print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
+		print("{:>21}:  {}".format("In-order traversal", binary_tree.in_order_traversal()))
+		print("{:>21}:  {}".format("Pre-order traversal", binary_tree.pre_order_traversal()))
+		print("{:>21}:  {}".format("Post-order traversal", binary_tree.post_order_traversal()), "\n")
 
-	binary_tree.display()
+		binary_tree.display()
 
-	choice = input("\nEnter to continue or X to exit: ").upper()
-	if choice and choice[0] == 'X':
-		break
-	print()
+		choice = input("\nEnter to continue or X to exit: ").upper()
+		if choice and choice[0] == 'X':
+			break
+		print()

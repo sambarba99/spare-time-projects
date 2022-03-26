@@ -61,8 +61,10 @@ class GridEnv:
 		smallest_grid_q = biggest_grid_q = None
 		if final_q_table:
 			# Smallest and biggest best state-action values of grid
-			smallest_grid_q = min(max(action_vals) for state, action_vals in final_q_table.items() if not self.__is_terminal(state))
-			biggest_grid_q = max(max(action_vals) for state, action_vals in final_q_table.items() if not self.__is_terminal(state))
+			smallest_grid_q = min(max(action_vals) for state, action_vals in final_q_table.items()
+				if not self.__is_terminal(state))
+			biggest_grid_q = max(max(action_vals) for state, action_vals in final_q_table.items()
+				if not self.__is_terminal(state))
 
 		for y in range(self.size):
 			for x in range(self.size):

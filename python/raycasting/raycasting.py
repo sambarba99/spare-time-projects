@@ -23,6 +23,7 @@ walls = []
 player_x = WIDTH / 2
 player_y = HEIGHT / 2
 player_heading = 0
+scene = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -92,7 +93,7 @@ def find_intersection(ray, wall):
 	return None
 
 def draw_pov_mode():
-	global rays
+	global rays, scene
 
 	scene.fill((0, 0, 0))
 
@@ -118,7 +119,7 @@ def map_range(x, from_lo, from_hi, to_lo, to_hi):
 	return (x - from_lo) / (from_hi - from_lo) * (to_hi - to_lo) + to_lo
 
 def draw_birds_eye_mode():
-	global rays, walls
+	global rays, walls, scene
 
 	scene.fill((0, 0, 0))
 
@@ -134,60 +135,66 @@ def draw_birds_eye_mode():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Raycasting demo")
-scene = pg.display.set_mode((WIDTH, HEIGHT))
+def main():
+	global pov_mode, player_heading, player_x, player_y, scene
 
-generate_walls()
-generate_rays()
-draw_pov_mode()
+	pg.init()
+	pg.display.set_caption("Raycasting demo")
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
 
-done = True
-key = None
+	generate_walls()
+	generate_rays()
+	draw_pov_mode()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.KEYDOWN:
-			done = False
-			key = event.key
+	done = True
+	key = None
 
-			if event.key == pg.K_r:  # Reset
-				player_x = WIDTH / 2
-				player_y = HEIGHT / 2
-				player_heading = 0
-				generate_walls()
-			elif event.key == pg.K_t:  # Toggle view mode
-				pov_mode = not pov_mode
-		elif event.type == pg.KEYUP:
-			done = True
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.KEYDOWN:
+				done = False
+				key = event.key
 
-	if not done:
-		if key == pg.K_w:  # Move forwards
-			dx = 4 * np.cos(player_heading)
-			dy = 4 * np.sin(player_heading)
-			if 2 <= player_x + dx < WIDTH - 2 and 2 <= player_y + dy < HEIGHT - 2:
-				player_x += dx
-				player_y += dy
+				if event.key == pg.K_r:  # Reset
+					player_x = WIDTH / 2
+					player_y = HEIGHT / 2
+					player_heading = 0
+					generate_walls()
+				elif event.key == pg.K_t:  # Toggle view mode
+					pov_mode = not pov_mode
+			elif event.type == pg.KEYUP:
+				done = True
 
-		elif key == pg.K_s:  # Move backwards
-			dx = 4 * np.cos(player_heading)
-			dy = 4 * np.sin(player_heading)
-			if 2 <= player_x - dx < WIDTH - 2 and 2 <= player_y - dy < HEIGHT - 2:
-				player_x -= dx
-				player_y -= dy
+		if not done:
+			if key == pg.K_w:  # Move forwards
+				dx = 4 * np.cos(player_heading)
+				dy = 4 * np.sin(player_heading)
+				if 2 <= player_x + dx < WIDTH - 2 and 2 <= player_y + dy < HEIGHT - 2:
+					player_x += dx
+					player_y += dy
 
-		elif key == pg.K_a:  # Turn left
-			player_heading -= np.deg2rad(1)
+			elif key == pg.K_s:  # Move backwards
+				dx = 4 * np.cos(player_heading)
+				dy = 4 * np.sin(player_heading)
+				if 2 <= player_x - dx < WIDTH - 2 and 2 <= player_y - dy < HEIGHT - 2:
+					player_x -= dx
+					player_y -= dy
 
-		elif key == pg.K_d:  # Turn right
-			player_heading += np.deg2rad(1)
+			elif key == pg.K_a:  # Turn left
+				player_heading -= np.deg2rad(1)
 
-		generate_rays()
+			elif key == pg.K_d:  # Turn right
+				player_heading += np.deg2rad(1)
 
-		if pov_mode:
-			draw_pov_mode()
-		else:
-			draw_birds_eye_mode()
+			generate_rays()
+
+			if pov_mode:
+				draw_pov_mode()
+			else:
+				draw_birds_eye_mode()
+
+if __name__ == "__main__":
+	main()

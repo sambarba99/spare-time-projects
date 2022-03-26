@@ -142,26 +142,26 @@ def test_function(sort_func, arr):
 	print("Sorting with {:.<28}".format("'" + sort_func.__name__ + "'"), end="")
 	start = perf_counter()
 	sort_func(arr)
-	end = perf_counter()
-	time_taken = (end - start) * 1000
-	print(f" done in {time_taken:.0f} ms")
+	interval = perf_counter() - start
+	print(f" done in {(1000 * interval):.0f} ms")
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-size = 10 ** 4
+if __name__ == "__main__":
+	size = 10 ** 4
 
-nums = [random.randrange(size) for _ in range(size)]
+	nums = [random.randrange(size) for _ in range(size)]
 
-test_function(sorted, nums[:])
-test_function(bubble_sort, nums[:])
-test_function(cocktail_shaker_sort, nums[:])
-test_function(comb_sort, nums[:])
-test_function(counting_sort, nums[:])
-test_function(insertion_sort, nums[:])
-test_function(merge_sort, nums[:])
-test_function(quicksort, nums[:])
-test_function(radix_sort, nums[:])
-test_function(selection_sort, nums[:])
-test_function(shell_sort, nums[:])
+	test_function(sorted, nums[:])
+	test_function(bubble_sort, nums[:])
+	test_function(cocktail_shaker_sort, nums[:])
+	test_function(comb_sort, nums[:])
+	test_function(counting_sort, nums[:])
+	test_function(insertion_sort, nums[:])
+	test_function(merge_sort, nums[:])
+	test_function(quicksort, nums[:])
+	test_function(radix_sort, nums[:])
+	test_function(selection_sort, nums[:])
+	test_function(shell_sort, nums[:])

@@ -2,30 +2,52 @@
 # Author: Sam Barba
 # Created 15/12/2021
 
+import pandas as pd
+
+DATA = {"CODE": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+	"DURATION": [120, 60, 15, 3, 3, 7, 7, 25, 60, 90],
+	"PREDECESSORS": [None, [0], [0], [1, 2], [1, 2], [3], [4], [2, 5], [2, 6, 7], [8]]}
+
+"""
+Task data (example: engineering project)
+| Task description | Code | Duration | Predecessors |
+|------------------+------+----------+--------------|
+|      Design      |  0   |   120    |     None     |
+|     Analysis     |  1   |    60    |      0       |
+|      Layout      |  2   |    15    |      0       |
+| Request material |  3   |    3     |     1,2      |
+|  Request parts   |  4   |    3     |     1,2      |
+| Receive material |  5   |    7     |      3       |
+|  Receive parts   |  6   |    7     |      4       |
+|   Fabrication    |  7   |    25    |     2,5      |
+|     Assembly     |  8   |    60    |    2,6,7     |
+|     Testing      |  9   |    90    |      8       |
+"""
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def forward_pass(data):
+def forward_pass(df):
 	# Early start, early finish
-	es = [0] * len(data["CODE"])
+	es = [0] * len(df["CODE"])
 	ef = es[:]
 
-	for idx, p in enumerate(data["PREDECESSORS"]):
+	for idx, p in enumerate(df["PREDECESSORS"]):
 		if p is not None:
 			es[idx] = max(ef[task_code] for task_code in p)
-		ef[idx] = es[idx] + data["DURATION"][idx]
+		ef[idx] = es[idx] + df["DURATION"][idx]
 
-	data["ES"] = es
-	data["EF"] = ef
+	df["ES"] = es
+	df["EF"] = ef
 
-def backward_pass(data):
+def backward_pass(df):
 	# Late start, late finish
-	ls = [0] * len(data["CODE"])
+	ls = [0] * len(df["CODE"])
 	lf = ls[:]
-	successors = [None] * len(data["CODE"])
+	successors = [None] * len(df["CODE"])
 
-	for idx, p in reversed(list(enumerate(data["PREDECESSORS"]))):
+	for idx, p in reversed(list(enumerate(df["PREDECESSORS"]))):
 		if p is not None:
 			for task_code in p:
 				if successors[task_code] is None:
@@ -33,77 +55,56 @@ def backward_pass(data):
 				else:
 					successors[task_code].append(idx)  # idx = data["CODE"][idx]
 
+	for idx, arr in enumerate(successors):
+		if arr is not None:
+			successors[idx] = sorted(arr)
+
 	for idx, s in reversed(list(enumerate(successors))):
 		if s is None:
-			lf[idx] = max(data["EF"])
+			lf[idx] = max(df["EF"])
 		else:
 			lf[idx] = min(ls[task_code] for task_code in s)
-		ls[idx] = lf[idx] - data["DURATION"][idx]
+		ls[idx] = lf[idx] - df["DURATION"][idx]
 
-	data["SUCCESSORS"] = successors
-	data["LS"] = ls
-	data["LF"] = lf
+	df["SUCCESSORS"] = successors
+	df["LS"] = ls
+	df["LF"] = lf
 
-def compute_slack(data):
-	slack = [ls - es for ls, es in zip(data["LS"], data["ES"])]
+def compute_slack(df):
+	slack = [ls - es for ls, es in zip(df["LS"], df["ES"])]
 	critical = ["YES" if s == 0 else "NO" for s in slack]
 
-	data["SLACK"] = slack
-	data["CRITICAL"] = critical
+	df["SLACK"] = slack
+	df["CRITICAL"] = critical
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Task data (example: engineering project)
-# | Task description | Code | Duration | Predecessors |
-# |------------------+------+----------+--------------|
-# |      Design      |  0   |   120    |     None     |
-# |     Analysis     |  1   |    60    |      0       |
-# |      Layout      |  2   |    15    |      0       |
-# | Request material |  3   |    3     |     1,2      |
-# |  Request parts   |  4   |    3     |     1,2      |
-# | Receive material |  5   |    7     |      3       |
-# |  Receive parts   |  6   |    7     |      4       |
-# |   Fabrication    |  7   |    25    |     2,5      |
-# |     Assembly     |  8   |    60    |    2,6,7     |
-# |     Testing      |  9   |    90    |      8       |
+def main():
+	pd.set_option("display.width", None)
+	df = pd.DataFrame(DATA)
 
-data = {"CODE": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-	"DURATION": [120, 60, 15, 3, 3, 7, 7, 25, 60, 90],
-	"PREDECESSORS": [None, [0], [0], [1, 2], [1, 2], [3], [4], [2, 5], [2, 6, 7], [8]]}
+	# 1. Compute CPA
 
-# 1. Compute CPA
+	forward_pass(df)
+	backward_pass(df)
+	compute_slack(df)
 
-forward_pass(data)
-backward_pass(data)
-compute_slack(data)
+	# 2. Print tabular data
+	print(df)
 
-# 2. Print data as table
+	# 3. Print critical path info
 
-for k in data:
-	print(f"{k:^12}", end="")
-print()
+	critical_path = []
+	critical_duration = 0
+	for idx, slack_value in enumerate(df["SLACK"]):
+		if slack_value == 0:
+			critical_path.append(idx)  # idx = data["CODE"][idx]
+			critical_duration += df["DURATION"][idx]
 
-for i in data["CODE"]:
-	for v in data.values():
-		if isinstance(v[i], list):
-			# Printing predecessors or successors
-			p = ",".join(str(n) for n in sorted(v[i]))
-		else:
-			# Convert to str in case v[i] is None
-			p = str(v[i])
-		print(f"{p:^12}", end="")
-	print()
+	print(f"\nCritical path: {critical_path}")
+	print(f"Critical duration: {critical_duration}")
 
-# 3. Print critical path info
-
-critical_path = []
-critical_duration = 0
-for idx, slack_value in enumerate(data["SLACK"]):
-	if slack_value == 0:
-		critical_path.append(idx)  # idx = data["CODE"][idx]
-		critical_duration += data["DURATION"][idx]
-
-print(f"\nCritical path: {critical_path}")
-print(f"Critical duration: {critical_duration}")
+if __name__ == "__main__":
+	main()

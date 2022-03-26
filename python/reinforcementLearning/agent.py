@@ -193,7 +193,8 @@ class Agent:
 
 				new_action = self.__choose_action_epsilon_greedy(new_state)
 
-				self.q_table[state][action] += self.alpha * (reward + self.gamma * self.q_table[new_state][new_action] - self.q_table[state][action])
+				self.q_table[state][action] += self.alpha * (reward + self.gamma *
+					self.q_table[new_state][new_action] - self.q_table[state][action])
 
 				state, action = new_state, new_action
 
@@ -216,7 +217,8 @@ class Agent:
 				if new_state not in self.q_table:  # Update with any new states
 					self.q_table[new_state] = np.zeros(4)
 
-				self.q_table[state][action] += self.alpha * (reward + self.gamma * max(self.q_table[new_state]) - self.q_table[state][action])
+				self.q_table[state][action] += self.alpha * (reward + self.gamma *
+					max(self.q_table[new_state]) - self.q_table[state][action])
 
 				state = new_state
 

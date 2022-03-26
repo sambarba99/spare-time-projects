@@ -14,33 +14,35 @@ class KMeans:
 		self.clusters = None
 		self.centroids = None
 
-	def predict(self, x, plot_steps=False):
+		fig = plt.figure(figsize=(8, 8))
+		self.ax = fig.add_subplot()
+
+	def predict(self, x):
 		self.x = x
 		self.num_samples = x.shape[0]
 		self.num_features = x.shape[1]
 
-		# Initially choose random centroids
-		indices = np.random.choice(self.num_samples, self.k, replace=False)
-		self.centroids = x[indices]
+		# Initially choose centroids randomly from x
+		self.centroids = self.x[np.random.choice(self.num_samples, size=self.k, replace=False)]
 
 		# Optimise clusters
 		while True:
 			# Create clusters by assigning samples to the closest centroids
 			self.clusters = self.__create_clusters()
 
-			if plot_steps: self.plot("Classified samples")
+			self.__plot("Classified samples")
 
 			# Calculate new centroids from the clusters
 			centroids_prev = self.centroids
 			self.centroids = self.__get_centroids()
 
-			# Stop if converged
+			# Stop if converged (no distance change since last time)
 			distances = [self.__euclidean_dist(cp, c) for cp, c in zip(centroids_prev, self.centroids)]
 			if sum(distances) == 0:
-				self.plot("Converged")
+				self.__plot("Converged")
 				break
 
-			if plot_steps: self.plot("Updated centroids")
+			self.__plot("Updated centroids")
 
 		# Classify samples as the index of their clusters
 		return self.__get_cluster_labels()
@@ -71,28 +73,27 @@ class KMeans:
 		labels = np.zeros(self.num_samples).astype(int)
 
 		for cluster_idx, cluster in enumerate(self.clusters):
-			labels[cluster] = cluster_idx
+			labels[cluster] = cluster_idx + 1
 
 		return labels
 
-	def plot(self, title):
-		plt.figure(figsize=(8, 8))
+	def __plot(self, title):
+		self.ax.clear()
 
 		for idx, c in enumerate(self.clusters):
-			plt.scatter(*self.x[c].T, alpha=0.7, label=f"Class {idx}")
+			self.ax.scatter(*self.x[c].T, alpha=0.7, label=f"Class {idx + 1}")
 
 		for point in self.centroids:
-			plt.scatter(*point, color="black", lw=3, marker="x", s=100)
+			self.ax.scatter(*point, color="black", linewidth=3, marker="x", s=100)
 
-		plt.legend()
-		plt.title(title)
+		self.ax.legend()
+		self.ax.set_title(title)
 		if title != "Converged":
 			plt.show(block=False)
-			plt.pause(2)
-			plt.close()
+			plt.pause(1)
 		else:
 			plt.show()
 
-	def __euclidean_dist(self, x1, x2):
+	def __euclidean_dist(self, p1, p2):
 		# Ignore square root for faster execution
-		return ((x1 - x2) ** 2).sum()
+		return ((p1 - p2) ** 2).sum()

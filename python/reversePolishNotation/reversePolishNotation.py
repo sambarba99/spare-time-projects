@@ -73,34 +73,35 @@ def evaluate_rpn(rpn_str):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-root = tk.Tk()
-root.title("Infix to RPN Converter")
-root.configure(width=400, height=500, bg="#141414")
-root.eval("tk::PlaceWindow . center")
+if __name__ == "__main__":
+	root = tk.Tk()
+	root.title("Infix to RPN Converter")
+	root.configure(width=400, height=500, bg="#141414")
+	root.eval("tk::PlaceWindow . center")
 
-frame = tk.Frame(root, bg="#0080ff")
-frame.place(relwidth=0.9, relheight=0.27, relx=0.5, rely=0.18, anchor="center")
+	frame = tk.Frame(root, bg="#0080ff")
+	frame.place(relwidth=0.9, relheight=0.27, relx=0.5, rely=0.18, anchor="center")
 
-enter_exp_lbl = tk.Label(frame, text="Enter an infix expression:", font="consolas", bg="#0080ff")
-enter_exp_lbl.place(relwidth=0.8, relheight=0.18, relx=0.5, rely=0.2, anchor="center")
+	enter_exp_lbl = tk.Label(frame, text="Enter an infix expression:", font="consolas", bg="#0080ff")
+	enter_exp_lbl.place(relwidth=0.8, relheight=0.18, relx=0.5, rely=0.2, anchor="center")
 
-entry_box = tk.Entry(frame, font="consolas", justify="center")
-entry_box.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.42, anchor="center")
+	entry_box = tk.Entry(frame, font="consolas", justify="center")
+	entry_box.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.42, anchor="center")
 
-button = tk.Button(frame, text="Convert", font="consolas", command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
-button.place(relwidth=0.3, relheight=0.26, relx=0.5, rely=0.74, anchor="center")
+	button = tk.Button(frame, text="Convert", font="consolas", command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
+	button.place(relwidth=0.3, relheight=0.26, relx=0.5, rely=0.74, anchor="center")
 
-rpn_result_lbl = tk.Label(root, text="In RPN:", font="consolas", bg="#141414", fg="#dcdcdc")
-rpn_result_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.36, anchor="center")
+	rpn_result_lbl = tk.Label(root, text="In RPN:", font="consolas", bg="#141414", fg="#dcdcdc")
+	rpn_result_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.36, anchor="center")
 
-output_rpn = tk.Label(root, font="consolas", bg="#dcdcdc")
-output_rpn.place(relwidth=0.9, relheight=0.06, relx=0.5, rely=0.42, anchor="center")
+	output_rpn = tk.Label(root, font="consolas", bg="#dcdcdc")
+	output_rpn.place(relwidth=0.9, relheight=0.06, relx=0.5, rely=0.42, anchor="center")
 
-evaluation_lbl = tk.Label(root, text="Evaluation:", font="consolas", bg="#141414", fg="#dcdcdc")
-evaluation_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.48, anchor="center")
+	evaluation_lbl = tk.Label(root, text="Evaluation:", font="consolas", bg="#141414", fg="#dcdcdc")
+	evaluation_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.48, anchor="center")
 
-output_num = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
-output_num.tag_configure("center", justify="center")
-output_num.place(relwidth=0.9, relheight=0.44, relx=0.5, rely=0.73, anchor="center")
+	output_num = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	output_num.tag_configure("center", justify="center")
+	output_num.place(relwidth=0.9, relheight=0.44, relx=0.5, rely=0.73, anchor="center")
 
-root.mainloop()
+	root.mainloop()

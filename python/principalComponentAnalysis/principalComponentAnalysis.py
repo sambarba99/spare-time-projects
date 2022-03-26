@@ -10,43 +10,45 @@ from pca import PCA
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-choice = input("Enter B to use breast tumour dataset,"
-	+ "\nI for iris dataset,"
-	+ "\nP for pulsar dataset,"
-	+ "\nT for Titanic dataset,"
-	+ "\nor W for wine dataset: ").upper()
+if __name__ == "__main__":
+	choice = input("Enter B to use breast tumour dataset,"
+		+ "\nI for iris dataset,"
+		+ "\nP for pulsar dataset,"
+		+ "\nT for Titanic dataset,"
+		+ "\nor W for wine dataset: ").upper()
 
-if choice == "B":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-	classes = ["malignant", "benign"]
-elif choice == "I":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
-	classes = ["setosa", "versicolor", "virginica"]
-elif choice == "P":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-	classes = ["not pulsar", "pulsar"]
-elif choice == "T":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-	classes = ["did not survive", "survived"]
-else:
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
-	classes = ["class 0", "class 1", "class 2"]
+	if choice == "B":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
+		classes = ["malignant", "benign"]
+	elif choice == "I":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
+		classes = ["setosa", "versicolor", "virginica"]
+	elif choice == "P":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
+		classes = ["not pulsar", "pulsar"]
+	elif choice == "T":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
+		classes = ["did not survive", "survived"]
+	else:
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
+		classes = ["class 0", "class 1", "class 2"]
 
-data = np.genfromtxt(path, dtype=str, delimiter="\n")
-# Skip header and convert to floats
-data = [row.split() for row in data[1:]]
-data = np.array(data).astype(float)
+	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	# Skip header and convert to floats
+	data = [row.split() for row in data[1:]]
+	data = np.array(data).astype(float)
 
-x, y = data[:,:-1], data[:,-1].astype(int)
+	x, y = data[:,:-1], data[:,-1].astype(int)
 
-pca = PCA()
-x_transform, new_variability = pca.transform(x)
+	pca = PCA()
+	x_transform, new_variability = pca.transform(x)
 
-plt.figure(figsize=(8, 8))
-for idx, class_label in enumerate(np.unique(y)):
-	plt.scatter(*x_transform[y == class_label].T, alpha=0.7, label=classes[idx])
-plt.xlabel("Principal component 1")
-plt.ylabel("Principal component 2")
-plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}\nCaptured variability: {new_variability:.3f}")
-plt.legend()
-plt.show()
+	plt.figure(figsize=(8, 8))
+	for idx, class_label in enumerate(np.unique(y)):
+		plt.scatter(*x_transform[y == class_label].T, alpha=0.7, label=classes[idx])
+	plt.xlabel("Principal component 1")
+	plt.ylabel("Principal component 2")
+	plt.title(f"Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}"
+		f"\nCaptured variability: {new_variability:.3f}")
+	plt.legend()
+	plt.show()

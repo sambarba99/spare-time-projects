@@ -184,23 +184,24 @@ def wait_for_click():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Drawing with L-systems")
-scene = pg.display.set_mode((WIDTH, HEIGHT))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Drawing with L-systems")
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
 
-# Draw each fractal, each from iteration 0 to its max (i.e. computer won't crash) iteration
+	# Draw each fractal, each from iteration 0 to its max (i.e. computer won't crash) iteration
 
-for fractal in [BINARY_TREE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE, KOCH_ISLAND,
-	PENTAPLEXITY, TRIANGLES, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE, DRAGON_CURVE,
-	ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3, ASYMMETRIC_TREE_4]:
+	for fractal in [BINARY_TREE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE, KOCH_ISLAND,
+		PENTAPLEXITY, TRIANGLES, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE, DRAGON_CURVE,
+		ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3, ASYMMETRIC_TREE_4]:
 
-	fractal_name = fractal["name"]
-	ruleset = fractal["ruleset"]
-	max_iters = fractal["max-iters"]
-	turn_angle = fractal["turn-angle"]
-	start_heading = fractal["start-heading"]
+		fractal_name = fractal["name"]
+		ruleset = fractal["ruleset"]
+		max_iters = fractal["max-iters"]
+		turn_angle = fractal["turn-angle"]
+		start_heading = fractal["start-heading"]
 
-	for i in range(max_iters + 1):
-		name_lbl_text = f"{fractal_name} ({i} iterations)"
-		instructions = generate_instructions(ruleset, i)
-		execute_instructions(instructions, turn_angle, start_heading)
+		for i in range(max_iters + 1):
+			name_lbl_text = f"{fractal_name} ({i} iterations)"
+			instructions = generate_instructions(ruleset, i)
+			execute_instructions(instructions, turn_angle, start_heading)

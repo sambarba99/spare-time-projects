@@ -75,7 +75,8 @@ def write_msg(msg, total_duration=0.5, press_enter_after=True):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-calculator_test()
-#facebook_messenger_test()
-#whatsapp_web_test()
-wolfram_alpha_test()
+if __name__ == "__main__":
+	calculator_test()
+	#facebook_messenger_test()
+	#whatsapp_web_test()
+	wolfram_alpha_test()

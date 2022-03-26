@@ -71,7 +71,8 @@ def draw_grid(solve_status):
 		for x in range(N):
 			if board[y][x] == QUEEN:
 				cell_lbl = cell_font.render("Q", True, (220, 150, 0))
-				lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
+				lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
+					(y + 0.5) * CELL_SIZE + GRID_OFFSET))
 				scene.blit(cell_lbl, lbl_rect)
 
 	# Grid lines
@@ -85,15 +86,16 @@ def draw_grid(solve_status):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("N Queens Solver")
-scene = pg.display.set_mode((N * CELL_SIZE + 2 * GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("N Queens Solver")
+	scene = pg.display.set_mode((N * CELL_SIZE + 2 * GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET))
 
-solved = solve()
-draw_grid("Solved!" if solved else "No solution")
+	solved = solve()
+	draw_grid("Solved!" if solved else "No solution")
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)

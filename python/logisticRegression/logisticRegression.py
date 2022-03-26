@@ -58,72 +58,76 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-choice = input("Enter B to use breast tumour dataset,"
-	+ "\nP for pulsar dataset,"
-	+ "\nor T for Titanic dataset: ").upper()
+def main():
+	choice = input("Enter B to use breast tumour dataset,"
+		+ "\nP for pulsar dataset,"
+		+ "\nor T for Titanic dataset: ").upper()
 
-if choice == "B":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-	classes = ["malignant", "benign"]
-elif choice == "P":
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-	classes = ["not pulsar", "pulsar"]
-else:
-	path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-	classes = ["did not survive", "survived"]
+	if choice == "B":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
+		classes = ["malignant", "benign"]
+	elif choice == "P":
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
+		classes = ["not pulsar", "pulsar"]
+	else:
+		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
+		classes = ["did not survive", "survived"]
 
-feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
+	feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
 
-regressor = LogisticRegressor()
-regressor.fit(x_train, y_train)
-regressor.train()
+	regressor = LogisticRegressor()
+	regressor.fit(x_train, y_train)
+	regressor.train()
 
-# Plot confusion matrices
+	# Plot confusion matrices
 
-train_conf_mat, train_acc = confusion_matrix(regressor.predict(x_train), y_train)
-test_conf_mat, test_acc = confusion_matrix(regressor.predict(x_test), y_test)
+	train_conf_mat, train_acc = confusion_matrix(regressor.predict(x_train), y_train)
+	test_conf_mat, test_acc = confusion_matrix(regressor.predict(x_test), y_test)
 
-plot_matrix(True, train_conf_mat, train_acc)
-plot_matrix(False, test_conf_mat, test_acc)
+	plot_matrix(True, train_conf_mat, train_acc)
+	plot_matrix(False, test_conf_mat, test_acc)
 
-# Plot regression line using 2 columns with the strongest correlation with y (class)
+	# Plot regression line using 2 columns with the strongest correlation with y (class)
 
-corr_coeffs = np.corrcoef(data.T)
-# Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
-corr_coeffs[-1,-1] = 0
+	corr_coeffs = np.corrcoef(data.T)
+	# Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
+	corr_coeffs[-1,-1] = 0
 
-# Indices of columns in descending order of correlation with y
-indices = np.argsort(np.abs(corr_coeffs[:, -1]))[::-1]
-# Keep 2 strongest
-indices = indices[:2]
-max_corr = corr_coeffs[indices, -1]
+	# Indices of columns in descending order of correlation with y
+	indices = np.argsort(np.abs(corr_coeffs[:, -1]))[::-1]
+	# Keep 2 strongest
+	indices = indices[:2]
+	max_corr = corr_coeffs[indices, -1]
 
-print(f"\nHighest (abs) correlation with y (class): {max_corr[0]}  (feature '{feature_names[indices[0]]}')")
-print(f"2nd highest (abs) correlation with y (class): {max_corr[1]}  (feature '{feature_names[indices[1]]}')")
+	print(f"\nHighest (abs) correlation with y (class): {max_corr[0]}  (feature '{feature_names[indices[0]]}')")
+	print(f"2nd highest (abs) correlation with y (class): {max_corr[1]}  (feature '{feature_names[indices[1]]}')")
 
-w1, w2 = regressor.weights[indices]
-m = -w1 / w2
-c = -regressor.bias / w2
-x_scatter = np.append(x_train[:, indices], x_test[:, indices], axis=0)
-y_scatter = np.append(y_train, y_test)
-x_plot = np.array([np.min(x_scatter, axis=0)[0], np.max(x_scatter, axis=0)[0]])
-y_plot = m * x_plot + c
-plt.figure(figsize=(8, 8))
-for idx, class_label in enumerate(np.unique(y_scatter)):
-	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=classes[idx])
-plt.plot(x_plot, y_plot, color="black", ls="--")
-plt.ylim(np.min(x_scatter) * 1.1, np.max(x_scatter) * 1.1)
-plt.xlabel(feature_names[indices[0]] + " (normalised)")
-plt.ylabel(feature_names[indices[1]] + " (normalised)")
-plt.title(f"Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}")
-plt.legend()
-plt.show()
+	w1, w2 = regressor.weights[indices]
+	m = -w1 / w2
+	c = -regressor.bias / w2
+	x_scatter = np.append(x_train[:, indices], x_test[:, indices], axis=0)
+	y_scatter = np.append(y_train, y_test)
+	x_plot = np.array([np.min(x_scatter, axis=0)[0], np.max(x_scatter, axis=0)[0]])
+	y_plot = m * x_plot + c
+	plt.figure(figsize=(8, 8))
+	for idx, class_label in enumerate(np.unique(y_scatter)):
+		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=classes[idx])
+	plt.plot(x_plot, y_plot, color="black", ls="--")
+	plt.ylim(np.min(x_scatter) * 1.1, np.max(x_scatter) * 1.1)
+	plt.xlabel(feature_names[indices[0]] + " (normalised)")
+	plt.ylabel(feature_names[indices[1]] + " (normalised)")
+	plt.title(f"Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}")
+	plt.legend()
+	plt.show()
 
-# Plot cost graph
+	# Plot cost graph
 
-plt.figure(figsize=(8, 6))
-plt.plot(regressor.cost_history, color="red")
-plt.xlabel("Training iteration")
-plt.ylabel("Cost")
-plt.title("Cost during training")
-plt.show()
+	plt.figure(figsize=(8, 6))
+	plt.plot(regressor.cost_history, color="red")
+	plt.xlabel("Training iteration")
+	plt.ylabel("Cost")
+	plt.title("Cost during training")
+	plt.show()
+
+if __name__ == "__main__":
+	main()

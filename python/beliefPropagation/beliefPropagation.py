@@ -4,6 +4,8 @@
 
 import numpy as np
 
+RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
+
 # Each dataset row is a fully observed coffee machine, with the state of every random variable.
 # These binary RVs are:
 
@@ -78,13 +80,15 @@ rvs = [(p_ne, "P(ne)", [nti["ne"]], "F"),
 	(p_me_gw_gh, "P(me|gw,gh)", [nti["me"], nti["gw"], nti["gh"]], "D"),
 	(p_he_me_fh, "P(he|me,fh)", [nti["he"], nti["me"], nti["fh"]], "D")]
 
-RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
+data = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def calculate_prob_distributions():
+	global data
+
 	for idx, rv in enumerate(rvs):
 		indices = rv[2]
 
@@ -208,78 +212,85 @@ def factor_to_rv_msg(src, dest, msgs):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# 1. Get machine data
+def main():
+	global data
 
-data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt", dtype=str, delimiter="\n")
-# Skip header and convert to ints
-data = [row.split() for row in data[1:]]
-data = np.array(data).astype(int)
+	# 1. Get machine data
 
-print("Data: {} exemplars, {} features".format(*data.shape))
-print("No. working machines:", data[:, nti["he"]].sum())  # Works only if 'he' is true ("makes hot espresso")
-print("No. broken machines:", len(data) - data[:, nti["he"]].sum())
+	data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt",
+		dtype=str, delimiter="\n")
+	# Skip header and convert to ints
+	data = [row.split() for row in data[1:]]
+	data = np.array(data).astype(int)
 
-# 2. Display RVs and their calculated probability distributions
+	print("Data: {} exemplars, {} features".format(*data.shape))
+	print("No. working machines:", data[:, nti["he"]].sum())  # Works only if 'he' is true ("makes hot espresso")
+	print("No. broken machines:", len(data) - data[:, nti["he"]].sum())
 
-calculate_prob_distributions()
+	# 2. Display RVs and their calculated probability distributions
 
-print("\nRVs:\n")
-for rv in rvs:
-	indices = rv[2]
+	calculate_prob_distributions()
 
-	if len(indices) == 1:
-		# Marginal
-		print(f"{rv[1]} = {rv[0]}")
-	else:
-		# Conditional
-		print(f"{rv[1]}:")
-		for bit_permutation in generate_bit_permutations(len(indices) - 1):
-			event_name = itn[indices[0]]
-			bits = ",".join([str(i) for i in bit_permutation[1:]])
-			conditionals = rv[0][bit_permutation]
-			print(f"    P({event_name}|{bits}) = {conditionals}")
+	print("\nRVs:\n")
+	for rv in rvs:
+		indices = rv[2]
 
-# 3. Display factor graph
+		if len(indices) == 1:
+			# Marginal
+			print(f"{rv[1]} = {rv[0]}")
+		else:
+			# Conditional
+			print(f"{rv[1]}:")
+			for bit_permutation in generate_bit_permutations(len(indices) - 1):
+				event_name = itn[indices[0]]
+				bits = ",".join([str(i) for i in bit_permutation[1:]])
+				conditionals = rv[0][bit_permutation]
+				print(f"    P({event_name}|{bits}) = {conditionals}")
 
-edges = calculate_edges()
-print(f"\nGenerated {len(edges)} factor graph edges:\n")
-for idx, e in enumerate(edges):
-	print(f"{e[0]} ({itn[e[0]]}) - {e[1]}", end="    ")
-	if (idx + 1) % 3 == 0:
-		print()
+	# 3. Display factor graph
 
-# 4. Display message order
+	edges = calculate_edges()
+	print(f"\nGenerated {len(edges)} factor graph edges:\n")
+	for idx, e in enumerate(edges):
+		print(f"{e[0]} ({itn[e[0]]}) - {e[1]}", end="    ")
+		if (idx + 1) % 3 == 0:
+			print()
 
-msg_order = calculate_message_order(edges)
-msg_order_str = ", ".join(str(m[0]) + "->" + str(m[1]) for m in msg_order)
-print(f"\nMessage order ({len(msg_order)} messages):\n\n{msg_order_str}")
+	# 4. Display message order
 
-# 5. Display marginals ("beliefs")
+	msg_order = calculate_message_order(edges)
+	msg_order_str = ", ".join(str(m[0]) + "->" + str(m[1]) for m in msg_order)
+	print(f"\nMessage order ({len(msg_order)} messages):\n\n{msg_order_str}")
 
-print("\nMarginals with no observations:\n")
-known = {}
-marginals = calculate_marginals(known, msg_order)
-for idx, m in enumerate(marginals):
-	print(f"P({itn[idx]}) = {m}")
+	# 5. Display marginals ("beliefs")
 
-print("\nMarginals if water reservoir empty:\n")
-known = {nti["wr"]: True}
-marginals = calculate_marginals(known, msg_order)
-for idx, m in enumerate(marginals):
-	print(f"P({itn[idx]}) = {m}")
-print()
+	print("\nMarginals with no observations:\n")
+	known = {}
+	marginals = calculate_marginals(known, msg_order)
+	for idx, m in enumerate(marginals):
+		print(f"P({itn[idx]}) = {m}")
 
-# 6. Test on some example machines
+	print("\nMarginals if water reservoir empty:\n")
+	known = {nti["wr"]: True}
+	marginals = calculate_marginals(known, msg_order)
+	for idx, m in enumerate(marginals):
+		print(f"P({itn[idx]}) = {m}")
+	print()
 
-machines = {"Machine A": {nti["me"]: True},
-	"Machine B": {nti["wv"]: False, nti["pl"]: True},
-	"Machine C": {nti["pa"]: False, nti["he"]: False},
-	"Machine D": {nti["pa"]: True, nti["wv"]: True, nti["vp"]: True}}
+	# 6. Test on some example machines
 
-for machine_name, observations in machines.items():
-	print(machine_name + ":")
-	for k, v in observations.items():
-		print(f"    {itn[k]}: {v}")
-	marginals = calculate_marginals(observations, msg_order)
-	idx = np.argmax(marginals[:7,1])  # Consider only the failure marginals (first 7 rows)
-	print(f"    Most likely issue = {itn[idx]}")
+	machines = {"Machine A": {nti["me"]: True},
+		"Machine B": {nti["wv"]: False, nti["pl"]: True},
+		"Machine C": {nti["pa"]: False, nti["he"]: False},
+		"Machine D": {nti["pa"]: True, nti["wv"]: True, nti["vp"]: True}}
+
+	for machine_name, observations in machines.items():
+		print(machine_name + ":")
+		for k, v in observations.items():
+			print(f"    {itn[k]}: {v}")
+		marginals = calculate_marginals(observations, msg_order)
+		idx = np.argmax(marginals[:7,1])  # Consider only the failure marginals (first 7 rows)
+		print(f"    Most likely issue = {itn[idx]}")
+
+if __name__ == "__main__":
+	main()

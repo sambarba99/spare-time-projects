@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from neuralnetworkclassifier import NeuralNetwork
 import numpy as np
 import pygame as pg
-import time
+from time import perf_counter
 
 DRAWING_SIZE = 500
 
@@ -17,8 +17,9 @@ DRAWING_SIZE = 500
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(path, train_test_ratio=0.5):
-	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+def extract_data(train_test_ratio=0.5):
+	data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt",
+		dtype=str, delimiter="\n")
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -73,104 +74,108 @@ def plot_matrix(is_training, conf_mat, accuracy):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-x_train, y_train, x_test, y_test = extract_data("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt")
+def main():
+	x_train, y_train, x_test, y_test = extract_data()
 
-clf = NeuralNetwork()
+	clf = NeuralNetwork()
 
-choice = input("Enter F to use file parameters or T to train network from scratch: ").upper()
+	choice = input("Enter F to use file parameters or T to train network from scratch: ").upper()
 
-if choice == "F":
-	with open("biasesAndWeights.txt", "r") as file:
-		params = file.read().split("\n---\n")
+	if choice == "F":
+		with open("biasesAndWeights.txt", "r") as file:
+			params = file.read().split("\n---\n")
 
-	hidden_bias = np.array(params[0].split("\n")).astype(float).reshape(-1, 1)
-	hidden_weights = np.array([line.split() for line in params[1].split("\n")]).astype(float)
-	output_bias = np.array(params[2].split("\n")).astype(float).reshape(-1, 1)
-	output_weights = np.array([line.split() for line in params[3].split("\n")]).astype(float)
+		hidden_bias = np.array(params[0].split("\n")).astype(float).reshape(-1, 1)
+		hidden_weights = np.array([line.split() for line in params[1].split("\n")]).astype(float)
+		output_bias = np.array(params[2].split("\n")).astype(float).reshape(-1, 1)
+		output_weights = np.array([line.split() for line in params[3].split("\n")]).astype(float)
 
-	clf.hidden_bias = hidden_bias
-	clf.hidden_weights = hidden_weights
-	clf.output_bias = output_bias
-	clf.output_weights = output_weights
-else:
-	clf.fit(x_train, y_train)
+		clf.hidden_bias = hidden_bias
+		clf.hidden_weights = hidden_weights
+		clf.output_bias = output_bias
+		clf.output_weights = output_weights
+	else:
+		clf.fit(x_train, y_train)
 
-	start = time.perf_counter()
-	clf.train()
-	end = time.perf_counter()
+		start = perf_counter()
+		clf.train()
+		interval = perf_counter() - start
 
-	s = ("\n".join(str(b) for b in clf.hidden_bias.flatten())
-		+ "\n---\n"
-		+ "\n".join((" ".join(str(i) for i in w)) for w in clf.hidden_weights)
-		+ "\n---\n"
-		+ "\n".join(str(b) for b in clf.output_bias.flatten())
-		+ "\n---\n"
-		+ "\n".join((" ".join(str(i) for i in w)) for w in clf.output_weights))
-	with open("biasesAndWeights.txt", "w") as file:
-		file.write(s)
+		s = ("\n".join(str(b) for b in clf.hidden_bias.flatten())
+			+ "\n---\n"
+			+ "\n".join((" ".join(str(i) for i in w)) for w in clf.hidden_weights)
+			+ "\n---\n"
+			+ "\n".join(str(b) for b in clf.output_bias.flatten())
+			+ "\n---\n"
+			+ "\n".join((" ".join(str(i) for i in w)) for w in clf.output_weights))
+		with open("biasesAndWeights.txt", "w") as file:
+			file.write(s)
 
-	print(f"Done in {(end - start):.3f}s. Saved biases and weights to file.")
+		print(f"Done in {interval:.3f}s. Saved biases and weights to file.")
 
-# Plot confusion matrices
+	# Plot confusion matrices
 
-train_predictions = [clf.predict(i) for i in x_train]
-test_predictions = [clf.predict(i) for i in x_test]
-train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	train_predictions = [clf.predict(i) for i in x_train]
+	test_predictions = [clf.predict(i) for i in x_test]
+	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
-plot_matrix(True, train_conf_mat, train_acc)
-plot_matrix(False, test_conf_mat, test_acc)
+	plot_matrix(True, train_conf_mat, train_acc)
+	plot_matrix(False, test_conf_mat, test_acc)
 
-# User draws a digit to predict
+	# User draws a digit to predict
 
-pg.init()
-pg.display.set_caption("Draw a digit!")
-scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
-user_coords = []
-drawing = True
-left_button_down = False
+	pg.init()
+	pg.display.set_caption("Draw a digit!")
+	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
+	user_coords = []
+	drawing = True
+	left_button_down = False
 
-while drawing:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			drawing = False
-			pg.quit()
-		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1:
-				left_button_down = True
-				x, y = event.pos
-				user_coords.append([x, y])
-				scene.set_at((x, y), (255, 255, 255))
-				pg.display.update()
-		elif event.type == pg.MOUSEMOTION:
-			if left_button_down:
-				x, y = event.pos
-				user_coords.append([x, y])
-				scene.set_at((x, y), (255, 255, 255))
-				pg.display.update()
-		elif event.type == pg.MOUSEBUTTONUP:
-			if event.button == 1:
-				left_button_down = False
+	while drawing:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				drawing = False
+				pg.quit()
+			elif event.type == pg.MOUSEBUTTONDOWN:
+				if event.button == 1:
+					left_button_down = True
+					x, y = event.pos
+					user_coords.append([x, y])
+					scene.set_at((x, y), (255, 255, 255))
+					pg.display.update()
+			elif event.type == pg.MOUSEMOTION:
+				if left_button_down:
+					x, y = event.pos
+					user_coords.append([x, y])
+					scene.set_at((x, y), (255, 255, 255))
+					pg.display.update()
+			elif event.type == pg.MOUSEBUTTONUP:
+				if event.button == 1:
+					left_button_down = False
 
-user_coords = np.array(user_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
-user_coords = np.unique(user_coords, axis=0)  # Keep unique pairs only
-drawn_digit = np.zeros((28, 28))
-drawn_digit[user_coords[:, 1], user_coords[:, 0]] = 1
-plt.figure(figsize=(4, 4))
-plt.imshow(drawn_digit, cmap="gray")
-plt.title("Drawn digit")
-plt.show()
-
-drawn_digit = drawn_digit.reshape(1, 784)[0].astype(int)
-pred_vector = clf.predict(drawn_digit)
-print(f"\nDrawn digit is: {np.argmax(pred_vector)}  ({(100 * np.max(pred_vector)):.1f}% sure)")
-
-# Plot loss graph
-
-if choice != "F":
-	plt.figure(figsize=(8, 6))
-	plt.plot(clf.loss, color="red")
-	plt.xlabel("Training iteration")
-	plt.ylabel("Mean loss")
-	plt.title("Loss")
+	user_coords = np.array(user_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
+	user_coords = np.unique(user_coords, axis=0)  # Keep unique pairs only
+	drawn_digit = np.zeros((28, 28))
+	drawn_digit[user_coords[:, 1], user_coords[:, 0]] = 1
+	plt.figure(figsize=(4, 4))
+	plt.imshow(drawn_digit, cmap="gray")
+	plt.title("Drawn digit")
 	plt.show()
+
+	drawn_digit = drawn_digit.reshape(1, 784)[0].astype(int)
+	pred_vector = clf.predict(drawn_digit)
+	print(f"\nDrawn digit is: {np.argmax(pred_vector)}  ({(100 * np.max(pred_vector)):.1f}% sure)")
+
+	# Plot loss graph
+
+	if choice != "F":
+		plt.figure(figsize=(8, 6))
+		plt.plot(clf.loss, color="red")
+		plt.xlabel("Training iteration")
+		plt.ylabel("Mean loss")
+		plt.title("Loss")
+		plt.show()
+
+if __name__ == "__main__":
+	main()

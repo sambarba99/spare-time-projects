@@ -31,7 +31,5 @@ class KNN:
 		return max(set(classes_of_nearest_k), key=classes_of_nearest_k.count)
 
 	def __euclidean_dist(self, x1, x2):
-		x1 = np.array(x1)
-		x2 = np.array(x2)
 		# Ignore square root for faster execution
-		return ((x1 - x2) ** 2).sum()
+		return ((np.array(x1) - np.array(x2)) ** 2).sum()

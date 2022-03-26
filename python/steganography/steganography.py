@@ -89,17 +89,18 @@ def set_bit(n, idx, b):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-msg = input("Enter message to hide: ")
-bin_msg = "".join([format(ord(c), "08b") for c in msg])
+if __name__ == "__main__":
+	msg = input("Enter message to hide: ")
+	bin_msg = "".join([format(ord(c), "08b") for c in msg])
 
-print("\nIn binary:", bin_msg)
+	print("\nIn binary:", bin_msg)
 
-steg_text = hide_message_in_text(bin_msg)
+	steg_text = hide_message_in_text(bin_msg)
 
-print("\nMessage hidden in text:", steg_text)
-print(f"\nReading hidden message from text:\n{get_message_from_text(steg_text)}")
+	print("\nMessage hidden in text:", steg_text)
+	print(f"\nReading hidden message from text:\n{get_message_from_text(steg_text)}")
 
-steg_img = hide_message_in_image(bin_msg)
-steg_img.show()
+	steg_img = hide_message_in_image(bin_msg)
+	steg_img.show()
 
-print(f"\nReading hidden message from image:\n{get_message_from_image(steg_img)}")
+	print(f"\nReading hidden message from image:\n{get_message_from_image(steg_img)}")

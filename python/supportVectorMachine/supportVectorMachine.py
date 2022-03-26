@@ -11,8 +11,8 @@ from svm import SVM
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(path, train_test_ratio=0.5):
-	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+def extract_data(train_test_ratio=0.5):
+	data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt", dtype=str, delimiter="\n")
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -60,52 +60,56 @@ def get_hyperplane_value(x, weights, bias, offset):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-x_train, y_train, x_test, y_test = extract_data("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt")
+def main():
+	x_train, y_train, x_test, y_test = extract_data()
 
-clf = SVM()
-clf.fit(x_train, y_train)
-clf.train()
+	clf = SVM()
+	clf.fit(x_train, y_train)
+	clf.train()
 
-# Plot confusion matrices
+	# Plot confusion matrices
 
-train_predictions = clf.predict(x_train)
-test_predictions = clf.predict(x_test)
-train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	train_predictions = clf.predict(x_train)
+	test_predictions = clf.predict(x_test)
+	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
-plot_matrix(True, train_conf_mat, train_acc)
-plot_matrix(False, test_conf_mat, test_acc)
+	plot_matrix(True, train_conf_mat, train_acc)
+	plot_matrix(False, test_conf_mat, test_acc)
 
-# Visualise SVM
+	# Visualise SVM
 
-x_scatter = np.append(x_train, x_test, axis=0)
-y_scatter = np.append(y_train, y_test)
+	x_scatter = np.append(x_train, x_test, axis=0)
+	y_scatter = np.append(y_train, y_test)
 
-plt.figure(figsize=(8, 8))
-for class_label in np.unique(y_scatter):
-	plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f"Class {class_label}")
+	plt.figure(figsize=(8, 8))
+	for class_label in np.unique(y_scatter):
+		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f"Class {class_label}")
 
-hyperplane_start_x = np.min(x_scatter[:, 0])
-hyperplane_end_x = np.max(x_scatter[:, 0])
-hyperplane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, 0)
-hyperplane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, 0)
-negative_plane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, -1)
-negative_plane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, -1)
-positive_plane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, 1)
-positive_plane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, 1)
+	hyperplane_start_x = np.min(x_scatter[:, 0])
+	hyperplane_end_x = np.max(x_scatter[:, 0])
+	hyperplane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, 0)
+	hyperplane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, 0)
+	negative_plane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, -1)
+	negative_plane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, -1)
+	positive_plane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, 1)
+	positive_plane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, 1)
 
-plt.plot([hyperplane_start_x, hyperplane_end_x], [hyperplane_start_y, hyperplane_end_y], color="black", ls="--")
-plt.plot([hyperplane_start_x, hyperplane_end_x], [negative_plane_start_y, negative_plane_end_y], color="red")
-plt.plot([hyperplane_start_x, hyperplane_end_x], [positive_plane_start_y, positive_plane_end_y], color="red")
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [hyperplane_start_y, hyperplane_end_y], color="black", ls="--")
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [negative_plane_start_y, negative_plane_end_y], color="red")
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [positive_plane_start_y, positive_plane_end_y], color="red")
 
-y_min = np.min(x_scatter[:, 1])
-y_max = np.max(x_scatter[:, 1])
-plt.ylim([y_min - 0.5, y_max + 0.5])
+	y_min = np.min(x_scatter[:, 1])
+	y_max = np.max(x_scatter[:, 1])
+	plt.ylim([y_min - 0.5, y_max + 0.5])
 
-w = ", ".join(f"{we:.3f}" for we in clf.weights)
-m = -clf.weights[0] / clf.weights[1]
-c = -clf.bias / clf.weights[1]
+	w = ", ".join(f"{we:.3f}" for we in clf.weights)
+	m = -clf.weights[0] / clf.weights[1]
+	c = -clf.bias / clf.weights[1]
 
-plt.title(f"Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f}  |  c: {c:.3f}")
-plt.legend()
-plt.show()
+	plt.title(f"Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f}  |  c: {c:.3f}")
+	plt.legend()
+	plt.show()
+
+if __name__ == "__main__":
+	main()

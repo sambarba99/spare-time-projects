@@ -82,40 +82,41 @@ def move_points(graph):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-graph = []
+if __name__ == "__main__":
+	graph = []
 
-pg.init()
-pg.display.set_caption("Minimum Spanning Tree")
-scene = pg.display.set_mode((SIZE, SIZE))
-scene.fill((20, 20, 20))
-pg.display.update()
-clock = pg.time.Clock()
+	pg.init()
+	pg.display.set_caption("Minimum Spanning Tree")
+	scene = pg.display.set_mode((SIZE, SIZE))
+	scene.fill((20, 20, 20))
+	pg.display.update()
+	clock = pg.time.Clock()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.MOUSEBUTTONDOWN:
-			if event.button == 1:  # Left-click
-				if len(graph) == 30:
-					print("Size limit reached")
-					continue
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.MOUSEBUTTONDOWN:
+				if event.button == 1:  # Left-click
+					if len(graph) == 30:
+						print("Size limit reached")
+						continue
 
-				x, y = event.pos
-				# Constrain x and y to range [5, SIZE - 5]
-				x = max(min(x, SIZE - 5), 5)
-				y = max(min(y, SIZE - 5), 5)
+					x, y = event.pos
+					# Constrain x and y to range [5, SIZE - 5]
+					x = max(min(x, SIZE - 5), 5)
+					y = max(min(y, SIZE - 5), 5)
 
-				x_vel, y_vel = random.uniform(-3, 3), random.uniform(-3, 3)
-				vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
-				graph.append(vertex)
+					x_vel, y_vel = random.uniform(-3, 3), random.uniform(-3, 3)
+					vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
+					graph.append(vertex)
 
-			elif event.button == 3:  # Right-click
-				graph = []
-				scene.fill((20, 20, 20))
-				pg.display.update()
+				elif event.button == 3:  # Right-click
+					graph = []
+					scene.fill((20, 20, 20))
+					pg.display.update()
 
-	draw_mst(graph)
-	move_points(graph)
-	clock.tick(FPS)
+		draw_mst(graph)
+		move_points(graph)
+		clock.tick(FPS)

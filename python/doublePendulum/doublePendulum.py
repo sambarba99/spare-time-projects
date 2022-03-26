@@ -18,7 +18,7 @@ WIDTH = 1300
 HEIGHT = 800
 FPS = 120
 
-vel1 = vel2 = 0
+a1 = a2 = vel1 = vel2 = 0
 positions = []
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -98,25 +98,26 @@ def draw_line(x1, y1, x2, y2):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-a1 = random.uniform(0, 2 * pi)
-a2 = random.uniform(0, 2 * pi)
+if __name__ == "__main__":
+	a1 = random.uniform(0, 2 * pi)
+	a2 = random.uniform(0, 2 * pi)
 
-pg.init()
-pg.display.set_caption("Double Pendulum")
-scene = pg.display.set_mode((WIDTH, HEIGHT))
-clock = pg.time.Clock()
+	pg.init()
+	pg.display.set_caption("Double Pendulum")
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
+	clock = pg.time.Clock()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_r:
-				a1 = random.uniform(0, 2 * pi)
-				a2 = random.uniform(0, 2 * pi)
-				vel1 = vel2 = 0
-				positions = []
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.KEYDOWN:
+				if event.key == pg.K_r:
+					a1 = random.uniform(0, 2 * pi)
+					a2 = random.uniform(0, 2 * pi)
+					vel1 = vel2 = 0
+					positions = []
 
-	draw()
-	clock.tick(FPS)
+		draw()
+		clock.tick(FPS)

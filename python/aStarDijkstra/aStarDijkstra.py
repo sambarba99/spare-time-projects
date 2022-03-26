@@ -130,24 +130,25 @@ def draw():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("A* and Dijkstra demo")
-scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("A* and Dijkstra demo")
+	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
-generate_and_draw_maze()
+	generate_and_draw_maze()
 
-root = tk.Tk()
-root.title("A*/Dijkstra Maze Solver")
-root.configure(width=350, height=200, bg="#141414")
+	root = tk.Tk()
+	root.title("A*/Dijkstra Maze Solver")
+	root.configure(width=350, height=200, bg="#141414")
 
-frame = tk.Frame(root, bg="#0080ff")
-frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
+	frame = tk.Frame(root, bg="#0080ff")
+	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
 
-btn_generate_maze = tk.Button(frame, text="Generate maze", font="consolas", command=lambda: generate_and_draw_maze())
-btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas", command=lambda: a_star())
-btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas", command=lambda: dijkstra())
-btn_generate_maze.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.25, anchor="center")
-btn_solve_a_star.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.5, anchor="center")
-btn_solve_dijkstra.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.75, anchor="center")
+	btn_generate_maze = tk.Button(frame, text="Generate maze", font="consolas", command=lambda: generate_and_draw_maze())
+	btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas", command=lambda: a_star())
+	btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas", command=lambda: dijkstra())
+	btn_generate_maze.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.25, anchor="center")
+	btn_solve_a_star.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.5, anchor="center")
+	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.75, anchor="center")
 
-root.mainloop()
+	root.mainloop()

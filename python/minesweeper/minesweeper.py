@@ -19,8 +19,7 @@ MINE_WON = (0, 144, 0)
 MINE_LOST = (200, 20, 20)
 
 minefield = None
-flags_used_total = 0
-flags_used_correctly = 0
+flags_used_total = flags_used_correctly = 0
 game_over = False
 status_text = ""
 
@@ -151,9 +150,11 @@ def draw_grid():
 
 	for y in range(ROWS):
 		for x in range(COLS):
-			pg.draw.rect(scene, minefield[y][x].colour, pg.Rect(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+			pg.draw.rect(scene, minefield[y][x].colour, pg.Rect(x * CELL_SIZE + GRID_OFFSET,
+				y * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
 			cell_lbl = font.render(minefield[y][x].text, True, LABEL_FOREGROUND)
-			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET))
+			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
+			(y + 0.5) * CELL_SIZE + GRID_OFFSET))
 			scene.blit(cell_lbl, lbl_rect)
 
 	status_lbl = font.render(status_text, True, LABEL_FOREGROUND)
@@ -172,27 +173,28 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-pg.display.set_caption("Minesweeper")
-scene = pg.display.set_mode((COLS * CELL_SIZE + 2 * GRID_OFFSET, ROWS * CELL_SIZE + 2 * GRID_OFFSET))
+if __name__ == "__main__":
+	pg.init()
+	pg.display.set_caption("Minesweeper")
+	scene = pg.display.set_mode((COLS * CELL_SIZE + 2 * GRID_OFFSET, ROWS * CELL_SIZE + 2 * GRID_OFFSET))
 
-sys.setrecursionlimit(ROWS * COLS)
-setup_game()
-draw_grid()
+	sys.setrecursionlimit(ROWS * COLS)
+	setup_game()
+	draw_grid()
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.MOUSEBUTTONDOWN:
-			if game_over:  # Reset
-				setup_game()
-			else:
-				x, y = event.pos
-				y = (y - GRID_OFFSET) // CELL_SIZE
-				x = (x - GRID_OFFSET) // CELL_SIZE
-				if y in range(ROWS) and x in range(COLS):
-					minefield[y][x].handle_mouse_click(event.button)
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.MOUSEBUTTONDOWN:
+				if game_over:  # Reset
+					setup_game()
+				else:
+					x, y = event.pos
+					y = (y - GRID_OFFSET) // CELL_SIZE
+					x = (x - GRID_OFFSET) // CELL_SIZE
+					if y in range(ROWS) and x in range(COLS):
+						minefield[y][x].handle_mouse_click(event.button)
 
-			draw_grid()
+				draw_grid()

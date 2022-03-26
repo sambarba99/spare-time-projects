@@ -4,6 +4,8 @@
 
 import matplotlib.pyplot as plt
 
+NUM_DIGITS = 500
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -31,20 +33,26 @@ def calc_pi():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-size = 10 ** 3
+if __name__ == "__main__":
+	pi = calc_pi()
 
-pi = calc_pi()
+	digits = [next(pi) for _ in range(NUM_DIGITS)]
 
-digits = [next(pi) for _ in range(size)]
+	print(*digits, sep="")
 
-print(*digits, sep="")
+	fig = plt.figure(figsize=(8, 6))
+	ax = fig.add_subplot()
+	x_plot = range(10)
+	y_plot = [0] * 10
 
-x_plot = range(10)
-y_plot = [digits.count(i) for i in x_plot]
+	for idx, i in enumerate(digits):
+		y_plot[i] += 1
+		ax.clear()
+		ax.bar(x_plot, y_plot, tick_label=x_plot, color="#0080ff")
+		ax.set_xlabel("Digit")
+		ax.set_ylabel("Occurrences")
+		ax.set_title(f"Digit frequencies of {idx + 1} digits of pi")
+		plt.show(block=False)
+		plt.pause(0.001)
 
-plt.figure(figsize=(8, 6))
-plt.bar(x_plot, y_plot, tick_label=x_plot, color="#0080ff")
-plt.xlabel("Digit")
-plt.ylabel("Occurrences")
-plt.title(f"Digit frequencies in {size} digits of pi")
-plt.show()
+	plt.show()

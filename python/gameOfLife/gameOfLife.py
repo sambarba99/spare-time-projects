@@ -82,26 +82,27 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-randomise_live_cells()
+if __name__ == "__main__":
+	randomise_live_cells()
 
-pg.init()
-pg.display.set_caption("Game of Life")
-scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
+	pg.init()
+	pg.display.set_caption("Game of Life")
+	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
-while True:
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			pg.quit()
-			sys.exit(0)
-		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_1:  # Preset 1
-				set_pattern(GLIDER_GUN)
-			elif event.key == pg.K_2:  # Preset 2
-				set_pattern(R_PENTOMINO)
-			elif event.key == pg.K_r:  # Reset and randomise
-				randomise_live_cells()
-			elif event.key == pg.K_SPACE:  # Play/pause
-				running = not running
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				pg.quit()
+				sys.exit(0)
+			elif event.type == pg.KEYDOWN:
+				if event.key == pg.K_1:  # Preset 1
+					set_pattern(GLIDER_GUN)
+				elif event.key == pg.K_2:  # Preset 2
+					set_pattern(R_PENTOMINO)
+				elif event.key == pg.K_r:  # Reset and randomise
+					randomise_live_cells()
+				elif event.key == pg.K_SPACE:  # Play/pause
+					running = not running
 
-	draw_grid()
-	if running: update_grid()
+		draw_grid()
+		if running: update_grid()

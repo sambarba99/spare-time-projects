@@ -62,16 +62,17 @@ def generate_plot(ruleset):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-pg.init()
-scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
+if __name__ == "__main__":
+	pg.init()
+	scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
 
-# Interesting rules
-rules = [18, 30, 45, 54, 57, 73, 105, 151, 153, 161]
-i = 0
+	# Interesting rules
+	rules = [18, 30, 45, 54, 57, 73, 105, 151, 153, 161]
+	i = 0
 
-while True:
-	ruleset = set_ruleset(rules[i])
-	pg.display.set_caption(f"Elementary Cellular Automaton (rule {rules[i]}: {ruleset})")
-	generate_plot(ruleset)
-	i = (i + 1) % len(rules)
-	sleep(2)
+	while True:
+		ruleset = set_ruleset(rules[i])
+		pg.display.set_caption(f"Elementary Cellular Automaton (rule {rules[i]}: {ruleset})")
+		generate_plot(ruleset)
+		i = (i + 1) % len(rules)
+		sleep(2)
