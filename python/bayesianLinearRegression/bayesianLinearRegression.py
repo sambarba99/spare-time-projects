@@ -11,12 +11,14 @@ N_VAL = N_TRAIN
 N_TEST = 300
 SIGMA = 0.3  # Noise = SIGMA ^ 2
 
+plt.rcParams["figure.figsize"] = (8, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bounds=None, upper_bounds=None):
-	plt.figure(figsize=(8, 6))
+	plt.figure()
 	plt.plot(x_test, y_test, color="#ff8000", ls="--", zorder=1, label="Ground truth")
 	plt.scatter(x_train, y_train, color="black", zorder=2, label="Training samples")
 	plt.plot(x_test, approx_data, color="#0080ff", zorder=3, label="Prediction")
@@ -117,7 +119,7 @@ def main():
 		neg_log_evidence = np.append(neg_log_evidence,
 			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2))
 
-	fig, ax1 = plt.subplots()
+	ax1 = plt.subplot()
 	ax2 = ax1.twinx()
 
 	ax1.plot(v, err_train, color="#cc0000", label="Train")
@@ -133,7 +135,6 @@ def main():
 	ax2.set_ylabel("-log(evidence)")
 	ax2.legend(loc="center right")
 
-	fig.set_size_inches((8, 6))
 	plt.show()
 
 	min_err_val_idx = np.argmin(err_val)

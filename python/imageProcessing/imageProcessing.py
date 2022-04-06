@@ -17,29 +17,25 @@ selected_img = target_r_entry = target_g_entry = target_b_entry = None
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
+# Display selected image with its histogram
 def select_img(img):
 	global selected_img
 
 	selected_img = img
-	plt.imshow(selected_img)
-	plot_histogram()
-
-def plot_histogram():
-	global selected_img
-
 	r, g, b = np.array(selected_img.getdata()).T
 	r_count = np.bincount(r, minlength=256)
 	g_count = np.bincount(g, minlength=256)
 	b_count = np.bincount(b, minlength=256)
 
-	plt.figure(figsize=(7, 5))
-	plt.plot(r_count, color="#ff0000", linewidth=1, label="R")
-	plt.plot(g_count, color="#008000", linewidth=1, label="G")
-	plt.plot(b_count, color="#0000ff", linewidth=1, label="B")
-	plt.xlabel("RGB value")
-	plt.ylabel("Count")
-	plt.title("Histogram for selected image")
-	plt.legend()
+	_, axes = plt.subplots(nrows=2, figsize=(6, 10), gridspec_kw={"height_ratios": (1, 0.8)})
+	axes[0].imshow(selected_img)
+	axes[1].plot(r_count, color="#ff0000", linewidth=1, label="R")
+	axes[1].plot(g_count, color="#008000", linewidth=1, label="G")
+	axes[1].plot(b_count, color="#0000ff", linewidth=1, label="B")
+	axes[1].set_xlabel("RGB value")
+	axes[1].set_ylabel("Count")
+	axes[1].set_title("Histogram for selected image")
+	axes[1].legend()
 	plt.show()
 
 def binary_image():

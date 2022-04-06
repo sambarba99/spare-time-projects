@@ -15,9 +15,8 @@ HEIGHT = 900
 RAY_MAX_LENGTH = (WIDTH ** 2 + HEIGHT ** 2) ** 0.5
 FOV_ANGLE = np.deg2rad(90)  # Field of View angle
 
-pov_mode = True  # False = bird's-eye view
-rays = []
-walls = []
+pov_mode = True  # False = bird's-eye view mode
+rays, walls = [], []
 
 # Start at centre, looking east
 player_x = WIDTH / 2
@@ -37,7 +36,7 @@ def generate_walls(num_walls=5):
 	for _ in range(num_walls):
 		start_x = np.random.randint(WIDTH)
 		start_y = np.random.randint(HEIGHT)
-		if np.random.random() < 0.5:
+		if np.random.random() < 0.5:  # 50/50 chance of drawing horizontal or vertical walls
 			end_x = start_x
 			end_y = start_y + np.random.choice([-200, 200])
 		else:
@@ -46,7 +45,7 @@ def generate_walls(num_walls=5):
 
 		walls.append({"x1": start_x, "y1": start_y, "x2": end_x, "y2": end_y})
 
-	# World border
+	# 4 walls of world border
 	walls.append({"x1": 0, "y1": 0, "x2": WIDTH, "y2": 0})
 	walls.append({"x1": WIDTH - 2, "y1": 0, "x2": WIDTH - 2, "y2": HEIGHT})
 	walls.append({"x1": 0, "y1": HEIGHT - 2, "x2": WIDTH, "y2": HEIGHT - 2})
@@ -56,14 +55,16 @@ def generate_rays():
 	global player_x, player_y, player_heading, rays, walls
 
 	rays = []
+	step = np.deg2rad(0.2)
 
-	for a in np.arange(-FOV_ANGLE / 2, FOV_ANGLE / 2, np.deg2rad(0.2)):
+	for a in np.arange(-FOV_ANGLE / 2, FOV_ANGLE / 2, step):
 		end_x = RAY_MAX_LENGTH * np.cos(a + player_heading) + player_x
 		end_y = RAY_MAX_LENGTH * np.sin(a + player_heading) + player_y
 
-		# Assume ray doesn't hit a wall (length = None)
-		ray = {"x1": player_x, "y1": player_y, "x2": end_x, "y2": end_y, "length": None}
+		# Initialise ray withouth "length" attribute; this is calculated in next loop
+		ray = {"x1": player_x, "y1": player_y, "x2": end_x, "y2": end_y}
 
+		# At the end of this loop, ray["length"] will be the distance to the nearest wall that the ray hits
 		for wall in walls:
 			intersection = find_intersection(ray, wall)
 			if intersection:
@@ -99,20 +100,20 @@ def draw_pov_mode():
 
 	wall_segment_width = WIDTH // len(rays)
 
-	ray_lengths = [r["length"] for r in rays]
-	longest = max(ray_lengths)
+	longest_ray_len = max([r["length"] for r in rays])
 
 	for idx, r in enumerate(rays):
 		d = r["length"]
 
-		h = 0 if not d else map_range(d ** 0.5, 0, RAY_MAX_LENGTH ** 0.5, HEIGHT, HEIGHT * 0.1)
+		h = map_range(d ** 0.5, 0, RAY_MAX_LENGTH ** 0.5, HEIGHT, HEIGHT * 0.1)
 		y = (HEIGHT - h) / 2  # Draw rect from centre
-		c = 0 if not d else map_range(d, 0, longest, 255, 20)
+		c = map_range(d, 0, longest_ray_len, 255, 20)
 
 		pg.draw.rect(scene, (c, c, c), pg.Rect(idx * wall_segment_width, y, wall_segment_width, h))
 
 	pg.display.update()
 
+# Map x from [from_lo, from_hi] to [to_lo, to_hi]
 def map_range(x, from_lo, from_hi, to_lo, to_hi):
 	if from_hi - from_lo == 0:
 		return to_hi
@@ -146,8 +147,8 @@ def main():
 	generate_rays()
 	draw_pov_mode()
 
-	done = True
-	key = None
+	done_key_press = True
+	key_pressed = None
 
 	while True:
 		for event in pg.event.get():
@@ -155,8 +156,8 @@ def main():
 				pg.quit()
 				sys.exit(0)
 			elif event.type == pg.KEYDOWN:
-				done = False
-				key = event.key
+				done_key_press = False
+				key_pressed = event.key
 
 				if event.key == pg.K_r:  # Reset
 					player_x = WIDTH / 2
@@ -166,27 +167,27 @@ def main():
 				elif event.key == pg.K_t:  # Toggle view mode
 					pov_mode = not pov_mode
 			elif event.type == pg.KEYUP:
-				done = True
+				done_key_press = True
 
-		if not done:
-			if key == pg.K_w:  # Move forwards
+		if not done_key_press:
+			if key_pressed == pg.K_w:  # Move forwards
 				dx = 4 * np.cos(player_heading)
 				dy = 4 * np.sin(player_heading)
 				if 2 <= player_x + dx < WIDTH - 2 and 2 <= player_y + dy < HEIGHT - 2:
 					player_x += dx
 					player_y += dy
 
-			elif key == pg.K_s:  # Move backwards
+			elif key_pressed == pg.K_s:  # Move backwards
 				dx = 4 * np.cos(player_heading)
 				dy = 4 * np.sin(player_heading)
 				if 2 <= player_x - dx < WIDTH - 2 and 2 <= player_y - dy < HEIGHT - 2:
 					player_x -= dx
 					player_y -= dy
 
-			elif key == pg.K_a:  # Turn left
+			elif key_pressed == pg.K_a:  # Turn left
 				player_heading -= np.deg2rad(1)
 
-			elif key == pg.K_d:  # Turn right
+			elif key_pressed == pg.K_d:  # Turn right
 				player_heading += np.deg2rad(1)
 
 			generate_rays()

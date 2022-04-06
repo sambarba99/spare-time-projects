@@ -12,6 +12,8 @@ from time import perf_counter
 
 DRAWING_SIZE = 500
 
+plt.rcParams["figure.figsize"] = (8, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -56,7 +58,7 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, accuracy
 
 def plot_matrix(is_training, conf_mat, accuracy):
-	fig, ax = plt.subplots(figsize=(6, 7))
+	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
 	for i in range(conf_mat.shape[0]):
@@ -94,7 +96,7 @@ def main():
 		clf.hidden_weights = hidden_weights
 		clf.output_bias = output_bias
 		clf.output_weights = output_weights
-	else:
+	elif choice == "T":
 		clf.fit(x_train, y_train)
 
 		start = perf_counter()
@@ -112,6 +114,9 @@ def main():
 			file.write(s)
 
 		print(f"Done in {interval:.3f}s. Saved biases and weights to file.")
+	else:
+		print("Bad choice")
+		return
 
 	# Plot confusion matrices
 
@@ -156,21 +161,20 @@ def main():
 
 	user_coords = np.array(user_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
 	user_coords = np.unique(user_coords, axis=0)  # Keep unique pairs only
-	drawn_digit = np.zeros((28, 28))
-	drawn_digit[user_coords[:, 1], user_coords[:, 0]] = 1
-	plt.figure(figsize=(4, 4))
-	plt.imshow(drawn_digit, cmap="gray")
-	plt.title("Drawn digit")
-	plt.show()
-
-	drawn_digit = drawn_digit.reshape(1, 784)[0].astype(int)
+	drawn_digit_display = np.zeros((28, 28))
+	drawn_digit_display[user_coords[:, 1], user_coords[:, 0]] = 1
+	drawn_digit = drawn_digit_display.reshape(1, 784)[0].astype(int)
 	pred_vector = clf.predict(drawn_digit)
-	print(f"\nDrawn digit is: {np.argmax(pred_vector)}  ({(100 * np.max(pred_vector)):.1f}% sure)")
+
+	plt.figure()
+	plt.imshow(drawn_digit_display, cmap="gray")
+	plt.title(f"Drawn digit is: {np.argmax(pred_vector)}\n({(100 * np.max(pred_vector)):.1f}% sure)")
+	plt.show()
 
 	# Plot loss graph
 
-	if choice != "F":
-		plt.figure(figsize=(8, 6))
+	if choice == "T":
+		plt.figure()
 		plt.plot(clf.loss, color="red")
 		plt.xlabel("Training iteration")
 		plt.ylabel("Mean loss")

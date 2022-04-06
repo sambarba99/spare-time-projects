@@ -6,6 +6,8 @@ from logisticregressor import LogisticRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams["figure.figsize"] = (8, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -13,7 +15,7 @@ import numpy as np
 # Split file data into train/test
 def extract_data(path, train_test_ratio=0.5):
 	data = np.genfromtxt(path, dtype=str, delimiter="\n")
-	feature_names = data[0].strip("\n").split(",")
+	feature_names = data[0].strip().split(",")
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -42,7 +44,7 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, accuracy
 
 def plot_matrix(is_training, conf_mat, accuracy):
-	fig, ax = plt.subplots(figsize=(6, 7))
+	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
 	for i in range(conf_mat.shape[0]):
@@ -109,7 +111,8 @@ def main():
 	y_scatter = np.append(y_train, y_test)
 	x_plot = np.array([np.min(x_scatter, axis=0)[0], np.max(x_scatter, axis=0)[0]])
 	y_plot = m * x_plot + c
-	plt.figure(figsize=(8, 8))
+
+	plt.figure()
 	for idx, class_label in enumerate(np.unique(y_scatter)):
 		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=classes[idx])
 	plt.plot(x_plot, y_plot, color="black", ls="--")
@@ -122,7 +125,7 @@ def main():
 
 	# Plot cost graph
 
-	plt.figure(figsize=(8, 6))
+	plt.figure()
 	plt.plot(regressor.cost_history, color="red")
 	plt.xlabel("Training iteration")
 	plt.ylabel("Cost")

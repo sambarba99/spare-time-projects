@@ -92,10 +92,10 @@ if __name__ == "__main__":
 	iter_num = 0
 	dist_history = []
 
-	dist_fig = plt.figure(figsize=(8, 6))
-	candidate_fig = plt.figure(figsize=(6, 6))
-	dist_ax = dist_fig.add_subplot()
-	candidate_ax = candidate_fig.add_subplot(projection="3d")
+	# axes[0] = distance vs iteration
+	# axes[1] = current candidate path (3D)
+	_, axes = plt.subplots(nrows=2, figsize=(8, 8), gridspec_kw={"height_ratios": (1, 1.8), "hspace": 0.35})
+	axes[1] = plt.subplot(2, 1, 2, projection="3d")
 
 	while temperature > TEMP_THRESHOLD:
 		iter_num += 1
@@ -112,12 +112,12 @@ if __name__ == "__main__":
 		temperature *= TEMP_DECREASE_FACTOR
 		dist_history.append(best_dist)
 
-		plot_candidate(candidate_ax, new_candidate, iter_num, max_iters)
-		plot_dist_graph(dist_ax, dist_history)
+		plot_candidate(axes[1], new_candidate, iter_num, max_iters)
+		plot_dist_graph(axes[0], dist_history)
 		plt.show(block=False)
 		plt.pause(10 ** -6)
 
 	# Plot best candidate and final dist graph
-	plot_candidate(candidate_ax, best_candidate, max_iters, max_iters)
-	plot_dist_graph(dist_ax, dist_history)
+	plot_candidate(axes[1], best_candidate, max_iters, max_iters)
+	plot_dist_graph(axes[0], dist_history)
 	plt.show()

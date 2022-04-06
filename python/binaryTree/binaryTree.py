@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 08/09/2021
 
-import random
+import numpy as np
 
 # ---------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------  CLASSES  -------------------------------------------- #
@@ -162,16 +162,13 @@ class Tree:
 # ---------------------------------------------------------------------------------------------------- #
 
 def make_random_binary_tree():
-	with open("peopleNames.txt", "r") as file:
-		names = file.readlines()
+	names = np.genfromtxt("peopleNames.txt", dtype=str, delimiter="\n")
 
-	names = [name.strip("\n") for name in names]
+	tree_keys = np.random.choice(names, size=15, replace=False)
 
-	tree_keys = random.sample(names, 15)
+	bin_tree = Tree(tree_keys[0])
 
-	bin_tree = Tree(tree_keys.pop())
-
-	for name in tree_keys:
+	for name in tree_keys[1:]:
 		bin_tree.insert(name)
 
 	return bin_tree
@@ -220,6 +217,6 @@ if __name__ == "__main__":
 		binary_tree.display()
 
 		choice = input("\nEnter to continue or X to exit: ").upper()
-		if choice and choice[0] == 'X':
+		if choice and choice[0] == "X":
 			break
 		print()

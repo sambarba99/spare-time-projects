@@ -5,6 +5,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams["figure.figsize"] = (8, 8)
+
 class KMeans:
 	def __init__(self, k):
 		self.x = None
@@ -13,9 +15,7 @@ class KMeans:
 		self.num_features = 0
 		self.clusters = None
 		self.centroids = None
-
-		fig = plt.figure(figsize=(8, 8))
-		self.ax = fig.add_subplot()
+		self.ax = plt.subplot()
 
 	def predict(self, x):
 		self.x = x

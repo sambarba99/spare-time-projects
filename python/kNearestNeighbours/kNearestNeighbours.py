@@ -6,6 +6,8 @@ from knnclassifier import KNN
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams["figure.figsize"] = (6, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -21,7 +23,7 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, accuracy
 
 def plot_matrix(k, conf_mat, accuracy):
-	fig, ax = plt.subplots(figsize=(6, 7))
+	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
 	for i in range(conf_mat.shape[0]):

@@ -6,6 +6,8 @@ from linearregressor import LinearRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams["figure.figsize"] = (10, 8)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -13,7 +15,7 @@ import numpy as np
 # Split file data into train/test
 def extract_data(path, train_test_ratio=0.5):
 	data = np.genfromtxt(path, dtype=str, delimiter="\n")
-	feature_names = data[0].strip("\n").split(",")
+	feature_names = data[0].strip().split(",")
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -86,7 +88,7 @@ def main():
 	x_plot = np.append(x_train[:, idx_max_corr], x_test[:, idx_max_corr])
 	y_plot = regressor.weights[idx_max_corr] * x_plot + regressor.bias
 	y_scatter = np.append(y_train, y_test)
-	plt.figure(figsize=(10, 8))
+	plt.figure()
 	plt.scatter(x_plot, y_scatter, color="black", alpha=0.6, s=10)
 	plt.plot(x_plot, y_plot, color="red")
 	plt.xlabel(feature_names[idx_max_corr] + " (normalised)")
@@ -97,7 +99,7 @@ def main():
 	# Plot MSE graph
 
 	y_plot = np.array(regressor.cost_history) / len(x_train)
-	plt.figure(figsize=(8, 6))
+	plt.figure()
 	plt.plot(y_plot, color="red")
 	plt.xlabel("Training iteration")
 	plt.ylabel("Mean square error")

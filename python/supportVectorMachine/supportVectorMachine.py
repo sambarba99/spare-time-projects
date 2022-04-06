@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from svm import SVM
 
+plt.rcParams["figure.figsize"] = (6, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -41,7 +43,7 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, accuracy
 
 def plot_matrix(is_training, conf_mat, accuracy):
-	fig, ax = plt.subplots(figsize=(6, 7))
+	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
 	for i in range(conf_mat.shape[0]):
@@ -82,7 +84,7 @@ def main():
 	x_scatter = np.append(x_train, x_test, axis=0)
 	y_scatter = np.append(y_train, y_test)
 
-	plt.figure(figsize=(8, 8))
+	plt.figure()
 	for class_label in np.unique(y_scatter):
 		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f"Class {class_label}")
 

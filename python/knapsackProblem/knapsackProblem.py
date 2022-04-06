@@ -18,6 +18,8 @@ TOURNAMENT_SIZE = 2
 
 all_items = None
 
+plt.rcParams["figure.figsize"] = (8, 6)
+
 # ---------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------  CLASSES  -------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -147,8 +149,7 @@ def main():
 	best_knapsack = population[0]
 	mean_fitnesses, best_fitnesses = [], []
 
-	fig = plt.figure(figsize=(8, 6))
-	ax = fig.add_subplot()
+	ax = plt.subplot()
 
 	for _ in range(GENERATIONS):
 		evaluate(*population)
