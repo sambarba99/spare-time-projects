@@ -17,7 +17,7 @@ def confusion_matrix(predictions, actual):
 	conf_mat = np.zeros((num_classes, num_classes)).astype(int)
 
 	for a, p in zip(actual, predictions):
-		conf_mat[a, p] += 1
+		conf_mat[a][p] += 1
 
 	accuracy = np.trace(conf_mat) / conf_mat.sum()
 	return conf_mat, accuracy

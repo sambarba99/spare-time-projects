@@ -88,7 +88,8 @@ if __name__ == "__main__":
 	entry_box = tk.Entry(frame, font="consolas", justify="center")
 	entry_box.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.42, anchor="center")
 
-	button = tk.Button(frame, text="Convert", font="consolas", command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
+	button = tk.Button(frame, text="Convert", font="consolas",
+		command=lambda: evaluate_rpn(infix_to_rpn(entry_box.get())))
 	button.place(relwidth=0.3, relheight=0.26, relx=0.5, rely=0.74, anchor="center")
 
 	rpn_result_lbl = tk.Label(root, text="In RPN:", font="consolas", bg="#141414", fg="#dcdcdc")

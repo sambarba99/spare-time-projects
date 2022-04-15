@@ -24,9 +24,6 @@ def calculator_test():
 	pag.hotkey("ctrl", "n")
 	write_msg("calculator answer = ", press_enter_after=False)
 	pag.hotkey("ctrl", "v")
-	pag.hotkey("alt", "f4")
-	pag.moveRel(80, 0, 0.5)
-	pag.click()
 
 def facebook_messenger_test():
 	pag.hotkey("win")

@@ -69,8 +69,8 @@ def counting_sort(arr):
 	arr[:] = output
 
 def insertion_sort(arr):
-	for idx, n in enumerate(arr[1:], start=1):
-		j = idx - 1
+	for idx, n in enumerate(arr[1:]):
+		j = idx
 		while j >= 0 and arr[j] > n:
 			arr[j + 1] = arr[j]
 			j -= 1

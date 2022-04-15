@@ -11,15 +11,15 @@ from tkinter import messagebox
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def download(url):
-	global sv, entry_box
+def download():
+	global sv
 
 	try:
-		yt = YouTube(url)
+		yt = YouTube(url=sv.get())
 		audio = yt.streams.filter(only_audio=True).first()
 		file = audio.download(output_path=os.path.expanduser("~") + "\\Desktop")
-		base, _ = os.path.splitext(file)
-		new_file = base + ".mp3"  # Rename from .mp4 to .mp3
+		dot_idx = file.rfind(".")
+		new_file = file[:dot_idx] + ".mp3"  # Rename from .mp4 to .mp3
 
 		if os.path.exists(new_file):
 			# Delete file ending in .mp4 (it can't be renamed anyway)
@@ -32,7 +32,6 @@ def download(url):
 		messagebox.showerror(title="Error", message="Something went wrong, maybe due to bad URL")
 	finally:
 		sv.set("")
-		entry_box.configure(textvariable=sv)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -54,7 +53,7 @@ if __name__ == "__main__":
 	entry_box = tk.Entry(frame, textvariable=sv, font="consolas", justify="center")
 	entry_box.place(relwidth=0.8, relheight=0.18, relx=0.5, rely=0.43, anchor="center")
 
-	btn_download = tk.Button(frame, text="Download", font="consolas", command=lambda: download(sv.get()))
+	btn_download = tk.Button(frame, text="Download", font="consolas", command=lambda: download())
 	btn_download.place(relwidth=0.35, relheight=0.2, relx=0.5, rely=0.75, anchor="center")
 
 	root.mainloop()

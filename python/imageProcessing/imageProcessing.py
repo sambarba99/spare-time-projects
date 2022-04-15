@@ -55,6 +55,7 @@ def binary_image():
 			new_pixel = (255, 255, 255) if d < MAX_DIST / 2 else (0, 0, 0)
 			new_img.putpixel((x, y), new_pixel)
 
+	plt.figure()
 	plt.imshow(new_img)
 	plt.show()
 
@@ -136,8 +137,10 @@ def main():
 	btn_select_img2 = tk.Button(frame, text="Select image 2", font="consolas", command=lambda: select_img(imgs[1]))
 	btn_select_img3 = tk.Button(frame, text="Select image 3", font="consolas", command=lambda: select_img(imgs[2]))
 	btn_select_img4 = tk.Button(frame, text="Select image 4", font="consolas", command=lambda: select_img(imgs[3]))
-	btn_to_binary_img = tk.Button(frame, text="Convert this image to binary", font="consolas", command=lambda: binary_image())
-	btn_find_nearest_colour = tk.Button(frame, text="Find nearest RGB in image", font="consolas", command=lambda: nearest_colour())
+	btn_to_binary_img = tk.Button(frame, text="Convert this image to binary", font="consolas",
+		command=lambda: binary_image())
+	btn_find_nearest_colour = tk.Button(frame, text="Find nearest RGB in image", font="consolas",
+		command=lambda: nearest_colour())
 	btn_select_img1.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.18, anchor="center")
 	btn_select_img2.place(relwidth=0.4, relheight=0.12, relx=0.72, rely=0.18, anchor="center")
 	btn_select_img3.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.33, anchor="center")

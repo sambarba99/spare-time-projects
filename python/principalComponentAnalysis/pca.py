@@ -23,6 +23,6 @@ class PCA:
 
 		components = eigenvectors[:self.num_components]
 
-		pca_variability = np.sum((eigenvalues / variability)[:self.num_components])
+		pca_variability = (eigenvalues / variability)[:self.num_components].sum()
 
 		return np.dot(x, components.T), pca_variability

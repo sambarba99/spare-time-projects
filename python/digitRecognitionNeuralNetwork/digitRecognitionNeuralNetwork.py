@@ -31,10 +31,10 @@ def extract_data(train_test_ratio=0.5):
 
 	training_set, test_set = data[:split], data[split:]
 
-	x_train = training_set[:,:-1] / 255
-	y_train = training_set[:,-1].astype(int)
-	x_test = test_set[:,:-1] / 255
-	y_test = test_set[:,-1].astype(int)
+	x_train = training_set[:, :-1] / 255
+	y_train = training_set[:, -1].astype(int)
+	x_test = test_set[:, :-1] / 255
+	y_test = test_set[:, -1].astype(int)
 
 	y_train1 = np.zeros((len(y_train), 10))
 	y_train1[np.arange(len(y_train)), y_train] = 1
@@ -52,24 +52,27 @@ def confusion_matrix(predictions, actual):
 	conf_mat = np.zeros((num_classes, num_classes)).astype(int)
 
 	for a, p in zip(actual, predictions):
-		conf_mat[a, p] += 1
+		conf_mat[a][p] += 1
 
 	accuracy = np.trace(conf_mat) / conf_mat.sum()
 	return conf_mat, accuracy
 
-def plot_matrix(is_training, conf_mat, accuracy):
-	ax = plt.subplot()
-	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	ax.xaxis.set_ticks_position("bottom")
-	for i in range(conf_mat.shape[0]):
-		for j in range(conf_mat.shape[1]):
-			ax.text(x=j, y=i, s=conf_mat[i, j], ha="center", va="center")
-	plt.xticks(range(10))
-	plt.yticks(range(10))
-	plt.xlabel("Predictions")
-	plt.ylabel("Actual")
-	title = "Training" if is_training else "Test"
-	plt.title(f"{title} Confusion Matrix\nAccuracy = {accuracy}")
+def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
+	# axes[0] = training confusion matrix
+	# axes[1] = test confusion matrix
+	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
+	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
+	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
+	axes[0].xaxis.set_ticks_position("bottom")
+	axes[1].xaxis.set_ticks_position("bottom")
+	for i in range(train_conf_mat.shape[0]):
+		for j in range(train_conf_mat.shape[1]):
+			axes[0].text(x=j, y=i, s=train_conf_mat[i][j], ha="center", va="center")
+			axes[1].text(x=j, y=i, s=test_conf_mat[i][j], ha="center", va="center")
+	axes[0].set_xlabel("Predictions")
+	axes[0].set_ylabel("Actual")
+	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")
+	axes[1].set_title(f"Test Confusion Matrix\nAccuracy = {test_acc:.3f}")
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -125,8 +128,7 @@ def main():
 	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
 	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
-	plot_matrix(True, train_conf_mat, train_acc)
-	plot_matrix(False, test_conf_mat, test_acc)
+	plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc)
 
 	# User draws a digit to predict
 

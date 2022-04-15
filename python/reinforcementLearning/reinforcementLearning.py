@@ -42,13 +42,17 @@ if __name__ == "__main__":
 	mc_methods_lbl.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.51, anchor="center")
 	td_methods_lbl.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.73, anchor="center")
 
-	btn_generate_env = tk.Button(frame, text="Generate environment", font="consolas", command=lambda: agent.env.generate())
-	btn_policy_iteration = tk.Button(frame, text="Do policy iteration", font="consolas", command=lambda: agent.policy_iteration())
-	btn_value_iteration = tk.Button(frame, text="Do value iteration", font="consolas", command=lambda: agent.value_iteration())
+	btn_generate_env = tk.Button(frame, text="Generate environment", font="consolas",
+		command=lambda: agent.env.generate())
+	btn_policy_iteration = tk.Button(frame, text="Do policy iteration", font="consolas",
+		command=lambda: agent.policy_iteration())
+	btn_value_iteration = tk.Button(frame, text="Do value iteration", font="consolas",
+		command=lambda: agent.value_iteration())
 	btn_on_policy_mc = tk.Button(frame, text="Do on-policy first-visit MC control", font="consolas",
 		command=lambda: agent.on_policy_first_visit_mc_control())
 	btn_sarsa = tk.Button(frame, text="Do SARSA", font="consolas", command=lambda: agent.sarsa())
-	btn_q_learning = tk.Button(frame, text="Do Q-learning", font="consolas", command=lambda: agent.q_learning())
+	btn_q_learning = tk.Button(frame, text="Do Q-learning", font="consolas",
+		command=lambda: agent.q_learning())
 	btn_generate_env.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.16, anchor="center")
 	btn_policy_iteration.place(relwidth=0.42, relheight=0.1, relx=0.28, rely=0.39, anchor="center")
 	btn_value_iteration.place(relwidth=0.42, relheight=0.1, relx=0.72, rely=0.39, anchor="center")

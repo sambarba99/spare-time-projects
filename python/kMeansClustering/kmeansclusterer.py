@@ -45,7 +45,7 @@ class KMeans:
 			self.__plot("Updated centroids")
 
 		# Classify samples as the index of their clusters
-		return self.__get_cluster_labels()
+		return self.__get_cluster_labels(), self.centroids
 
 	def __create_clusters(self):
 		# Assign the samples to the closest centroids to create clusters
@@ -73,7 +73,7 @@ class KMeans:
 		labels = np.zeros(self.num_samples).astype(int)
 
 		for cluster_idx, cluster in enumerate(self.clusters):
-			labels[cluster] = cluster_idx + 1
+			labels[cluster] = cluster_idx
 
 		return labels
 
@@ -81,11 +81,12 @@ class KMeans:
 		self.ax.clear()
 
 		for idx, c in enumerate(self.clusters):
-			self.ax.scatter(*self.x[c].T, alpha=0.7, label=f"Class {idx + 1}")
+			self.ax.scatter(*self.x[c].T, alpha=0.7, label=f"Class {chr(65 + idx)}")
 
 		for point in self.centroids:
 			self.ax.scatter(*point, color="black", linewidth=3, marker="x", s=100)
 
+		self.ax.axis("square")
 		self.ax.legend()
 		self.ax.set_title(title)
 		if title != "Converged":

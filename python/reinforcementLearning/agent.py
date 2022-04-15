@@ -19,7 +19,9 @@ class Agent:
 			return np.random.choice(self.env.actions)
 		else:
 			# Choose best action available in current state (exploitation), breaking ties randomly
-			return np.random.choice(np.where(self.q_table[state] == max(self.q_table[state]))[0])
+			return np.random.choice(
+				np.where(self.q_table[state] == max(self.q_table[state]))[0]
+			)
 
 	# Get discounted reward of a new state
 	def __discounted_reward(self, new_state, v):

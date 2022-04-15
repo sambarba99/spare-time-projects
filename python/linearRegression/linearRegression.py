@@ -74,7 +74,7 @@ def main():
 
 	corr_coeffs = np.corrcoef(data.T)
 	# Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
-	corr_coeffs[-1,-1] = 0
+	corr_coeffs[-1, -1] = 0
 
 	# Index of column that has the strongest correlation with y
 	idx_max_corr = np.argmax(np.abs(corr_coeffs[:, -1]))
