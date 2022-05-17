@@ -22,11 +22,8 @@ def main():
 	coords = [row.split() for row in coords[1:]]
 	coords = np.array(coords).astype(float)
 
-	# Initially all points are labelled as undefined
-	points = []
-	for c in coords:
-		point = {"x": c[0], "y": c[1], "label": UNDEFINED}
-		points.append(point)
+	# Initialise all points with undefined labels
+	points = [{"x": x, "y": y, "label": UNDEFINED} for x, y in coords]
 
 	# 2. Cluster samples
 
@@ -46,14 +43,15 @@ def main():
 		coords = [p["x"], p["y"]]
 		clusters[p["label"]].append(coords)
 
-	plt.figure(figsize=(8, 8))
+	plt.figure(figsize=(8, 5))
 	for idx, c in enumerate(clusters):
 		if idx == 0 and len(c) > 0:
 			# If there's noise, plot it as black
-			plt.scatter(*np.array(c).T, c="black", label=f"Noise ({len(c)} samples)")
+			plt.scatter(*np.array(c).T, color="black", label=f"Noise ({len(c)} samples)")
 		else:
 			plt.scatter(*np.array(c).T, alpha=0.7, label=f"Class {idx} ({len(c)} samples)")
 
+	plt.axis("scaled")
 	plt.legend()
 	plt.show()
 

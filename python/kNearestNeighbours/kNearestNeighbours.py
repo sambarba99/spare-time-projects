@@ -26,12 +26,11 @@ def plot_matrix(k, conf_mat, accuracy):
 	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	ax.xaxis.set_ticks_position("bottom")
-	for i in range(conf_mat.shape[0]):
-		for j in range(conf_mat.shape[1]):
-			ax.text(x=j, y=i, s=conf_mat[i, j], ha="center", va="center")
+	for (j, i), val in np.ndenumerate(conf_mat):
+		ax.text(x=i, y=j, s=val, ha="center", va="center")
 	plt.xlabel("Predictions")
 	plt.ylabel("Actual")
-	plt.title(f"Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy}")
+	plt.title(f"Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy:.3f}")
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -53,12 +52,12 @@ if __name__ == "__main__":
 	data = np.array(data).astype(float)
 	np.random.shuffle(data)
 
-	x, y = data[:,:-1], data[:,-1].astype(int)
+	x, y = data[:, :-1], data[:, -1].astype(int)
 
 	best_acc = best_k = -1
 	best_conf_mat = None
 
-	for k in range(3, int(len(data) ** 0.5), 2):
+	for k in range(3, int(len(data) ** 0.5) + 1, 2):
 		clf = KNN(k)
 		clf.fit(x, y)
 

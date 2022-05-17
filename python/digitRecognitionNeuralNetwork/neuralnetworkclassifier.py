@@ -36,22 +36,22 @@ class NeuralNetwork:
 				input_vector = item.reshape(-1, 1)
 				actual = self.y_train[idx].reshape(-1, 1)
 
-				hidden_layer_in = np.dot(self.hidden_weights, input_vector) + self.hidden_bias
+				hidden_layer_in = self.hidden_weights.dot(input_vector) + self.hidden_bias
 				hidden_layer_out = self.__sigmoid(hidden_layer_in)
 
-				output_layer_in = np.dot(self.output_weights, hidden_layer_out) + self.output_bias
+				output_layer_in = self.output_weights.dot(hidden_layer_out) + self.output_bias
 				output_layer_out = self.__sigmoid(output_layer_in)  # Prediction vector
 
 				error = actual - output_layer_out
 				delta_output_layer_out = error * self.__sigmoid_derivative(output_layer_out)
 
-				error_hidden = np.dot(delta_output_layer_out.T, self.output_weights)
+				error_hidden = delta_output_layer_out.T.dot(self.output_weights)
 				delta_hidden_layer = error_hidden.T * self.__sigmoid_derivative(hidden_layer_out)
 
-				self.output_weights += np.dot(hidden_layer_out, delta_output_layer_out.T).T * learning_rate
+				self.output_weights += hidden_layer_out.dot(delta_output_layer_out.T).T * learning_rate
 				self.output_bias += delta_output_layer_out.sum(axis=0, keepdims=True) * learning_rate
 
-				self.hidden_weights += np.dot(input_vector, delta_hidden_layer.T).T * learning_rate
+				self.hidden_weights += input_vector.dot(delta_hidden_layer.T).T * learning_rate
 				self.hidden_bias += delta_hidden_layer.sum(axis=0, keepdims=True) * learning_rate
 
 				iteration_loss.append(np.mean(self.__calculate_loss(output_layer_out, actual)))
@@ -64,9 +64,9 @@ class NeuralNetwork:
 		# Make vertical
 		input_vector = input_vector.reshape(-1, 1)
 
-		hidden_layer_in = np.dot(self.hidden_weights, input_vector) + self.hidden_bias
+		hidden_layer_in = self.hidden_weights.dot(input_vector) + self.hidden_bias
 		hidden_layer_out = self.__sigmoid(hidden_layer_in)
-		output_layer_in = np.dot(self.output_weights, hidden_layer_out) + self.output_bias
+		output_layer_in = self.output_weights.dot(hidden_layer_out) + self.output_bias
 
 		# Make horizontal again
 		return self.__sigmoid(output_layer_in).reshape(1, -1)[0]

@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	select_ratio_lbl.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.18, anchor="center")
 
 	slider = tk.Scale(frame, from_=0.5, to=1, resolution=0.001, orient="horizontal", font="consolas",
-		command=lambda l: set_turn_ratio_and_draw())
+		command=lambda _: set_turn_ratio_and_draw())
 	slider.place(relwidth=0.8, relheight=0.3, relx=0.5, rely=0.44, anchor="center")
 
 	btn_set_to_golden_ratio = tk.Button(frame, text="Set to golden ratio", font="consolas",

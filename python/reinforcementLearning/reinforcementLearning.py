@@ -17,7 +17,6 @@
 # 		- -1 per time step
 
 from agent import Agent
-from gridenvironment import GridEnv
 import tkinter as tk
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -25,9 +24,6 @@ import tkinter as tk
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == "__main__":
-	agent = Agent()
-	agent.env = GridEnv()
-
 	root = tk.Tk()
 	root.title("Reinforcement learning demo")
 	root.configure(width=620, height=400, bg="#141414")
@@ -59,5 +55,7 @@ if __name__ == "__main__":
 	btn_on_policy_mc.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.61, anchor="center")
 	btn_sarsa.place(relwidth=0.42, relheight=0.1, relx=0.28, rely=0.84, anchor="center")
 	btn_q_learning.place(relwidth=0.42, relheight=0.1, relx=0.72, rely=0.84, anchor="center")
+
+	agent = Agent()
 
 	root.mainloop()

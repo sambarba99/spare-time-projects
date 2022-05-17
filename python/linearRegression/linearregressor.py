@@ -47,15 +47,15 @@ class LinearRegressor:
 		self.bias = bias_current
 
 	def __calculate_gradients(self, weights, bias):
-		y_predictions = np.dot(self.x_train, weights) + bias
-		weights_deriv = 2 * np.dot(self.x_train.T, y_predictions - self.y_train)
+		y_predictions = self.x_train.dot(weights) + bias
+		weights_deriv = 2 * self.x_train.T.dot(y_predictions - self.y_train)
 		bias_deriv = 2 * (y_predictions - self.y_train).sum()
 		return weights_deriv, bias_deriv
 
-	# Least squares error
+	# Mean absolute error
 	def cost(self, x, y, weights, bias):
-		y_predictions = np.dot(x, weights) + bias
-		return ((y - y_predictions) ** 2).sum()
+		y_predictions = x.dot(weights) + bias
+		return np.abs(y - y_predictions).sum() / len(y)
 
 	def predict(self, inputs):
-		return np.dot(inputs, self.weights) + self.bias
+		return inputs.dot(self.weights) + self.bias

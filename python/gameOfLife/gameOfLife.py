@@ -74,7 +74,11 @@ def draw_grid():
 	for y in range(ROWS):
 		for x in range(COLS):
 			if grid[y][x]:
-				pg.draw.rect(scene, (220, 140, 0), pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+				pg.draw.rect(
+					scene,
+					(220, 140, 0),
+					pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+				)
 
 	pg.display.update()
 

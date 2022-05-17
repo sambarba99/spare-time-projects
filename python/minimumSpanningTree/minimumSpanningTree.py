@@ -5,8 +5,8 @@
 # Left-click: add a vertex
 # Right-click: reset graph
 
+import numpy as np
 import pygame as pg
-import random
 import sys
 
 SIZE = 800
@@ -48,7 +48,9 @@ def mst(graph):
 
 def euclidean_dist(a, b):
 	# Ignore square root for faster execution
-	return (a["x"] - b["x"]) ** 2 + (a["y"] - b["y"]) ** 2
+	a_arr = np.array([a["x"], a["y"]])
+	b_arr = np.array([b["x"], b["y"]])
+	return ((a_arr - b_arr) ** 2).sum()
 
 def draw_mst(graph):
 	if not graph: return
@@ -105,10 +107,10 @@ if __name__ == "__main__":
 
 					x, y = event.pos
 					# Constrain x and y to range [5, SIZE - 5]
-					x = max(min(x, SIZE - 5), 5)
-					y = max(min(y, SIZE - 5), 5)
+					x = np.clip(x, 5, SIZE - 5)
+					y = np.clip(y, 5, SIZE - 5)
 
-					x_vel, y_vel = random.uniform(-3, 3), random.uniform(-3, 3)
+					x_vel, y_vel = np.random.uniform(-3, 3, size=2)
 					vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
 					graph.append(vertex)
 

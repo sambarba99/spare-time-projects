@@ -6,14 +6,14 @@ from linearregressor import LinearRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (10, 8)
+plt.rcParams["figure.figsize"] = (10, 7)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(path, train_test_ratio=0.5):
+def extract_data(path, train_test_ratio=0.8):
 	data = np.genfromtxt(path, dtype=str, delimiter="\n")
 	feature_names = data[0].strip().split(",")
 	# Skip header and convert to floats
@@ -24,7 +24,7 @@ def extract_data(path, train_test_ratio=0.5):
 	# Normalise data (x and y) (column-wise)
 	data = (data - np.mean(data, axis=0)) / np.std(data, axis=0)
 
-	x, y = data[:,:-1], data[:,-1]
+	x, y = data[:, :-1], data[:, -1]
 
 	split = int(len(data) * train_test_ratio)
 
@@ -67,8 +67,8 @@ def main():
 	regressor.fit(x_train, y_train)
 	regressor.train()
 
-	print("Training MSE:", regressor.cost_history[-1] / len(x_train))
-	print("Test MSE:", regressor.cost(x_test, y_test, regressor.weights, regressor.bias) / len(x_test))
+	print("Training MAE:", regressor.cost_history[-1])
+	print("Test MAE:", regressor.cost(x_test, y_test, regressor.weights, regressor.bias))
 
 	# Plot regression line using column with the strongest correlation with y variable
 
@@ -96,14 +96,14 @@ def main():
 	plt.title(f"Gradient descent solution\nweights = {weights}\nbias = {regressor.bias:.3f}")
 	plt.show()
 
-	# Plot MSE graph
+	# Plot MAE graph
 
-	y_plot = np.array(regressor.cost_history) / len(x_train)
+	y_plot = np.array(regressor.cost_history)
 	plt.figure()
 	plt.plot(y_plot, color="red")
 	plt.xlabel("Training iteration")
-	plt.ylabel("Mean square error")
-	plt.title("MSE during training")
+	plt.ylabel("MAE")
+	plt.title("MAE during training")
 	plt.show()
 
 if __name__ == "__main__":

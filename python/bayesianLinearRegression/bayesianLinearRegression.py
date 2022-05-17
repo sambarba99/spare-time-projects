@@ -11,7 +11,7 @@ N_VAL = N_TRAIN
 N_TEST = 300
 SIGMA = 0.3  # Noise = SIGMA ^ 2
 
-plt.rcParams["figure.figsize"] = (8, 6)
+plt.rcParams["figure.figsize"] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -113,9 +113,9 @@ def main():
 		train_pred = phi_train.dot(w)
 		test_pred = phi_test.dot(w)
 		val_pred = phi_val.dot(w)
-		err_train = np.append(err_train, bayesianutility.rms_error(train_pred, y_train))
-		err_test = np.append(err_test, bayesianutility.rms_error(test_pred, y_test))
-		err_val = np.append(err_val, bayesianutility.rms_error(val_pred, y_val))
+		err_train = np.append(err_train, bayesianutility.mae(train_pred, y_train))
+		err_test = np.append(err_test, bayesianutility.mae(test_pred, y_test))
+		err_val = np.append(err_val, bayesianutility.mae(val_pred, y_val))
 		neg_log_evidence = np.append(neg_log_evidence,
 			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2))
 
@@ -126,7 +126,7 @@ def main():
 	ax1.plot(v, err_test, color="#0080ff", ls="--", label="Test")
 	ax1.plot(v, err_val, color="#ff8000", ls="--", label="Val")
 	ax1.set_xlabel("log(lambda)")
-	ax1.set_ylabel("RMS error")
+	ax1.set_ylabel("MAE")
 	ax1.legend(loc="center left")
 
 	ax2.plot(v, neg_log_evidence, color="#008000", label="Train")

@@ -20,12 +20,12 @@ class SVM:
 
 		for _ in range(max_iters):
 			for idx, sample in enumerate(self.x_train):
-				if self.y_train[idx] * (np.dot(sample, self.weights) - self.bias) >= 1:
+				if self.y_train[idx] * (sample.dot(self.weights) - self.bias) >= 1:
 					self.weights -= (2 * lambda_param * self.weights) * learning_rate
 				else:
-					self.weights -= (2 * lambda_param * self.weights - np.dot(sample, self.y_train[idx])) * learning_rate
+					self.weights -= (2 * lambda_param * self.weights - sample.dot(self.y_train[idx])) * learning_rate
 					self.bias -= self.y_train[idx] * learning_rate
 
 	def predict(self, inputs):
-		linear_model = np.dot(inputs, self.weights) - self.bias
+		linear_model = inputs.dot(self.weights) - self.bias
 		return np.sign(linear_model).astype(int)

@@ -20,11 +20,7 @@ SOUTH = [0, 1]
 EAST = [1, 0]
 WEST = [-1, 0]
 
-snake = None
-food_pos = None
-heading = None
-score = None
-game_over = None
+snake = food_pos = heading = score = game_over = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #

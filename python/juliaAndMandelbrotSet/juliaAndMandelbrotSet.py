@@ -44,16 +44,15 @@ scene = None
 def draw():
 	global a, b, scene
 
-	for x in range(WIDTH):
-		for y in range(HEIGHT):
+	for y in range(HEIGHT):
+		for x in range(WIDTH):
 			# Real and imaginary parts of z
 			za = (x - x_offset) / scale
 			zb = (y - y_offset) / scale
 			if mandelbrot_set:
 				a, b = za, zb
 
-			i = 0
-			aa = bb = 0
+			i = aa = bb = 0
 
 			# Test, as we iterate z = z^2 + c, does z diverge?
 			# Let infinity be 16

@@ -289,7 +289,7 @@ def main():
 		for k, v in observations.items():
 			print(f"    {itn[k]}: {v}")
 		marginals = calculate_marginals(observations, msg_order)
-		idx = np.argmax(marginals[:7,1])  # Consider only the failure marginals (first 7 rows)
+		idx = np.argmax(marginals[:7, 1])  # Consider only the failure marginals (first 7 rows)
 		print(f"    Most likely issue = {itn[idx]}")
 
 if __name__ == "__main__":

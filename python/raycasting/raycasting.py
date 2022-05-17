@@ -192,10 +192,8 @@ def main():
 
 			generate_rays()
 
-			if pov_mode:
-				draw_pov_mode()
-			else:
-				draw_birds_eye_mode()
+			if pov_mode: draw_pov_mode()
+			else: draw_birds_eye_mode()
 
 if __name__ == "__main__":
 	main()

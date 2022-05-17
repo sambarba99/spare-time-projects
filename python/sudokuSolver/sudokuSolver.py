@@ -2,6 +2,7 @@
 # Author: Sam Barba
 # Created 07/09/2021
 
+import numpy as np
 import pygame as pg
 import sys
 
@@ -17,7 +18,7 @@ PRESET_PUZZLES = {"Blank": "0" * 81,
 	"Hard": "120000034500000006000000000000070000000891000000020000000000000300000005670000089",
 	"Insane": "800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
 
-board = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+board = np.zeros((BOARD_SIZE, BOARD_SIZE)).astype(int)
 given_yx = []  # Y before X, as 2D arrays are row-major
 num_backtracks = 0
 
@@ -39,7 +40,7 @@ def solve(difficulty_lvl):
 	for n in range(1, 10):
 		if legal(n, y, x):
 			board[y][x] = n
-			draw_grid(difficulty_lvl, "solving...")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solving...")
 			solve(difficulty_lvl)
 
 	if is_full(): return
@@ -49,37 +50,29 @@ def solve(difficulty_lvl):
 	# So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0
 	num_backtracks += 1
-	draw_grid(difficulty_lvl, "solving...")
+	draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solving...")
 
 def is_full():
-	return all(n != 0 for row in board for n in row)
+	return np.all(board)
 
 def find_free_square():
-	for y in range(BOARD_SIZE):
-		for x in range(BOARD_SIZE):
-			if board[y][x] == 0:
-				return y, x
+	for (y, x), val in np.ndenumerate(board):
+		if val == 0:
+			return y, x
 
 	raise AssertionError("Shouldn't have got here")
 
 def legal(n, y, x):
 	# Top-left coords of big square
-	big_square_y = y - (y % 3)
-	big_square_x = x - (x % 3)
+	by = y - (y % 3)
+	bx = x - (x % 3)
 
-	# Check big square
-	for check_y in range(big_square_y, big_square_y + 3):
-		for check_x in range(big_square_x, big_square_x + 3):
-			if board[check_y][check_x] == n:
-				return False
+	# Check row + column + big square
+	return n not in board[y] \
+		and n not in board[:, x] \
+		and n not in board[by:by + 3, bx:bx + 3]
 
-	# Check row and column
-	if n in board[y] or n in (row[x] for row in board):
-		return False
-
-	return True
-
-def draw_grid(difficulty_lvl, solve_status):
+def draw_grid(*, difficulty_lvl, solve_status):
 	scene.fill((20, 20, 20))
 	status_font = pg.font.SysFont("consolas", 16)
 	cell_font = pg.font.SysFont("consolas", 30)
@@ -89,19 +82,18 @@ def draw_grid(difficulty_lvl, solve_status):
 	scene.blit(status_lbl, (GRID_OFFSET, 32))
 	scene.blit(backtracks_lbl, (GRID_OFFSET, 550))
 
-	for y in range(BOARD_SIZE):
-		for x in range(BOARD_SIZE):
-			n = "" if board[y][x] == 0 else str(board[y][x])
+	for (y, x), val in np.ndenumerate(board):
+		n = "" if val == 0 else str(val)
 
-			if (y, x) in given_yx:
-				# Draw already given numbers as green
-				cell_lbl = cell_font.render(n, True, (0, 140, 0))
-			else:
-				cell_lbl = cell_font.render(n, True, FOREGROUND)
+		if (y, x) in given_yx:
+			# Draw already given numbers as green
+			cell_lbl = cell_font.render(n, True, (0, 140, 0))
+		else:
+			cell_lbl = cell_font.render(n, True, FOREGROUND)
 
-			lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
-				(y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
-			scene.blit(cell_lbl, lbl_rect)
+		lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
+			(y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
+		scene.blit(cell_lbl, lbl_rect)
 
 	# Thin grid lines
 	for i in range(GRID_OFFSET, BOARD_SIZE * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
@@ -144,8 +136,8 @@ if __name__ == "__main__":
 			num_backtracks = 0
 			given_yx = [(y, x) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE) if board[y][x] != 0]
 
-			draw_grid(difficulty_lvl, "click to solve")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="click to solve")
 			wait_for_click()
 			solve(difficulty_lvl)
-			draw_grid(difficulty_lvl, "solved! Click for next puzzle")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solved! Click for next puzzle")
 			wait_for_click()

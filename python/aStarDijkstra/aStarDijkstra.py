@@ -8,15 +8,14 @@ import sys
 from time import sleep
 import tkinter as tk
 
+# Ensure these are odd for maze generation
 ROWS = 59
 COLS = 99
-CELL_SIZE = 12
+
+CELL_SIZE = 10
 
 maze_generator = Daedalus(ROWS, COLS)
-maze = None
-start_vertex = None
-target_vertex = None
-path = None
+maze = start_vertex = target_vertex = path = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -38,9 +37,10 @@ def a_star():
 	open_set, closed_set = [start_vertex], []
 
 	while open_set:
+		# Sort by f_cost then by h_cost
 		cheapest_vertex = min(open_set, key=lambda v: (v.get_f_cost(), v.h_cost))
 
-		if cheapest_vertex == target_vertex:
+		if cheapest_vertex is target_vertex:
 			retrace_path()
 			draw()
 			return
@@ -48,7 +48,7 @@ def a_star():
 		open_set.remove(cheapest_vertex)
 		closed_set.append(cheapest_vertex)
 
-		neighbours = cheapest_vertex.get_neighbours(maze, False)
+		neighbours = cheapest_vertex.get_neighbours(maze, maze_generation=False)
 		for n in neighbours:
 			if n in closed_set: continue
 
@@ -76,7 +76,7 @@ def dijkstra():
 	while unvisited:
 		cheapest_vertex = min(unvisited, key=lambda v: v.cost)
 
-		neighbours = cheapest_vertex.get_neighbours(maze, False)
+		neighbours = cheapest_vertex.get_neighbours(maze, maze_generation=False)
 		for n in neighbours:
 			# Adjust cost and parent (weight between vertices = 1, i.e. 1 step needed)
 			if cheapest_vertex.cost + 1 < n.cost:
@@ -144,9 +144,12 @@ if __name__ == "__main__":
 	frame = tk.Frame(root, bg="#0080ff")
 	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
 
-	btn_generate_maze = tk.Button(frame, text="Generate maze", font="consolas", command=lambda: generate_and_draw_maze())
-	btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas", command=lambda: a_star())
-	btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas", command=lambda: dijkstra())
+	btn_generate_maze = tk.Button(frame, text="Generate maze", font="consolas",
+		command=lambda: generate_and_draw_maze())
+	btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas",
+		command=lambda: a_star())
+	btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas",
+		command=lambda: dijkstra())
 	btn_generate_maze.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.25, anchor="center")
 	btn_solve_a_star.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.5, anchor="center")
 	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.75, anchor="center")

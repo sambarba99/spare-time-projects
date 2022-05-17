@@ -63,5 +63,6 @@ class RBFGenerator:
 
 		return phi
 
-def rms_error(pred, actual):
-	return np.mean((pred - actual) ** 2) ** 0.5
+# Mean absolute error
+def mae(pred, actual):
+	return np.abs(pred - actual).sum() / len(actual)

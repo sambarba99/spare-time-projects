@@ -6,10 +6,7 @@ import numpy as np
 import pygame as pg
 
 # Possible actions
-NORTH = 0
-EAST = 1
-SOUTH = 2
-WEST = 3
+NORTH, EAST, SOUTH, WEST = 0, 1, 2, 3
 
 # Rendering constants
 CELL_SIZE = 100

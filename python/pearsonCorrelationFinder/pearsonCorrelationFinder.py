@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	x_plot = [min(x), max(x)]
 	y_plot = [m * i + c for i in x_plot]
 
-	plt.figure(figsize=(8, 8))
+	plt.figure(figsize=(7, 7))
 	plt.scatter(x, y, color="black", alpha=0.4)
 	plt.plot(x_plot, y_plot, color="red")
 	if min(x) < 0 or min(y) < 0:

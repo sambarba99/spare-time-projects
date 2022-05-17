@@ -47,20 +47,20 @@ class LogisticRegressor:
 		self.bias = bias_current
 
 	def __calculate_gradients(self, weights, bias):
-		linear_model = np.dot(self.x_train, weights) + bias
+		linear_model = self.x_train.dot(weights) + bias
 		probs = self.__sigmoid(linear_model)
-		weight_deriv = np.dot(self.x_train.T, probs - self.y_train)
+		weight_deriv = self.x_train.T.dot(probs - self.y_train)
 		bias_deriv = (probs - self.y_train).sum()
 		return weight_deriv, bias_deriv
 
 	def cost(self, x, y, weights, bias):
 		epsilon = 10 ** -6  # To avoid log errors
-		linear_model = np.dot(x, weights) + bias
+		linear_model = x.dot(weights) + bias
 		probs = self.__sigmoid(linear_model)
 		return -(y * np.log(probs + epsilon) + (1 - y) * np.log(1 - probs + epsilon)).sum() / len(x)
 
 	def predict(self, inputs):
-		linear_model = np.dot(inputs, self.weights) + self.bias
+		linear_model = inputs.dot(self.weights) + self.bias
 		probs = self.__sigmoid(linear_model)
 		class_predictions = [1 if i > 0.5 else 0 for i in probs]
 		return np.array(class_predictions)

@@ -38,12 +38,12 @@ if __name__ == "__main__":
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
 
-	x, y = data[:,:-1], data[:,-1].astype(int)
+	x, y = data[:, :-1], data[:, -1].astype(int)
 
 	pca = PCA()
 	x_transform, new_variability = pca.transform(x)
 
-	plt.figure(figsize=(8, 8))
+	plt.figure(figsize=(7, 7))
 	for idx, class_label in enumerate(np.unique(y)):
 		plt.scatter(*x_transform[y == class_label].T, alpha=0.7, label=classes[idx])
 	plt.xlabel("Principal component 1")

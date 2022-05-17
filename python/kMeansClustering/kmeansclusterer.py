@@ -5,7 +5,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (8, 8)
+plt.rcParams["figure.figsize"] = (7, 7)
 
 class KMeans:
 	def __init__(self, k):
@@ -86,7 +86,7 @@ class KMeans:
 		for point in self.centroids:
 			self.ax.scatter(*point, color="black", linewidth=3, marker="x", s=100)
 
-		self.ax.axis("square")
+		self.ax.axis("scaled")
 		self.ax.legend()
 		self.ax.set_title(title)
 		if title != "Converged":

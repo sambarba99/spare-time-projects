@@ -6,14 +6,14 @@ from logisticregressor import LogisticRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (8, 6)
+plt.rcParams["figure.figsize"] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 # Split file data into train/test
-def extract_data(path, train_test_ratio=0.5):
+def extract_data(path, train_test_ratio=0.8):
 	data = np.genfromtxt(path, dtype=str, delimiter="\n")
 	feature_names = data[0].strip().split(",")
 	# Skip header and convert to floats
@@ -21,7 +21,7 @@ def extract_data(path, train_test_ratio=0.5):
 	data = np.array(data).astype(float)
 	np.random.shuffle(data)
 
-	x, y = data[:,:-1], data[:,-1].astype(int)
+	x, y = data[:, :-1], data[:, -1].astype(int)
 
 	# Normalise data (column-wise) (no need for y)
 	x = (x - np.mean(x, axis=0)) / np.std(x, axis=0)
@@ -51,10 +51,9 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[0].xaxis.set_ticks_position("bottom")
 	axes[1].xaxis.set_ticks_position("bottom")
-	for i in range(train_conf_mat.shape[0]):
-		for j in range(train_conf_mat.shape[1]):
-			axes[0].text(x=j, y=i, s=train_conf_mat[i][j], ha="center", va="center")
-			axes[1].text(x=j, y=i, s=test_conf_mat[i][j], ha="center", va="center")
+	for (j, i), val in np.ndenumerate(train_conf_mat):
+		axes[0].text(x=i, y=j, s=val, ha="center", va="center")
+		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha="center", va="center")
 	axes[0].set_xlabel("Predictions")
 	axes[0].set_ylabel("Actual")
 	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")

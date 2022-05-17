@@ -18,7 +18,7 @@ class Vertex:
 		# For Dijkstra only
 		self.cost = 10 ** 9  # Inf
 
-	def get_neighbours(self, maze, maze_generation):
+	def get_neighbours(self, maze, *, maze_generation):
 		dist = 2 if maze_generation else 1
 		check_wall = maze_generation
 
@@ -36,5 +36,6 @@ class Vertex:
 
 		return neighbours
 
+	# For A*
 	def get_f_cost(self):
 		return self.g_cost + self.h_cost

@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
 	# axes[0] = distance vs iteration
 	# axes[1] = current candidate path (3D)
-	_, axes = plt.subplots(nrows=2, figsize=(8, 8), gridspec_kw={"height_ratios": (1, 1.8), "hspace": 0.35})
+	_, axes = plt.subplots(nrows=2, figsize=(6, 8), gridspec_kw={"height_ratios": (1, 1.8), "hspace": 0.35})
 	axes[1] = plt.subplot(2, 1, 2, projection="3d")
 
 	while temperature > TEMP_THRESHOLD:

@@ -131,13 +131,13 @@ def scale_and_centre_image(coords):
 	# depending on if the image is wider than it is tall or vice-versa
 
 	coords = np.array(coords).astype(float)
-	min_x = np.min(coords[:,[0, 2]])
-	max_x = np.max(coords[:,[0, 2]])
-	min_y = np.min(coords[:,[1, 3]])
-	max_y = np.max(coords[:,[1, 3]])
+	min_x = np.min(coords[:, [0, 2]])
+	max_x = np.max(coords[:, [0, 2]])
+	min_y = np.min(coords[:, [1, 3]])
+	max_y = np.max(coords[:, [1, 3]])
 
-	k_x = (WIDTH * 0.85) / (max_x - min_x) if max_x - min_x > 0 else WIDTH * 0.85
-	k_y = (HEIGHT * 0.85) / (max_y - min_y) if max_y - min_y > 0 else HEIGHT * 0.85
+	k_x = (WIDTH * 0.85) / (max_x - min_x) if max_x > min_x else WIDTH * 0.85
+	k_y = (HEIGHT * 0.85) / (max_y - min_y) if max_y > min_y else HEIGHT * 0.85
 	k = min(k_x, k_y)
 
 	coords *= k
@@ -147,8 +147,8 @@ def scale_and_centre_image(coords):
 	mean_x = k * (min_x + max_x) / 2
 	mean_y = k * (min_y + max_y) / 2
 
-	coords[:,[0, 2]] -= mean_x - WIDTH / 2
-	coords[:,[1, 3]] -= mean_y - HEIGHT / 2
+	coords[:, [0, 2]] -= mean_x - WIDTH / 2
+	coords[:, [1, 3]] -= mean_y - HEIGHT / 2
 
 	return coords
 

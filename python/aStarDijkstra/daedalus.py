@@ -19,7 +19,7 @@ class Daedalus:
 		stack = []
 
 		while True:
-			walls = current.get_neighbours(maze, True)
+			walls = current.get_neighbours(maze, maze_generation=True)
 
 			if walls:
 				next_v = random.choice(walls)

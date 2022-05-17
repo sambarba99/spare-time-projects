@@ -2,6 +2,7 @@
 # Author: Sam Barba
 # Created 25/02/2022
 
+from gridenvironment import GridEnv
 import numpy as np
 
 class Agent:
@@ -9,7 +10,7 @@ class Agent:
 		self.gamma = gamma  # Discount factor
 		self.alpha = alpha  # Learning rate (for SARSA, Q-learning)
 		self.epsilon = epsilon  # For epsilon-greedy policy
-		self.env = None
+		self.env = GridEnv()
 		self.q_table = None
 		self.__reset_q_table()
 

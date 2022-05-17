@@ -20,7 +20,7 @@ class PerceptronClf:
 
 		for _ in range(max_iters):
 			for idx, sample in enumerate(self.x_train):
-				linear_model = np.dot(sample, self.weights) + self.bias
+				linear_model = sample.dot(self.weights) + self.bias
 				y_pred = self.__unit_step(linear_model)
 
 				update = learning_rate * (self.y_train[idx] - y_pred)
@@ -29,7 +29,7 @@ class PerceptronClf:
 				self.bias += update
 
 	def predict(self, inputs):
-		linear_model = np.dot(inputs, self.weights) + self.bias
+		linear_model = inputs.dot(self.weights) + self.bias
 		return self.__unit_step(linear_model)
 
 	# Activation function

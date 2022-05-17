@@ -36,9 +36,7 @@ max_steering_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
 max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
 	[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
 
-do_separation = True
-do_alignment = True
-do_cohesion = True
+do_separation = do_alignment = do_cohesion = True
 
 flock = scene = None
 

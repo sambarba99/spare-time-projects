@@ -8,7 +8,7 @@ UNDEFINED = -1
 NOISE = 0
 
 class DBSCANclusterer:
-	def __init__(self, epsilon, min_points):
+	def __init__(self, *, epsilon, min_points):
 		self.epsilon = epsilon
 		self.min_points = min_points
 

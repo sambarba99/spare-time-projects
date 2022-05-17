@@ -2,6 +2,7 @@
 # Author: Sam Barba
 # Created 08/02/2022
 
+import numpy as np
 import pygame as pg
 import sys
 
@@ -12,7 +13,7 @@ QUEEN = 1
 CELL_SIZE = 40
 GRID_OFFSET = 60
 
-board = [[BLANK] * N for _ in range(N)]
+board = np.zeros((N, N)).astype(int)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -44,8 +45,7 @@ def solve(row=0):
 
 def valid(row, col):
 	# Check row and column
-	if QUEEN in board[row] or QUEEN in (r[col] for r in board):
-		return False
+	if QUEEN in board[row] or QUEEN in board[:, col]: return False
 
 	# Check upper diagonal on left side
 	for y, x in zip(range(row, -1, -1), range(col, -1, -1)):
@@ -53,7 +53,7 @@ def valid(row, col):
 			return False
 
 	# Check upper diagonal on right side
-	for y, x in zip(range(row, -1, -1), range(col, N, 1)):
+	for y, x in zip(range(row, -1, -1), range(col, N)):
 		if board[y][x] == QUEEN:
 			return False
 

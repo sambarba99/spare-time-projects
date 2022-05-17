@@ -14,7 +14,7 @@ pag.PAUSE = 1  # 1 sec pause between PyAutoGUI calls
 def calculator_test():
 	pag.hotkey("win")
 	write_msg("calculator")
-	a, b = np.random.randint(100, 1000, 2)
+	a, b = np.random.randint(100, 1000, size=2)
 	op = np.random.choice(["+", "-", "*", "/"])
 	write_msg(f"{a}{op}{b}")
 	pag.hotkey("ctrl", "c")
