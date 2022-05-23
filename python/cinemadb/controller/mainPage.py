@@ -17,7 +17,7 @@ class MainPage(tk.Tk):
 		self.media_service = MediaService.get_instance()
 
 		self.title("Cinema DB")
-		self.configure(width=1400, height=790, bg="#141414")
+		self.config(width=1400, height=790, bg="#141414")
 		self.eval("tk::PlaceWindow . center")
 		self.resizable(False, False)
 
@@ -144,10 +144,10 @@ class MainPage(tk.Tk):
 			self.genres_to_include = sorted(list(set(self.genres_to_include)))
 			genres_str = 14 * " " + f"Showing genres:\n\n{',  '.join(self.genres_to_include)}"
 
-		self.showing_genres_txt.configure(state="normal")
+		self.showing_genres_txt.config(state="normal")
 		self.showing_genres_txt.delete("1.0", tk.END)
 		self.showing_genres_txt.insert("1.0", genres_str)
-		self.showing_genres_txt.configure(state="disabled")
+		self.showing_genres_txt.config(state="disabled")
 
 		media_rows = self.media_service.get_media_rows_with_filters(
 			actor_substring=self.sv_actor.get(),
@@ -155,7 +155,7 @@ class MainPage(tk.Tk):
 			genres=self.genres_to_include,
 			media_type=self.sv_media_type.get()
 		)
-		self.num_media_lbl.configure(text=f"Showing {len(media_rows)} media")
+		self.num_media_lbl.config(text=f"Showing {len(media_rows)} media")
 
 		for row in media_rows:
 			self.media_table.insert("", tk.END, values=row)
@@ -169,13 +169,13 @@ class MainPage(tk.Tk):
 			self.selected_media = None
 		finally:
 			# Update text area with selected media
-			self.selected_media_txt.configure(state="normal")
+			self.selected_media_txt.config(state="normal")
 			self.selected_media_txt.delete("1.0", tk.END)
 			self.selected_media_txt.insert(
 				"1.0",
 				str(self.selected_media) if self.selected_media else "None selected"
 			)
-			self.selected_media_txt.configure(state="disabled")
+			self.selected_media_txt.config(state="disabled")
 
 	def __sort_column(self, col, descending=False):
 		l = [(self.media_table.set(k, col), k) for k in self.media_table.get_children("")]

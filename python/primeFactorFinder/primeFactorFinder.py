@@ -20,7 +20,7 @@ def find_factors(*args):
 		bad_input = True
 
 	if bad_input:
-		output_lbl.configure(text="Enter an integer > 1")
+		output_lbl.config(text="Enter an integer > 1")
 		return
 
 	pf = dict()  # Prime factors and their exponents
@@ -40,7 +40,7 @@ def find_factors(*args):
 
 	pf_str = " x ".join(f"{prime}^{exp}" if exp > 1 else f"{prime}" for prime, exp in pf.items())
 
-	output_lbl.configure(text=pf_str)
+	output_lbl.config(text=pf_str)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -49,7 +49,7 @@ def find_factors(*args):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Prime factor finder")
-	root.configure(width=400, height=200, bg="#141414")
+	root.config(width=400, height=200, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

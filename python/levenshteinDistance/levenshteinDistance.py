@@ -25,7 +25,7 @@ def find_lev_dist(*args):
 
 	d = lev_recursive(sv1.get(), sv2.get())
 
-	output_lbl.configure(text=str(d))
+	output_lbl.config(text=str(d))
 
 def lev_dp(a, b):  # Dynamic programming implementation
 	len_a = len(a)
@@ -64,7 +64,7 @@ def lev_recursive(a, b):  # Recursive implementation
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Levenshtein distance calculator")
-	root.configure(width=350, height=250, bg="#141414")
+	root.config(width=350, height=250, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

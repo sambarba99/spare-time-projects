@@ -27,11 +27,11 @@ def convert(*args):
 		num_in_base_i = to_base_from_decimal(input_num_to_dec, i)
 		to_other_bases.append(f"{num_str} from base {from_base} to base {i}: {num_in_base_i}")
 
-	output_txt.configure(state="normal")
+	output_txt.config(state="normal")
 	output_txt.delete("1.0", tk.END)
 	output_txt.insert("1.0", "\n".join(to_other_bases))
 	output_txt.tag_add("center", "1.0", tk.END)
-	output_txt.configure(state="disabled")
+	output_txt.config(state="disabled")
 
 def to_decimal_from_base(num_str, from_base):
 	dec_num = 0
@@ -62,7 +62,7 @@ def to_base_from_decimal(dec_num, to_base):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Base Converter")
-	root.configure(width=650, height=480, bg="#141414")
+	root.config(width=650, height=480, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

@@ -29,17 +29,17 @@ def calculate(*args):
 		f"(with repetition) of '{char_set}':\n" \
 		f"{', '.join(permutation_repetition_results)}"
 
-	output_no_reps_txt.configure(state="normal")
+	output_no_reps_txt.config(state="normal")
 	output_no_reps_txt.delete("1.0", tk.END)
 	output_no_reps_txt.insert("1.0", output_no_reps)
 	output_no_reps_txt.tag_add("center", "1.0", tk.END)
-	output_no_reps_txt.configure(state="disabled")
+	output_no_reps_txt.config(state="disabled")
 
-	output_with_reps_txt.configure(state="normal")
+	output_with_reps_txt.config(state="normal")
 	output_with_reps_txt.delete("1.0", tk.END)
 	output_with_reps_txt.insert("1.0", output_with_reps)
 	output_with_reps_txt.tag_add("center", "1.0", tk.END)
-	output_with_reps_txt.configure(state="disabled")
+	output_with_reps_txt.config(state="disabled")
 
 # Heap's algorithm for generating all permutations of n objects
 def permutations(n, char_set, results):
@@ -68,7 +68,7 @@ def permutations_with_repetition_length_k(char_set, k, permutation_repetition_re
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Permutations demo")
-	root.configure(width=700, height=600, bg="#141414")
+	root.config(width=700, height=600, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

@@ -24,7 +24,7 @@ SIERPINSKI_ARROWHEAD = {"ruleset": {"axiom": "A", "A": "B-A-B", "B": "A+B+A"},
 KOCH_SNOWFLAKE = {"ruleset": {"axiom": "A--A--A", "A": "A+A--A+A"},
 	"max-iters": 5, "turn-angle": 60, "start-heading": 0, "name": "Koch snowflake"}
 KOCH_ISLAND = {"ruleset": {"axiom": "A+A+A+A", "A": "A-A+A+AAA-A-A+A"},
-	"max-iters": 3, "turn-angle": 90, "start-heading": 0, "name": "Koch island"}
+	"max-iters": 4, "turn-angle": 90, "start-heading": 0, "name": "Koch island"}
 PENTAPLEXITY = {"ruleset": {"axiom": "A++A++A++A++A", "A": "A++A++A+++++A-A++A"},
 	"max-iters": 5, "turn-angle": 36, "start-heading": 36, "name": "Pentaplexity"}
 TRIANGLES = {"ruleset": {"axiom": "A+A+A", "A": "A-A+A"},

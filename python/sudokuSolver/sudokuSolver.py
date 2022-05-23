@@ -83,13 +83,13 @@ def draw_grid(*, difficulty_lvl, solve_status):
 	scene.blit(backtracks_lbl, (GRID_OFFSET, 550))
 
 	for (y, x), val in np.ndenumerate(board):
-		n = "" if val == 0 else str(val)
+		str_val = "" if val == 0 else str(val)
 
 		if (y, x) in given_yx:
 			# Draw already given numbers as green
-			cell_lbl = cell_font.render(n, True, (0, 140, 0))
+			cell_lbl = cell_font.render(str_val, True, (0, 140, 0))
 		else:
-			cell_lbl = cell_font.render(n, True, FOREGROUND)
+			cell_lbl = cell_font.render(str_val, True, FOREGROUND)
 
 		lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
 			(y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))

@@ -17,11 +17,11 @@ def generate_text():
 	global text, output_txt
 
 	text = "".join([random.choice(list("ABCDE")) for _ in range(TEXT_LEN)])
-	output_txt.configure(state="normal")
+	output_txt.config(state="normal")
 	output_txt.delete("1.0", tk.END)
 	output_txt.insert("1.0", text)
 	output_txt.tag_add("center", "1.0", tk.END)
-	output_txt.configure(state="disabled")
+	output_txt.config(state="disabled")
 
 	kmp()
 
@@ -41,10 +41,10 @@ def kmp(*args):
 		output_txt.tag_remove(f"highlight{i}", "1.0", tk.END)
 
 	if len_p == 0:
-		result_lbl.configure(text="Pattern length must be > 0")
+		result_lbl.config(text="Pattern length must be > 0")
 		return
 	elif len_p > len_t:
-		result_lbl.configure(text="Pattern must not be longer than text")
+		result_lbl.config(text="Pattern must not be longer than text")
 		return
 
 	# Create array for holding longest prefix suffix values for pattern
@@ -71,7 +71,7 @@ def kmp(*args):
 		output_txt.tag_add(f"highlight{pos}", f"1.{pos}", f"1.{pos + len(pattern)}")
 		output_txt.tag_config(f"highlight{pos}", background="#20a020")
 
-	result_lbl.configure(text=f"{len(positions)} results found:")
+	result_lbl.config(text=f"{len(positions)} results found:")
 
 def populate_lps(pattern):
 	lps = [0] * len(pattern)
@@ -98,7 +98,7 @@ def populate_lps(pattern):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("KMP demo")
-	root.configure(width=650, height=750, bg="#141414")
+	root.config(width=650, height=750, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	button = tk.Button(root, text="Generate random text", font="consolas", command=lambda: generate_text())

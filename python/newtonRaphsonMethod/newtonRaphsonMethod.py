@@ -72,7 +72,7 @@ def handle_button_click(coefficients, find_root):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Root/Stationary Point Finder")
-	root.configure(width=400, height=200, bg="#141414")
+	root.config(width=400, height=200, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

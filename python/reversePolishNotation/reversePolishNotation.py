@@ -48,10 +48,9 @@ def infix_to_rpn(infix_str):
 def evaluate_rpn(rpn_str):
 	global output_rpn, output_num
 
-	output_rpn.configure(text=rpn_str)
+	output_rpn.config(text=rpn_str)
 
-	rpn_stack = []
-	txt_stack = []
+	rpn_stack, txt_stack = [], []
 
 	for token in rpn_str.split():
 		if token in OPS.keys():
@@ -63,11 +62,11 @@ def evaluate_rpn(rpn_str):
 		rpn_stack.append(int(appnd) if appnd % 1 == 0 else appnd)
 		txt_stack.append(rpn_stack[:])
 
-	output_num.configure(state="normal")
+	output_num.config(state="normal")
 	output_num.delete("1.0", tk.END)
 	output_num.insert("1.0", "\n".join(str(i) for i in txt_stack))
 	output_num.tag_add("center", "1.0", tk.END)
-	output_num.configure(state="disabled")
+	output_num.config(state="disabled")
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -76,7 +75,7 @@ def evaluate_rpn(rpn_str):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Infix to RPN Converter")
-	root.configure(width=400, height=500, bg="#141414")
+	root.config(width=400, height=500, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

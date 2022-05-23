@@ -9,7 +9,7 @@ import tkinter as tk
 
 IMG_SRCS = [f"test{i}.jpg" for i in range(1, 5)]
 MAX_SIZE = 600
-MAX_DIST = 195075  # Max Euclidean dist between 2 colours (ignoring square root) = 255^2 * 3
+MAX_DIST = 441.673  # Max Euclidean dist between 2 colours = root(255^2 * 3)
 
 selected_img = target_r_entry = target_g_entry = target_b_entry = None
 
@@ -105,9 +105,8 @@ def nearest_colour():
 	plt.show()
 
 # Euclidean distance between 2 colours
-def dist(pixel, target_pixel):
-	# Ignore square root for faster execution
-	return ((np.array(pixel) - np.array(target_pixel)) ** 2).sum()
+def dist(pixel1, pixel2):
+	return np.linalg.norm(np.array(pixel1) - np.array(pixel2))
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -127,7 +126,7 @@ def main():
 
 	root = tk.Tk()
 	root.title("Image processing demo")
-	root.configure(width=500, height=300, bg="#141414")
+	root.config(width=500, height=300, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

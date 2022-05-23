@@ -3,36 +3,48 @@
 # Created 20/09/2021
 
 from daedalus import Daedalus
+from graphGenerator import GraphGen
+import numpy as np
 import pygame as pg
 import sys
 from time import sleep
 import tkinter as tk
 
-# Ensure these are odd for maze generation
-ROWS = 59
-COLS = 99
+CELL_SIZE = 10  # If maze mode selected
 
-CELL_SIZE = 10
-
-maze_generator = Daedalus(ROWS, COLS)
-maze = start_vertex = target_vertex = path = None
+maze_mode = True  # False means normal graph (vertices/edges) mode
+maze_generator = Daedalus()
+graph_generator = GraphGen(max_x=maze_generator.cols * CELL_SIZE, max_y=maze_generator.rows * CELL_SIZE)
+graph = start_vertex = target_vertex = path = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def generate_and_draw_maze():
-	global maze, start_vertex, target_vertex, path
+def generate_and_draw_graph():
+	global maze_mode, graph, start_vertex, target_vertex, path
 
-	maze = maze_generator.make_maze()
-	start_vertex = maze[0][0]
-	target_vertex = maze[ROWS - 1][COLS - 1]
+	if maze_mode:
+		graph = maze_generator.make_maze()
+		# Start and target are top-left and bottom-right, respectively
+		start_vertex = graph[0][0]
+		target_vertex = graph[maze_generator.rows - 1][maze_generator.cols - 1]
+	else:
+		graph = graph_generator.make_graph()
+		coords = np.array(list(zip([v.x for v in graph], [v.y for v in graph])))
+
+		# Start is top-left-most vertex; target is bottom-right-most vertex
+		distances_from_top_left = np.linalg.norm(coords, axis=1)
+		distances_from_bottom_right = np.linalg.norm(
+			coords - np.array([graph_generator.max_x, graph_generator.max_y]), axis=1)
+		start_vertex = graph[np.argmin(distances_from_top_left)]
+		target_vertex = graph[np.argmin(distances_from_bottom_right)]
+
 	path = None
-
 	draw()
 
 def a_star():
-	global maze, start_vertex, target_vertex
+	global maze_mode, graph, start_vertex, target_vertex
 
 	open_set, closed_set = [start_vertex], []
 
@@ -48,27 +60,27 @@ def a_star():
 		open_set.remove(cheapest_vertex)
 		closed_set.append(cheapest_vertex)
 
-		neighbours = cheapest_vertex.get_neighbours(maze, maze_generation=False)
+		if maze_mode: neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False)
+		else: neighbours = cheapest_vertex.neighbours
+
 		for n in neighbours:
 			if n in closed_set: continue
 
-			cost_move_to_n = cheapest_vertex.g_cost + manhattan_dist(cheapest_vertex, n)
+			cost_move_to_n = cheapest_vertex.g_cost + cheapest_vertex.dist(n)
 			if cost_move_to_n < n.g_cost or n not in open_set:
 				n.g_cost = cost_move_to_n
-				n.h_cost = manhattan_dist(n, target_vertex)
+				n.h_cost = n.dist(target_vertex)
 				n.parent_vertex = cheapest_vertex
 
 				if n not in open_set:
 					open_set.append(n)
 
-def manhattan_dist(a, b):
-	return abs(a.x - b.x) + abs(a.y - b.y)
-
 # Dijkstra's algorithm for Shortest Path Tree
 def dijkstra():
-	global maze, start_vertex, target_vertex
+	global maze_mode, graph, start_vertex, target_vertex
 
-	unvisited = [vertex for row in maze for vertex in row if not vertex.is_wall]
+	if maze_mode: unvisited = [vertex for row in graph for vertex in row if not vertex.is_wall]
+	else: unvisited = [v for v in graph]
 
 	# Costs nothing to get from start to start (start_vertex parent will always be None)
 	start_vertex.cost = 0
@@ -76,11 +88,20 @@ def dijkstra():
 	while unvisited:
 		cheapest_vertex = min(unvisited, key=lambda v: v.cost)
 
-		neighbours = cheapest_vertex.get_neighbours(maze, maze_generation=False)
+		if cheapest_vertex is target_vertex:
+			# Stop generating Shortest Path Tree
+			# (only need path from start_vertex to target_vertex)
+			break
+
+		if maze_mode: neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False)
+		else: neighbours = cheapest_vertex.neighbours
+
 		for n in neighbours:
-			# Adjust cost and parent (weight between vertices = 1, i.e. 1 step needed)
-			if cheapest_vertex.cost + 1 < n.cost:
-				n.cost = cheapest_vertex.cost + 1
+			if maze_mode: step = 1  # 1 step needed if maze
+			else: step = cheapest_vertex.dist(n)
+
+			if cheapest_vertex.cost + step < n.cost:
+				n.cost = cheapest_vertex.cost + step
 				n.parent_vertex = cheapest_vertex
 
 		# Cheapest vertex has now been visited
@@ -103,28 +124,67 @@ def retrace_path():
 	path = retraced_path[::-1]
 
 def draw():
-	global maze, path
+	global maze_generator, maze_mode, graph, start_vertex, target_vertex, path
 
-	for y in range(ROWS):
-		for x in range(COLS):
-			c = (0, 0, 0) if maze[y][x].is_wall else (80, 80, 80)
+	scene.fill((0, 0, 0))
 
-			pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	if maze_mode:
+		for y in range(maze_generator.rows):
+			for x in range(maze_generator.cols):
+				c = (0, 0, 0) if graph[y][x].is_wall else (80, 80, 80)
+
+				pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	else:
+		# Draw edges then vertices on top
+		for v in graph:
+			for neighbour in v.neighbours:
+				pg.draw.line(scene, (160, 160, 160), (v.x, v.y), (neighbour.x, neighbour.y))
+
+		for v in graph:
+			pg.draw.circle(scene, (255, 0, 0), (v.x, v.y), 4)
+
+		# Start and target
+		pg.draw.circle(scene, (0, 80, 255), (start_vertex.x, start_vertex.y), 8)
+		pg.draw.circle(scene, (0, 80, 255), (target_vertex.x, target_vertex.y), 8)
 
 	pg.display.update()
 
 	if path is None: return
 
-	time_interval = 5 / len(path)  # Want drawing to last around 5s
+	if maze_mode:
+		time_interval = 5 / len(path)  # Want drawing to last around 5s
 
-	for v in path:
-		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				pg.quit()
-				sys.exit(0)
-		pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-		sleep(time_interval)
-		pg.display.update()
+		for v in path:
+			for event in pg.event.get():
+				if event.type == pg.QUIT:
+					pg.quit()
+					sys.exit(0)
+			pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+			sleep(time_interval)
+			pg.display.update()
+	else:
+		# Draw edges then vertices on top
+		for v in graph:
+			for neighbour in v.neighbours:
+				pg.draw.line(scene, (160, 160, 160), (v.x, v.y), (neighbour.x, neighbour.y))
+
+		# Solution path
+		for i in range(len(path) - 1):
+			pg.draw.line(scene, (0, 255, 0), (path[i].x, path[i].y), (path[i + 1].x, path[i + 1].y), 4)
+
+		for v in graph:
+			pg.draw.circle(scene, (255, 0, 0), (v.x, v.y), 4)
+
+		# Start and target
+		pg.draw.circle(scene, (0, 80, 255), (start_vertex.x, start_vertex.y), 8)
+		pg.draw.circle(scene, (0, 80, 255), (target_vertex.x, target_vertex.y), 8)
+
+	pg.display.update()
+
+def toggle_maze_mode():
+	global maze_mode
+	maze_mode = not maze_mode
+	generate_and_draw_graph()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -133,25 +193,28 @@ def draw():
 if __name__ == "__main__":
 	pg.init()
 	pg.display.set_caption("A* and Dijkstra demo")
-	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
+	scene = pg.display.set_mode((maze_generator.cols * CELL_SIZE, maze_generator.rows * CELL_SIZE))
 
-	generate_and_draw_maze()
+	generate_and_draw_graph()
 
 	root = tk.Tk()
-	root.title("A*/Dijkstra Maze Solver")
-	root.configure(width=350, height=200, bg="#141414")
+	root.title("A*/Dijkstra Demo")
+	root.config(width=350, height=250, bg="#141414")
 
 	frame = tk.Frame(root, bg="#0080ff")
 	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
 
-	btn_generate_maze = tk.Button(frame, text="Generate maze", font="consolas",
-		command=lambda: generate_and_draw_maze())
+	btn_generate_graph = tk.Button(frame, text="Generate graph", font="consolas",
+		command=lambda: generate_and_draw_graph())
 	btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas",
 		command=lambda: a_star())
 	btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas",
 		command=lambda: dijkstra())
-	btn_generate_maze.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.25, anchor="center")
-	btn_solve_a_star.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.5, anchor="center")
-	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.75, anchor="center")
+	btn_toggle_maze_mode = tk.Button(frame, text="Toggle maze/graph mode", font="consolas",
+		command=lambda: toggle_maze_mode())
+	btn_generate_graph.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor="center")
+	btn_solve_a_star.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.4, anchor="center")
+	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.6, anchor="center")
+	btn_toggle_maze_mode.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.8, anchor="center")
 
 	root.mainloop()

@@ -15,10 +15,10 @@ def file_walk(path):
 	global discovered_files_output_txt, path_size_output_lbl
 
 	if not os.path.exists(path):
-		discovered_files_output_txt.configure(state="normal")
+		discovered_files_output_txt.config(state="normal")
 		discovered_files_output_txt.delete("1.0", tk.END)
-		discovered_files_output_txt.configure(state="disabled")
-		path_size_output_lbl.configure(text="That path doesn't exist!")
+		discovered_files_output_txt.config(state="disabled")
+		path_size_output_lbl.config(text="That path doesn't exist!")
 		return
 
 	discovered_files = []
@@ -48,13 +48,13 @@ def file_walk(path):
 	path_size_output = f"{n} files in path (size = {path_size:.2f} {suffix})\n" \
 		f"Walked in {(1000 * interval):.0f} ms"
 
-	discovered_files_output_txt.configure(state="normal")
+	discovered_files_output_txt.config(state="normal")
 	discovered_files_output_txt.delete("1.0", tk.END)
 	discovered_files_output_txt.insert("1.0", "\n".join(discovered_files))
 	discovered_files_output_txt.tag_add("center", "1.0", tk.END)
-	discovered_files_output_txt.configure(state="disabled")
+	discovered_files_output_txt.config(state="disabled")
 
-	path_size_output_lbl.configure(text=path_size_output)
+	path_size_output_lbl.config(text=path_size_output)
 
 def get_suffix(path_size):
 	suffix_arr = ["bytes", "KB", "MB", "GB"]
@@ -73,7 +73,7 @@ def get_suffix(path_size):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("File Path Walker")
-	root.configure(width=600, height=680, bg="#141414")
+	root.config(width=600, height=680, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

@@ -40,7 +40,7 @@ def download():
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("YouTube to mp3 converter and downloader")
-	root.configure(width=420, height=180, bg="#141414")
+	root.config(width=420, height=180, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

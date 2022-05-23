@@ -18,7 +18,7 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 		self.media_service = MediaService.get_instance()
 
 		self.title("Update Media" if self.media.mid else "Add Media")
-		self.configure(width=820, height=500, bg="#141414")
+		self.config(width=820, height=500, bg="#141414")
 		self.resizable(False, False)
 
 		self.sv_title = tk.StringVar(value=self.media.title)
@@ -171,7 +171,7 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 			self.media.genres.append(self.sv_genre.get())
 		self.media.genres = sorted(list(set(self.media.genres)))
 
-		self.media_txt.configure(state="normal")
+		self.media_txt.config(state="normal")
 		self.media_txt.delete("1.0", tk.END)
 		self.media_txt.insert("1.0", str(self.media))
-		self.media_txt.configure(state="disabled")
+		self.media_txt.config(state="disabled")

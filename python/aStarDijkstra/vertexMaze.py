@@ -2,7 +2,7 @@
 # Author: Sam Barba
 # Created 20/09/2021
 
-class Vertex:
+class MazeVertex:
 	def __init__(self, y, x):  # Y before X, as 2D arrays are row-major
 		self.y = y
 		self.x = x
@@ -35,6 +35,10 @@ class Vertex:
 			neighbours.append(maze[self.y + dist][self.x])
 
 		return neighbours
+
+	# For A* (Manhattan distance)
+	def dist(self, other):
+		return abs(self.x - other.x) + abs(self.y - other.y)
 
 	# For A*
 	def get_f_cost(self):

@@ -34,13 +34,13 @@ def convert(*args):
 		int_s = None
 
 	if input_s == "" or (int_s is None and any(c not in "IVXLCDM" for c in input_s)):
-		output_lbl.configure(text="Bad input!")
+		output_lbl.config(text="Bad input!")
 		return
 
 	if int_s is not None:
-		output_lbl.configure(text=f"{int_s} = {int_to_numerals(int_s)}")
+		output_lbl.config(text=f"{int_s} = {int_to_numerals(int_s)}")
 	else:
-		output_lbl.configure(text=f"{input_s} = {numerals_to_int(input_s)}")
+		output_lbl.config(text=f"{input_s} = {numerals_to_int(input_s)}")
 
 def int_to_numerals(n):
 	if n == 0: return "0"
@@ -73,7 +73,7 @@ def numerals_to_int(numerals):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Roman Numeral Converter")
-	root.configure(width=400, height=200, bg="#141414")
+	root.config(width=400, height=200, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

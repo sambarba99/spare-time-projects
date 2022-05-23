@@ -40,4 +40,4 @@ class DBSCANclusterer:
 	def __euclidean_dist(self, p1, p2):
 		coords1 = np.array([p1["x"], p1["y"]])
 		coords2 = np.array([p2["x"], p2["y"]])
-		return ((coords1 - coords2) ** 2).sum() ** 0.5
+		return np.linalg.norm(coords1 - coords2)

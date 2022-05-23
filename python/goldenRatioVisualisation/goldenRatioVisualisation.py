@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
 	root = tk.Tk()
 	root.title("Golden Ratio Visualiser")
-	root.configure(width=300, height=200, bg="#141414")
+	root.config(width=300, height=200, bg="#141414")
 
 	frame = tk.Frame(root, bg="#0080ff")
 	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")

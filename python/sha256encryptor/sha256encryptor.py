@@ -15,11 +15,11 @@ def encrypt(*args):
 	hash_obj = hashlib.sha256(sv.get().encode())
 	hash_dig = hash_obj.hexdigest()
 
-	output_txt.configure(state="normal")
+	output_txt.config(state="normal")
 	output_txt.delete("1.0", tk.END)
 	output_txt.insert("1.0", f"'{sv.get()}' encrypted with SHA-256:\n{hash_dig}")
 	output_txt.tag_add("center", "1.0", tk.END)
-	output_txt.configure(state="disabled")
+	output_txt.config(state="disabled")
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -28,7 +28,7 @@ def encrypt(*args):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("SHA-256 encryptor")
-	root.configure(width=500, height=250, bg="#141414")
+	root.config(width=500, height=250, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

@@ -45,7 +45,7 @@ def interpolate_and_plot():
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Perlin Noise Visualiser")
-	root.configure(width=320, height=180, bg="#141414")
+	root.config(width=320, height=180, bg="#141414")
 
 	frame = tk.Frame(root, bg="#0080ff")
 	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")

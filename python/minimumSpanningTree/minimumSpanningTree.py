@@ -47,10 +47,9 @@ def mst(graph):
 	return mst_parents
 
 def euclidean_dist(a, b):
-	# Ignore square root for faster execution
 	a_arr = np.array([a["x"], a["y"]])
 	b_arr = np.array([b["x"], b["y"]])
-	return ((a_arr - b_arr) ** 2).sum()
+	return np.linalg.norm(a_arr - b_arr)
 
 def draw_mst(graph):
 	if not graph: return

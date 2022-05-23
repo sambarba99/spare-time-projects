@@ -3,33 +3,33 @@
 # Created 20/09/2021
 
 import random
-from vertex import Vertex
+from vertexMaze import MazeVertex
 
 class Daedalus:
-	def __init__(self, rows, cols):
+	def __init__(self, rows=59, cols=99):  # Ensure rows and cols are odd
 		self.rows = rows
 		self.cols = cols
 
 	def make_maze(self):
-		maze = [[Vertex(y, x) for x in range(self.cols)] for y in range(self.rows)]
+		graph = [[MazeVertex(y, x) for x in range(self.cols)] for y in range(self.rows)]
 
 		# Make top-left start
-		maze[0][0].is_wall = False
-		current = maze[0][0]
+		graph[0][0].is_wall = False
+		current = graph[0][0]
 		stack = []
 
 		while True:
-			walls = current.get_neighbours(maze, maze_generation=True)
+			walls = current.get_neighbours(graph, maze_generation=True)
 
 			if walls:
 				next_v = random.choice(walls)
 				stack.append(current)
-				self.__remove_walls(maze, current, next_v)
+				self.__remove_walls(graph, current, next_v)
 				current = next_v
 			elif stack:
 				current = stack.pop()
 			else:
-				return maze
+				return graph
 
 	def __remove_walls(self, maze, a, b):
 		mid_y = (a.y + b.y) // 2

@@ -18,13 +18,13 @@ def solve_and_write_steps():
 	num_discs = slider.get()
 	solve(num_discs)
 
-	steps_lbl.configure(text=f"Steps ({len(steps)}):")
+	steps_lbl.config(text=f"Steps ({len(steps)}):")
 
-	output_steps.configure(state="normal")
+	output_steps.config(state="normal")
 	output_steps.delete("1.0", tk.END)
 	output_steps.insert("1.0", "\n".join(steps))
 	output_steps.tag_add("center", "1.0", tk.END)
-	output_steps.configure(state="disabled")
+	output_steps.config(state="disabled")
 
 def solve(n, t1=1, t2=2, t3=3):
 	global steps
@@ -41,7 +41,7 @@ def solve(n, t1=1, t2=2, t3=3):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Towers of Hanoi solver")
-	root.configure(width=500, height=700, bg="#141414")
+	root.config(width=500, height=700, bg="#141414")
 	root.eval("tk::PlaceWindow . center")
 
 	frame = tk.Frame(root, bg="#0080ff")

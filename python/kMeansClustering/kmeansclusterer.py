@@ -96,5 +96,4 @@ class KMeans:
 			plt.show()
 
 	def __euclidean_dist(self, p1, p2):
-		# Ignore square root for faster execution
-		return ((p1 - p2) ** 2).sum()
+		return np.linalg.norm(p1 - p2)
