@@ -46,19 +46,16 @@ if __name__ == "__main__":
 
 	root = tk.Tk()
 	root.title("Golden Ratio Visualiser")
-	root.config(width=300, height=200, bg="#141414")
+	root.config(width=300, height=180, bg="#000045")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	select_ratio_lbl = tk.Label(frame, text="Select a turn ratio:", font="consolas", bg="#0080ff")
+	select_ratio_lbl = tk.Label(root, text="Select a turn ratio:", font="consolas", bg="#000045", fg="white")
 	select_ratio_lbl.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.18, anchor="center")
 
-	slider = tk.Scale(frame, from_=0.5, to=1, resolution=0.001, orient="horizontal", font="consolas",
+	slider = tk.Scale(root, from_=0.5, to=1, resolution=0.001, orient="horizontal", font="consolas",
 		command=lambda _: set_turn_ratio_and_draw())
 	slider.place(relwidth=0.8, relheight=0.3, relx=0.5, rely=0.44, anchor="center")
 
-	btn_set_to_golden_ratio = tk.Button(frame, text="Set to golden ratio", font="consolas",
+	btn_set_to_golden_ratio = tk.Button(root, text="Set to golden ratio", font="consolas",
 		command=lambda: set_turn_ratio_and_draw(GOLDEN_RATIO))
 	btn_set_to_golden_ratio.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.77, anchor="center")
 

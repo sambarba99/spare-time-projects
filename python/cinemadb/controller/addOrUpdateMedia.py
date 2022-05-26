@@ -18,7 +18,7 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 		self.media_service = MediaService.get_instance()
 
 		self.title("Update Media" if self.media.mid else "Add Media")
-		self.config(width=820, height=500, bg="#141414")
+		self.config(width=820, height=500, bg="#000045")
 		self.resizable(False, False)
 
 		self.sv_title = tk.StringVar(value=self.media.title)
@@ -33,7 +33,7 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 		self.sv_year.trace_add(mode="write", callback=self.__update_media_and_text_area)
 		self.sv_genre.trace_add(mode="write", callback=self.__update_media_and_text_area)
 
-		self.media_txt = tk.Text(self, bg="#dcdcdc", font="arial 12", state="disabled")
+		self.media_txt = tk.Text(self, bg="white", font="arial 12", state="disabled")
 		self.__setup_window()
 
 		self.transient(self.parent)
@@ -44,27 +44,27 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 
 	def __setup_window(self):
 		lbl_text = "Media to update:" if self.media.mid else "Media to add:"
-		media_lbl = tk.Label(self, text=lbl_text, font="arial 12", bg="#141414", fg="#dcdcdc")
+		media_lbl = tk.Label(self, text=lbl_text, font="arial 12", bg="#000045", fg="white")
 		media_lbl.place(width=130, height=30, x=82 if self.media.mid else 71, y=241, anchor="center")
 
 		self.media_txt.place(width=640, height=220, x=342, y=368, anchor="center")
 
-		title_lbl = tk.Label(self, text="Title:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		title_lbl = tk.Label(self, text="Title:", font="arial 12", bg="#000045", fg="white")
 		title_lbl.place(width=80, height=30, x=50, y=30, anchor="center")
 		title_entry = tk.Entry(self, textvariable=self.sv_title, font="arial 12")
 		title_entry.place(width=220, height=30, x=143, y=61, anchor="center")
 
-		media_type_lbl = tk.Label(self, text="Media type:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		media_type_lbl = tk.Label(self, text="Media type:", font="arial 12", bg="#000045", fg="white")
 		media_type_lbl.place(width=100, height=30, x=75, y=101, anchor="center")
 		media_type_selection = tk.OptionMenu(self, self.sv_media_type, *MEDIA_TYPES)
 		media_type_selection.place(width=220, height=30, x=144, y=132, anchor="center")
 
-		year_lbl = tk.Label(self, text="Year:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		year_lbl = tk.Label(self, text="Year:", font="arial 12", bg="#000045", fg="white")
 		year_lbl.place(width=80, height=30, x=52, y=169, anchor="center")
 		year_entry = tk.Entry(self, textvariable=self.sv_year, font="arial 12")
 		year_entry.place(width=220, height=30, x=143, y=200, anchor="center")
 
-		genres_lbl = tk.Label(self, text="Genres:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		genres_lbl = tk.Label(self, text="Genres:", font="arial 12", bg="#000045", fg="white")
 		genres_lbl.place(width=100, height=30, x=328, y=30, anchor="center")
 		genre_selection = tk.OptionMenu(self, self.sv_genre, *GENRES)
 		genre_selection.place(width=220, height=30, x=410, y=61, anchor="center")
@@ -72,7 +72,7 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 			fg="white", command=lambda: self.__clear_genres())
 		btn_clear_genres.place(width=100, height=30, x=588, y=61, anchor="center")
 
-		directors_lbl = tk.Label(self, text="Directors:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		directors_lbl = tk.Label(self, text="Directors:", font="arial 12", bg="#000045", fg="white")
 		directors_lbl.place(width=100, height=30, x=334, y=101, anchor="center")
 		director_entry = tk.Entry(self, textvariable=self.sv_director, font="arial 12")
 		director_entry.place(width=220, height=30, x=410, y=132, anchor="center")
@@ -80,12 +80,12 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 			command=lambda: self.__add_director_or_actor(lst=self.media.directors, sv=self.sv_director))
 		btn_add_director.place(width=70, height=30, x=573, y=132, anchor="center")
 		various_directors_check = tk.Checkbutton(self, text="Various", font="arial 12",
-			bg="#141414", fg="#dcdcdc", variable=self.intv_various_directors,
+			bg="#000045", fg="white", variable=self.intv_various_directors,
 			onvalue=1, offvalue=0, command=lambda: self.__set_various_directors())
 		various_directors_check.config(selectcolor="black")
 		various_directors_check.place(width=100, height=30, x=660, y=132, anchor="center")
 
-		actors_lbl = tk.Label(self, text="Actors:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		actors_lbl = tk.Label(self, text="Actors:", font="arial 12", bg="#000045", fg="white")
 		actors_lbl.place(width=100, height=30, x=327, y=169, anchor="center")
 		actor_entry = tk.Entry(self, textvariable=self.sv_actor, font="arial 12")
 		actor_entry.place(width=220, height=30, x=410, y=200, anchor="center")

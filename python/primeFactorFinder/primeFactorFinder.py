@@ -49,25 +49,22 @@ def find_factors(*args):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Prime factor finder")
-	root.config(width=400, height=200, bg="#141414")
+	root.config(width=300, height=180, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	enter_num_lbl = tk.Label(frame, text="Enter an integer:", font="consolas", bg="#0080ff")
+	enter_num_lbl = tk.Label(root, text="Enter an integer:", font="consolas", bg="#000045", fg="white")
 	enter_num_lbl.place(relwidth=0.8, relheight=0.12, relx=0.5, rely=0.2, anchor="center")
 
 	sv = tk.StringVar(value="123456789")
 	sv.trace_add(mode="write", callback=find_factors)
-	entry_box = tk.Entry(frame, textvariable=sv, font="consolas", justify="center")
-	entry_box.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.36, anchor="center")
+	entry_box = tk.Entry(root, textvariable=sv, font="consolas", justify="center")
+	entry_box.place(relwidth=0.6, relheight=0.15, relx=0.5, rely=0.36, anchor="center")
 
-	result_lbl = tk.Label(frame, text="Prime factorisation:", font="consolas", bg="#0080ff")
-	result_lbl.place(relwidth=0.8, relheight=0.12, relx=0.5, rely=0.56, anchor="center")
+	result_lbl = tk.Label(root, text="Prime factorisation:", font="consolas", bg="#000045", fg="white")
+	result_lbl.place(relwidth=0.8, relheight=0.12, relx=0.5, rely=0.57, anchor="center")
 
-	output_lbl = tk.Label(frame, font="consolas")
-	output_lbl.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.72, anchor="center")
+	output_lbl = tk.Label(root, font="consolas", bg="#000045", fg="white")
+	output_lbl.place(relwidth=0.8, relheight=0.12, relx=0.5, rely=0.75, anchor="center")
 
 	find_factors()
 

@@ -62,30 +62,27 @@ def to_base_from_decimal(dec_num, to_base):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Base Converter")
-	root.config(width=650, height=480, bg="#141414")
+	root.config(width=650, height=480, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.5, relheight=0.3, relx=0.5, rely=0.19, anchor="center")
-
-	enter_num_lbl = tk.Label(frame, text="Enter a number:", font="consolas", bg="#0080ff")
-	enter_base_lbl = tk.Label(frame, text="Enter its base:", font="consolas", bg="#0080ff")
-	enter_num_lbl.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.14, anchor="center")
-	enter_base_lbl.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.59, anchor="center")
+	enter_num_lbl = tk.Label(root, text="Enter a number:", font="consolas", bg="#000045", fg="white")
+	enter_base_lbl = tk.Label(root, text="Enter its base:", font="consolas", bg="#000045", fg="white")
+	enter_num_lbl.place(relwidth=0.5, relheight=0.05, relx=0.5, rely=0.08, anchor="center")
+	enter_base_lbl.place(relwidth=0.5, relheight=0.05, relx=0.5, rely=0.21, anchor="center")
 
 	sv_num = tk.StringVar(value="2000")
 	sv_from_base = tk.StringVar(value="10")
 	sv_num.trace_add(mode="write", callback=convert)
 	sv_from_base.trace_add(mode="write", callback=convert)
 
-	num_entry = tk.Entry(frame, textvariable=sv_num, font="consolas", justify="center")
-	base_entry = tk.Entry(frame, textvariable=sv_from_base,font="consolas", justify="center")
-	num_entry.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.35, anchor="center")
-	base_entry.place(relwidth=0.5, relheight=0.22, relx=0.5, rely=0.8, anchor="center")
+	num_entry = tk.Entry(root, textvariable=sv_num, font="consolas", justify="center")
+	base_entry = tk.Entry(root, textvariable=sv_from_base,font="consolas", justify="center")
+	num_entry.place(relwidth=0.3, relheight=0.06, relx=0.5, rely=0.14, anchor="center")
+	base_entry.place(relwidth=0.3, relheight=0.06, relx=0.5, rely=0.27, anchor="center")
 
-	output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	output_txt = tk.Text(root, bg="white", font="consolas", state="disabled")
 	output_txt.tag_configure("center", justify="center")
-	output_txt.place(relwidth=0.9, relheight=0.57, relx=0.5, rely=0.66, anchor="center")
+	output_txt.place(relwidth=0.9, relheight=0.57, relx=0.5, rely=0.63, anchor="center")
 
 	convert()
 

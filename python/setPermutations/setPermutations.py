@@ -68,34 +68,31 @@ def permutations_with_repetition_length_k(char_set, k, permutation_repetition_re
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Permutations demo")
-	root.config(width=700, height=600, bg="#141414")
+	root.config(width=700, height=600, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.5, relheight=0.12, relx=0.5, rely=0.1, anchor="center")
-
-	enter_word_lbl = tk.Label(frame, text="Enter a word:", font="consolas", bg="#0080ff")
-	enter_word_lbl.place(relwidth=0.8, relheight=0.33, relx=0.5, rely=0.25, anchor="center")
+	enter_word_lbl = tk.Label(root, text="Enter a word:", font="consolas", bg="#000045", fg="white")
+	enter_word_lbl.place(relwidth=0.3, relheight=0.05, relx=0.5, rely=0.06, anchor="center")
 
 	sv = tk.StringVar(value="hello")
 	sv.trace_add(mode="write", callback=calculate)
 
-	entry_box = tk.Entry(frame, textvariable=sv, font="consolas", justify="center")
-	entry_box.place(relwidth=0.5, relheight=0.37, relx=0.5, rely=0.62, anchor="center")
+	entry_box = tk.Entry(root, textvariable=sv, font="consolas", justify="center")
+	entry_box.place(relwidth=0.3, relheight=0.05, relx=0.5, rely=0.12, anchor="center")
 
-	result_no_reps_lbl = tk.Label(root, text="No repetition:", font="consolas", bg="#141414", fg="#dcdcdc")
-	result_no_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.21, anchor="center")
+	result_no_reps_lbl = tk.Label(root, text="No repetition:", font="consolas", bg="#000045", fg="white")
+	result_no_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.19, anchor="center")
 
-	output_no_reps_txt = tk.Text(root, font="consolas", bg="#dcdcdc", state="disabled")
+	output_no_reps_txt = tk.Text(root, font="consolas", bg="white", state="disabled")
 	output_no_reps_txt.tag_configure("center", justify="center")
-	output_no_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.4, anchor="center")
+	output_no_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.38, anchor="center")
 
-	result_with_reps_lbl = tk.Label(root, text="With repetition:", font="consolas", bg="#141414", fg="#dcdcdc")
-	result_with_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.6, anchor="center")
+	result_with_reps_lbl = tk.Label(root, text="With repetition:", font="consolas", bg="#000045", fg="white")
+	result_with_reps_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.58, anchor="center")
 
-	output_with_reps_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	output_with_reps_txt = tk.Text(root, bg="white", font="consolas", state="disabled")
 	output_with_reps_txt.tag_configure("center", justify="center")
-	output_with_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.79, anchor="center")
+	output_with_reps_txt.place(relwidth=0.9, relheight=0.33, relx=0.5, rely=0.77, anchor="center")
 
 	calculate()
 

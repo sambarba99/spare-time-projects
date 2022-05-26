@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import tkinter as tk
+from tkinter import messagebox
 
 IMG_SRCS = [f"test{i}.jpg" for i in range(1, 5)]
 MAX_SIZE = 600
@@ -27,22 +28,24 @@ def select_img(img):
 	g_count = np.bincount(g, minlength=256)
 	b_count = np.bincount(b, minlength=256)
 
-	_, axes = plt.subplots(nrows=2, figsize=(6, 10), gridspec_kw={"height_ratios": (1, 0.8)})
-	axes[0].imshow(selected_img)
-	axes[1].plot(r_count, color="#ff0000", linewidth=1, label="R")
-	axes[1].plot(g_count, color="#008000", linewidth=1, label="G")
-	axes[1].plot(b_count, color="#0000ff", linewidth=1, label="B")
-	axes[1].set_xlabel("RGB value")
-	axes[1].set_ylabel("Count")
-	axes[1].set_title("Histogram for selected image")
-	axes[1].legend()
+	ax1 = plt.subplot()
+	ax1.imshow(selected_img)
+	plt.figure()
+	ax2 = plt.subplot()
+	ax2.plot(r_count, color="#ff0000", linewidth=1, label="R")
+	ax2.plot(g_count, color="#008000", linewidth=1, label="G")
+	ax2.plot(b_count, color="#0000ff", linewidth=1, label="B")
+	ax2.set_xlabel("RGB value")
+	ax2.set_ylabel("Count")
+	ax2.set_title("Histogram for selected image")
+	ax2.legend()
 	plt.show()
 
 def binary_image():
 	global selected_img
 
 	if selected_img is None:
-		print("Please select an image")
+		messagebox.showerror(title="Error", message="Please select an image")
 		return
 
 	width, height = selected_img.size
@@ -63,7 +66,7 @@ def nearest_colour():
 	global selected_img, target_r_entry, target_g_entry, target_b_entry
 
 	if selected_img is None:
-		print("Please select an image")
+		messagebox.showerror(title="Error", message="Please select an image")
 		return
 
 	target_r = target_r_entry.get()
@@ -100,6 +103,7 @@ def nearest_colour():
 
 	percentage_match = 100 * (1 - (closest_dist / MAX_DIST) ** 0.5)
 
+	plt.figure()
 	plt.imshow(new_img)
 	plt.title(f"Best RGB = {r_best} {g_best} {b_best}  ({percentage_match:.2f} % match)")
 	plt.show()
@@ -126,36 +130,34 @@ def main():
 
 	root = tk.Tk()
 	root.title("Image processing demo")
-	root.config(width=500, height=300, bg="#141414")
+	root.config(width=500, height=300, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	btn_select_img1 = tk.Button(frame, text="Select image 1", font="consolas", command=lambda: select_img(imgs[0]))
-	btn_select_img2 = tk.Button(frame, text="Select image 2", font="consolas", command=lambda: select_img(imgs[1]))
-	btn_select_img3 = tk.Button(frame, text="Select image 3", font="consolas", command=lambda: select_img(imgs[2]))
-	btn_select_img4 = tk.Button(frame, text="Select image 4", font="consolas", command=lambda: select_img(imgs[3]))
-	btn_to_binary_img = tk.Button(frame, text="Convert this image to binary", font="consolas",
+	btn_select_img1 = tk.Button(root, text="Select image 1", font="consolas", command=lambda: select_img(imgs[0]))
+	btn_select_img2 = tk.Button(root, text="Select image 2", font="consolas", command=lambda: select_img(imgs[1]))
+	btn_select_img3 = tk.Button(root, text="Select image 3", font="consolas", command=lambda: select_img(imgs[2]))
+	btn_select_img4 = tk.Button(root, text="Select image 4", font="consolas", command=lambda: select_img(imgs[3]))
+	btn_to_binary_img = tk.Button(root, text="Convert this image to binary", font="consolas",
 		command=lambda: binary_image())
-	btn_find_nearest_colour = tk.Button(frame, text="Find nearest RGB in image", font="consolas",
+	btn_find_nearest_colour = tk.Button(root, text="Find nearest RGB in image", font="consolas",
 		command=lambda: nearest_colour())
-	btn_select_img1.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.18, anchor="center")
-	btn_select_img2.place(relwidth=0.4, relheight=0.12, relx=0.72, rely=0.18, anchor="center")
-	btn_select_img3.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.33, anchor="center")
-	btn_select_img4.place(relwidth=0.4, relheight=0.12, relx=0.72, rely=0.33, anchor="center")
-	btn_to_binary_img.place(relwidth=0.65, relheight=0.12, relx=0.5, rely=0.5, anchor="center")
-	btn_find_nearest_colour.place(relwidth=0.65, relheight=0.12, relx=0.5, rely=0.65, anchor="center")
+	btn_select_img1.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.19, anchor="center")
+	btn_select_img2.place(relwidth=0.4, relheight=0.12, relx=0.72, rely=0.19, anchor="center")
+	btn_select_img3.place(relwidth=0.4, relheight=0.12, relx=0.28, rely=0.34, anchor="center")
+	btn_select_img4.place(relwidth=0.4, relheight=0.12, relx=0.72, rely=0.34, anchor="center")
+	btn_to_binary_img.place(relwidth=0.65, relheight=0.12, relx=0.5, rely=0.51, anchor="center")
+	btn_find_nearest_colour.place(relwidth=0.65, relheight=0.12, relx=0.5, rely=0.66, anchor="center")
 
-	enter_rgb_lbl = tk.Label(frame, text="(target RGB =                 )", font="consolas", bg="#0080ff")
-	enter_rgb_lbl.place(relwidth=0.7, relheight=0.12, relx=0.5, rely=0.81, anchor="center")
+	enter_rgb_lbl = tk.Label(root, text="(target RGB =                   )",
+		font="consolas", bg="#000045", fg="white")
+	enter_rgb_lbl.place(relwidth=0.7, relheight=0.12, relx=0.5, rely=0.82, anchor="center")
 
-	target_r_entry = tk.Entry(frame, font="consolas", justify="center")
-	target_g_entry = tk.Entry(frame, font="consolas", justify="center")
-	target_b_entry = tk.Entry(frame, font="consolas", justify="center")
-	target_r_entry.place(relwidth=0.1, relheight=0.12, relx=0.51, rely=0.81, anchor="center")
-	target_g_entry.place(relwidth=0.1, relheight=0.12, relx=0.62, rely=0.81, anchor="center")
-	target_b_entry.place(relwidth=0.1, relheight=0.12, relx=0.73, rely=0.81, anchor="center")
+	target_r_entry = tk.Entry(root, font="consolas", justify="center")
+	target_g_entry = tk.Entry(root, font="consolas", justify="center")
+	target_b_entry = tk.Entry(root, font="consolas", justify="center")
+	target_r_entry.place(relwidth=0.1, relheight=0.1, relx=0.5, rely=0.82, anchor="center")
+	target_g_entry.place(relwidth=0.1, relheight=0.1, relx=0.61, rely=0.82, anchor="center")
+	target_b_entry.place(relwidth=0.1, relheight=0.1, relx=0.72, rely=0.82, anchor="center")
 
 	root.mainloop()
 

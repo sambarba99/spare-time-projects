@@ -5,7 +5,7 @@
 import random
 import tkinter as tk
 
-TEXT_LEN = 1472
+TEXT_LEN = 1664
 
 text = ""
 
@@ -98,29 +98,26 @@ def populate_lps(pattern):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("KMP demo")
-	root.config(width=650, height=750, bg="#141414")
+	root.config(width=650, height=730, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
 	button = tk.Button(root, text="Generate random text", font="consolas", command=lambda: generate_text())
-	button.place(relwidth=0.35, relheight=0.05, relx=0.5, rely=0.08, anchor="center")
+	button.place(relwidth=0.35, relheight=0.05, relx=0.5, rely=0.07, anchor="center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.5, relheight=0.14, relx=0.5, rely=0.21, anchor="center")
-
-	enter_pattern_lbl = tk.Label(frame, text="Enter pattern to search:", font="consolas", bg="#0080ff")
-	enter_pattern_lbl.place(relwidth=0.9, relheight=0.25, relx=0.5, rely=0.3, anchor="center")
+	enter_pattern_lbl = tk.Label(root, text="Enter pattern to search:", font="consolas", bg="#000045", fg="white")
+	enter_pattern_lbl.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.14, anchor="center")
 
 	sv = tk.StringVar(value="ABC")
 	sv.trace_add(mode="write", callback=kmp)
 
-	pattern_entry = tk.Entry(frame, textvariable=sv,font="consolas", justify="center")
-	pattern_entry.place(relwidth=0.5, relheight=0.26, relx=0.5, rely=0.62, anchor="center")
+	pattern_entry = tk.Entry(root, textvariable=sv,font="consolas", justify="center")
+	pattern_entry.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.18, anchor="center")
 
-	result_lbl = tk.Label(root, font="consolas", bg="#141414", fg="#dcdcdc")
-	result_lbl.place(relwidth=0.8, relheight=0.04, relx=0.5, rely=0.32, anchor="center")
-	output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	result_lbl = tk.Label(root, font="consolas", bg="#000045", fg="white")
+	result_lbl.place(relwidth=0.8, relheight=0.04, relx=0.5, rely=0.24, anchor="center")
+	output_txt = tk.Text(root, bg="white", font="consolas", state="disabled")
 	output_txt.tag_configure("center", justify="center")
-	output_txt.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.65, anchor="center")
+	output_txt.place(relwidth=0.9, relheight=0.69, relx=0.5, rely=0.61, anchor="center")
 
 	generate_text()
 

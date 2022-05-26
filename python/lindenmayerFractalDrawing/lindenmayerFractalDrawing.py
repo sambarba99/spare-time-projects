@@ -2,6 +2,8 @@
 # Author: Sam Barba
 # Created 19/02/2022
 
+# Click to cycle through drawings
+
 import numpy as np
 import pygame as pg
 import sys
@@ -75,7 +77,7 @@ def generate_instructions(ruleset, n):
 def execute_instructions(instructions, turn_angle, start_heading):
 	# If there's no "move forward" command, it means no drawing, so return
 	if "A" not in instructions and "B" not in instructions:
-		return
+		return False
 
 	# State contains current x, y, heading, step size
 	# Start at 0,0 with step size 1
@@ -124,7 +126,7 @@ def execute_instructions(instructions, turn_angle, start_heading):
 	scene.blit(name_lbl, (10, 10))
 
 	pg.display.update()
-	wait_for_click()
+	return True
 
 def scale_and_centre_image(coords):
 	# Calculate scale factor k: image must fill 85% of either screen's width or height,
@@ -195,13 +197,9 @@ if __name__ == "__main__":
 		PENTAPLEXITY, TRIANGLES, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE, DRAGON_CURVE,
 		ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3, ASYMMETRIC_TREE_4]:
 
-		fractal_name = fractal["name"]
-		ruleset = fractal["ruleset"]
-		max_iters = fractal["max-iters"]
-		turn_angle = fractal["turn-angle"]
-		start_heading = fractal["start-heading"]
-
-		for i in range(max_iters + 1):
-			name_lbl_text = f"{fractal_name} ({i} iterations)"
-			instructions = generate_instructions(ruleset, i)
-			execute_instructions(instructions, turn_angle, start_heading)
+		for i in range(fractal["max-iters"] + 1):
+			name_lbl_text = f"{fractal['name']} (iteration {i}/{fractal['max-iters']})"
+			instructions = generate_instructions(fractal["ruleset"], i)
+			drawing_done = execute_instructions(instructions, fractal["turn-angle"], fractal["start-heading"])
+			if drawing_done:
+				wait_for_click()

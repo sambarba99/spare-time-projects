@@ -41,23 +41,20 @@ def solve(n, t1=1, t2=2, t3=3):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Towers of Hanoi solver")
-	root.config(width=500, height=700, bg="#141414")
+	root.config(width=500, height=650, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	select_ratio_lbl = tk.Label(frame, text="Select no. discs:", font="consolas", bg="#0080ff")
+	select_ratio_lbl = tk.Label(root, text="Select no. discs:", font="consolas", bg="#000045", fg="white")
 	select_ratio_lbl.place(relwidth=0.8, relheight=0.05, relx=0.5, rely=0.07, anchor="center")
 
-	slider = tk.Scale(frame, from_=1, to=12, orient="horizontal", font="consolas",
+	slider = tk.Scale(root, from_=1, to=12, orient="horizontal", font="consolas",
 		command=lambda l: solve_and_write_steps())
 	slider.place(relwidth=0.8, relheight=0.09, relx=0.5, rely=0.16, anchor="center")
 
-	steps_lbl = tk.Label(frame, font="consolas", bg="#0080ff")
+	steps_lbl = tk.Label(root, font="consolas", bg="#000045", fg="white")
 	steps_lbl.place(relwidth=0.8, relheight=0.05, relx=0.5, rely=0.25, anchor="center")
 
-	output_steps = tk.Text(frame, bg="#dcdcdc", font="consolas", state="disabled")
+	output_steps = tk.Text(root, bg="white", font="consolas", state="disabled")
 	output_steps.tag_configure("center", justify="center")
 	output_steps.place(relwidth=0.8, relheight=0.65, relx=0.5, rely=0.61, anchor="center")
 

@@ -18,7 +18,7 @@ MAX_ITERATIONS = 200
 RGB_PALETTE = [(0, 20, 100), (30, 100, 200), (230, 255, 255), (255, 170, 0)]
 
 # Set to true if drawing Mandelbrot set
-mandelbrot_set = True
+mandelbrot_set = False
 
 # Or, change these a,b values: a complex number c is defined as c = a + bi.
 # For a given c, the Julia set is the set of all complex z for which the iteration z = z^2 + c does not diverge.
@@ -42,7 +42,7 @@ scene = None
 # ---------------------------------------------------------------------------------------------------- #
 
 def draw():
-	global a, b, scene
+	global a, b, scale, x_axis, y_axis, x_offset, y_offset, show_axes, scene
 
 	for y in range(HEIGHT):
 		for x in range(WIDTH):
@@ -107,7 +107,7 @@ def magnify(factor):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	global scene, show_axes
+	global scale, x_axis, x_offset, y_axis, y_offset, show_axes, scene
 
 	pg.init()
 	pg.display.set_caption("Julia/Mandelbrot Set")

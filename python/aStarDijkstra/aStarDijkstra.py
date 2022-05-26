@@ -199,18 +199,15 @@ if __name__ == "__main__":
 
 	root = tk.Tk()
 	root.title("A*/Dijkstra Demo")
-	root.config(width=350, height=250, bg="#141414")
+	root.config(width=350, height=230, bg="#000045")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	btn_generate_graph = tk.Button(frame, text="Generate graph", font="consolas",
+	btn_generate_graph = tk.Button(root, text="Generate graph", font="consolas",
 		command=lambda: generate_and_draw_graph())
-	btn_solve_a_star = tk.Button(frame, text="Solve with A*", font="consolas",
+	btn_solve_a_star = tk.Button(root, text="Solve with A*", font="consolas",
 		command=lambda: a_star())
-	btn_solve_dijkstra = tk.Button(frame, text="Solve with Dijkstra", font="consolas",
+	btn_solve_dijkstra = tk.Button(root, text="Solve with Dijkstra", font="consolas",
 		command=lambda: dijkstra())
-	btn_toggle_maze_mode = tk.Button(frame, text="Toggle maze/graph mode", font="consolas",
+	btn_toggle_maze_mode = tk.Button(root, text="Toggle maze/graph mode", font="consolas",
 		command=lambda: toggle_maze_mode())
 	btn_generate_graph.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor="center")
 	btn_solve_a_star.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.4, anchor="center")

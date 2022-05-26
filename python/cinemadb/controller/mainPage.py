@@ -17,7 +17,7 @@ class MainPage(tk.Tk):
 		self.media_service = MediaService.get_instance()
 
 		self.title("Cinema DB")
-		self.config(width=1400, height=790, bg="#141414")
+		self.config(width=1400, height=790, bg="#000045")
 		self.eval("tk::PlaceWindow . center")
 		self.resizable(False, False)
 
@@ -25,10 +25,10 @@ class MainPage(tk.Tk):
 		self.bind("<Up>", self.__select_row)
 		self.bind("<Down>", self.__select_row)
 
-		self.num_media_lbl = tk.Label(self, font="arial 12", bg="#141414", fg="#dcdcdc")
+		self.num_media_lbl = tk.Label(self, font="arial 12", bg="#000045", fg="white")
 		self.media_table = ttk.Treeview(self, columns=list(TABLE_COLS), show="headings")
-		self.selected_media_txt = tk.Text(self, bg="#dcdcdc", font="arial 12", state="disabled")
-		self.showing_genres_txt = tk.Text(self, bg="#dcdcdc", font="arial 12", state="disabled")
+		self.selected_media_txt = tk.Text(self, bg="white", font="arial 12", state="disabled")
+		self.showing_genres_txt = tk.Text(self, bg="white", font="arial 12", state="disabled")
 		self.genres_to_include = []
 
 		self.sv_actor = tk.StringVar()
@@ -45,15 +45,15 @@ class MainPage(tk.Tk):
 	def __setup_window(self):
 		self.num_media_lbl.place(width=200, height=30, relx=0.5, y=33, anchor="center")
 
-		selected_media_lbl = tk.Label(self, text="Selected media:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		selected_media_lbl = tk.Label(self, text="Selected media:", font="arial 12", bg="#000045", fg="white")
 		selected_media_lbl.place(width=130, height=30, x=117, y=510, anchor="center")
 		self.selected_media_txt.place(width=640, height=220, x=380, y=640, anchor="center")
 
-		filter_lbl = tk.Label(self, text="Filter table by...", font="arial 12", bg="#141414", fg="#dcdcdc")
-		by_actor_lbl = tk.Label(self, text="Actor:", font="arial 12", bg="#141414", fg="#dcdcdc")
-		by_director_lbl = tk.Label(self, text="Director:", font="arial 12", bg="#141414", fg="#dcdcdc")
-		by_genre_lbl = tk.Label(self, text="Genre:", font="arial 12", bg="#141414", fg="#dcdcdc")
-		by_media_type_lbl = tk.Label(self, text="Media type:", font="arial 12", bg="#141414", fg="#dcdcdc")
+		filter_lbl = tk.Label(self, text="Filter table by...", font="arial 12", bg="#000045", fg="white")
+		by_actor_lbl = tk.Label(self, text="Actor:", font="arial 12", bg="#000045", fg="white")
+		by_director_lbl = tk.Label(self, text="Director:", font="arial 12", bg="#000045", fg="white")
+		by_genre_lbl = tk.Label(self, text="Genre:", font="arial 12", bg="#000045", fg="white")
+		by_media_type_lbl = tk.Label(self, text="Media type:", font="arial 12", bg="#000045", fg="white")
 		filter_lbl.place(width=120, height=30, x=790, y=510, anchor="center")
 		by_actor_lbl.place(width=120, height=30, x=810, y=545, anchor="center")
 		by_director_lbl.place(width=120, height=30, x=800, y=579, anchor="center")

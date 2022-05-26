@@ -64,30 +64,27 @@ def lev_recursive(a, b):  # Recursive implementation
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("Levenshtein distance calculator")
-	root.config(width=350, height=250, bg="#141414")
+	root.config(width=350, height=200, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.85, relheight=0.52, relx=0.5, rely=0.37, anchor="center")
-
-	enter_strings_lbl = tk.Label(frame, text="Enter 2 strings:", font="consolas", bg="#0080ff")
-	enter_strings_lbl.place(relwidth=0.9, relheight=0.17, relx=0.5, rely=0.17, anchor="center")
+	enter_strings_lbl = tk.Label(root, text="Enter 2 strings:", font="consolas", bg="#000045", fg="white")
+	enter_strings_lbl.place(relwidth=0.9, relheight=0.15, relx=0.5, rely=0.14, anchor="center")
 
 	sv1 = tk.StringVar(value="python")
 	sv2 = tk.StringVar(value="programming")
 	sv1.trace_add(mode="write", callback=find_lev_dist)
 	sv2.trace_add(mode="write", callback=find_lev_dist)
 
-	entry_box1 = tk.Entry(frame, textvariable=sv1, font="consolas", justify="center")
-	entry_box2 = tk.Entry(frame, textvariable=sv2, font="consolas", justify="center")
-	entry_box1.place(relwidth=0.8, relheight=0.22, relx=0.5, rely=0.42, anchor="center")
-	entry_box2.place(relwidth=0.8, relheight=0.22, relx=0.5, rely=0.72, anchor="center")
+	entry_box1 = tk.Entry(root, textvariable=sv1, font="consolas", justify="center")
+	entry_box2 = tk.Entry(root, textvariable=sv2, font="consolas", justify="center")
+	entry_box1.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.3, anchor="center")
+	entry_box2.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.49, anchor="center")
 
-	result_lbl = tk.Label(root, text="Levenshtein distance:", font="consolas", bg="#141414", fg="#dcdcdc")
-	result_lbl.place(relwidth=0.9, relheight=0.1, relx=0.5, rely=0.72, anchor="center")
+	result_lbl = tk.Label(root, text="Levenshtein distance:", font="consolas", bg="#000045", fg="white")
+	result_lbl.place(relwidth=0.9, relheight=0.1, relx=0.5, rely=0.67, anchor="center")
 
 	output_lbl = tk.Label(root, font="consolas")
-	output_lbl.place(relwidth=0.33, relheight=0.11, relx=0.5, rely=0.85, anchor="center")
+	output_lbl.place(relwidth=0.33, relheight=0.14, relx=0.5, rely=0.82, anchor="center")
 
 	find_lev_dist()
 

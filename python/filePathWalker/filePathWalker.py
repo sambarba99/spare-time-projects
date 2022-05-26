@@ -73,30 +73,27 @@ def get_suffix(path_size):
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("File Path Walker")
-	root.config(width=600, height=680, bg="#141414")
+	root.config(width=600, height=680, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.8, relheight=0.21, relx=0.5, rely=0.15, anchor="center")
+	enter_path_lbl = tk.Label(root, text="Enter a file path:", font="consolas", bg="#000045", fg="white")
+	enter_path_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.06, anchor="center")
 
-	enter_path_lbl = tk.Label(frame, text="Enter a file path:", font="consolas", bg="#0080ff")
-	enter_path_lbl.place(relwidth=0.9, relheight=0.18, relx=0.5, rely=0.22, anchor="center")
-
-	entry_box = tk.Entry(frame, font="consolas", justify="center")
-	entry_box.place(relwidth=0.9, relheight=0.19, relx=0.5, rely=0.43, anchor="center")
+	entry_box = tk.Entry(root, font="consolas", justify="center")
+	entry_box.place(relwidth=0.9, relheight=0.05, relx=0.5, rely=0.11, anchor="center")
 	entry_box.insert(0, os.path.expanduser("~") + "\\Desktop")
 
-	button = tk.Button(frame, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
-	button.place(relwidth=0.2, relheight=0.26, relx=0.5, rely=0.76, anchor="center")
+	button = tk.Button(root, text="Walk", font="consolas", command=lambda: file_walk(entry_box.get()))
+	button.place(relwidth=0.2, relheight=0.06, relx=0.5, rely=0.19, anchor="center")
 
-	discovered_files_lbl = tk.Label(root, text="Discovered files:", font="consolas", bg="#141414", fg="#dcdcdc")
-	discovered_files_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.29, anchor="center")
+	discovered_files_lbl = tk.Label(root, text="Discovered files:", font="consolas", bg="#000045", fg="white")
+	discovered_files_lbl.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.26, anchor="center")
 
-	discovered_files_output_txt = tk.Text(root, bg="#dcdcdc", font="consolas", state="disabled")
+	discovered_files_output_txt = tk.Text(root, bg="white", font="consolas", state="disabled")
 	discovered_files_output_txt.tag_configure("center", justify="center")
-	discovered_files_output_txt.place(relwidth=0.9, relheight=0.48, relx=0.5, rely=0.55, anchor="center")
+	discovered_files_output_txt.place(relwidth=0.9, relheight=0.48, relx=0.5, rely=0.53, anchor="center")
 
-	path_size_output_lbl = tk.Label(root, font="consolas", bg="#dcdcdc")
-	path_size_output_lbl.place(relwidth=0.9, relheight=0.14, relx=0.5, rely=0.89, anchor="center")
+	path_size_output_lbl = tk.Label(root, font="consolas", bg="white")
+	path_size_output_lbl.place(relwidth=0.9, relheight=0.14, relx=0.5, rely=0.87, anchor="center")
 
 	root.mainloop()

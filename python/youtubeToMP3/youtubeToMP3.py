@@ -40,20 +40,17 @@ def download():
 if __name__ == "__main__":
 	root = tk.Tk()
 	root.title("YouTube to mp3 converter and downloader")
-	root.config(width=420, height=180, bg="#141414")
+	root.config(width=420, height=160, bg="#000045")
 	root.eval("tk::PlaceWindow . center")
 
-	frame = tk.Frame(root, bg="#0080ff")
-	frame.place(relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5, anchor="center")
-
-	status_lbl = tk.Label(frame, text="Enter a video URL:", font="consolas", bg="#0080ff")
-	status_lbl.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.2, anchor="center")
+	status_lbl = tk.Label(root, text="Enter a video URL:", font="consolas", bg="#000045", fg="white")
+	status_lbl.place(relwidth=0.5, relheight=0.2, relx=0.5, rely=0.2, anchor="center")
 
 	sv = tk.StringVar()
-	entry_box = tk.Entry(frame, textvariable=sv, font="consolas", justify="center")
+	entry_box = tk.Entry(root, textvariable=sv, font="consolas", justify="center")
 	entry_box.place(relwidth=0.8, relheight=0.18, relx=0.5, rely=0.43, anchor="center")
 
-	btn_download = tk.Button(frame, text="Download", font="consolas", command=lambda: download())
+	btn_download = tk.Button(root, text="Download", font="consolas", command=lambda: download())
 	btn_download.place(relwidth=0.35, relheight=0.2, relx=0.5, rely=0.75, anchor="center")
 
 	root.mainloop()
