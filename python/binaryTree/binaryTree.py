@@ -118,8 +118,7 @@ class Tree:
 		# No child
 		if self.right_child is None and self.left_child is None:
 			line = str(self.key)
-			width = len(line)
-			height = 1
+			width, height = len(line), 1
 			middle = width // 2
 			return [line], width, height, middle
 

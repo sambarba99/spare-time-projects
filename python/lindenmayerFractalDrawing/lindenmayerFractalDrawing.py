@@ -48,8 +48,7 @@ ASYMMETRIC_TREE_3 = {"ruleset": {"axiom": "A", "A": "AA[++A][-AA]"},
 ASYMMETRIC_TREE_4 = {"ruleset": {"axiom": "A", "A": "AA+[+A-A-A]-[-A+A+A]"},
 	"max-iters": 5, "turn-angle": 20, "start-heading": -90, "name": "Asymmetric tree 4"}
 
-WIDTH = 1500
-HEIGHT = 900
+WIDTH, HEIGHT = 1500, 900
 
 name_lbl_text = ""
 

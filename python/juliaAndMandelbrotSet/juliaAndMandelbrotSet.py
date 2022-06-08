@@ -3,7 +3,6 @@
 # Created 22/09/2021
 
 # Click: select point to set as origin (0,0)
-# C: centre image around origin (0,0)
 # Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
 # T: toggle axes
 # R: reset
@@ -12,13 +11,12 @@ from math import log
 import pygame as pg
 import sys
 
-WIDTH = 750
-HEIGHT = 500
+WIDTH, HEIGHT = 750, 500
 MAX_ITERATIONS = 200
 RGB_PALETTE = [(0, 20, 100), (30, 100, 200), (230, 255, 255), (255, 170, 0)]
 
 # Set to true if drawing Mandelbrot set
-mandelbrot_set = False
+mandelbrot_set = True
 
 # Or, change these a,b values: a complex number c is defined as c = a + bi.
 # For a given c, the Julia set is the set of all complex z for which the iteration z = z^2 + c does not diverge.
@@ -96,11 +94,19 @@ def centre_around_origin():
 	y_axis = HEIGHT / 2
 
 def magnify(factor):
-	global scale, x_offset, y_offset
+	global scale, x_axis, y_axis, x_offset, y_offset
 
 	scale *= factor
 	x_offset = factor * (x_offset - x_axis) + x_axis
 	y_offset = factor * (y_offset - y_axis) + y_axis
+
+def calculate_origin():
+	global x_axis, y_axis, x_offset, y_offset
+
+	orig_x = (x_axis - x_offset) / scale
+	orig_y = -(y_axis - y_offset) / scale
+
+	return f"({orig_x}, {orig_y})"
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -125,17 +131,12 @@ def main():
 				if event.button == 1:  # Left-click
 					print("Setting origin... ", end="")
 					x_axis, y_axis = event.pos
-					draw()
-					print("Done")
-
-			elif event.type == pg.KEYDOWN:
-				if event.key == pg.K_c:  # Centre image around origin
-					print("Centering image around origin... ", end="")
 					centre_around_origin()
 					draw()
-					print("Done")
+					print(f"origin = {calculate_origin()}")
 
-				elif event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
+			elif event.type == pg.KEYDOWN:
+				if event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
 					if event.key == pg.K_0:
 						factor = 100
 					else:
@@ -144,7 +145,6 @@ def main():
 
 					print(f"Magnifying by {factor}... ", end="")
 					magnify(factor)
-					centre_around_origin()
 					draw()
 					print("Done")
 

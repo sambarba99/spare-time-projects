@@ -137,7 +137,7 @@ def main():
 	all_items = [Item(i + 1, item_values[i], item_weights[i]) for i in range(NUM_ITEMS)]
 
 	for item in all_items:
-		print(str(item))
+		print(item)
 
 	print("\nTotal value:", sum(item_values))
 	print("Total weight:", sum(item_weights))
@@ -172,7 +172,7 @@ def main():
 		ax.plot(best_fitnesses, color="#008000", linewidth=1, label="Best fitness")
 		ax.set_xlabel("Generation")
 		ax.set_ylabel("Fitness")
-		ax.set_title("Mean fitness and best fitness of each generation")
+		ax.set_title("Mean and best fitnesses of each generation")
 		ax.legend()
 		plt.show(block=False)
 		plt.pause(0.1)

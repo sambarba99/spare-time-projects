@@ -173,7 +173,7 @@ class MainPage(tk.Tk):
 			self.selected_media_txt.delete("1.0", tk.END)
 			self.selected_media_txt.insert(
 				"1.0",
-				str(self.selected_media) if self.selected_media else "None selected"
+				self.selected_media if self.selected_media else "None selected"
 			)
 			self.selected_media_txt.config(state="disabled")
 

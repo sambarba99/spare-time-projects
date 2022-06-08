@@ -189,7 +189,7 @@ class Matrix:
 
 		return result.translate(0, c) if c != 0 else result
 
-	# Rotate by theta degrees clockwise about (x, y)
+	# Rotate by theta (deg) clockwise about (x, y)
 	def rotate(self, theta, x, y):
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:

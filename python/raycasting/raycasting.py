@@ -10,8 +10,7 @@ import numpy as np
 import pygame as pg
 import sys
 
-WIDTH = 1350
-HEIGHT = 900
+WIDTH, HEIGHT = 1350, 900
 RAY_MAX_LENGTH = (WIDTH ** 2 + HEIGHT ** 2) ** 0.5
 FOV_ANGLE = np.deg2rad(90)  # Field of View angle
 

@@ -9,8 +9,7 @@ import random
 import sys
 from time import sleep
 
-ROWS = 30
-COLS = 40
+ROWS, COLS = 30, 40
 CELL_SIZE = 25
 FPS = 8
 
@@ -71,8 +70,9 @@ def check_game_over():
 		or head in snake[1:]
 
 def draw_grid():
+	global scene, game_over, snake, food_pos, font, score
+
 	scene.fill((0, 0, 0))
-	font = pg.font.SysFont("consolas", 20)
 
 	# Draw snake (light blue head, dark blue tail or all red if game over)
 	head_x, head_y = snake[0]
@@ -112,6 +112,7 @@ if __name__ == "__main__":
 	pg.display.set_caption("Snake Game")
 	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 	clock = pg.time.Clock()
+	font = pg.font.SysFont("consolas", 20)
 
 	setup()
 

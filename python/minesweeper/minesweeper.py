@@ -6,8 +6,7 @@ import pygame as pg
 import random
 import sys
 
-ROWS = 35
-COLS = 60
+ROWS, COLS = 35, 60
 CELL_SIZE = 22
 GRID_OFFSET = 60
 NUM_MINES = int(ROWS * COLS * 0.1)
@@ -16,7 +15,7 @@ LABEL_FOREGROUND = (220, 220, 220)
 CELL_UNCLICKED = (80, 80, 80)
 CELL_FLAGGED = (255, 160, 0)
 MINE_WON = (0, 144, 0)
-MINE_LOST = (200, 20, 20)
+MINE_LOST = (255, 20, 20)
 
 minefield = None
 flags_used_total = flags_used_correctly = 0

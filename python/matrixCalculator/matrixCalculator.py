@@ -29,8 +29,8 @@ def main():
 			mat_a = Matrix(mat_a_line, rows, cols)
 			mat_b = Matrix(mat_b_line, rows, cols)
 
-			print("\nA + B =\n" + str(mat_a.add_subtract(mat_b, True)))
-			print("\nA - B =\n" + str(mat_a.add_subtract(mat_b, False)))
+			print(f"\nA + B =\n{mat_a.add_subtract(mat_b, True)}")
+			print(f"\nA - B =\n{mat_a.add_subtract(mat_b, False)}")
 
 		elif choice == "M":
 			rows_a, cols_a = map(int, input("Input the number of rows & columns for matrix A: ").split())
@@ -43,7 +43,7 @@ def main():
 			mat_a = Matrix(mat_a_line, rows_a, cols_a)
 			mat_b = Matrix(mat_b_line, rows_b, cols_b)
 
-			print("\nA x B =\n" + str(mat_a.mult(mat_b)))
+			print(f"\nA x B =\n{mat_a.mult(mat_b)}")
 
 		elif choice == "D":
 			rows_a, cols_a = map(int, input("Input the number of rows & columns for matrix A: ").split())
@@ -59,7 +59,7 @@ def main():
 			if mat_b.determinant(rows_b) == 0:
 				print("\nCan't divide, determinant of B is 0")
 			else:
-				print("\nA / B =\n" + str(mat_a.mult(mat_b.inverse())))
+				print(f"\nA / B =\n{mat_a.mult(mat_b.inverse())}")
 
 		elif choice == "P":
 			size = int(input("Input the size of the square matrix: "))
@@ -68,7 +68,7 @@ def main():
 			mat_line = input(f"\nInput matrix M ({size ** 2} entries): ")
 			mat = Matrix(mat_line, size, size)
 
-			print(f"\nM^{p} =\n{str(mat.power(p))}")
+			print(f"\nM^{p} =\n{mat.power(p)}")
 
 		elif choice == "R":
 			rows, cols = map(int, input("Input the number of rows & columns for the matrix: ").split())
@@ -76,7 +76,7 @@ def main():
 			mat_line = input(f"\nInput matrix M ({rows * cols} entries): ")
 			mat = Matrix(mat_line, rows, cols)
 
-			print("\nRREF(M) =\n" + str(mat.rref()))
+			print(f"\nRREF(M) =\n{mat.rref()}")
 
 		elif choice == "I":
 			size = int(input("Input the size of the square matrix: "))
@@ -84,17 +84,17 @@ def main():
 			mat_line = input(f"\nInput matrix M ({size ** 2} entries): ")
 			mat = Matrix(mat_line, size, size)
 
-			print("\nMatrix of cofactors:\n" + str(mat.comatrix()))
+			print(f"\nMatrix of cofactors:\n{mat.comatrix()}")
 
 			det = mat.determinant(size)
 			if abs(det) < 10 ** -6:
 				print("\nNo inverse, determinant = 0")
 			else:
-				print("\nInverse:\n" + str(mat.inverse()))
+				print(f"\nInverse:\n{mat.inverse()}")
 				print("\nDeterminant =", det)
 
 		elif choice == "G":
-			choice = int(input("Enter 1 for translation, 2 for enlargement, 3 for reflection or 4 for rotation: "))
+			choice = int(input("Enter 1 for translation, 2 for enlargement, 3 for reflection, or 4 for rotation: "))
 
 			num_v = int(input("\nHow many vertices? "))
 			coords = [None] * num_v
@@ -106,16 +106,16 @@ def main():
 
 			if choice == 1:
 				dx, dy = map(float, input("Input the change in x and change in y: ").split())
-				print("\nResultant coords:\n" + str(coords.translate(dx, dy)))
+				print(f"\nResultant coords:\n{coords.translate(dx, dy)}")
 			elif choice == 2:
 				k, x, y = map(float, input("Input the enlargement factor and x, y: ").split())
-				print("\nResultant coords:\n" + str(coords.enlarge(k, x, y)))
+				print(f"\nResultant coords:\n{coords.enlarge(k, x, y)}")
 			elif choice == 3:
 				m, c = map(float, input("Input m, c for reflection line y = mx + c: ").split())
-				print("\nResultant coords:\n" + str(coords.reflect(m, c)))
+				print(f"\nResultant coords:\n{coords.reflect(m, c)}")
 			elif choice == 4:
-				a, x, y = map(float, input("Input the clockwise rotation angle (°) and x, y: ").split())
-				print("\nResultant coords:\n" + str(coords.rotate(a, x, y)))
+				a, x, y = map(float, input("Input the clockwise rotation angle (deg) and x, y: ").split())
+				print(f"\nResultant coords:\n{coords.rotate(a, x, y)}")
 
 		elif choice == "X":
 			break

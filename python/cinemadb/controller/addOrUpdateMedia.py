@@ -173,5 +173,5 @@ class AddOrUpdateMediaPage(tk.Toplevel):
 
 		self.media_txt.config(state="normal")
 		self.media_txt.delete("1.0", tk.END)
-		self.media_txt.insert("1.0", str(self.media))
+		self.media_txt.insert("1.0", self.media)
 		self.media_txt.config(state="disabled")

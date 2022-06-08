@@ -14,8 +14,7 @@ R2 = 300
 M1 = 10
 M2 = 10
 G = 0.1
-WIDTH = 1300
-HEIGHT = 800
+WIDTH, HEIGHT = 1300, 800
 FPS = 120
 
 a1 = a2 = vel1 = vel2 = 0

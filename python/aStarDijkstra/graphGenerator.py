@@ -16,7 +16,7 @@ class GraphGen:
 	def make_graph(self):
 		x = np.random.uniform(10, self.max_x - 10, size=self.num_vertices)
 		y = np.random.uniform(10, self.max_y - 10, size=self.num_vertices)
-		coords = np.array(list(zip(x, y)))
+		coords = np.vstack((x, y)).T
 		adjacency_list = dict()
 
 		# Link each vertex to its closest N neighbours,
