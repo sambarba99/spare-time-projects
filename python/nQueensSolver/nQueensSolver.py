@@ -1,6 +1,9 @@
-# N Queens solver using depth-first search
-# Author: Sam Barba
-# Created 08/02/2022
+"""
+N Queens solver using depth-first search
+
+Author: Sam Barba
+Created 08/02/2022
+"""
 
 import numpy as np
 import pygame as pg
@@ -32,14 +35,14 @@ def solve(row=0):
 		if valid(row, col):
 			board[row][col] = QUEEN
 			if DRAW_STEPS:
-				draw_grid("Solving...")
+				draw_grid('Solving...')
 			if solve(row + 1):
 				return True
 
 		# Reset the square in order to backtrack
 		board[row][col] = BLANK
 		if DRAW_STEPS:
-			draw_grid("Solving...")
+			draw_grid('Solving...')
 
 	return False
 
@@ -61,16 +64,16 @@ def valid(row, col):
 
 def draw_grid(solve_status):
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont("consolas", 16)
-	cell_font = pg.font.SysFont("consolas", 24)
+	status_font = pg.font.SysFont('consolas', 16)
+	cell_font = pg.font.SysFont('consolas', 24)
 
-	status_lbl = status_font.render(f"{solve_status}", True, (220, 220, 220))
+	status_lbl = status_font.render(f'{solve_status}', True, (220, 220, 220))
 	scene.blit(status_lbl, (GRID_OFFSET, 25))
 
 	for y in range(N):
 		for x in range(N):
 			if board[y][x] == QUEEN:
-				cell_lbl = cell_font.render("Q", True, (220, 150, 0))
+				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
 				lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
 					(y + 0.5) * CELL_SIZE + GRID_OFFSET))
 				scene.blit(cell_lbl, lbl_rect)
@@ -86,13 +89,13 @@ def draw_grid(solve_status):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("N Queens Solver")
+	pg.display.set_caption('N Queens Solver')
 	scene = pg.display.set_mode((N * CELL_SIZE + 2 * GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET))
 
 	solved = solve()
-	draw_grid("Solved!" if solved else "No solution")
+	draw_grid('Solved!' if solved else 'No solution')
 
 	while True:
 		for event in pg.event.get():

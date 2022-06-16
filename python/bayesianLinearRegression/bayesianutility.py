@@ -1,11 +1,14 @@
-# Utility for bayesianLinearRegression.py
-# Author: Sam Barba
-# Created 03/03/2022
+"""
+Utility class for bayesianLinearRegression.py
+
+Author: Sam Barba
+Created 03/03/2022
+"""
 
 import numpy as np
 
 class DataGenerator:
-	# Generate data for prediction modelling (a sin wave with a blank region)
+	"""Generate data for prediction modelling (a sine wave with a blank region)"""
 
 	def __init__(self, noise):
 		self.min_x = 0
@@ -13,15 +16,16 @@ class DataGenerator:
 		self.noise = noise
 
 	def get_data(self, data_name, n):
-		if data_name in ("TRAIN", "VALIDATION"):
+		if data_name in ('TRAIN', 'VALIDATION'):
 			return self.__make_data(n)
-		if data_name == "TEST":
+		if data_name == 'TEST':
 			return self.__make_test_data(n)
 
 	def __make_data(self, n):
-		# Make 2 sin wave portions
-		portion_points1 = [self.min_x, self.max_x * 0.25]  # Start, end of portion 1
-		portion_points2 = [self.max_x * 0.65, self.max_x]  # Start, end of portion 2
+		"""Make 2 sine wave portions"""
+
+		portion_points1 = [self.min_x, self.max_x * 0.25]  # Start and end of portion 1
+		portion_points2 = [self.max_x * 0.65, self.max_x]  # Start and end of portion 2
 		points_per_portion = n // 2
 
 		x = np.zeros(0)
@@ -44,7 +48,7 @@ class DataGenerator:
 		return x, y
 
 class RBFGenerator:
-	# Generate Gaussian RBF matrix
+	"""Generate Gaussian RBF matrix"""
 
 	def __init__(self, centres, radius, bias=True):
 		self.m = len(centres)
@@ -63,6 +67,6 @@ class RBFGenerator:
 
 		return phi
 
-# Mean absolute error
 def mae(pred, actual):
+	"""Mean absolute error"""
 	return np.abs(pred - actual).sum() / len(actual)

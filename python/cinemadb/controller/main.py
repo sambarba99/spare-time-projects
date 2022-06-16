@@ -1,6 +1,9 @@
-# XML-based Cinema DB app (system entry point)
-# Author: Sam Barba
-# Created 15/04/2022
+"""
+XML-based Cinema DB app (system entry point)
+
+Author: Sam Barba
+Created 15/04/2022
+"""
 
 from controller.mainPage import MainPage
 
@@ -8,6 +11,6 @@ from controller.mainPage import MainPage
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main_page = MainPage()
 	main_page.mainloop()

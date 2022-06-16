@@ -1,6 +1,9 @@
-# Matrix class
-# Author: Sam Barba
-# Created 03/09/2021
+"""
+Matrix class
+
+Author: Sam Barba
+Created 03/09/2021
+"""
 
 from math import radians, sin, cos
 
@@ -60,8 +63,10 @@ class Matrix:
 		return det
 
 	def inverse(self):
-		# Inverse of a square matrix = 1/determinant * adjugate matrix
-		# = 1/determinant * transposed cofactor matrix
+		"""
+		Inverse of a square matrix = 1/determinant * adjugate matrix
+		= 1/determinant * transposed cofactor matrix
+		"""
 
 		det = self.determinant(self.rows)
 		comatrix = self.comatrix()
@@ -163,8 +168,9 @@ class Matrix:
 
 		return Matrix(result_grid)
 
-	# Enlarge by factor k about (x, y)
 	def enlarge(self, k, x, y):
+		"""Enlarge by factor k about (x, y)"""
+
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
 			t = t.translate(-x, -y)  # In order to enlarge from origin (0, 0)
@@ -175,8 +181,9 @@ class Matrix:
 		# Undo first translation if necessary
 		return result.translate(x, y) if x != 0 or y != 0 else result
 
-	# Reflect across line y = mx + c
 	def reflect(self, m, c):
+		"""Reflect across line y = mx + c"""
+
 		t = Matrix(self.grid)
 		if c != 0:
 			t = t.translate(0, -c)  # Reflect in y = mx
@@ -189,8 +196,9 @@ class Matrix:
 
 		return result.translate(0, c) if c != 0 else result
 
-	# Rotate by theta (deg) clockwise about (x, y)
 	def rotate(self, theta, x, y):
+		"""Rotate by theta (deg) clockwise about (x, y)"""
+
 		t = Matrix(self.grid)
 		if x != 0 or y != 0:
 			t = t.translate(-x, -y)
@@ -204,4 +212,4 @@ class Matrix:
 		return result.translate(x, y) if x != 0 or y != 0 else result
 
 	def __repr__(self):
-		return "\n".join([" ".join([str(int(x)) if x % 1 == 0 else str(x) for x in row]) for row in self.grid])
+		return '\n'.join([' '.join([str(int(x)) if x % 1 == 0 else str(x) for x in row]) for row in self.grid])

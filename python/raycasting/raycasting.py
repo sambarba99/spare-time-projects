@@ -1,10 +1,14 @@
-# Raycasting demo
-# Author: Sam Barba
-# Created 08/03/2022
+"""
+Raycasting demo
 
-# WASD: move around
-# T: toggle POV/bird's-eye view
-# R: reset
+Author: Sam Barba
+Created 08/03/2022
+
+Controls:
+WASD: move around
+T: toggle POV/bird's-eye view
+R: reset
+"""
 
 import numpy as np
 import pygame as pg
@@ -42,13 +46,13 @@ def generate_walls(num_walls=5):
 			end_y = start_y
 			end_x = start_x + np.random.choice([-200, 200])
 
-		walls.append({"x1": start_x, "y1": start_y, "x2": end_x, "y2": end_y})
+		walls.append({'x1': start_x, 'y1': start_y, 'x2': end_x, 'y2': end_y})
 
 	# 4 walls of world border
-	walls.append({"x1": 0, "y1": 0, "x2": WIDTH, "y2": 0})
-	walls.append({"x1": WIDTH - 2, "y1": 0, "x2": WIDTH - 2, "y2": HEIGHT})
-	walls.append({"x1": 0, "y1": HEIGHT - 2, "x2": WIDTH, "y2": HEIGHT - 2})
-	walls.append({"x1": 0, "y1": 0, "x2": 0, "y2": HEIGHT})
+	walls.append({'x1': 0, 'y1': 0, 'x2': WIDTH, 'y2': 0})
+	walls.append({'x1': WIDTH - 2, 'y1': 0, 'x2': WIDTH - 2, 'y2': HEIGHT})
+	walls.append({'x1': 0, 'y1': HEIGHT - 2, 'x2': WIDTH, 'y2': HEIGHT - 2})
+	walls.append({'x1': 0, 'y1': 0, 'x2': 0, 'y2': HEIGHT})
 
 def generate_rays():
 	global player_x, player_y, player_heading, rays, walls
@@ -60,23 +64,23 @@ def generate_rays():
 		end_x = RAY_MAX_LENGTH * np.cos(a + player_heading) + player_x
 		end_y = RAY_MAX_LENGTH * np.sin(a + player_heading) + player_y
 
-		# Initialise ray withouth "length" attribute; this is calculated in next loop
-		ray = {"x1": player_x, "y1": player_y, "x2": end_x, "y2": end_y}
+		# Initialise ray withouth 'length' attribute; this is calculated in next loop
+		ray = {'x1': player_x, 'y1': player_y, 'x2': end_x, 'y2': end_y}
 
-		# At the end of this loop, ray["length"] will be the distance to the nearest wall that the ray hits
+		# At the end of this loop, ray['length'] will be the distance to the nearest wall that the ray hits
 		for wall in walls:
 			intersection = find_intersection(ray, wall)
 			if intersection:
-				ray["x2"], ray["y2"] = intersection
-				ray["length"] = ((ray["x1"] - ray["x2"]) ** 2 + (ray["y1"] - ray["y2"]) ** 2) ** 0.5
+				ray['x2'], ray['y2'] = intersection
+				ray['length'] = ((ray['x1'] - ray['x2']) ** 2 + (ray['y1'] - ray['y2']) ** 2) ** 0.5
 
 		rays.append(ray)
 
 def find_intersection(ray, wall):
-	rx1, ry1 = ray["x1"], ray["y1"]
-	rx2, ry2 = ray["x2"], ray["y2"]
-	wx1, wy1 = wall["x1"], wall["y1"]
-	wx2, wy2 = wall["x2"], wall["y2"]
+	rx1, ry1 = ray['x1'], ray['y1']
+	rx2, ry2 = ray['x2'], ray['y2']
+	wx1, wy1 = wall['x1'], wall['y1']
+	wx2, wy2 = wall['x2'], wall['y2']
 
 	denom = (rx1 - rx2) * (wy1 - wy2) - (ry1 - ry2) * (wx1 - wx2)
 	if denom == 0:
@@ -99,10 +103,10 @@ def draw_pov_mode():
 
 	wall_segment_width = WIDTH // len(rays)
 
-	longest_ray_len = max([r["length"] for r in rays])
+	longest_ray_len = max([r['length'] for r in rays])
 
 	for idx, r in enumerate(rays):
-		d = r["length"]
+		d = r['length']
 
 		h = map_range(d ** 0.5, 0, RAY_MAX_LENGTH ** 0.5, HEIGHT, HEIGHT * 0.1)
 		y = (HEIGHT - h) / 2  # Draw rect from centre
@@ -112,8 +116,8 @@ def draw_pov_mode():
 
 	pg.display.update()
 
-# Map x from [from_lo, from_hi] to [to_lo, to_hi]
 def map_range(x, from_lo, from_hi, to_lo, to_hi):
+	"""Map x from [from_lo, from_hi] to [to_lo, to_hi]"""
 	if from_hi - from_lo == 0:
 		return to_hi
 	return (x - from_lo) / (from_hi - from_lo) * (to_hi - to_lo) + to_lo
@@ -124,10 +128,10 @@ def draw_birds_eye_mode():
 	scene.fill((0, 0, 0))
 
 	for r in rays:
-		pg.draw.line(scene, (220, 220, 220), (r["x1"], r["y1"]), (r["x2"], r["y2"]))
+		pg.draw.line(scene, (220, 220, 220), (r['x1'], r['y1']), (r['x2'], r['y2']))
 
 	for w in walls:
-		pg.draw.line(scene, (255, 60, 0), (w["x1"], w["y1"]), (w["x2"], w["y2"]), width=4)
+		pg.draw.line(scene, (255, 60, 0), (w['x1'], w['y1']), (w['x2'], w['y2']), width=4)
 
 	pg.display.update()
 
@@ -139,7 +143,7 @@ def main():
 	global pov_mode, player_heading, player_x, player_y, scene
 
 	pg.init()
-	pg.display.set_caption("Raycasting demo")
+	pg.display.set_caption('Raycasting demo')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 
 	generate_walls()
@@ -194,5 +198,5 @@ def main():
 			if pov_mode: draw_pov_mode()
 			else: draw_birds_eye_mode()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

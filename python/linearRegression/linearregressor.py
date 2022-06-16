@@ -1,6 +1,9 @@
-# Linear regressor for linearRegression.py
-# Author: Sam Barba
-# Created 10/11/2021
+"""
+Linear regressor for linearRegression.py
+
+Author: Sam Barba
+Created 10/11/2021
+"""
 
 import numpy as np
 
@@ -16,8 +19,9 @@ class LinearRegressor:
 		self.x_train = x_train
 		self.y_train = y_train
 
-	# Gradient descent
 	def train(self, learning_rate=10 ** -4, converge_threshold=10 ** -9):
+		"""Gradient descent"""
+
 		# Initial guesses and error
 		weights_current = np.zeros(self.x_train.shape[1])
 		bias_current = 0
@@ -52,10 +56,10 @@ class LinearRegressor:
 		bias_deriv = 2 * (y_predictions - self.y_train).sum()
 		return weights_deriv, bias_deriv
 
-	# Mean absolute error
 	def cost(self, x, y, weights, bias):
+		"""Mean absolute error"""
 		y_predictions = x.dot(weights) + bias
-		return np.abs(y - y_predictions).sum() / len(y)
+		return np.abs(y_predictions - y).sum() / len(y)
 
 	def predict(self, inputs):
 		return inputs.dot(self.weights) + self.bias

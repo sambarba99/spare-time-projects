@@ -1,6 +1,9 @@
-# PCA transformer for principalComponentAnalysis.py
-# Author: Sam Barba
-# Created 10/11/2021
+"""
+PCA transformer for principalComponentAnalysis.py
+
+Author: Sam Barba
+Created 10/11/2021
+"""
 
 import numpy as np
 

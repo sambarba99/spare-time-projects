@@ -1,6 +1,9 @@
-# Levenshtein distance demo
-# Author: Sam Barba
-# Created 15/03/2022
+"""
+Levenshtein distance demo
+
+Author: Sam Barba
+Created 15/03/2022
+"""
 
 import tkinter as tk
 
@@ -8,17 +11,17 @@ import tkinter as tk
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def find_lev_dist(*args):
+def find_lev_dist(*_):
 	global sv1, sv2, output_lbl
 
-	print("\nLevenshtein distance table:\n")
+	print('\nLevenshtein distance table:\n')
 
 	table = lev_dp(sv1.get(), sv2.get())
 
 	# Add side header and top header
-	for idx, c in enumerate(" " + sv1.get()):
+	for idx, c in enumerate(' ' + sv1.get()):
 		table[idx].insert(0, c)
-	table.insert(0, list(" " + sv2.get()))
+	table.insert(0, list(' ' + sv2.get()))
 
 	for row in table:
 		print(row)
@@ -27,7 +30,9 @@ def find_lev_dist(*args):
 
 	output_lbl.config(text=str(d))
 
-def lev_dp(a, b):  # Dynamic programming implementation
+def lev_dp(a, b):
+	"""Dynamic programming implementation"""
+
 	len_a = len(a)
 	len_b = len(b)
 
@@ -47,7 +52,9 @@ def lev_dp(a, b):  # Dynamic programming implementation
 
 	return table  # Distance = table[-1][-1]
 
-def lev_recursive(a, b):  # Recursive implementation
+def lev_recursive(a, b):
+	"""Recursive implementation"""
+
 	if len(a) == 0:
 		return len(b)
 	elif len(b) == 0:
@@ -61,30 +68,30 @@ def lev_recursive(a, b):  # Recursive implementation
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	root = tk.Tk()
-	root.title("Levenshtein distance calculator")
-	root.config(width=350, height=200, bg="#000045")
-	root.eval("tk::PlaceWindow . center")
+	root.title('Levenshtein distance calculator')
+	root.config(width=350, height=200, bg='#000045')
+	root.eval('tk::PlaceWindow . center')
 
-	enter_strings_lbl = tk.Label(root, text="Enter 2 strings:", font="consolas", bg="#000045", fg="white")
-	enter_strings_lbl.place(relwidth=0.9, relheight=0.15, relx=0.5, rely=0.14, anchor="center")
+	enter_strings_lbl = tk.Label(root, text='Enter 2 strings:', font='consolas', bg='#000045', fg='white')
+	enter_strings_lbl.place(relwidth=0.9, relheight=0.15, relx=0.5, rely=0.14, anchor='center')
 
-	sv1 = tk.StringVar(value="python")
-	sv2 = tk.StringVar(value="programming")
-	sv1.trace_add(mode="write", callback=find_lev_dist)
-	sv2.trace_add(mode="write", callback=find_lev_dist)
+	sv1 = tk.StringVar(value='python')
+	sv2 = tk.StringVar(value='programming')
+	sv1.trace_add(mode='write', callback=find_lev_dist)
+	sv2.trace_add(mode='write', callback=find_lev_dist)
 
-	entry_box1 = tk.Entry(root, textvariable=sv1, font="consolas", justify="center")
-	entry_box2 = tk.Entry(root, textvariable=sv2, font="consolas", justify="center")
-	entry_box1.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.3, anchor="center")
-	entry_box2.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.49, anchor="center")
+	entry_box1 = tk.Entry(root, textvariable=sv1, font='consolas', justify='center')
+	entry_box2 = tk.Entry(root, textvariable=sv2, font='consolas', justify='center')
+	entry_box1.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.3, anchor='center')
+	entry_box2.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.49, anchor='center')
 
-	result_lbl = tk.Label(root, text="Levenshtein distance:", font="consolas", bg="#000045", fg="white")
-	result_lbl.place(relwidth=0.9, relheight=0.1, relx=0.5, rely=0.67, anchor="center")
+	result_lbl = tk.Label(root, text='Levenshtein distance:', font='consolas', bg='#000045', fg='white')
+	result_lbl.place(relwidth=0.9, relheight=0.1, relx=0.5, rely=0.67, anchor='center')
 
-	output_lbl = tk.Label(root, font="consolas")
-	output_lbl.place(relwidth=0.33, relheight=0.14, relx=0.5, rely=0.82, anchor="center")
+	output_lbl = tk.Label(root, font='consolas')
+	output_lbl.place(relwidth=0.33, relheight=0.14, relx=0.5, rely=0.82, anchor='center')
 
 	find_lev_dist()
 

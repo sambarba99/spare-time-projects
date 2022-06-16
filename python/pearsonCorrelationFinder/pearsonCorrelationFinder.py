@@ -1,9 +1,14 @@
-# Pearson Correlation Finder
-# Author: Sam Barba
-# Created 15/10/2021
+"""
+Pearson Correlation Finder
+
+Author: Sam Barba
+Created 15/10/2021
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+plt.rcParams['figure.figsize'] = (7, 7)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -13,23 +18,23 @@ def partial_shuffle(data, percentage=10):
 	indices = list(range(len(data)))
 	n = round(len(data) * percentage / 100)
 	indices = np.random.choice(indices, n, replace=False)
-	mapping = dict((indices[i], indices[i - 1]) for i in range(n))
+	mapping = {indices[i]: indices[i - 1] for i in range(n)}
 	return np.array([data[mapping.get(i, i)] for i in range(len(data))])
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
-	choice = input("Enter R to generate random data, or E to enter it manually: ").upper()
-	if choice == "R":
+if __name__ == '__main__':
+	choice = input('Enter R to generate random data, or E to enter it manually: ').upper()
+	if choice == 'R':
 		x = np.random.uniform(-10, 10, size=200)
 		y = np.random.uniform(-10, 10, size=200)
 		x = partial_shuffle(sorted(x))
 		y = partial_shuffle(sorted(y))
 	else:
-		x = np.array(list(map(float, input("\nInput the X sample: ").split())))
-		y = np.array(list(map(float, input("Input the Y sample: ").split())))
+		x = np.array(list(map(float, input('\nInput the X sample: ').split())))
+		y = np.array(list(map(float, input('Input the Y sample: ').split())))
 
 	n = len(x)
 	sum_x = x.sum()
@@ -55,13 +60,12 @@ if __name__ == "__main__":
 	x_plot = [min(x), max(x)]
 	y_plot = [m * i + c for i in x_plot]
 
-	plt.figure(figsize=(7, 7))
-	plt.scatter(x, y, color="black", alpha=0.4)
-	plt.plot(x_plot, y_plot, color="red")
+	plt.scatter(x, y, color='black', alpha=0.4)
+	plt.plot(x_plot, y_plot, color='red')
 	if min(x) < 0 or min(y) < 0:
-		plt.axhline(color="black")
-		plt.axvline(color="black")
-	plt.xlabel("X")
-	plt.ylabel("Y")
+		plt.axhline(color='black')
+		plt.axvline(color='black')
+	plt.xlabel('X')
+	plt.ylabel('Y')
 	plt.title(f"r = {r}\nY = {m:.3f}X {'+' if c >= 0 else '-'} {c:.3f}")
 	plt.show()

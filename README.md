@@ -1,5 +1,5 @@
 # Overview
-These are projects created in my spare time, organised into folders respective of their implementation language. They are mostly for strengthening my programming skills, but also for me to discover and experiment with a variety of algorithms (especially for AI/Machine Learning).
+These are projects created in my spare time, organised into folders respective of their implementation language. They are for strengthening my programming skills, and allow me to discover and experiment with a variety of algorithms (especially for AI/Machine Learning).
 
 # Author
 Sam Barba

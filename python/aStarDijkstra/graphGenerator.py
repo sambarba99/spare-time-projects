@@ -1,12 +1,16 @@
-# Graph generator (as opposed to daedalus.py, which makes mazes)
-# Author: Sam Barba
-# Created 23/05/2022
+"""
+Graph generator (as opposed to daedalus.py, which makes mazes)
+
+Author: Sam Barba
+Created 23/05/2022
+"""
 
 import numpy as np
 from vertexGraph import GraphVertex
 
 class GraphGen:
-	# Note: if max_neighbours = 1, a minimum spanning tree is created
+	"""Note: if max_neighbours = 1, a minimum spanning tree is created"""
+
 	def __init__(self, max_x, max_y, num_vertices=500, max_neighbours=5):
 		self.max_x = max_x
 		self.max_y = max_y
@@ -67,8 +71,8 @@ class GraphGen:
 
 		return vertices
 
-	# Depth-first search
 	def __dfs(self, visited, vertex):
+		"""Depth-first search"""
 		if vertex not in visited:
 			visited.append(vertex)
 			for neighbour in vertex.neighbours:

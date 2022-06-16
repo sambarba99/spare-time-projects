@@ -1,6 +1,9 @@
-# Agent class for reinforcement learning algorithms demo
-# Author: Sam Barba
-# Created 25/02/2022
+"""
+Agent class for reinforcement learning algorithms demo
+
+Author: Sam Barba
+Created 25/02/2022
+"""
 
 from gridenvironment import GridEnv
 import numpy as np
@@ -24,8 +27,8 @@ class Agent:
 				np.where(self.q_table[state] == max(self.q_table[state]))[0]
 			)
 
-	# Get discounted reward of a new state
 	def __discounted_reward(self, new_state, v):
+		"""Discounted reward of a new state"""
 		return self.gamma * v[new_state]
 
 	def policy_iteration(self, theta=10 ** -9):
@@ -231,14 +234,16 @@ class Agent:
 		if print_table:
 			print("\n# --- Final Q-table ('state: NESW values') --- #\n")
 			for state, action_vals in sorted(self.q_table.items()):
-				print(f"{state}: ", np.round(action_vals, 3))
+				print(f'{state}: ', np.round(action_vals, 3))
 
 		# Draw environment grid depicting optimal policy and v(s) for each state
 		self.env.render(self.q_table)
 
 	def __reset_q_table(self):
-		# Q-table is a dict containing numpy lists:
-		# 	- All action values of a state are accessed via q_table[state]
-		# 	- A specific value of a state-action is accessed via q_table[state][action]
-		# Initialised empty; new states are added as they're discovered
+		"""
+		Q-table is a dict containing numpy lists:
+			- All action values of a state are accessed via q_table[state]
+			- A specific value of a state-action is accessed via q_table[state][action]
+		Initialised empty; new states are added as they're discovered
+		"""
 		self.q_table = {}

@@ -1,6 +1,9 @@
-# Minesweeper
-# Author: Sam Barba
-# Created 27/09/2021
+"""
+Minesweeper
+
+Author: Sam Barba
+Created 27/09/2021
+"""
 
 import pygame as pg
 import random
@@ -20,7 +23,7 @@ MINE_LOST = (255, 20, 20)
 minefield = None
 flags_used_total = flags_used_correctly = 0
 game_over = False
-status_text = ""
+status_text = ''
 
 # ---------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------  CLASSES  -------------------------------------------- #
@@ -34,7 +37,7 @@ class Cell:
 		self.is_revealed = False
 		self.is_flagged = False
 		self.colour = CELL_UNCLICKED
-		self.text = ""
+		self.text = ''
 
 	def handle_mouse_click(self, event_button):
 		if game_over or self.is_revealed: return
@@ -120,10 +123,11 @@ def setup_game():
 	for y, x in mine_coords:
 		minefield[y][x].is_mine = True
 
-	status_text = f"Flags left: {NUM_MINES - flags_used_total}"
+	status_text = f'Flags left: {NUM_MINES - flags_used_total}'
 
-# Win if: all mines are correctly flagged; and all non-mine cells are revealed
 def check_win():
+	"""Win if: all mines are correctly flagged; and all non-mine cells are revealed"""
+
 	global status_text
 
 	all_non_mines_revealed = all(cell.is_revealed for row in minefield for cell in row if not cell.is_mine)
@@ -131,7 +135,7 @@ def check_win():
 	if flags_used_correctly == NUM_MINES and all_non_mines_revealed:
 		end_game(True)
 	else:
-		status_text = f"Flags left: {NUM_MINES - flags_used_total}"
+		status_text = f'Flags left: {NUM_MINES - flags_used_total}'
 
 def end_game(won):
 	global game_over, status_text
@@ -141,11 +145,11 @@ def end_game(won):
 			minefield[y][x].reveal(won)
 
 	game_over = True
-	status_text = "YOU WIN! Click to reset." if won else "GAME OVER. Click to reset."
+	status_text = 'YOU WIN! Click to reset.' if won else 'GAME OVER. Click to reset.'
 
 def draw_grid():
 	scene.fill(BACKGROUND)
-	font = pg.font.SysFont("consolas", 16)
+	font = pg.font.SysFont('consolas', 16)
 
 	for y in range(ROWS):
 		for x in range(COLS):
@@ -172,9 +176,9 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("Minesweeper")
+	pg.display.set_caption('Minesweeper')
 	scene = pg.display.set_mode((COLS * CELL_SIZE + 2 * GRID_OFFSET, ROWS * CELL_SIZE + 2 * GRID_OFFSET))
 
 	sys.setrecursionlimit(ROWS * COLS)

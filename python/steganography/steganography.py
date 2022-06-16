@@ -1,13 +1,16 @@
-# Steganography demo (LSB text and image steganography)
-# Author: Sam Barba
-# Created 01/10/2021
+"""
+Steganography demo (LSB text and image steganography)
+
+Author: Sam Barba
+Created 01/10/2021
+"""
 
 from math import ceil
 from PIL import Image
 import random
 
 CHARS = [chr(i) for i in range(65, 91)] + [chr(i) for i in range(97, 123)] + [str(i) for i in range(10)]
-IMG = Image.open("img.jpg")
+IMG = Image.open('img.jpg')
 WIDTH, HEIGHT = IMG.size
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -17,7 +20,7 @@ WIDTH, HEIGHT = IMG.size
 def hide_message_in_text(bin_msg):
 	container_text = [random.choice(CHARS) for _ in range(len(bin_msg))]
 
-	print("\nContainer text:", "".join(container_text))
+	print('\nContainer text:', ''.join(container_text))
 
 	for idx, c in enumerate(bin_msg):
 		n = ord(container_text[idx])
@@ -34,23 +37,23 @@ def hide_message_in_text(bin_msg):
 			if c not in CHARS:
 				container_text[idx] = random.choice(chars_ending_0 if ord(c) % 2 == 0 else chars_ending_1)
 
-	return "".join(container_text)
+	return ''.join(container_text)
 
 def get_message_from_text(steg_text):
 	# Least significant bit of each char
 	binary = [str(ord(c) & 1) for c in steg_text]
 
 	chunks = [binary[i:i + 8] for i in range(0, len(binary), 8)]
-	msg = [chr(int("".join(c), 2)) for c in chunks]
+	msg = [chr(int(''.join(c), 2)) for c in chunks]
 
-	return "".join(msg)
+	return ''.join(msg)
 
 def hide_message_in_image(bin_msg):
 	pixels = IMG.getdata()
 	pixels_needed = ceil(len(bin_msg) / 3)
 
 	if pixels_needed > len(pixels):
-		raise ValueError("Not enough pixels in image")
+		raise ValueError('Not enough pixels in image')
 
 	steg_img = IMG.copy()
 	msg_idx = 0
@@ -75,12 +78,13 @@ def get_message_from_image(steg_img):
 	binary = [str(b) for b in binary]
 
 	chunks = [binary[i:i + 8] for i in range(0, len(binary), 8)]
-	msg = [chr(int("".join(c), 2)) for c in chunks]
+	msg = [chr(int(''.join(c), 2)) for c in chunks]
 
-	return "".join(msg[:100]) + " (...)"
+	return ''.join(msg[:100]) + ' (...)'
 
-# Set (idx)th bit of number 'n' to 'b'
 def set_bit(n, idx, b):
+	"""Set (idx)th bit of number 'n' to 'b'"""
+
 	mask = 1 << idx
 	n &= ~mask
 	return n | mask if b == 1 else n
@@ -89,18 +93,18 @@ def set_bit(n, idx, b):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
-	msg = input("Enter message to hide: ")
-	bin_msg = "".join([format(ord(c), "08b") for c in msg])
+if __name__ == '__main__':
+	msg = input('Enter message to hide: ')
+	bin_msg = ''.join([format(ord(c), '08b') for c in msg])
 
-	print("\nIn binary:", bin_msg)
+	print('\nIn binary:', bin_msg)
 
 	steg_text = hide_message_in_text(bin_msg)
 
-	print("\nMessage hidden in text:", steg_text)
-	print(f"\nReading hidden message from text:\n{get_message_from_text(steg_text)}")
+	print('\nMessage hidden in text:', steg_text)
+	print(f'\nReading hidden message from text:\n{get_message_from_text(steg_text)}')
 
 	steg_img = hide_message_in_image(bin_msg)
 	steg_img.show()
 
-	print(f"\nReading hidden message from image:\n{get_message_from_image(steg_img)}")
+	print(f'\nReading hidden message from image:\n{get_message_from_image(steg_img)}')

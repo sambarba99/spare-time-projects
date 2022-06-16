@@ -1,6 +1,9 @@
-# Digit recognition neural network demo
-# Author: Sam Barba
-# Created 20/10/2021
+"""
+Demo of a hand-coded digit recodnition neural network
+
+Author: Sam Barba
+Created 20/10/2021
+"""
 
 # 1 row in data (MNIST dataset) contains 784 pixel values (i.e. 28*28 image) from 0-255, and a class label (0-9)
 
@@ -12,16 +15,17 @@ from time import perf_counter
 
 DRAWING_SIZE = 500
 
-plt.rcParams["figure.figsize"] = (8, 6)
+plt.rcParams['figure.figsize'] = (8, 6)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Split file data into train/test
 def extract_data(train_test_ratio=0.8):
-	data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt",
-		dtype=str, delimiter="\n")
+	"""Split file data into train/test"""
+
+	data = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt',
+		dtype=str, delimiter='\n')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -63,15 +67,15 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
 	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position("bottom")
-	axes[1].xaxis.set_ticks_position("bottom")
+	axes[0].xaxis.set_ticks_position('bottom')
+	axes[1].xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha="center", va="center")
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha="center", va="center")
-	axes[0].set_xlabel("Predictions")
-	axes[0].set_ylabel("Actual")
-	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")
-	axes[1].set_title(f"Test Confusion Matrix\nAccuracy = {test_acc:.3f}")
+		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
+		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	axes[0].set_xlabel('Predictions')
+	axes[0].set_ylabel('Actual')
+	axes[0].set_title(f'Training Confusion Matrix\nAccuracy = {train_acc:.3f}')
+	axes[1].set_title(f'Test Confusion Matrix\nAccuracy = {test_acc:.3f}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -83,41 +87,41 @@ def main():
 
 	clf = NeuralNetwork()
 
-	choice = input("Enter F to use file parameters or T to train network from scratch: ").upper()
+	choice = input('Enter F to use file parameters or T to train network from scratch: ').upper()
 
-	if choice == "F":
-		with open("biasesAndWeights.txt", "r") as file:
-			params = file.read().split("\n---\n")
+	if choice == 'F':
+		with open('biasesAndWeights.txt', 'r') as file:
+			params = file.read().split('\n---\n')
 
-		hidden_bias = np.array(params[0].split("\n")).astype(float).reshape(-1, 1)
-		hidden_weights = np.array([line.split() for line in params[1].split("\n")]).astype(float)
-		output_bias = np.array(params[2].split("\n")).astype(float).reshape(-1, 1)
-		output_weights = np.array([line.split() for line in params[3].split("\n")]).astype(float)
+		hidden_bias = np.array(params[0].split('\n')).astype(float).reshape(-1, 1)
+		hidden_weights = np.array([line.split() for line in params[1].split('\n')]).astype(float)
+		output_bias = np.array(params[2].split('\n')).astype(float).reshape(-1, 1)
+		output_weights = np.array([line.split() for line in params[3].split('\n')]).astype(float)
 
 		clf.hidden_bias = hidden_bias
 		clf.hidden_weights = hidden_weights
 		clf.output_bias = output_bias
 		clf.output_weights = output_weights
-	elif choice == "T":
+	elif choice == 'T':
 		clf.fit(x_train, y_train)
 
 		start = perf_counter()
 		clf.train()
 		interval = perf_counter() - start
 
-		s = ("\n".join(str(b) for b in clf.hidden_bias.flatten())
-			+ "\n---\n"
-			+ "\n".join((" ".join(str(i) for i in w)) for w in clf.hidden_weights)
-			+ "\n---\n"
-			+ "\n".join(str(b) for b in clf.output_bias.flatten())
-			+ "\n---\n"
-			+ "\n".join((" ".join(str(i) for i in w)) for w in clf.output_weights))
-		with open("biasesAndWeights.txt", "w") as file:
+		s = ('\n'.join(str(b) for b in clf.hidden_bias.flatten())
+			+ '\n---\n'
+			+ '\n'.join((' '.join(str(i) for i in w)) for w in clf.hidden_weights)
+			+ '\n---\n'
+			+ '\n'.join(str(b) for b in clf.output_bias.flatten())
+			+ '\n---\n'
+			+ '\n'.join((' '.join(str(i) for i in w)) for w in clf.output_weights))
+		with open('biasesAndWeights.txt', 'w') as file:
 			file.write(s)
 
-		print(f"Done in {interval:.3f}s. Saved biases and weights to file.")
+		print(f'Done in {interval:.3f}s. Saved biases and weights to file.')
 	else:
-		print("Bad choice")
+		print('Bad choice')
 		return
 
 	# Plot confusion matrices
@@ -132,7 +136,7 @@ def main():
 	# User draws a digit to predict
 
 	pg.init()
-	pg.display.set_caption("Draw a digit!")
+	pg.display.set_caption('Draw a digit!')
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
 	user_coords = []
 	drawing = True
@@ -167,20 +171,18 @@ def main():
 	drawn_digit = drawn_digit_display.reshape(1, 784)[0].astype(int)
 	pred_vector = clf.predict(drawn_digit)
 
-	plt.figure()
-	plt.imshow(drawn_digit_display, cmap="gray")
-	plt.title(f"Drawn digit is: {np.argmax(pred_vector)}\n({(100 * np.max(pred_vector)):.1f}% sure)")
+	plt.imshow(drawn_digit_display, cmap='gray')
+	plt.title(f'Drawn digit is: {np.argmax(pred_vector)}\n({(100 * np.max(pred_vector)):.1f}% sure)')
 	plt.show()
 
 	# Plot loss graph
 
-	if choice == "T":
-		plt.figure()
-		plt.plot(clf.loss, color="red")
-		plt.xlabel("Training iteration")
-		plt.ylabel("Mean loss")
-		plt.title("Loss")
+	if choice == 'T':
+		plt.plot(clf.loss, color='red')
+		plt.xlabel('Training iteration')
+		plt.ylabel('Mean loss')
+		plt.title('Loss')
 		plt.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

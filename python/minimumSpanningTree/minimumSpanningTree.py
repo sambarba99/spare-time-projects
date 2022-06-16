@@ -1,9 +1,13 @@
-# Minimum Spanning Tree demo
-# Author: Sam Barba
-# Created 17/09/2021
+"""
+Minimum Spanning Tree demo
 
-# Left-click: add a vertex
-# Right-click: reset graph
+Author: Sam Barba
+Created 17/09/2021
+
+Controls:
+Left-click: add a vertex
+Right-click: reset graph
+"""
 
 import numpy as np
 import pygame as pg
@@ -16,8 +20,9 @@ FPS = 20
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Prim's algorithm
 def mst(graph):
+	"""Prim's algorithm"""
+
 	out_tree = graph[:]  # Initially set all vertices as out of tree
 	in_tree = []
 	mst_parents = [None] * len(graph)
@@ -39,7 +44,7 @@ def mst(graph):
 					nearest_out = v_out
 					nearest_in = v_in
 
-		mst_parents[nearest_out["idx"]] = nearest_in["idx"]
+		mst_parents[nearest_out['idx']] = nearest_in['idx']
 
 		in_tree.append(nearest_out)
 		out_tree.remove(nearest_out)
@@ -47,8 +52,8 @@ def mst(graph):
 	return mst_parents
 
 def euclidean_dist(a, b):
-	a_arr = np.array([a["x"], a["y"]])
-	b_arr = np.array([b["x"], b["y"]])
+	a_arr = np.array([a['x'], a['y']])
+	b_arr = np.array([b['x'], b['y']])
 	return np.linalg.norm(a_arr - b_arr)
 
 def draw_mst(graph):
@@ -58,36 +63,36 @@ def draw_mst(graph):
 	mst_parents = mst(graph)
 
 	for idx, v in enumerate(graph[1:], start=1):  # Start from 1 because mstParents[0] is None
-		start = (v["x"], v["y"])
-		end = (graph[mst_parents[idx]]["x"], graph[mst_parents[idx]]["y"])
+		start = (v['x'], v['y'])
+		end = (graph[mst_parents[idx]]['x'], graph[mst_parents[idx]]['y'])
 		pg.draw.line(scene, (220, 220, 220), start, end)
 
 	for v in graph:
-		pg.draw.circle(scene, (230, 20, 20), (v["x"], v["y"]), 5)
+		pg.draw.circle(scene, (230, 20, 20), (v['x'], v['y']), 5)
 
 	pg.display.update()
 
 def move_points(graph):
 	for v in graph:
-		v["x"] += v["x-vel"]
-		v["y"] += v["y-vel"]
+		v['x'] += v['x-vel']
+		v['y'] += v['y-vel']
 
-		while v["x"] < 5 or v["x"] > SIZE - 5:
-			v["x-vel"] = -v["x-vel"]
-			v["x"] += v["x-vel"]
-		while v["y"] < 5 or v["y"] > SIZE - 5:
-			v["y-vel"] = -v["y-vel"]
-			v["y"] += v["y-vel"]
+		while v['x'] < 5 or v['x'] > SIZE - 5:
+			v['x-vel'] = -v['x-vel']
+			v['x'] += v['x-vel']
+		while v['y'] < 5 or v['y'] > SIZE - 5:
+			v['y-vel'] = -v['y-vel']
+			v['y'] += v['y-vel']
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	graph = []
 
 	pg.init()
-	pg.display.set_caption("Minimum Spanning Tree")
+	pg.display.set_caption('Minimum Spanning Tree')
 	scene = pg.display.set_mode((SIZE, SIZE))
 	scene.fill((20, 20, 20))
 	pg.display.update()
@@ -101,7 +106,7 @@ if __name__ == "__main__":
 			elif event.type == pg.MOUSEBUTTONDOWN:
 				if event.button == 1:  # Left-click
 					if len(graph) == 30:
-						print("Size limit reached")
+						print('Size limit reached')
 						continue
 
 					x, y = event.pos
@@ -110,7 +115,7 @@ if __name__ == "__main__":
 					y = np.clip(y, 5, SIZE - 5)
 
 					x_vel, y_vel = np.random.uniform(-3, 3, size=2)
-					vertex = {"idx": len(graph), "x": x, "y": y, "x-vel": x_vel, "y-vel": y_vel}
+					vertex = {'idx': len(graph), 'x': x, 'y': y, 'x-vel': x_vel, 'y-vel': y_vel}
 					graph.append(vertex)
 
 				elif event.button == 3:  # Right-click

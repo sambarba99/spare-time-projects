@@ -1,6 +1,9 @@
-# Classifier for naiveBayes.py
-# Author: Sam Barba
-# Created 21/22/2021
+"""
+Classifier for naiveBayes.py
+
+Author: Sam Barba
+Created 21/22/2021
+"""
 
 import numpy as np
 

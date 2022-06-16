@@ -1,22 +1,26 @@
-# Decision tree demo
-# Author: Sam Barba
-# Created 03/11/2021
+"""
+Decision tree demo
+
+Author: Sam Barba
+Created 03/11/2021
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 feature_names = None
 
-plt.rcParams["figure.figsize"] = (7, 5)
+plt.rcParams['figure.figsize'] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Split file data into train/test
 def extract_data(path, train_test_ratio=0.8):
-	data = np.genfromtxt(path, dtype=str, delimiter="\n")
-	feature_names = data[0].strip().split(",")
+	"""Split file data into train/test"""
+
+	data = np.genfromtxt(path, dtype=str, delimiter='\n')
+	feature_names = data[0].strip().split(',')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -35,24 +39,27 @@ def build_tree(x, y, max_depth=1000):
 	# Generate leaf node if either stopping condition has been reached
 	if max_depth == 1 or np.all(y == y[0]):
 		classes, counts = np.unique(y, return_counts=True)
-		return {"leaf": True, "class": classes[np.argmax(counts)]}
+		return {'leaf': True, 'class': classes[np.argmax(counts)]}
 	else:
 		move = find_best_split(x, y)
-		left = build_tree(x[move["leftIndices"]], y[move["leftIndices"]], max_depth - 1)
-		right = build_tree(x[move["rightIndices"]], y[move["rightIndices"]], max_depth - 1)
+		left = build_tree(x[move['leftIndices']], y[move['leftIndices']], max_depth - 1)
+		right = build_tree(x[move['rightIndices']], y[move['rightIndices']], max_depth - 1)
 
-		return {"leaf": False,
-			"feature": move["feature"],
-			"splitThreshold": move["splitThreshold"],
-			"infoGain": move["infoGain"],
-			"left": left,
-			"right": right}
+		return {'leaf': False,
+			'feature': move['feature'],
+			'splitThreshold': move['splitThreshold'],
+			'infoGain': move['infoGain'],
+			'left': left,
+			'right': right}
 
-# Given a dataset and its target values, find the optimal combination 
-# of feature and split point that yields maximum information gain
 def find_best_split(x, y):
+	"""
+	Given a dataest and its target values, find the optimal combination
+	of feature and split point that yields maximum information gain
+	"""
+
 	parent_entropy = calculate_entropy(y)
-	best = {"infoGain": -1}
+	best = {'infoGain': -1}
 
 	# Loop every possible split of every dimension
 	for i in range(x.shape[1]):
@@ -64,12 +71,12 @@ def find_best_split(x, y):
 			info_gain = parent_entropy - len(left) / len(y) * calculate_entropy(left) \
 				- len(right) / len(y) * calculate_entropy(right)
 
-			if info_gain > best["infoGain"]:
-				best = {"feature": i,
-					"splitThreshold": split_threshold,
-					"infoGain": info_gain,
-					"leftIndices": left_indices,
-					"rightIndices": right_indices}
+			if info_gain > best['infoGain']:
+				best = {'feature': i,
+					'splitThreshold': split_threshold,
+					'infoGain': info_gain,
+					'leftIndices': left_indices,
+					'rightIndices': right_indices}
 
 	return best
 
@@ -81,15 +88,16 @@ def calculate_entropy(y):
 
 	return -(probs * np.log2(probs)).sum()
 
-# Test different max depth values and create tree with best one
 def make_best_tree(x_train, y_train, x_test, y_test):
+	"""Test different max depth values, and create tree with the best one"""
+
 	best_tree = None
 	best_depth = best_train_acc = best_test_acc = -1
 	depth = 2
 
 	while True:
 		tree, train_acc, test_acc = evaluate(x_train, y_train, x_test, y_test, depth)
-		print(f"Depth {depth}: training accuracy = {train_acc} | test accuracy = {test_acc}")
+		print(f'Depth {depth}: training accuracy = {train_acc} | test accuracy = {test_acc}')
 
 		conditions = [train_acc >= best_train_acc,
 			test_acc >= best_test_acc,
@@ -117,25 +125,25 @@ def evaluate(x_train, y_train, x_test, y_test, max_depth):
 	return tree, train_acc, test_acc
 
 def predict(tree, sample):
-	if tree["leaf"]:
-		return tree["class"]
+	if tree['leaf']:
+		return tree['class']
 	else:
-		if sample[tree["feature"]] <= tree["splitThreshold"]:
-			return predict(tree["left"], sample)
+		if sample[tree['feature']] <= tree['splitThreshold']:
+			return predict(tree['left'], sample)
 		else:
-			return predict(tree["right"], sample)
+			return predict(tree['right'], sample)
 
 def print_tree(tree, classes, indent=0):
 	global feature_names
 
-	if tree["leaf"]:
-		print(" " * indent + classes[tree["class"]])
+	if tree['leaf']:
+		print(' ' * indent + classes[tree['class']])
 	else:
-		f = tree["feature"]
-		print("{}x{} ({}) <= {}".format(" " * indent, f, feature_names[f], tree["splitThreshold"]))
-		print_tree(tree["left"], classes, indent + 4)
-		print("{}x{} ({}) > {}".format(" " * indent, f, feature_names[f], tree["splitThreshold"]))
-		print_tree(tree["right"], classes, indent + 4)
+		f = tree['feature']
+		print('{}x{} ({}) <= {}'.format(' ' * indent, f, feature_names[f], tree['splitThreshold']))
+		print_tree(tree['left'], classes, indent + 4)
+		print('{}x{} ({}) > {}'.format(' ' * indent, f, feature_names[f], tree['splitThreshold']))
+		print_tree(tree['right'], classes, indent + 4)
 
 def confusion_matrix(predictions, actual):
 	num_classes = len(np.unique(actual))
@@ -153,15 +161,15 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
 	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position("bottom")
-	axes[1].xaxis.set_ticks_position("bottom")
+	axes[0].xaxis.set_ticks_position('bottom')
+	axes[1].xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha="center", va="center")
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha="center", va="center")
-	axes[0].set_xlabel("Predictions")
-	axes[0].set_ylabel("Actual")
-	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")
-	axes[1].set_title(f"Test Confusion Matrix\nAccuracy = {test_acc:.3f}")
+		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
+		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	axes[0].set_xlabel('Predictions')
+	axes[0].set_ylabel('Actual')
+	axes[0].set_title(f'Training Confusion Matrix\nAccuracy = {train_acc:.3f}')
+	axes[1].set_title(f'Test Confusion Matrix\nAccuracy = {test_acc:.3f}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -171,34 +179,35 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 def main():
 	global feature_names
 
-	choice = input("Enter B to use breast tumour dataset,"
-		+ "\nI for iris dataset,"
-		+ "\nP for pulsar dataset,"
-		+ "\nT for Titanic dataset,"
-		+ "\nor W for wine dataset: ").upper()
+	choice = input('Enter B to use breast tumour dataset,'
+		+ '\nI for iris dataset,'
+		+ '\nP for pulsar dataset,'
+		+ '\nT for Titanic dataset,'
+		+ '\nor W for wine dataset: ').upper()
 	print()
 
-	if choice == "B":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-		classes = ["malignant", "benign"]
-	elif choice == "I":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
-		classes = ["setosa", "versicolor", "virginica"]
-	elif choice == "P":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-		classes = ["not pulsar", "pulsar"]
-	elif choice == "T":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-		classes = ["did not survive", "survived"]
-	else:
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
-		classes = ["class 0", "class 1", "class 2"]
+	match choice:
+		case 'B':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt'
+			classes = ['malignant', 'benign']
+		case 'I':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt'
+			classes = ['setosa', 'versicolor', 'virginica']
+		case 'P':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt'
+			classes = ['not pulsar', 'pulsar']
+		case 'T':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt'
+			classes = ['did not survive', 'survived']
+		case _:
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt'
+			classes = ['class 0', 'class 1', 'class 2']
 
 	feature_names, x_train, y_train, x_test, y_test = extract_data(path)
 
 	tree, depth = make_best_tree(x_train, y_train, x_test, y_test)
 
-	print(f"\nOptimal tree (depth {depth}):\n")
+	print(f'\nOptimal tree (depth {depth}):\n')
 
 	print_tree(tree, classes)
 
@@ -211,5 +220,5 @@ def main():
 
 	plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

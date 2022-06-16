@@ -1,12 +1,15 @@
-# Pi Calculator
-# Author: Sam Barba
-# Created 04/03/2019
+"""
+Pi Calculator
+
+Author: Sam Barba
+Created 04/03/2019
+"""
 
 import matplotlib.pyplot as plt
 
 NUM_DIGITS = 500
 
-plt.rcParams["figure.figsize"] = (7, 5)
+plt.rcParams['figure.figsize'] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -35,12 +38,12 @@ def calc_pi():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pi = calc_pi()
 
 	digits = [next(pi) for _ in range(NUM_DIGITS)]
 
-	print(*digits, sep="")
+	print(*digits, sep='')
 
 	ax = plt.subplot()
 	x_plot = range(10)
@@ -49,10 +52,10 @@ if __name__ == "__main__":
 	for idx, i in enumerate(digits):
 		y_plot[i] += 1
 		ax.clear()
-		ax.bar(x_plot, y_plot, tick_label=x_plot, color="#0080ff")
-		ax.set_xlabel("Digit")
-		ax.set_ylabel("Occurrences")
-		ax.set_title(f"Digit frequencies of {idx + 1} digits of pi")
+		ax.bar(x_plot, y_plot, tick_label=x_plot, color='#0080ff')
+		ax.set_xlabel('Digit')
+		ax.set_ylabel('Occurrences')
+		ax.set_title(f'Digit frequencies of {idx + 1} digits of pi')
 		plt.show(block=False)
 		plt.pause(0.001)
 

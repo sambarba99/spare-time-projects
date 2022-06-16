@@ -1,13 +1,19 @@
-# Neural Network class for digitRecognitionNeuralNetwork.py
-# Author: Sam Barba
-# Created 20/10/2021
+"""
+Neural Network class for digitRecognitionNeuralNetwork.py
+
+Author: Sam Barba
+Created 20/10/2021
+"""
 
 import numpy as np
 
 class NeuralNetwork:
-	# 784 input layer neurons (784 inputs from 28*28 image)
-	# Arbitrary amount of 400 hidden layer neurons
-	# 10 output layer neurons (10 prediction possibilities, 0-9)
+	"""
+	784 input layer neurons (784 inputs from 28x28 image)
+	Arbitrary amount of 400 hidden layer neurons
+	10 output layer neurons (10 prediction possibilities, 0-9)
+	"""
+
 	def __init__(self, num_input_layer_neurons=784, num_hidden_layer_neurons=400, num_output_layer_neurons=10):
 		self.x_train = None
 		self.y_train = None
@@ -27,7 +33,7 @@ class NeuralNetwork:
 			if i % int(iterations * 0.001) == 0:
 				# Print every 0.1%
 				progress = 100 * i / iterations
-				print(f"Training {progress:.1f}% done")
+				print(f'Training {progress:.1f}% done')
 
 			iteration_loss = []
 
@@ -58,9 +64,12 @@ class NeuralNetwork:
 
 			self.loss.append(np.mean(iteration_loss))
 
-	# Return prediction vector e.g. v = [0.123, 0.047, 0.310, 0.968, 0.032, 0.045, 0.078, 0.123, 0.145, 0.227]
-	# In this case, np.argmax(v) = 3, therefore prediction is digit '3'
 	def predict(self, input_vector):
+		"""
+		Return prediction vector e.g. v = [0.123, 0.047, 0.310, 0.968, 0.032, 0.045, 0.078, 0.123, 0.145, 0.227]
+		In this case, np.argmax(v) = 3, therefore prediction is digit '3'
+		"""
+
 		# Make vertical
 		input_vector = input_vector.reshape(-1, 1)
 

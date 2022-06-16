@@ -4,11 +4,12 @@
 # ...Except these...
 !.gitignore
 !*.css
+!*.h5
 !*.java
 !*.jpg
+!*.md
 !*.png
 !*.py
-!*.md
 !*.txt
 
 # Ignore PyCharm .idea folders

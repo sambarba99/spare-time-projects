@@ -1,6 +1,9 @@
-# Knapsack Problem
-# Author: Sam Barba
-# Created 17/09/2021
+"""
+Demo of a Genetic Algorithm applied to the Knapsack Problem
+
+Author: Sam Barba
+Created 17/09/2021
+"""
 
 from copy import deepcopy
 import matplotlib.pyplot as plt
@@ -18,7 +21,7 @@ TOURNAMENT_SIZE = 2
 
 all_items = None
 
-plt.rcParams["figure.figsize"] = (7, 5)
+plt.rcParams['figure.figsize'] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------  CLASSES  -------------------------------------------- #
@@ -48,7 +51,7 @@ class Item:
 		self.weight = weight
 
 	def __repr__(self):
-		return f"Item {self.index}:  value: {self.value}  weight: {self.weight}"
+		return f'Item {self.index}:  value: {self.value}  weight: {self.weight}'
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -76,8 +79,8 @@ def evaluate(*population):
 	for individual in population:
 		individual.calc_fitness()
 
-# Tournament selection
 def selection(population):
+	"""Tournament selection"""
 	parents = []
 
 	for i in range(POP_SIZE):
@@ -86,8 +89,8 @@ def selection(population):
 
 	return parents
 
-# Single-point crossover
 def crossover(parents):
+	"""Single-point crossover"""
 	offspring = deepcopy(parents)
 
 	for i in range(POP_SIZE - 1):
@@ -109,8 +112,8 @@ def crossover(parents):
 
 	return offspring
 
-# Single bit-flip mutation
 def mutation(offspring):
+	"""Single bit-flip mutation"""
 	mutants = deepcopy(offspring)
 	mutants.sort(key=lambda ind: ind.fitness, reverse=True)
 
@@ -139,9 +142,9 @@ def main():
 	for item in all_items:
 		print(item)
 
-	print("\nTotal value:", sum(item_values))
-	print("Total weight:", sum(item_weights))
-	print("Knapsack capacity:", KNAPSACK_CAPACITY)
+	print('\nTotal value:', sum(item_values))
+	print('Total weight:', sum(item_weights))
+	print('Knapsack capacity:', KNAPSACK_CAPACITY)
 
 	# Initialise population and perform GA
 	population = initialise_population()
@@ -168,11 +171,11 @@ def main():
 
 		# Plot evolution graph
 		ax.clear()
-		ax.plot(mean_fitnesses, color="#0080ff", linewidth=1, label="Mean fitness")
-		ax.plot(best_fitnesses, color="#008000", linewidth=1, label="Best fitness")
-		ax.set_xlabel("Generation")
-		ax.set_ylabel("Fitness")
-		ax.set_title("Mean and best fitnesses of each generation")
+		ax.plot(mean_fitnesses, color='#0080ff', linewidth=1, label='Mean fitness')
+		ax.plot(best_fitnesses, color='#008000', linewidth=1, label='Best fitness')
+		ax.set_xlabel('Generation')
+		ax.set_ylabel('Fitness')
+		ax.set_title('Mean and best fitnesses of each generation')
 		ax.legend()
 		plt.show(block=False)
 		plt.pause(0.1)
@@ -180,11 +183,11 @@ def main():
 	# Display best items
 
 	items = [all_items[i] for i in range(NUM_ITEMS) if best_knapsack.item_config[i]]
-	print("\nBest items:", ", ".join(str(item.index) for item in items))
-	print("Value:", sum(item.value for item in items))
-	print("Weight left:", KNAPSACK_CAPACITY - sum(item.weight for item in items))
+	print('\nBest items:', ', '.join(str(item.index) for item in items))
+	print('Value:', sum(item.value for item in items))
+	print('Weight left:', KNAPSACK_CAPACITY - sum(item.weight for item in items))
 
 	plt.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

@@ -1,6 +1,9 @@
-# Polynomial class for Newton-Raphson method demo
-# Author: Sam Barba
-# Created 14/10/2021
+"""
+Polynomial class for Newton-Raphson method demo
+
+Author: Sam Barba
+Created 14/10/2021
+"""
 
 import random
 
@@ -9,8 +12,9 @@ class Polynomial:
 		# Coefficients are in the form a_n, a_(n-1) ... a_0
 		self.coefficients = coefficients
 
-	# Approximate solution of f(x) = 0 via Newton-Raphson method
 	def find_root(self, converge_threshold=10 ** -9, max_iters=10 ** 5):
+		"""Approximate solution of f(x) = 0 via Newton-Raphson method"""
+
 		x0 = random.random()  # Initial guess
 
 		df = self.derivative()
@@ -21,7 +25,7 @@ class Polynomial:
 		for _ in range(max_iters):
 			dfxn = df(xn)
 			if dfxn == 0:
-				return "Zero derivative: No solution"
+				return 'Zero derivative: No solution'
 
 			xn = xn - fxn / dfxn
 			fxn = self(xn)
@@ -31,7 +35,7 @@ class Polynomial:
 			i += 1
 
 		if abs(fxn) >= converge_threshold:
-			return "No solution found"
+			return 'No solution found'
 
 		return xn, i + 1, x0
 
@@ -45,29 +49,29 @@ class Polynomial:
 
 	def __str__(self):
 		degree = len(self.coefficients) - 1
-		result = ""
+		result = ''
 
 		for i in range(degree + 1):
 			c = self.coefficients[i]
 
 			if abs(c) == 1 and i < degree:
-				result += (" +" if c > 0 else " -")
-				if i > 0: result += " "
+				result += (' +' if c > 0 else ' -')
+				if i > 0: result += ' '
 				result += self.__expr(degree - i)
 			elif c != 0:
 				if c % 1 == 0: c = int(c)
 
-				if c > 0: result += " + "
-				else: result += " -" if i == 0 else " - "
+				if c > 0: result += ' + '
+				else: result += ' -' if i == 0 else ' - '
 
 				result += str(abs(c)) + self.__expr(degree - i)
 
-		return result.lstrip(" + ")  # Remove leading " + "
+		return result.lstrip(' + ')  # Remove leading ' + '
 
 	def __expr(self, degree):
-		if degree == 0: return ""
-		if degree == 1: return "x"
-		return "x^" + str(degree)
+		if degree == 0: return ''
+		if degree == 1: return 'x'
+		return 'x^' + str(degree)
 
 	# Evaluate polynomial at x
 	def __call__(self, x):

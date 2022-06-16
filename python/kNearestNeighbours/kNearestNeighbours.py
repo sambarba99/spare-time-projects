@@ -1,12 +1,15 @@
-# KNN demo
-# Author: Sam Barba
-# Created 11/09/2021
+"""
+KNN demo
+
+Author: Sam Barba
+Created 11/09/2021
+"""
 
 from knnclassifier import KNN
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (6, 6)
+plt.rcParams['figure.figsize'] = (6, 6)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -25,28 +28,27 @@ def confusion_matrix(predictions, actual):
 def plot_matrix(k, conf_mat, accuracy):
 	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	ax.xaxis.set_ticks_position("bottom")
+	ax.xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(conf_mat):
-		ax.text(x=i, y=j, s=val, ha="center", va="center")
-	plt.xlabel("Predictions")
-	plt.ylabel("Actual")
-	plt.title(f"Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy:.3f}")
+		ax.text(x=i, y=j, s=val, ha='center', va='center')
+	plt.xlabel('Predictions')
+	plt.ylabel('Actual')
+	plt.title(f'Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy:.3f}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
-	choice = input("Enter I to use iris dataset or W for wine dataset: ").upper()
+if __name__ == '__main__':
+	choice = input('Enter I to use iris dataset or W for wine dataset: ').upper()
 	print()
 
-	if choice == "I":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt"
-	else:
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt"
+	match choice:
+		case 'I': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt'
+		case _: path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt'
 
-	data = np.genfromtxt(path, dtype=str, delimiter="\n")
+	data = np.genfromtxt(path, dtype=str, delimiter='\n')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -69,6 +71,6 @@ if __name__ == "__main__":
 			best_k = k
 			best_conf_mat = conf_mat
 
-		print(f"Accuracy with k = {k}: {acc}")
+		print(f'Accuracy with k = {k}: {acc}')
 
 	plot_matrix(best_k, best_conf_mat, best_acc)

@@ -1,8 +1,12 @@
-# Snake Game
-# Author: Sam Barba
-# Created 10/02/2022
+"""
+Snake Game
 
-# WASD or arrow keys: move snake around
+Author: Sam Barba
+Created 10/02/2022
+
+Controls:
+WASD or arrow keys: move snake around
+"""
 
 import pygame as pg
 import random
@@ -87,7 +91,7 @@ def draw_grid():
 		CELL_SIZE, CELL_SIZE))
 
 	# Score label
-	score_lbl = font.render(f"Score: {score}", True, (220, 220, 220))
+	score_lbl = font.render(f'Score: {score}', True, (220, 220, 220))
 	scene.blit(score_lbl, (10, 10))
 
 	pg.display.update()
@@ -95,7 +99,7 @@ def draw_grid():
 	if game_over:
 		sleep(1)
 		scene.fill((0, 0, 0))
-		lbl_texts = ["GAME OVER", f"Score: {score}", "Press any key to reset"]
+		lbl_texts = ['GAME OVER', f'Score: {score}', 'Press any key to reset']
 		for idx, lbl_text in enumerate(lbl_texts):
 			lbl = font.render(lbl_text, True, (0, 180, 0))
 			offset = 40 * (idx - 1)
@@ -107,12 +111,12 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("Snake Game")
+	pg.display.set_caption('Snake Game')
 	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 	clock = pg.time.Clock()
-	font = pg.font.SysFont("consolas", 20)
+	font = pg.font.SysFont('consolas', 20)
 
 	setup()
 
@@ -140,6 +144,6 @@ if __name__ == "__main__":
 			check_game_over()
 			check_eaten_food()
 
-			if game_over: draw_grid()  # Draw "GAME OVER" screen
+			if game_over: draw_grid()  # Draw 'GAME OVER' screen
 
 		clock.tick(FPS)

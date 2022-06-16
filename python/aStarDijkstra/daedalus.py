@@ -1,6 +1,9 @@
-# Daedalus, the labyrinth creator
-# Author: Sam Barba
-# Created 20/09/2021
+"""
+Daedalus, the labyrinth creator
+
+Author: Sam Barba
+Created 20/09/2021
+"""
 
 import random
 from vertexMaze import MazeVertex

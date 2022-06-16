@@ -1,6 +1,9 @@
-# Revolving torus animation (press space to pause/play)
-# Author: Sam Barba
-# Created 09/06/2022
+"""
+Revolving torus animation (press space to toggle animation)
+
+Author: Sam Barba
+Created 09/06/2022
+"""
 
 # Faster than np.sin, np.cos
 from math import sin, cos
@@ -22,7 +25,7 @@ which is at x = R1 + R2, z = 0. We want that to be displaced 3/8ths of the width
 K2 = 100  # Arbitrary distance from torus to viewer
 K1 = SIZE * K2 * 3 / (8 * (R1 + R2))
 
-CHARS = ".,-~:;!*=#$@"  # 'Dimmest' to 'brighest' chars
+CHARS = '.,-~:;!*=#$@'  # 'Dimmest' to 'brighest' chars
 
 # Revolution amounts about x and z axes (increased after each frame, to revolve the torus)
 xrev = zrev = 0
@@ -53,8 +56,8 @@ def main():
 
 	pg.init()
 	scene = pg.display.set_mode((SIZE * PIXEL_SIZE, SIZE * PIXEL_SIZE))
-	pg.display.set_caption("Revolving Torus")
-	font = pg.font.SysFont("consolas", 14)
+	pg.display.set_caption('Revolving Torus')
+	font = pg.font.SysFont('consolas', 14)
 
 	while True:
 		for event in pg.event.get():
@@ -72,7 +75,7 @@ def main():
 		sin_zrev = sin(zrev)
 		coz_zrev = cos(zrev)
 
-		output_grid = [[" "] * SIZE for _ in range(SIZE)]
+		output_grid = [[' '] * SIZE for _ in range(SIZE)]
 		zbuffer = [[0] * SIZE for _ in range(SIZE)]
 
 		# Theta goes around the cross-sectional circle of the torus
@@ -115,5 +118,5 @@ def main():
 		xrev += 0.04
 		zrev += 0.01
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

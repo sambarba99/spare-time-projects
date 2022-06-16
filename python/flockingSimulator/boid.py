@@ -1,6 +1,9 @@
-# Boid class for flockingSimulator.py
-# Author: Sam Barba
-# Created 11/03/2022
+"""
+Boid class for flockingSimulator.py
+
+Author: Sam Barba
+Created 11/03/2022
+"""
 
 import numpy as np
 
@@ -36,8 +39,9 @@ class Boid:
         if self.pos[1] > self.max_y: self.pos[1] = 0
         if self.pos[1] < 0: self.pos[1] = self.max_y
 
-    # Steer to avoid crowding boids in local flock
     def separation(self, flock):
+        """Steer to avoid crowding boids in local flock"""
+
         steering = np.zeros(2)
         total = 0
 
@@ -56,8 +60,9 @@ class Boid:
 
         return steering
 
-    # Steer towards the average heading of boids in local flock
     def alignment(self, flock):
+        """Steer towards the average heading of boids in local flock"""
+
         steering = np.zeros(2)
         total = 0
 
@@ -75,8 +80,9 @@ class Boid:
 
         return steering
 
-    # Steer towards the average position of boids in local flock
     def cohesion(self, flock):
+        """Steer towards the average position of boids in local flock"""
+
         steering = np.zeros(2)
         total = 0
 
@@ -95,13 +101,13 @@ class Boid:
 
         return steering
 
-    # Limit a vector magnitude whilst preserving direction (e.g. steering force or velocity)
     def __limit_vector(self, vector, limit):
+        """Limit a vector magnitude whilst preserving direction (e.g. steering force or velocity)"""
         magnitude = np.linalg.norm(vector)
         return vector * limit / magnitude if magnitude > limit else vector
 
-    # Scale a vector magnitude whilst preserving direction
     def __scale_vector(self, vector, scale):
+        """Scale a vector magnitude whilst preserving direction"""
         magnitude = np.linalg.norm(vector)
         unit_vector = vector / magnitude
         return unit_vector * scale

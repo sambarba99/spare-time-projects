@@ -1,8 +1,12 @@
-# Double Pendulum
-# Author: Sam Barba
-# Created 22/09/2021
+"""
+Simulation of a double pendulum
 
-# Press R to reset
+Author: Sam Barba
+Created 22/09/2021
+
+Controls:
+R: reset
+"""
 
 from math import pi, sin, cos
 import pygame as pg
@@ -83,7 +87,7 @@ def draw_line(x1, y1, x2, y2):
 	while True:
 		scene.set_at((x1, y1), (230, 20, 20))
 
-		if x1 == x2 and y1 == y2: return
+		if (x1, y1) == (x2, y2): return
 
 		e2 = 2 * err
 		if e2 >= dy:
@@ -97,12 +101,12 @@ def draw_line(x1, y1, x2, y2):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	a1 = random.uniform(0, 2 * pi)
 	a2 = random.uniform(0, 2 * pi)
 
 	pg.init()
-	pg.display.set_caption("Double Pendulum")
+	pg.display.set_caption('Double Pendulum')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 	clock = pg.time.Clock()
 

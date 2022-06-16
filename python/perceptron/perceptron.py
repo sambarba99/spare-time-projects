@@ -1,21 +1,25 @@
-# Perceptron demo
-# Author: Sam Barba
-# Created 23/11/2021
+"""
+Perceptron demo
+
+Author: Sam Barba
+Created 23/11/2021
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 from perceptronclassifier import PerceptronClf
 
-plt.rcParams["figure.figsize"] = (7, 6)
+plt.rcParams['figure.figsize'] = (7, 6)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Split file data into train/test
 def extract_data(train_test_ratio=0.8):
-	data = np.genfromtxt("C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt",
-		dtype=str, delimiter="\n")
+	"""Split file data into train/test"""
+
+	data = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt',
+		dtype=str, delimiter='\n')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -48,22 +52,22 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
 	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position("bottom")
-	axes[1].xaxis.set_ticks_position("bottom")
+	axes[0].xaxis.set_ticks_position('bottom')
+	axes[1].xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha="center", va="center")
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha="center", va="center")
-	axes[0].set_xlabel("Predictions")
-	axes[0].set_ylabel("Actual")
-	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")
-	axes[1].set_title(f"Test Confusion Matrix\nAccuracy = {test_acc:.3f}")
+		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
+		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	axes[0].set_xlabel('Predictions')
+	axes[0].set_ylabel('Actual')
+	axes[0].set_title(f'Training Confusion Matrix\nAccuracy = {train_acc:.3f}')
+	axes[1].set_title(f'Test Confusion Matrix\nAccuracy = {test_acc:.3f}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	x_train, y_train, x_test, y_test = extract_data()
 
 	clf = PerceptronClf()
@@ -84,9 +88,8 @@ if __name__ == "__main__":
 	x_scatter = np.append(x_train, x_test, axis=0)
 	y_scatter = np.append(y_train, y_test)
 
-	plt.figure()
 	for class_label in np.unique(y_scatter):
-		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f"Class {class_label}")
+		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=f'Class {class_label}')
 
 	decision_bound_x1 = np.min(x_scatter[:, 0])
 	decision_bound_x2 = np.max(x_scatter[:, 0])
@@ -94,17 +97,17 @@ if __name__ == "__main__":
 	decision_bound_y2 = (-clf.weights[0] * decision_bound_x2 - clf.bias) / clf.weights[1]
 
 	plt.plot([decision_bound_x1, decision_bound_x2], [decision_bound_y1, decision_bound_y2],
-		color="black", ls="--")
+		color='black', ls='--')
 
 	y_min = np.min(x_scatter[:, 1])
 	y_max = np.max(x_scatter[:, 1])
 	plt.ylim([y_min - 0.5, y_max + 0.5])
 
-	w = ", ".join(f"{we:.3f}" for we in clf.weights)
+	w = ', '.join(f'{we:.3f}' for we in clf.weights)
 	m = -clf.weights[0] / clf.weights[1]
 	c = -clf.bias / clf.weights[1]
 
-	plt.axis("scaled")
-	plt.title(f"Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f} | c: {c:.3f}")
+	plt.axis('scaled')
+	plt.title(f'Weights: {w}\nBias: {clf.bias:.3f}\nm: {m:.3f} | c: {c:.3f}')
 	plt.legend()
 	plt.show()

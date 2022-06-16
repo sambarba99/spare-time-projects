@@ -1,6 +1,9 @@
-# K-Means clustering demo
-# Author: Sam Barba
-# Created 21/11/2021
+"""
+K-Means clustering demo
+
+Author: Sam Barba
+Created 21/11/2021
+"""
 
 from kmeansclusterer import KMeans
 import numpy as np
@@ -30,7 +33,7 @@ def make_random_samples(num_clusters, num_samples_per_cluster=200):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	x = make_random_samples(NUM_CLUSTERS)
 	k_means = KMeans(NUM_CLUSTERS)
 	_ = k_means.predict(x)

@@ -1,11 +1,15 @@
-# Wordle game with AI assistance (solves with ~3.5 attempts on average)
-# Author: Sam Barba
-# Created 21/03/2022
+"""
+Wordle game with AI assistance (solves with ~3.5 attempts on average)
 
-# Enter: submit attempt
-# Backspace: delete last char
-# Tab: AI assistance
-# Space: reset when game over
+Author: Sam Barba
+Created 21/03/2022
+
+Controls:
+Enter: submit attempt
+Backspace: delete last char
+Tab: AI assistance
+Space: reset when game over
+"""
 
 import numpy as np
 import pygame as pg
@@ -24,11 +28,11 @@ GREY = (50, 50, 50)  # Letter not in word
 YELLOW = (255, 160, 0)  # Letter in word, but wrong position
 GREEN = (60, 160, 60)  # Letter in word and in correct position
 
-KEYBOARD_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
+KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM']
 KEY_SIZE = 34
 KEY_GAP = 2
 
-attempts = [[""] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
+attempts = [[''] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
 attempt_num = col_num = 0
 green_letters, yellow_letters, grey_letters = [], [], []
 game_over = False
@@ -39,10 +43,15 @@ target_word = scene = None
 # ---------------------------------------------------------------------------------------------------- #
 
 def generate_pattern_dict(word_list):
-	# E.g. If word_list = ["BEARS", "CRANE", "WEARY"]:
-	# pattern_dict = generate_pattern_dict()
-	# pattern_dict["BEARS"][(2, 2, 2, 2, 2)] = "BEARS"
-	# pattern_dict["CRANE"][(0, 1, 2, 0, 1)] = {"BEARS", "WEARY"}
+	"""
+	E.g. If word_list = ['BEARS', 'CRANE', 'WEARY']:
+
+	pattern_dict = generate_pattern_dict()
+
+	pattern_dict['BEARS'][(2, 2, 2, 2, 2)] = 'BEARS'
+
+	pattern_dict['CRANE'][(0, 1, 2, 0, 1)] = {'BEARS', 'WEARY'}
+	"""
 
 	pattern_dict = {w: dict() for w in word_list}
 
@@ -80,17 +89,21 @@ def calculate_entropy(y):
 
 	return -(probs * np.log2(probs)).sum()
 
-def generate_all_info_patterns(permutations, k=WORD_LEN, prefix=""):
+def generate_all_info_patterns(permutations, k=WORD_LEN, prefix=''):
 	if k == 0:
 		permutations.append(tuple([int(c) for c in prefix]))
 	else:
-		for c in "012":  # 0/1/2 = grey/yellow/green
+		for c in '012':  # 0/1/2 = grey/yellow/green
 			new_prefix = prefix + c
 			generate_all_info_patterns(permutations, k - 1, new_prefix)
 
-# Get colour information given user_word and target_word
-# E.g. user_word = CRANE and target_word = BEARS: info = (0, 1, 2, 0, 1)
 def get_information(user_word, target_word, update_keyboard):
+	"""
+	Get colour information given user_word and target_word
+
+	E.g. user_word = CRANE and target_word = BEARS: info = (0, 1, 2, 0, 1)
+	"""
+
 	global green_letters, yellow_letters, grey_letters
 
 	if len(user_word) != len(target_word): return (0,) * WORD_LEN
@@ -104,19 +117,19 @@ def get_information(user_word, target_word, update_keyboard):
 	for i in range(WORD_LEN):
 		if user_word[i] == target_word[i]:
 			# Mark position as checked (-) so it's not triggered by yellow pass
-			temp_user_word[i] = temp_target_word[i] = "-"
+			temp_user_word[i] = temp_target_word[i] = '-'
 			col_codes[i] = 2
 			if update_keyboard:
 				green_letters.append(user_word[i])
 
 	# Check for yellow letters
 	for i in range(WORD_LEN):
-		if temp_user_word[i] == "-":
+		if temp_user_word[i] == '-':
 			continue
 		elif temp_user_word[i] in temp_target_word:
 			# Mark letter as checked in case it's repeated again
-			temp_target_word[temp_target_word.index(temp_user_word[i])] = "-"
-			temp_user_word[i] = "-"
+			temp_target_word[temp_target_word.index(temp_user_word[i])] = '-'
+			temp_user_word[i] = '-'
 			col_codes[i] = 1
 			if update_keyboard:
 				yellow_letters.append(user_word[i])
@@ -129,11 +142,11 @@ def draw_grid(colour_current_row, status=None):
 	global attempts, attempt_num, col_num, target_word, scene
 
 	scene.fill(BACKGROUND)
-	font = pg.font.SysFont("arial bold", 40)
+	font = pg.font.SysFont('arial bold', 40)
 
 	# Draw grid of attempts
 	for y in range(MAX_ATTEMPTS):
-		user_word = "".join(attempts[y])
+		user_word = ''.join(attempts[y])
 		if y < attempt_num or colour_current_row:
 			row_colours = get_information(user_word, target_word, update_keyboard=True)
 		else:
@@ -141,9 +154,10 @@ def draw_grid(colour_current_row, status=None):
 
 		for x in range(WORD_LEN):
 			if y < attempt_num or (len(user_word) == WORD_LEN and colour_current_row):
-				if row_colours[x] == 2: fill_col = GREEN
-				elif row_colours[x] == 1: fill_col = YELLOW
-				else: fill_col = GREY
+				match row_colours[x]:
+					case 2: fill_col = GREEN
+					case 1: fill_col = YELLOW
+					case _: fill_col = GREY
 
 				pg.draw.rect(scene, fill_col, pg.Rect(x * (CELL_SIZE + GAP) + GRID_OFFSET,
 					y * (CELL_SIZE + GAP) + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
@@ -165,7 +179,7 @@ def draw_grid(colour_current_row, status=None):
 			scene.blit(cell_lbl, lbl_rect)
 
 	# Draw keyboard
-	key_font = pg.font.SysFont("arial", 20)
+	key_font = pg.font.SysFont('arial', 20)
 
 	for y, row in enumerate(KEYBOARD_ROWS):
 		if y == 0: offset = 56
@@ -186,10 +200,10 @@ def draw_grid(colour_current_row, status=None):
 			scene.blit(key_lbl, lbl_rect)
 
 	# Draw status label
-	status_font = pg.font.SysFont("consolas", 18)
+	status_font = pg.font.SysFont('consolas', 18)
 
 	if status is None:
-		status_lbl = status_font.render(f"Attempt {attempt_num + 1}/{MAX_ATTEMPTS}", True, (220, 220, 220))
+		status_lbl = status_font.render(f'Attempt {attempt_num + 1}/{MAX_ATTEMPTS}', True, (220, 220, 220))
 	else:
 		status_lbl = status_font.render(status, True, (255, 255, 255))
 
@@ -208,13 +222,13 @@ def main():
 		green_letters, yellow_letters, grey_letters
 
 	pg.init()
-	pg.display.set_caption("Wordle")
+	pg.display.set_caption('Wordle')
 	scene = pg.display.set_mode((WORD_LEN * (CELL_SIZE + GAP) + 2 * GRID_OFFSET,
 		MAX_ATTEMPTS * (CELL_SIZE + GAP) + 2 * GRID_OFFSET + 180))
 
-	draw_grid(colour_current_row=False, status="Generating pattern dictionary...")
+	draw_grid(colour_current_row=False, status='Generating pattern dictionary...')
 
-	all_words = np.genfromtxt("fiveLetterWords.txt", dtype=str, delimiter="\n")
+	all_words = np.genfromtxt('fiveLetterWords.txt', dtype=str, delimiter='\n')
 	pattern_dict = generate_pattern_dict(all_words)
 
 	draw_grid(colour_current_row=False)
@@ -228,8 +242,8 @@ def main():
 
 	# If using AI to solve online wordle...
 
-	choice = input("Solving online wordle? (Y/N): ").upper()
-	if choice == "Y":
+	choice = input('Solving online wordle? (Y/N): ').upper()
+	if choice == 'Y':
 		# Suggest start word with highest entropy
 		entropies = calculate_word_entropies(words_left, pattern_dict, all_patterns)
 		attempt_word = max(entropies, key=entropies.get)
@@ -239,19 +253,19 @@ def main():
 			print(f"\nAttempt {i}/{MAX_ATTEMPTS}: try '{attempt_word}'")
 			info = input(f"Enter the info (0/1/2 for grey/yellow/green) for '{attempt_word}' (or W if won): ").upper()
 
-			if info == "W": break
+			if info == 'W': break
 
 			info = tuple([int(c) for c in info])
 
 			if info not in pattern_dict[attempt_word]:
-				print("\nNo words left in dictionary to try :(")
+				print('\nNo words left in dictionary to try :(')
 				break
 
 			matches = pattern_dict[attempt_word][info]
 			words_left = words_left.intersection(matches)
 
 			if len(words_left) == 0:
-				print("\nNo words left in dictionary to try :(")
+				print('\nNo words left in dictionary to try :(')
 				break
 
 			# Suggest word left with highest entropy
@@ -274,7 +288,7 @@ def main():
 				if game_over and event.key != pg.K_SPACE: continue
 
 				if game_over and event.key == pg.K_SPACE:  # Reset if game over
-					attempts = [[""] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
+					attempts = [[''] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
 					attempt_num = col_num = 0
 					green_letters, yellow_letters, grey_letters = [], [], []
 					game_over = False
@@ -291,16 +305,16 @@ def main():
 				elif event.key == pg.K_RETURN:  # Submit attempt
 					if col_num != WORD_LEN: continue
 
-					user_word = "".join(attempts[attempt_num])
+					user_word = ''.join(attempts[attempt_num])
 
 					if user_word not in all_words:
 						draw_grid(colour_current_row=False, status=f"'{user_word}' not in word list!")
 						sleep(1.5)
-						attempts[attempt_num] = [""] * WORD_LEN
+						attempts[attempt_num] = [''] * WORD_LEN
 						col_num = 0
 						draw_grid(colour_current_row=False)
 					elif user_word == target_word:
-						draw_grid(colour_current_row=True, status=f"You win! SPACE to reset.")
+						draw_grid(colour_current_row=True, status=f'You win! SPACE to reset.')
 						game_over = True
 					elif user_word != target_word and attempt_num == MAX_ATTEMPTS - 1:
 						draw_grid(colour_current_row=True, status=f"You lose! The target was '{target_word}'.")
@@ -317,7 +331,7 @@ def main():
 
 				elif event.key == pg.K_BACKSPACE:  # Delete last char
 					col_num = max(col_num - 1, 0)
-					attempts[attempt_num][col_num] = ""
+					attempts[attempt_num][col_num] = ''
 					draw_grid(colour_current_row=False)
 
 				elif event.key == pg.K_TAB:  # AI assistance
@@ -329,5 +343,5 @@ def main():
 					sleep(1)
 					draw_grid(colour_current_row=False)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

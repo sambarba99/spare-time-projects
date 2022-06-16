@@ -1,6 +1,9 @@
-# DBSCAN clusterer for dbscan.py
-# Author: Sam Barba
-# Created 27/12/2021
+"""
+DBSCAN clusterer for dbscan.py
+
+Author: Sam Barba
+Created 27/12/2021
+"""
 
 import numpy as np
 
@@ -16,21 +19,21 @@ class DBSCANclusterer:
 		c = 1  # Cluster counter
 
 		for point in points:
-			if point["label"] != UNDEFINED: continue  # Skip defined labels
+			if point['label'] != UNDEFINED: continue  # Skip defined labels
 
 			neighbours = [p for p in points if self.__euclidean_dist(p, point) <= self.epsilon]
 			if len(neighbours) < self.min_points:
-				point["label"] = NOISE
+				point['label'] = NOISE
 				continue
 
-			point["label"] = c
+			point['label'] = c
 			neighbours_to_expand = [n for n in neighbours if n != point]
 
 			for n in neighbours_to_expand:
-				if n["label"] == NOISE: n["label"] = c
-				if n["label"] != UNDEFINED: continue
+				if n['label'] == NOISE: n['label'] = c
+				if n['label'] != UNDEFINED: continue
 
-				n["label"] = c
+				n['label'] = c
 				neighbours = [p for p in points if self.__euclidean_dist(p, n) <= self.epsilon]
 				if len(neighbours) >= self.min_points:
 					neighbours_to_expand.extend(n for n in neighbours if n not in neighbours_to_expand)
@@ -38,6 +41,6 @@ class DBSCANclusterer:
 			c += 1  # Next cluster label
 
 	def __euclidean_dist(self, p1, p2):
-		coords1 = np.array([p1["x"], p1["y"]])
-		coords2 = np.array([p2["x"], p2["y"]])
+		coords1 = np.array([p1['x'], p1['y']])
+		coords2 = np.array([p2['x'], p2['y']])
 		return np.linalg.norm(coords1 - coords2)

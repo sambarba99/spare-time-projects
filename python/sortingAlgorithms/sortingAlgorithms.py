@@ -1,6 +1,9 @@
-# Demo of some different sorting algorithms
-# Author: Sam Barba
-# Created 06/09/2021
+"""
+Demo of some different sorting algorithms
+
+Author: Sam Barba
+Created 06/09/2021
+"""
 
 import random
 from time import perf_counter
@@ -139,17 +142,17 @@ def shell_sort(arr):
 		gap = 1 if gap == 2 else (gap * 5) // 11
 
 def test_function(sort_func, arr):
-	print("Sorting with {:.<28}".format("'" + sort_func.__name__ + "'"), end="")
+	print('Sorting with {:.<28}'.format("'" + sort_func.__name__ + "'"), end='')
 	start = perf_counter()
 	sort_func(arr)
 	interval = perf_counter() - start
-	print(f" done in {(1000 * interval):.0f} ms")
+	print(f' done in {(1000 * interval):.0f} ms')
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	size = 10 ** 4
 
 	nums = [random.randrange(size) for _ in range(size)]

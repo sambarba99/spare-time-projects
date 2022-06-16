@@ -1,13 +1,16 @@
-# KMP algorithm demo
-# Author: Sam Barba
-# Created 11/09/2021
+"""
+KMP algorithm demo
+
+Author: Sam Barba
+Created 11/09/2021
+"""
 
 import random
 import tkinter as tk
 
 TEXT_LEN = 1664
 
-text = ""
+text = ''
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -16,35 +19,35 @@ text = ""
 def generate_text():
 	global text, output_txt
 
-	text = "".join([random.choice(list("ABCDE")) for _ in range(TEXT_LEN)])
-	output_txt.config(state="normal")
-	output_txt.delete("1.0", tk.END)
-	output_txt.insert("1.0", text)
-	output_txt.tag_add("center", "1.0", tk.END)
-	output_txt.config(state="disabled")
+	text = ''.join([random.choice(list('ABCDE')) for _ in range(TEXT_LEN)])
+	output_txt.config(state='normal')
+	output_txt.delete('1.0', tk.END)
+	output_txt.insert('1.0', text)
+	output_txt.tag_add('center', '1.0', tk.END)
+	output_txt.config(state='disabled')
 
 	kmp()
 
-def kmp(*args):
+def kmp(*_):
 	global sv, text, output_txt, result_lbl
 
 	pattern = sv.get().upper()
 	len_t, len_p = len(text), len(pattern)
 
 	# Colour output all black, before highlighting matched positions in blue
-	output_txt.tag_remove("fill_black", "1.0", tk.END)
-	output_txt.tag_add("fill_black", "1.0", tk.END)
-	output_txt.tag_config("fill_black", foreground="black")
+	output_txt.tag_remove('fill_black', '1.0', tk.END)
+	output_txt.tag_add('fill_black', '1.0', tk.END)
+	output_txt.tag_config('fill_black', foreground='black')
 
 	# Clear all previous (if any) highlight tags
 	for i in range(TEXT_LEN):
-		output_txt.tag_remove(f"highlight{i}", "1.0", tk.END)
+		output_txt.tag_remove(f'highlight{i}', '1.0', tk.END)
 
 	if len_p == 0:
-		result_lbl.config(text="Pattern length must be > 0")
+		result_lbl.config(text='Pattern length must be > 0')
 		return
 	elif len_p > len_t:
-		result_lbl.config(text="Pattern must not be longer than text")
+		result_lbl.config(text='Pattern must not be longer than text')
 		return
 
 	# Create array for holding longest prefix suffix values for pattern
@@ -68,10 +71,10 @@ def kmp(*args):
 				i += 1
 
 	for pos in positions:
-		output_txt.tag_add(f"highlight{pos}", f"1.{pos}", f"1.{pos + len(pattern)}")
-		output_txt.tag_config(f"highlight{pos}", background="#20a020")
+		output_txt.tag_add(f'highlight{pos}', f'1.{pos}', f'1.{pos + len(pattern)}')
+		output_txt.tag_config(f'highlight{pos}', background='#20a020')
 
-	result_lbl.config(text=f"{len(positions)} results found:")
+	result_lbl.config(text=f'{len(positions)} results found:')
 
 def populate_lps(pattern):
 	lps = [0] * len(pattern)
@@ -95,29 +98,29 @@ def populate_lps(pattern):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	root = tk.Tk()
-	root.title("KMP demo")
-	root.config(width=650, height=730, bg="#000045")
-	root.eval("tk::PlaceWindow . center")
+	root.title('KMP demo')
+	root.config(width=650, height=730, bg='#000045')
+	root.eval('tk::PlaceWindow . center')
 
-	button = tk.Button(root, text="Generate random text", font="consolas", command=lambda: generate_text())
-	button.place(relwidth=0.35, relheight=0.05, relx=0.5, rely=0.07, anchor="center")
+	button = tk.Button(root, text='Generate random text', font='consolas', command=lambda: generate_text())
+	button.place(relwidth=0.35, relheight=0.05, relx=0.5, rely=0.07, anchor='center')
 
-	enter_pattern_lbl = tk.Label(root, text="Enter pattern to search:", font="consolas", bg="#000045", fg="white")
-	enter_pattern_lbl.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.14, anchor="center")
+	enter_pattern_lbl = tk.Label(root, text='Enter pattern to search:', font='consolas', bg='#000045', fg='white')
+	enter_pattern_lbl.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.14, anchor='center')
 
-	sv = tk.StringVar(value="ABC")
-	sv.trace_add(mode="write", callback=kmp)
+	sv = tk.StringVar(value='ABC')
+	sv.trace_add(mode='write', callback=kmp)
 
-	pattern_entry = tk.Entry(root, textvariable=sv,font="consolas", justify="center")
-	pattern_entry.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.18, anchor="center")
+	pattern_entry = tk.Entry(root, textvariable=sv,font='consolas', justify='center')
+	pattern_entry.place(relwidth=0.5, relheight=0.04, relx=0.5, rely=0.18, anchor='center')
 
-	result_lbl = tk.Label(root, font="consolas", bg="#000045", fg="white")
-	result_lbl.place(relwidth=0.8, relheight=0.04, relx=0.5, rely=0.24, anchor="center")
-	output_txt = tk.Text(root, bg="white", font="consolas", state="disabled")
-	output_txt.tag_configure("center", justify="center")
-	output_txt.place(relwidth=0.9, relheight=0.69, relx=0.5, rely=0.61, anchor="center")
+	result_lbl = tk.Label(root, font='consolas', bg='#000045', fg='white')
+	result_lbl.place(relwidth=0.8, relheight=0.04, relx=0.5, rely=0.24, anchor='center')
+	output_txt = tk.Text(root, bg='white', font='consolas', state='disabled')
+	output_txt.tag_configure('center', justify='center')
+	output_txt.place(relwidth=0.9, relheight=0.69, relx=0.5, rely=0.61, anchor='center')
 
 	generate_text()
 

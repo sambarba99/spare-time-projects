@@ -1,6 +1,9 @@
-# Sudoku solver using depth-first search
-# Author: Sam Barba
-# Created 07/09/2021
+"""
+Sudoku solver using depth-first search
+
+Author: Sam Barba
+Created 07/09/2021
+"""
 
 import numpy as np
 import pygame as pg
@@ -12,11 +15,11 @@ GRID_OFFSET = 75
 FOREGROUND = (220, 220, 220)
 
 # Puzzles in ascending order of difficulty
-PRESET_PUZZLES = {"Blank": "0" * 81,
-	"Easy": "000000000010020030000000000000000000040050060000000000000000000070080090000000000",
-	"Medium": "100000000020000000003000000000400000000050000000006000000000700000000080000000009",
-	"Hard": "120000034500000006000000000000070000000891000000020000000000000300000005670000089",
-	"Insane": "800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
+PRESET_PUZZLES = {'Blank': '0' * 81,
+	'Easy': '000000000010020030000000000000000000040050060000000000000000000070080090000000000',
+	'Medium': '100000000020000000003000000000400000000050000000006000000000700000000080000000009',
+	'Hard': '120000034500000006000000000000070000000891000000020000000000000300000005670000089',
+	'Insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'}
 
 board = np.zeros((BOARD_SIZE, BOARD_SIZE)).astype(int)
 given_yx = []  # Y before X, as 2D arrays are row-major
@@ -40,7 +43,7 @@ def solve(difficulty_lvl):
 	for n in range(1, 10):
 		if legal(n, y, x):
 			board[y][x] = n
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solving...")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solving...')
 			solve(difficulty_lvl)
 
 	if is_full(): return
@@ -50,7 +53,7 @@ def solve(difficulty_lvl):
 	# So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0
 	num_backtracks += 1
-	draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solving...")
+	draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solving...')
 
 def is_full():
 	return np.all(board)
@@ -74,16 +77,16 @@ def legal(n, y, x):
 
 def draw_grid(*, difficulty_lvl, solve_status):
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont("consolas", 16)
-	cell_font = pg.font.SysFont("consolas", 30)
+	status_font = pg.font.SysFont('consolas', 16)
+	cell_font = pg.font.SysFont('consolas', 30)
 
-	status_lbl = status_font.render(f"Difficulty: {difficulty_lvl} ({solve_status})", True, FOREGROUND)
-	backtracks_lbl = status_font.render(f"{num_backtracks} backtracks", True, FOREGROUND)
+	status_lbl = status_font.render(f'Difficulty: {difficulty_lvl} ({solve_status})', True, FOREGROUND)
+	backtracks_lbl = status_font.render(f'{num_backtracks} backtracks', True, FOREGROUND)
 	scene.blit(status_lbl, (GRID_OFFSET, 32))
 	scene.blit(backtracks_lbl, (GRID_OFFSET, 550))
 
 	for (y, x), val in np.ndenumerate(board):
-		str_val = "" if val == 0 else str(val)
+		str_val = '' if val == 0 else str(val)
 
 		if (y, x) in given_yx:
 			# Draw already given numbers as green
@@ -120,13 +123,12 @@ def wait_for_click():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("Sudoku Solver")
+	pg.display.set_caption('Sudoku Solver')
 	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET,
 		BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
 
-	# Game loop so pygame window doesn't close automatically
 	while True:
 		for difficulty_lvl, config in PRESET_PUZZLES.items():
 			for idx, n in enumerate(config):
@@ -136,8 +138,8 @@ if __name__ == "__main__":
 			num_backtracks = 0
 			given_yx = [(y, x) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE) if board[y][x] != 0]
 
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="click to solve")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='click to solve')
 			wait_for_click()
 			solve(difficulty_lvl)
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status="solved! Click for next puzzle")
+			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solved! Click for next puzzle')
 			wait_for_click()

@@ -1,6 +1,9 @@
-# Binary Tree demo
-# Author: Sam Barba
-# Created 08/09/2021
+"""
+Binary Tree demo
+
+Author: Sam Barba
+Created 08/09/2021
+"""
 
 import numpy as np
 
@@ -127,9 +130,9 @@ class Tree:
 			lines, n, p, x = self.left_child.__display_aux()
 			s = str(self.key)
 			u = len(s)
-			first_line = (x + 1) * " " + (n - x - 1) * "_" + s
-			second_line = x * " " + "/" + (n - x - 1 + u) * " "
-			shifted_lines = [line + u * " " for line in lines]
+			first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s
+			second_line = x * ' ' + '/' + (n - x - 1 + u) * ' '
+			shifted_lines = [line + u * ' ' for line in lines]
 			return [first_line, second_line] + shifted_lines, n + u, p + 2, n + u // 2
 
 		# Only right child
@@ -137,9 +140,9 @@ class Tree:
 			lines, n, p, x = self.right_child.__display_aux()
 			s = str(self.key)
 			u = len(s)
-			first_line = s + x * "_" + (n - x) * " "
-			second_line = (u + x) * " " + "\\" + (n - x - 1) * " "
-			shifted_lines = [u * " " + line for line in lines]
+			first_line = s + x * '_' + (n - x) * ' '
+			second_line = (u + x) * ' ' + '\\' + (n - x - 1) * ' '
+			shifted_lines = [u * ' ' + line for line in lines]
 			return [first_line, second_line] + shifted_lines, n + u, p + 2, u // 2
 
 		# Two children
@@ -147,13 +150,13 @@ class Tree:
 		right, m, q, y = self.right_child.__display_aux()
 		s = str(self.key)
 		u = len(s)
-		first_line = (x + 1) * " " + (n - x - 1) * "_" + s + y * "_" + (m - y) * " "
-		second_line = x * " " + "/" + (n - x - 1 + u + y) * " " + "\\" + (m - y - 1) * " "
+		first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s + y * '_' + (m - y) * ' '
+		second_line = x * ' ' + '/' + (n - x - 1 + u + y) * ' ' + '\\' + (m - y - 1) * ' '
 		if p < q:
-			left += [n * " "] * (q - p)
+			left += [n * ' '] * (q - p)
 		elif p > q:
-			right += [m * " "] * (p - q)
-		lines = [first_line, second_line] + [a + u * " " + b for a, b in zip(left, right)]
+			right += [m * ' '] * (p - q)
+		lines = [first_line, second_line] + [a + u * ' ' + b for a, b in zip(left, right)]
 		return lines, n + m + u, max(p, q) + 2, n + u // 2
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -161,7 +164,7 @@ class Tree:
 # ---------------------------------------------------------------------------------------------------- #
 
 def make_random_binary_tree():
-	names = np.genfromtxt("peopleNames.txt", dtype=str, delimiter="\n")
+	names = np.genfromtxt('peopleNames.txt', dtype=str, delimiter='\n')
 
 	tree_keys = np.random.choice(names, size=15, replace=False)
 
@@ -191,31 +194,31 @@ def make_balanced_bst(data, lo=0, hi=None):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	while True:
 		binary_tree = make_random_binary_tree()
 		while binary_tree.is_balanced():
 			binary_tree = make_random_binary_tree()
 
-		print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
-		print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
-		print("{:>21}:  {}".format("Is Binary Search Tree", binary_tree.is_bst()[0]))
-		print("{:>21}:  {}".format("Is balanced", binary_tree.is_balanced()), "\n")
+		print('{:>21}:  {}'.format('Tree', binary_tree.to_tuple()))
+		print('{:>21}:  {}'.format('Tree height', binary_tree.get_height()))
+		print('{:>21}:  {}'.format('Is Binary Search Tree', binary_tree.is_bst()[0]))
+		print('{:>21}:  {}'.format('Is balanced', binary_tree.is_balanced()), '\n')
 
 		binary_tree.display()
 
 		binary_tree = make_balanced_bst(binary_tree.list_data())
 
-		print("\n{:-^50}\n".format(" After balancing "))
-		print("{:>21}:  {}".format("Tree", binary_tree.to_tuple()))
-		print("{:>21}:  {}".format("Tree height", binary_tree.get_height()))
-		print("{:>21}:  {}".format("In-order traversal", binary_tree.in_order_traversal()))
-		print("{:>21}:  {}".format("Pre-order traversal", binary_tree.pre_order_traversal()))
-		print("{:>21}:  {}".format("Post-order traversal", binary_tree.post_order_traversal()), "\n")
+		print('\n{:-^50}\n'.format(' After balancing '))
+		print('{:>21}:  {}'.format('Tree', binary_tree.to_tuple()))
+		print('{:>21}:  {}'.format('Tree height', binary_tree.get_height()))
+		print('{:>21}:  {}'.format('In-order traversal', binary_tree.in_order_traversal()))
+		print('{:>21}:  {}'.format('Pre-order traversal', binary_tree.pre_order_traversal()))
+		print('{:>21}:  {}'.format('Post-order traversal', binary_tree.post_order_traversal()), '\n')
 
 		binary_tree.display()
 
-		choice = input("\nEnter to continue or X to exit: ").upper()
-		if choice and choice[0] == "X":
+		choice = input('\nEnter to continue or X to exit: ').upper()
+		if choice and choice[0] == 'X':
 			break
 		print()

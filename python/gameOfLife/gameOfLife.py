@@ -1,11 +1,15 @@
-# Game of Life
-# Author: Sam Barba
-# Created 21/09/2021
+"""
+Game of Life
 
-# 1: preset pattern 1 (glider gun)
-# 2: preset pattern 2 (R pentomino)
-# R: reset and randomise
-# Space: play/pause
+Author: Sam Barba
+Created 21/09/2021
+
+Controls:
+1: preset pattern 1 (glider gun)
+2: preset pattern 2 (R pentomino)
+R: reset and randomise
+Space: play/pause
+"""
 
 import pygame as pg
 import random
@@ -85,11 +89,11 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	randomise_live_cells()
 
 	pg.init()
-	pg.display.set_caption("Game of Life")
+	pg.display.set_caption('Game of Life')
 	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
 	while True:
@@ -98,14 +102,11 @@ if __name__ == "__main__":
 				pg.quit()
 				sys.exit(0)
 			elif event.type == pg.KEYDOWN:
-				if event.key == pg.K_1:  # Preset 1
-					set_pattern(GLIDER_GUN)
-				elif event.key == pg.K_2:  # Preset 2
-					set_pattern(R_PENTOMINO)
-				elif event.key == pg.K_r:  # Reset and randomise
-					randomise_live_cells()
-				elif event.key == pg.K_SPACE:  # Play/pause
-					running = not running
+				match event.key:
+					case pg.K_1: set_pattern(GLIDER_GUN)
+					case pg.K_2: set_pattern(R_PENTOMINO)
+					case pg.K_r: randomise_live_cells()
+					case pg.K_SPACE: running = not running
 
 		draw_grid()
 		if running: update_grid()

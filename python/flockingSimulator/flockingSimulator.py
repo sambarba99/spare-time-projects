@@ -1,11 +1,15 @@
-# Flocking simulator using boids
-# Author: Sam Barba
-# Created 11/03/2022
+"""
+Flocking simulator using boids
 
-# 1/2/3: toggle separation/alignment/cohesion
-# Q/W: +/- perception radius
-# A/S: +/- max steering force
-# R: reset parameter values
+Author: Sam Barba
+Created 11/03/2022
+
+Controls:
+1/2/3: toggle separation/alignment/cohesion
+Q/W: +/- perception radius
+A/S: +/- max steering force
+R: reset parameter values
+"""
 
 from boid import Boid
 import numpy as np
@@ -62,10 +66,10 @@ def draw():
 
 	# Draw controls
 	pg.draw.rect(scene, (0, 0, 60), pg.Rect(0, 0, 400, 145))
-	font = pg.font.SysFont("consolas", 16)
-	controls_lbl = font.render("Controls (1-3, Q/W, A/S, R)", True, (220, 220, 220))
-	percep_radius_ctrl_lbl = font.render("Perecption radius:", True, (220, 220, 220))
-	max_steering_force_ctrl_lbl = font.render("Max steering force:", True, (220, 220, 220))
+	font = pg.font.SysFont('consolas', 16)
+	controls_lbl = font.render('Controls (1-3, Q/W, A/S, R)', True, (220, 220, 220))
+	percep_radius_ctrl_lbl = font.render('Perecption radius:', True, (220, 220, 220))
+	max_steering_force_ctrl_lbl = font.render('Max steering force:', True, (220, 220, 220))
 	min_percep_radius_lbl = font.render(str(MIN_PERCEP_RADIUS), True, (220, 220, 220))
 	max_percep_radius_lbl = font.render(str(MAX_PERCEP_RADIUS), True, (220, 220, 220))
 	min_steering_force_lbl = font.render(str(MIN_STEERING_FORCE), True, (220, 220, 220))
@@ -125,7 +129,7 @@ def main():
 		do_separation, do_alignment, do_cohesion
 
 	pg.init()
-	pg.display.set_caption("Flocking Simulator")
+	pg.display.set_caption('Flocking Simulator')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 	clock = pg.time.Clock()
 
@@ -197,5 +201,5 @@ def main():
 
 		clock.tick(FPS)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

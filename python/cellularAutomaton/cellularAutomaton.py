@@ -1,6 +1,9 @@
-# Elementary Cellular Automaton demo
-# Author: Sam Barba
-# Created 23/09/2021
+"""
+Elementary Cellular Automaton demo
+
+Author: Sam Barba
+Created 23/09/2021
+"""
 
 import pygame as pg
 import sys
@@ -15,7 +18,7 @@ CELL_SIZE = 2
 
 def set_ruleset(n):
 	if n not in range(1, 256):
-		raise ValueError("Rule no. must be 1 - 255")
+		raise ValueError('Rule no. must be 1 - 255')
 
 	ruleset = [0] * 8
 	i = 7
@@ -62,7 +65,7 @@ def generate_plot(ruleset):
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
 	scene = pg.display.set_mode((IMG_SIZE * CELL_SIZE, IMG_SIZE * CELL_SIZE))
 
@@ -72,7 +75,7 @@ if __name__ == "__main__":
 
 	while True:
 		ruleset = set_ruleset(rules[i])
-		pg.display.set_caption(f"Elementary Cellular Automaton (rule {rules[i]}: {ruleset})")
+		pg.display.set_caption(f'Elementary Cellular Automaton (rule {rules[i]}: {ruleset})')
 		generate_plot(ruleset)
 		i = (i + 1) % len(rules)
 		sleep(2)

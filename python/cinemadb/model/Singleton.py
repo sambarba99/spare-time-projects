@@ -1,6 +1,9 @@
-# Helper class for implementing singletons (to be used as a decorator)
-# Author: Sam Barba
-# Created 15/04/2022
+"""
+Helper class for implementing singletons (to be used as a decorator)
+
+Author: Sam Barba
+Created 15/04/2022
+"""
 
 class Singleton:
     def __init__(self, decorated_class):
@@ -13,4 +16,4 @@ class Singleton:
         return self.instance
 
     def __call__(self):
-        raise TypeError("Singletons must be accessed via get_instance()")
+        raise TypeError('Singletons must be accessed via get_instance()')

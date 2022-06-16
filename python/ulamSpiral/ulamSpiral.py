@@ -1,6 +1,9 @@
-# Drawing Ulam's spiral (of primes)
-# Author: Sam Barba
-# Created 26/03/2022
+"""
+Drawing Ulam's spiral (of primes)
+
+Author: Sam Barba
+Created 26/03/2022
+"""
 
 import pygame as pg
 import sys
@@ -29,9 +32,10 @@ CELL_SIZE = 1000 // GRID_SIZE
 #
 # 	return True
 
-# Sieve of Eratosthenes
 def primes_less_than(n):
-	if n <= 2: raise ValueError("n must be > 2")
+	"""Sieve of Eratosthenes"""
+
+	if n <= 2: raise ValueError('n must be > 2')
 
 	is_prime = [True] * n
 	is_prime[0] = is_prime[1] = False
@@ -48,7 +52,7 @@ def draw():
 	state = 0
 	num_steps = 1
 	turn_counter = 1
-	font = pg.font.SysFont("consolas", 14)
+	font = pg.font.SysFont('consolas', 14)
 
 	lim = GRID_SIZE ** 2 + 1
 	is_prime = primes_less_than(lim)
@@ -63,10 +67,11 @@ def draw():
 			lbl_rect = num_lbl.get_rect(center=(x, y))
 			scene.blit(num_lbl, lbl_rect)
 
-		if state == 0: x += CELL_SIZE
-		elif state == 1: y -= CELL_SIZE
-		elif state == 2: x -= CELL_SIZE
-		elif state == 3: y += CELL_SIZE
+		match state:
+			case 0: x += CELL_SIZE
+			case 1: y -= CELL_SIZE
+			case 2: x -= CELL_SIZE
+			case 3: y += CELL_SIZE
 
 		if n % num_steps == 0:
 			state = (state + 1) % 4
@@ -80,7 +85,7 @@ def draw():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption("Drawing Ulam's spiral")
 	scene = pg.display.set_mode((GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE))

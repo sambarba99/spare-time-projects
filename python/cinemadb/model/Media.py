@@ -1,6 +1,9 @@
-# Media class
-# Author: Sam Barba
-# Created 15/04/2022
+"""
+Media class
+
+Author: Sam Barba
+Created 15/04/2022
+"""
 
 class Media:
 	def __init__(self, *, mid=None, title=None, media_type=None, year=None, genres=None,

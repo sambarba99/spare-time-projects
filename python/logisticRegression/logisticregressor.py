@@ -1,6 +1,9 @@
-# Logistic regressor for logisticRegression.py
-# Author: Sam Barba
-# Created 10/11/2021
+"""
+Logistic regressor for logisticRegression.py
+
+Author: Sam Barba
+Created 10/11/2021
+"""
 
 import numpy as np
 
@@ -16,8 +19,9 @@ class LogisticRegressor:
 		self.x_train = x_train
 		self.y_train = y_train
 
-	# Gradient descent
 	def train(self, learning_rate=0.001, converge_threshold=10 ** -6):
+		"""Gradient descent"""
+
 		# Initial guesses and error
 		weights_current = np.zeros(self.x_train.shape[1])
 		bias_current = 0

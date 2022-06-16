@@ -1,6 +1,9 @@
-# A* and Dijkstra demo
-# Author: Sam Barba
-# Created 20/09/2021
+"""
+A* and Dijkstra demo
+
+Author: Sam Barba
+Created 20/09/2021
+"""
 
 from daedalus import Daedalus
 from graphGenerator import GraphGen
@@ -75,8 +78,9 @@ def a_star():
 				if n not in open_set:
 					open_set.append(n)
 
-# Dijkstra's algorithm for Shortest Path Tree
 def dijkstra():
+	"""Generates Shortest Path Tree"""
+
 	global maze_mode, graph, start_vertex, target_vertex
 
 	if maze_mode: unvisited = [vertex for row in graph for vertex in row if not vertex.is_wall]
@@ -190,28 +194,28 @@ def toggle_maze_mode():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("A* and Dijkstra demo")
+	pg.display.set_caption('A* and Dijkstra demo')
 	scene = pg.display.set_mode((maze_generator.cols * CELL_SIZE, maze_generator.rows * CELL_SIZE))
 
 	generate_and_draw_graph()
 
 	root = tk.Tk()
-	root.title("A*/Dijkstra Demo")
-	root.config(width=350, height=230, bg="#000045")
+	root.title('A*/Dijkstra Demo')
+	root.config(width=350, height=230, bg='#000045')
 
-	btn_generate_graph = tk.Button(root, text="Generate graph", font="consolas",
+	btn_generate_graph = tk.Button(root, text='Generate graph', font='consolas',
 		command=lambda: generate_and_draw_graph())
-	btn_solve_a_star = tk.Button(root, text="Solve with A*", font="consolas",
+	btn_solve_a_star = tk.Button(root, text='Solve with A*', font='consolas',
 		command=lambda: a_star())
-	btn_solve_dijkstra = tk.Button(root, text="Solve with Dijkstra", font="consolas",
+	btn_solve_dijkstra = tk.Button(root, text='Solve with Dijkstra', font='consolas',
 		command=lambda: dijkstra())
-	btn_toggle_maze_mode = tk.Button(root, text="Toggle maze/graph mode", font="consolas",
+	btn_toggle_maze_mode = tk.Button(root, text='Toggle maze/graph mode', font='consolas',
 		command=lambda: toggle_maze_mode())
-	btn_generate_graph.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor="center")
-	btn_solve_a_star.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.4, anchor="center")
-	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.6, anchor="center")
-	btn_toggle_maze_mode.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.8, anchor="center")
+	btn_generate_graph.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor='center')
+	btn_solve_a_star.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.4, anchor='center')
+	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.6, anchor='center')
+	btn_toggle_maze_mode.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.8, anchor='center')
 
 	root.mainloop()

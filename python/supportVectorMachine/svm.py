@@ -1,6 +1,9 @@
-# SVM classifier for supportVectorMachine.py
-# Author: Sam Barba
-# Created 22/11/2021
+"""
+SVM classifier for supportVectorMachine.py
+
+Author: Sam Barba
+Created 22/11/2021
+"""
 
 import numpy as np
 

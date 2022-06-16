@@ -1,11 +1,15 @@
-# Julia/Mandelbrot Set Generator
-# Author: Sam Barba
-# Created 22/09/2021
+"""
+Julia/Mandelbrot Set Generator
 
-# Click: select point to set as origin (0,0)
-# Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
-# T: toggle axes
-# R: reset
+Author: Sam Barba
+Created 22/09/2021
+
+Controls:
+Click: select point to set as origin (0,0)
+Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
+T: toggle axes
+R: reset
+"""
 
 from math import log
 import pygame as pg
@@ -106,7 +110,7 @@ def calculate_origin():
 	orig_x = (x_axis - x_offset) / scale
 	orig_y = -(y_axis - y_offset) / scale
 
-	return f"({orig_x}, {orig_y})"
+	return f'({orig_x}, {orig_y})'
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -116,7 +120,7 @@ def main():
 	global scale, x_axis, x_offset, y_axis, y_offset, show_axes, scene
 
 	pg.init()
-	pg.display.set_caption("Julia/Mandelbrot Set")
+	pg.display.set_caption('Julia/Mandelbrot Set')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 
 	draw()
@@ -129,11 +133,11 @@ def main():
 
 			elif event.type == pg.MOUSEBUTTONDOWN:
 				if event.button == 1:  # Left-click
-					print("Setting origin... ", end="")
+					print('Setting origin... ', end='')
 					x_axis, y_axis = event.pos
 					centre_around_origin()
 					draw()
-					print(f"origin = {calculate_origin()}")
+					print(f'origin = {calculate_origin()}')
 
 			elif event.type == pg.KEYDOWN:
 				if event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
@@ -143,25 +147,25 @@ def main():
 						# Subtract 48 to get magnification factor ('2' key id = 50)
 						factor = event.key - 48
 
-					print(f"Magnifying by {factor}... ", end="")
+					print(f'Magnifying by {factor}... ', end='')
 					magnify(factor)
 					draw()
-					print("Done")
+					print('Done')
 
 				elif event.key == pg.K_t:  # Toggle axes
-					print("Toggling axes... ", end="")
+					print('Toggling axes... ', end='')
 					show_axes = not show_axes
 					draw()
-					print("Done")
+					print('Done')
 
 				elif event.key == pg.K_r:  # Reset
-					print("Resetting... ", end="")
+					print('Resetting... ', end='')
 					scale = 200
 					x_axis = x_offset = WIDTH / 2
 					y_axis = y_offset = HEIGHT / 2
 					show_axes = True
 					draw()
-					print("Done")
+					print('Done')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

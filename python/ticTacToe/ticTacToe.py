@@ -1,14 +1,17 @@
-# Tic Tac Toe player using minimax algorithm with alpha-beta pruning
-# Author: Sam Barba
-# Created 08/02/2022
+"""
+Tic Tac Toe player using minimax algorithm with alpha-beta pruning
+
+Author: Sam Barba
+Created 08/02/2022
+"""
 
 import pygame as pg
 import sys
 from time import sleep
 
-AI = "x"
-HUMAN = "o"
-TIE = "t"
+AI = 'x'
+HUMAN = 'o'
+TIE = 't'
 BOARD_SIZE = 3
 CELL_SIZE = 120
 GRID_OFFSET = 80
@@ -86,9 +89,9 @@ def make_best_ai_move():
 
 	result = find_winner()
 	global status_text
-	if result == AI: status_text = "AI wins! Click to reset"
+	if result == AI: status_text = 'AI wins! Click to reset'
 	if result == TIE: status_text = "It's a tie! Click to reset"
-	if result is None: status_text = "Your turn (o)!"
+	if result is None: status_text = 'Your turn (o)!'
 
 def minimax(depth, alpha, beta, maximising):
 	result = find_winner()
@@ -122,8 +125,8 @@ def minimax(depth, alpha, beta, maximising):
 
 def draw_grid():
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont("consolas", 16)
-	token_font = pg.font.SysFont("consolas", 140)
+	status_font = pg.font.SysFont('consolas', 16)
+	token_font = pg.font.SysFont('consolas', 140)
 
 	status_lbl = status_font.render(status_text, True, FOREGROUND)
 	lbl_rect = status_lbl.get_rect(center=(BOARD_SIZE * CELL_SIZE / 2 + GRID_OFFSET, 40))
@@ -151,9 +154,9 @@ def draw_grid():
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption("Tic Tac Toe")
+	pg.display.set_caption('Tic Tac Toe')
 	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
 
 	draw_grid()

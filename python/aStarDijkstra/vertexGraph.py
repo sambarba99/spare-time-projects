@@ -1,7 +1,9 @@
-# Vertex for A* and Dijkstra demo
-# Author: Sam Barba
-# Created 23/05/2022
+"""
+Graph vertex for A* and Dijkstra demo
 
+Author: Sam Barba
+Created 23/05/2022
+"""
 import numpy as np
 
 class GraphVertex:
@@ -21,12 +23,12 @@ class GraphVertex:
 		# For Dijkstra only
 		self.cost = 10 ** 9  # Inf
 
-	# For A* (Euclidean distance)
 	def dist(self, other):
+		"""For A* (Euclidean distance)"""
 		a = np.array([self.x, self.y])
 		b = np.array([other.x, other.y])
 		return np.linalg.norm(a - b)
 
-	# For A*
 	def get_f_cost(self):
+		"""For A* (F-cost = G-cost + H-cost)"""
 		return self.g_cost + self.h_cost

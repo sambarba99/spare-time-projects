@@ -1,6 +1,9 @@
-# Environment class for reinforcement learning algorithms demo
-# Author: Sam Barba
-# Created 25/02/2022
+"""
+Environment class for reinforcement learning algorithms demo
+
+Author: Sam Barba
+Created 25/02/2022
+"""
 
 import numpy as np
 import pygame as pg
@@ -51,9 +54,9 @@ class GridEnv:
 
 	def render(self, final_q_table=None):
 		pg.init()
-		pg.display.set_caption("Grid Environment")
+		pg.display.set_caption('Grid Environment')
 		scene = pg.display.set_mode((self.size * CELL_SIZE, self.size * CELL_SIZE))
-		font = pg.font.SysFont("consolas", 18)
+		font = pg.font.SysFont('consolas', 18)
 
 		smallest_grid_q = biggest_grid_q = None
 		if final_q_table:
@@ -74,22 +77,23 @@ class GridEnv:
 					c = self.__map_range(best_action_val, smallest_grid_q, biggest_grid_q, 20, 120)
 					col = (c, c, c)
 
-				if (y, x) == self.start: col = START_COL
-				elif (y, x) == self.gold: col = GOLD_COL
-				elif (y, x) == self.hole: col = HOLE_COL
+				match (y, x):
+					case self.start: col = START_COL
+					case self.gold: col = GOLD_COL
+					case self.hole: col = HOLE_COL
 
 				pg.draw.rect(scene, col, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 				if self.__is_terminal((y, x)):
-					terminal_lbl = font.render("Terminal", True, TEXT_COL)
-					state_value_lbl = font.render(f"({self.rewards[(y, x)]})", True, TEXT_COL)
+					terminal_lbl = font.render('Terminal', True, TEXT_COL)
+					state_value_lbl = font.render(f'({self.rewards[(y, x)]})', True, TEXT_COL)
 					lbl_rect1 = terminal_lbl.get_rect(center=((x + 0.5) * CELL_SIZE, (y + 0.33) * CELL_SIZE))
 					lbl_rect2 = state_value_lbl.get_rect(center=((x + 0.5) * CELL_SIZE, (y + 0.66) * CELL_SIZE))
 					scene.blit(terminal_lbl, lbl_rect1)
 					scene.blit(state_value_lbl, lbl_rect2)
 				elif best_action_val is not None:
 					# Draw label of best action value of state
-					act_value_lbl = font.render(f"{best_action_val:.3f}", True, TEXT_COL)
+					act_value_lbl = font.render(f'{best_action_val:.3f}', True, TEXT_COL)
 					lbl_rect = act_value_lbl.get_rect(center=((x + 0.5) * CELL_SIZE, (y + 0.33) * CELL_SIZE))
 					scene.blit(act_value_lbl, lbl_rect)
 
@@ -100,7 +104,7 @@ class GridEnv:
 					if best_action == SOUTH: pg.draw.polygon(scene, ARROW_COL, self.__shift_arrow(SOUTH_ARROW, x, y))
 					if best_action == WEST: pg.draw.polygon(scene, ARROW_COL, self.__shift_arrow(WEST_ARROW, x, y))
 				elif (y, x) == self.start:
-					start_lbl = font.render("Start", True, TEXT_COL)
+					start_lbl = font.render('Start', True, TEXT_COL)
 					lbl_rect = start_lbl.get_rect(center=((x + 0.5) * CELL_SIZE, (y + 0.5) * CELL_SIZE))
 					scene.blit(start_lbl, lbl_rect)
 

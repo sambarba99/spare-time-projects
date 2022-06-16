@@ -1,6 +1,9 @@
-# KNN classifier for kNearestNeighbours.py
-# Author: Sam Barba
-# Created 22/10/2021
+"""
+KNN classifier for kNearestNeighbours.py
+
+Author: Sam Barba
+Created 22/10/2021
+"""
 
 import numpy as np
 

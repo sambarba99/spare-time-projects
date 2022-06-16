@@ -1,6 +1,9 @@
-# Perceptron classifier for perceptron.py
-# Author: Sam Barba
-# Created 23/11/2021
+"""
+Perceptron classifier for perceptron.py
+
+Author: Sam Barba
+Created 23/11/2021
+"""
 
 import numpy as np
 

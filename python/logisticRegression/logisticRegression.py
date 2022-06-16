@@ -1,21 +1,25 @@
-# Logistic regression demo
-# Author: Sam Barba
-# Created 10/11/2021
+"""
+Logistic regression demo
+
+Author: Sam Barba
+Created 10/11/2021
+"""
 
 from logisticregressor import LogisticRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (7, 5)
+plt.rcParams['figure.figsize'] = (7, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-# Split file data into train/test
 def extract_data(path, train_test_ratio=0.8):
-	data = np.genfromtxt(path, dtype=str, delimiter="\n")
-	feature_names = data[0].strip().split(",")
+	"""Split file data into train/test"""
+
+	data = np.genfromtxt(path, dtype=str, delimiter='\n')
+	feature_names = data[0].strip().split(',')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)
@@ -23,10 +27,11 @@ def extract_data(path, train_test_ratio=0.8):
 
 	x, y = data[:, :-1], data[:, -1].astype(int)
 
-	# Normalise data (column-wise) (no need for y)
-	x = (x - np.mean(x, axis=0)) / np.std(x, axis=0)
-
+	# Standardise data (column-wise) (no need for y)
 	split = int(len(data) * train_test_ratio)
+	training_mean = np.mean(x[:split], axis=0)
+	training_std = np.std(x[:split], axis=0)
+	x = (x - training_mean) / training_std
 
 	x_train, y_train = x[:split], y[:split]
 	x_test, y_test = x[split:], y[split:]
@@ -49,15 +54,15 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
 	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position("bottom")
-	axes[1].xaxis.set_ticks_position("bottom")
+	axes[0].xaxis.set_ticks_position('bottom')
+	axes[1].xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha="center", va="center")
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha="center", va="center")
-	axes[0].set_xlabel("Predictions")
-	axes[0].set_ylabel("Actual")
-	axes[0].set_title(f"Training Confusion Matrix\nAccuracy = {train_acc:.3f}")
-	axes[1].set_title(f"Test Confusion Matrix\nAccuracy = {test_acc:.3f}")
+		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
+		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	axes[0].set_xlabel('Predictions')
+	axes[0].set_ylabel('Actual')
+	axes[0].set_title(f'Training Confusion Matrix\nAccuracy = {train_acc:.3f}')
+	axes[1].set_title(f'Test Confusion Matrix\nAccuracy = {test_acc:.3f}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -65,19 +70,20 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	choice = input("Enter B to use breast tumour dataset,"
-		+ "\nP for pulsar dataset,"
-		+ "\nor T for Titanic dataset: ").upper()
+	choice = input('Enter B to use breast tumour dataset,'
+		+ '\nP for pulsar dataset,'
+		+ '\nor T for Titanic dataset: ').upper()
 
-	if choice == "B":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt"
-		classes = ["malignant", "benign"]
-	elif choice == "P":
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt"
-		classes = ["not pulsar", "pulsar"]
-	else:
-		path = "C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt"
-		classes = ["did not survive", "survived"]
+	match choice:
+		case 'B':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt'
+			classes = ['malignant', 'benign']
+		case 'P':
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt'
+			classes = ['not pulsar', 'pulsar']
+		case _:
+			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt'
+			classes = ['did not survive', 'survived']
 
 	feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
 
@@ -115,25 +121,23 @@ def main():
 	x_plot = np.array([np.min(x_scatter, axis=0)[0], np.max(x_scatter, axis=0)[0]])
 	y_plot = m * x_plot + c
 
-	plt.figure()
 	for idx, class_label in enumerate(np.unique(y_scatter)):
 		plt.scatter(*x_scatter[y_scatter == class_label].T, alpha=0.7, label=classes[idx])
-	plt.plot(x_plot, y_plot, color="black", ls="--")
+	plt.plot(x_plot, y_plot, color='black', ls='--')
 	plt.ylim(np.min(x_scatter) * 1.1, np.max(x_scatter) * 1.1)
-	plt.xlabel(feature_names[indices[0]] + " (normalised)")
-	plt.ylabel(feature_names[indices[1]] + " (normalised)")
-	plt.title(f"Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}")
+	plt.xlabel(feature_names[indices[0]] + ' (standardised)')
+	plt.ylabel(feature_names[indices[1]] + ' (standardised)')
+	plt.title(f'Gradient descent solution\nm = {m:.3f}  |  c = {c:.3f}')
 	plt.legend()
 	plt.show()
 
 	# Plot cost graph
 
-	plt.figure()
-	plt.plot(regressor.cost_history, color="red")
-	plt.xlabel("Training iteration")
-	plt.ylabel("Cost")
-	plt.title("Cost during training")
+	plt.plot(regressor.cost_history, color='red')
+	plt.xlabel('Training iteration')
+	plt.ylabel('Cost')
+	plt.title('Cost during training')
 	plt.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

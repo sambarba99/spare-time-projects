@@ -1,6 +1,9 @@
-# Vertex for A* and Dijkstra demo
-# Author: Sam Barba
-# Created 20/09/2021
+"""
+Maze vertex for A* and Dijkstra demo
+
+Author: Sam Barba
+Created 20/09/2021
+"""
 
 class MazeVertex:
 	def __init__(self, y, x):  # Y before X, as 2D arrays are row-major
@@ -36,10 +39,10 @@ class MazeVertex:
 
 		return neighbours
 
-	# For A* (Manhattan distance)
 	def dist(self, other):
+		"""For A* (Manhattan distance)"""
 		return abs(self.x - other.x) + abs(self.y - other.y)
 
-	# For A*
 	def get_f_cost(self):
+		"""FOr A* (F-cost = G-cost + H-cost)"""
 		return self.g_cost + self.h_cost
