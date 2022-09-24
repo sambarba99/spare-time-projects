@@ -7,30 +7,44 @@ Created 22/09/2022
 Controls:
 Right-click: enter/exit drawing mode
 Left-click [and drag]: draw freestyle
-H/P: draw preset heart or pi symbol
-Z/X/C: Use 3/8/20 epicycles to draw
-V: Use all calculated epicycles to draw
+P/G/T/C: draw preset pi symbol/guitar/T. Rex/Colosseum
+Up/down arrow: increase/decrease number of epicycles to draw with
 Space: toggle animation
 """
 
+import json
 import numpy as np
 import pygame as pg
 import sys
 
-from presets import HEART, PI
+from presets import PI, GUITAR, T_REX, COLOSSEUM
 
 SIZE = 800
-FPS = 120
+FPS = 60
 
 scene = None
-num_epicycles = -1  # No limit for how many epicycles to draw with
+n_epicycles = 0
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def compute_fourier_from_coords(drawing_coords, coords_name):
-	print(f'\nComputing DFT for {coords_name}... ', end='')
+def load_fourier_from_file(path, image_name):
+	"""For presets, just load saved DFTs from their file intead of computing again"""
+
+	print(f'\nLoading saved DFT for {image_name}... ', end='')
+
+	with open(path, 'r') as file:
+		data = file.read()[:-1].split('\n')
+
+	fourier = [json.loads(line.replace("'", '"')) for line in data]
+
+	print(f'done ({len(fourier)} total epicycles)')
+
+	return fourier
+
+def compute_fourier_from_coords(drawing_coords, image_name):
+	print(f'\nComputing DFT for {image_name}... ', end='')
 
 	# Normalise around origin (0,0)
 	normalised_coords = [(x - SIZE / 2, y - SIZE / 2) for x, y in drawing_coords]
@@ -38,12 +52,15 @@ def compute_fourier_from_coords(drawing_coords, coords_name):
 	# Fill any gaps
 	interpolated = interpolate(normalised_coords)
 
+	# Skip 3 path points at a time (don't need that much resolution)
+	drawing_path = interpolated[::4]
+
 	# Convert to complex
-	complex_ = [xi + yi * 1j for xi, yi in interpolated]
+	complex_ = [x + y * 1j for x, y in drawing_path]
 
 	fourier = dft(complex_)
 
-	print('done')
+	print(f'done ({len(fourier)} total epicycles)')
 
 	return fourier
 
@@ -71,9 +88,6 @@ def interpolate(coords):
 				err += dx
 				y1 += sy
 
-	# Remove duplicate coords but maintain order
-	coords = sorted(set(coords), key=coords.index)
-
 	if len(coords) < 2: return coords
 
 	interpolated_coords = []
@@ -85,8 +99,7 @@ def interpolate(coords):
 
 def dft(x):
 	"""
-	Discrete Fourier Transform (see https://en.wikipedia.org/wiki/Discrete_Fourier_transform,
-	section `Definition`)
+	Discrete Fourier Transform (see https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition)
 	"""
 
 	N = len(x)
@@ -106,11 +119,7 @@ def dft(x):
 	return sorted(X, key=lambda item: -item['amplitude'])
 
 def epicycles(x, y, fourier, time):
-	global num_epicycles
-
-	lim = len(fourier) if num_epicycles == -1 else min(num_epicycles, len(fourier))
-
-	for f in fourier[:lim]:
+	for f in fourier[:n_epicycles]:
 		prev_x, prev_y = x, y
 		freq = f['frequency']
 		radius = f['amplitude']
@@ -118,8 +127,8 @@ def epicycles(x, y, fourier, time):
 		x += radius * np.cos(freq * time + phase)
 		y += radius * np.sin(freq * time + phase)
 
-		pg.draw.circle(scene, (80, 80, 80), (prev_x, prev_y), radius, 1)
-		pg.draw.line(scene, (255, 255, 255), (prev_x, prev_y), (x, y))
+		pg.draw.circle(scene, (60, 60, 60), (prev_x, prev_y), radius, 1)
+		pg.draw.line(scene, (200, 200, 200), (prev_x, prev_y), (x, y))
 
 	return x, y
 
@@ -128,7 +137,7 @@ def epicycles(x, y, fourier, time):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	global scene, num_epicycles
+	global scene, n_epicycles
 
 	pg.init()
 	pg.display.set_caption('Drawing with the Discrete Fourier Transform')
@@ -139,19 +148,16 @@ def main():
 	user_drawing_mode = True
 	user_drawing_coords = []
 	fourier = None
-	paused = False
 	path = []
 	time = dt = 0
-
-	# For changing no. epicycles to draw with
-	epicycle_dict = {pg.K_z: 3, pg.K_x: 8, pg.K_c: 20, pg.K_v: -1}
+	paused = False
 
 	print('\nDraw something or select a preset\n(right-click to exit drawing mode)')
 
 	while True:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
-				sys.exit(0)
+				sys.exit()
 
 			elif event.type == pg.MOUSEBUTTONDOWN:
 				if event.button == 1:  # Left-click
@@ -166,11 +172,13 @@ def main():
 						time = 0
 					else:  # Finished drawing
 						if len(user_drawing_coords) < 2:
-							print('\nNeed at least 2 coordinates')
+							print('\nNeed at least 2 points')
 							user_drawing_mode = True
 						else:
 							fourier = compute_fourier_from_coords(user_drawing_coords, 'user drawing')
 							dt = 2 * np.pi / len(fourier)
+							n_epicycles = len(fourier)
+							paused = False
 
 			elif event.type == pg.MOUSEMOTION and left_btn_down and user_drawing_mode:
 				user_drawing_coords.append(event.pos)
@@ -180,27 +188,42 @@ def main():
 				left_btn_down = False
 
 			elif event.type == pg.KEYDOWN:
-				if event.key in epicycle_dict:
-					num_epicycles = epicycle_dict[event.key]
-					if num_epicycles == -1:
-						print(f'\nDrawing with all epicycles ({len(fourier)})')
-					else:
-						print(f'\nDrawing with {num_epicycles} epicycles')
-					path = []
-					time = 0
-				elif event.key in (pg.K_h, pg.K_p):
-					if event.key == pg.K_h:
-						fourier = compute_fourier_from_coords(HEART, 'heart')
-					else:
-						fourier = compute_fourier_from_coords(PI, 'pi symbol')
-					user_drawing_mode = paused = False
-					path = []
-					time = 0
-					dt = 2 * np.pi / len(fourier)
-				elif event.key == pg.K_SPACE:
-					paused = not paused
+				match event.key:
+					case pg.K_UP | pg.K_DOWN:
+						if event.key == pg.K_UP and fourier:
+							n_epicycles = min(n_epicycles * 2, len(fourier))
+							print(f'\nNumber of epicycles = {n_epicycles}', end='')
+							print(' (max)' if n_epicycles == len(fourier) else '')
+						elif event.key == pg.K_DOWN and fourier:
+							pow2 = 2 ** int(np.log2(n_epicycles))
+							n_epicycles = pow2 // 2 if pow2 == n_epicycles else pow2
+							n_epicycles = max(n_epicycles, 2)
+							print(f'\nNumber of epicycles = {n_epicycles}')
+						path, time = [], 0
+						continue
+					case pg.K_p:
+						# fourier = compute_fourier_from_coords(PI, 'pi symbol')
+						fourier = load_fourier_from_file('dft_pi.txt', 'pi symbol')
+					case pg.K_g:
+						# fourier = compute_fourier_from_coords(GUITAR, 'guitar')
+						fourier = load_fourier_from_file('dft_guitar.txt', 'guitar')
+					case pg.K_t:
+						# fourier = compute_fourier_from_coords(T_REX, 'T. Rex')
+						fourier = load_fourier_from_file('dft_t_rex.txt', 'T. Rex')
+					case pg.K_c:
+						# fourier = compute_fourier_from_coords(COLOSSEUM, 'Colosseum')
+						fourier = load_fourier_from_file('dft_colosseum.txt', 'Colosseum')
+					case pg.K_SPACE:
+						paused = not paused
+						continue
+					case _:
+						continue
+				user_drawing_mode = paused = False
+				path, time = [], 0
+				dt = 2 * np.pi / len(fourier)
+				n_epicycles = len(fourier)
 
-		if paused: continue
+		if paused and not user_drawing_mode: continue
 
 		scene.fill((0, 0, 0))
 
@@ -215,8 +238,7 @@ def main():
 
 			time += dt
 			if time > 2 * np.pi:  # Done a full revolution, so reset
-				path = []
-				time = 0
+				path, time = [], 0
 
 		pg.display.update()
 		clock.tick(FPS)

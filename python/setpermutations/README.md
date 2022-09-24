@@ -1,0 +1,3 @@
+Permutations demo
+
+![](permutations.png)

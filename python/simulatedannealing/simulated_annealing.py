@@ -1,5 +1,5 @@
 """
-Simulated Annealing applied to 3D TSP
+Simulated Annealing applied to the TSP
 
 Author: Sam Barba
 Created 31/01/2022
@@ -77,6 +77,7 @@ def plot_candidate(ax, candidate, iter_num, max_iters):
 	ax.clear()
 	ax.plot(*coords.T, color='red', linewidth=1, zorder=1)
 	ax.scatter(*coords.T, color='black', s=18, zorder=2)
+	ax.axis('scaled')
 	ax.set_xlabel('X')
 	ax.set_ylabel('Y')
 	ax.set_title(f'Current candidate (iteration {iter_num} / {max_iters})')

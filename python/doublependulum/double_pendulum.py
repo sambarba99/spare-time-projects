@@ -118,7 +118,7 @@ if __name__ == '__main__':
 	while True:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
-				sys.exit(0)
+				sys.exit()
 			elif event.type == pg.KEYDOWN:
 				match event.key:
 					case pg.K_r:

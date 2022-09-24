@@ -23,12 +23,6 @@ MAX_DIST = 441.673  # Maximum Euclidean distance between 2 colours = root(255^2 
 CROSSHAIR_GAP = 8
 SCALE = 2
 
-# For displaying target colour vs closest match information
-FONT = cv.FONT_HERSHEY_SIMPLEX
-BOTTOM_LEFT = (5, 170)
-FONT_SCALE = 0.7
-FONT_COLOUR = tuple(255 - c for c in TARGET_RGB)[::-1]  # Reversed because OpenCV uses BGR
-
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
@@ -65,44 +59,52 @@ def crosshairs(frame, x, y):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	cap = cv.VideoCapture(0)
+	vidcap = cv.VideoCapture(0)
 
 	# Set width and height properties to small values for faster processing
 	# (will be scaled up by SCALE when displayed)
-	cap.set(3, 320)
-	cap.set(4, 180)
+	vidcap.set(3, 320)
+	vidcap.set(4, 180)
+	success, img = vidcap.read()
 
-	while True:
-		# Capture video frame by frame
-		_, frame = cap.read()
+	while success:
+		success, img = vidcap.read()
 
 		# Coords and closest colour to target RGB
-		x, y = find_most_similar_colour(frame, TARGET_RGB)
-		closest_colour = frame[y][x]
+		x, y = find_most_similar_colour(img, TARGET_RGB)
+		closest_colour = img[y][x]
 
 		# Display the frame, scaled and with the closest matching pixel highlighted
-		width = int(frame.shape[1] * SCALE)
-		height = int(frame.shape[0] * SCALE)
-		frame = cv.resize(frame, (width, height), interpolation=cv.INTER_LINEAR)
-		crosshairs(frame, int(x * SCALE), int(y * SCALE))
-		cv.imshow("Video ('Q' to quit)", frame)
+		width = int(img.shape[1] * SCALE)
+		height = int(img.shape[0] * SCALE)
+		img = cv.resize(img, (width, height), interpolation=cv.INTER_LINEAR)
+		crosshairs(img, int(x * SCALE), int(y * SCALE))
 
 		# Also show frame of target colour and closest matching colour
-		target_colour_frame = np.zeros((180, 180, 3))
+		target_colour_frame = np.zeros((90, 90, 3))
 		target_colour_frame[:] = np.array(TARGET_RGB[::-1])
-		closest_match_colour_frame = np.zeros((180, 180, 3))
-		closest_match_colour_frame[:] = np.array(closest_colour)
-		final_frame = np.hstack((target_colour_frame, closest_match_colour_frame)).astype(np.uint8)
+		closest_colour_frame = np.zeros((90, 90, 3))
+		closest_colour_frame[:] = np.array(closest_colour)
+		target_and_closest = np.hstack((target_colour_frame, closest_colour_frame))
 
+		# Put target_and_closest in bottom-left of img
+		img[-target_and_closest.shape[0]:, :target_and_closest.shape[1]] = target_and_closest
 		percentage_match = (1 - dist(closest_colour[::-1], TARGET_RGB) / MAX_DIST) * 100
-		cv.putText(final_frame, f'% match: {percentage_match:.1f}', BOTTOM_LEFT, FONT, FONT_SCALE, FONT_COLOUR)
-		cv.imshow('Target colour and closest match', final_frame)
+		cv.putText(img=img,
+			text=f'% match: {percentage_match:.1f}',
+			org=(11, img.shape[0] - 40),
+			fontFace=cv.FONT_HERSHEY_SIMPLEX,
+			fontScale=0.5,
+			color=tuple(255 - c for c in TARGET_RGB)[::-1])
+
+		# Show img
+		cv.imshow("Video ('Q' to quit)", img)
 
 		# 'Q' = quit
 		if cv.waitKey(1) & 255 == ord('q'):
 			break
 
-	cap.release()
+	vidcap.release()
 	cv.destroyAllWindows()
 
 if __name__ == '__main__':

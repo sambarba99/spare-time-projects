@@ -1,0 +1,3 @@
+Perceptron demo
+
+![](perceptron.png)

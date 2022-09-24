@@ -6,4 +6,6 @@
 # Author
 Sam Barba - MSc Machine Learning and Autonomous Systems graduate, University of Bath
 
-Find me on LinkedIn: https://www.linkedin.com/in/sam-barba-31033b179/
+<a href="https://www.linkedin.com/in/sam-barba-31033b179/"/>
+	<img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&hide_border=true&style=flat"/>
+</a>

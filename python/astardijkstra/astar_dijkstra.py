@@ -31,15 +31,15 @@ def generate_and_draw_graph():
 		graph = maze_generator.make_maze()
 		# Start and target are top-left and bottom-right, respectively
 		start_vertex = graph[0][0]
-		target_vertex = graph[maze_generator.rows - 1][maze_generator.cols - 1]
+		target_vertex = graph[-1][-1]
 	else:
 		graph = graph_generator.make_graph()
-		coords = np.array(list(zip([v.x for v in graph], [v.y for v in graph])))
+		np_coords = np.array(list(zip([v.x for v in graph], [v.y for v in graph])))
 
 		# Start is top-left-most vertex; target is bottom-right-most vertex
-		distances_from_top_left = np.linalg.norm(coords, axis=1)
+		distances_from_top_left = np.linalg.norm(np_coords, axis=1)
 		distances_from_bottom_right = np.linalg.norm(
-			coords - np.array([graph_generator.max_x, graph_generator.max_y]),
+			np_coords - np.array([graph_generator.max_x, graph_generator.max_y]),
 			axis=1
 		)
 		start_vertex = graph[np.argmin(distances_from_top_left)]
@@ -49,7 +49,7 @@ def generate_and_draw_graph():
 	draw()
 
 def a_star():
-	open_set, closed_set = [start_vertex], []
+	open_set, closed_set = {start_vertex}, set()
 
 	while open_set:
 		# Sort by f_cost then by h_cost
@@ -61,10 +61,11 @@ def a_star():
 			return
 
 		open_set.remove(cheapest_vertex)
-		closed_set.append(cheapest_vertex)
+		closed_set.add(cheapest_vertex)
 
-		if maze_mode: neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False)
-		else: neighbours = cheapest_vertex.neighbours
+		neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False) \
+			if maze_mode \
+			else cheapest_vertex.neighbours
 
 		for n in neighbours:
 			if n in closed_set: continue
@@ -74,15 +75,14 @@ def a_star():
 				n.g_cost = cost_move_to_n
 				n.h_cost = n.dist(target_vertex)
 				n.parent = cheapest_vertex
-
-				if n not in open_set:
-					open_set.append(n)
+				open_set.add(n)
 
 def dijkstra():
 	"""Generates Shortest Path Tree"""
 
-	unvisited = [vertex for row in graph for vertex in row if not vertex.is_wall] \
-		if maze_mode else [v for v in graph]
+	unvisited = {vertex for row in graph for vertex in row if not vertex.is_wall} \
+		if maze_mode \
+		else {v for v in graph}
 
 	# Costs nothing to get from start to start (start_vertex parent will always be None)
 	start_vertex.cost = 0
@@ -96,7 +96,8 @@ def dijkstra():
 			break
 
 		neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False) \
-			if maze_mode else cheapest_vertex.neighbours
+			if maze_mode \
+			else cheapest_vertex.neighbours
 
 		for n in neighbours:
 			step = 1 if maze_mode else cheapest_vertex.dist(n)
@@ -156,7 +157,7 @@ def draw():
 		for v in path:
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
-					sys.exit(0)
+					sys.exit()
 			pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 			sleep(time_interval)
 			pg.display.update()

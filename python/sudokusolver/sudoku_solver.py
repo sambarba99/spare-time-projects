@@ -61,7 +61,7 @@ def solve(difficulty_lvl):
 
 	for event in pg.event.get():
 		if event.type == pg.QUIT:
-			sys.exit(0)
+			sys.exit()
 
 	y, x = find_free_square()
 	for n in range(1, 10):
@@ -121,12 +121,12 @@ def wait_for_click():
 			if event.type == pg.MOUSEBUTTONDOWN:
 				return
 			elif event.type == pg.QUIT:
-				sys.exit(0)
+				sys.exit()
 
 def plot_backtracks(*, difficulty_lvl, time_to_solve):
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
-	# (line plt.gca().invert_yaxis() below)
-	grid_flipped = np.flip(backtrack_grid, axis=0)
+	# (line 'plt.gca().invert_yaxis()' below)
+	grid_flipped = np.flipud(backtrack_grid)
 
 	ax = plt.subplot()
 	mat = ax.matshow(grid_flipped, cmap=plt.cm.plasma)

@@ -1,59 +1,71 @@
 """
-Demo of a hand-coded digit recodnition neural network
+MNIST neural network demo
 
 Author: Sam Barba
 Created 20/10/2021
 """
 
-# 1 row in data (MNIST dataset) contains 784 pixel values (i.e. 28*28 image) from 0-255, and a class label (0-9)
+# Reduce TensorFlow logger spam
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+from keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
+from keras.models import load_model, Sequential
+from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
-from neural_network_classifier import NeuralNetwork
 import numpy as np
 import pygame as pg
-from time import perf_counter
+from tensorflow import keras
+from tensorflow.keras.callbacks import EarlyStopping
 
+N_CLASSES = 10  # 10 classes for 10 digits
+INPUT_SHAPE = (28, 28, 1)
 DRAWING_SIZE = 500
 
-plt.rcParams['figure.figsize'] = (8, 6)
+plt.rcParams['figure.figsize'] = (12, 6)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def extract_data(train_test_ratio=0.8):
-	"""Split file data into train/test"""
+def load_data():
+	(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-	data = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\mnist.txt',
-		dtype=str, delimiter='\n')
-	# Skip header and convert to floats
-	data = [row.split() for row in data[1:]]
-	data = np.array(data).astype(float)
-	np.random.shuffle(data)
+	# Scale images to 0-1 range
+	x_train = np.array(x_train) / 255
+	x_test = np.array(x_test) / 255
 
-	split = int(len(data) * train_test_ratio)
+	# Ensure shape (28, 28, 1)
+	x_train = np.expand_dims(x_train, -1)
+	x_test = np.expand_dims(x_test, -1)
 
-	training_set, test_set = data[:split], data[split:]
+	# Convert Y to binary class matrices
+	y_train = keras.utils.to_categorical(y_train, N_CLASSES)
+	y_test = keras.utils.to_categorical(y_test, N_CLASSES)
 
-	x_train = training_set[:, :-1] / 255
-	y_train = training_set[:, -1].astype(int)
-	x_test = test_set[:, :-1] / 255
-	y_test = test_set[:, -1].astype(int)
-
-	y_train1 = np.zeros((len(y_train), 10))
-	y_train1[np.arange(len(y_train)), y_train] = 1
-	y_test1 = np.zeros((len(y_test), 10))
-	y_test1[np.arange(len(y_test)), y_test] = 1
-
-	y_train, y_test = y_train1, y_test1
-	
 	return x_train, y_train, x_test, y_test
+
+def build_model():
+	model = Sequential(name='digit_recognition_model')
+
+	model.add(Input(shape=INPUT_SHAPE))
+	model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Flatten())
+	model.add(Dropout(0.5))
+	model.add(Dense(units=N_CLASSES, activation='softmax'))
+
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+	model.build(input_shape=INPUT_SHAPE)
+
+	return model
 
 def confusion_matrix(predictions, actual):
 	predictions = np.argmax(predictions, axis=1)
 	actual = np.argmax(actual, axis=1)
-	n_classes = len(np.unique(actual))
-	conf_mat = np.zeros((n_classes, n_classes)).astype(int)
+	conf_mat = np.zeros((N_CLASSES, N_CLASSES)).astype(int)
 
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
@@ -83,49 +95,64 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	x_train, y_train, x_test, y_test = extract_data()
+	x_train, y_train, x_test, y_test = load_data()
 
-	clf = NeuralNetwork()
+	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
 
-	choice = input('Enter F to use file parameters or T to train network from scratch\n>>> ').upper()
+	if choice == 'T':
+		# Plot some training examples
 
-	if choice == 'F':
-		with open('biases_and_weights.txt', 'r') as file:
-			params = file.read().split('\n---\n')
+		for i in range(3):
+			sample = np.squeeze(x_train[i])
+			sample_class = np.argmax(y_train[i])
+			plt.imshow(sample, cmap='gray')
+			plt.title(f'Digit: {sample_class}')
+			plt.show()
 
-		hidden_bias = np.array(params[0].split('\n')).astype(float).reshape(-1, 1)
-		hidden_weights = np.array([line.split() for line in params[1].split('\n')]).astype(float)
-		output_bias = np.array(params[2].split('\n')).astype(float).reshape(-1, 1)
-		output_weights = np.array([line.split() for line in params[3].split('\n')]).astype(float)
+		# Build model
 
-		clf.hidden_bias = hidden_bias
-		clf.hidden_weights = hidden_weights
-		clf.output_bias = output_bias
-		clf.output_weights = output_weights
-	elif choice == 'T':
-		start = perf_counter()
-		clf.fit(x_train, y_train)
-		interval = perf_counter() - start
+		model = build_model()
+		model.summary()
+		plot_model(model, show_shapes=True, show_dtype=True, expand_nested=True, show_layer_activations=True)
 
-		s = ('\n'.join(str(b) for b in clf.hidden_bias.flatten())
-			+ '\n---\n'
-			+ '\n'.join((' '.join(str(i) for i in w)) for w in clf.hidden_weights)
-			+ '\n---\n'
-			+ '\n'.join(str(b) for b in clf.output_bias.flatten())
-			+ '\n---\n'
-			+ '\n'.join((' '.join(str(i) for i in w)) for w in clf.output_weights))
-		with open('biases_and_weights.txt', 'w') as file:
-			file.write(s)
+		# Train model
 
-		print(f'Done in {interval:.3f}s. Saved biases and weights to file.')
+		print('\n----- TRAINING -----\n')
+		early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5,	restore_best_weights=True)
+		history = model.fit(x_train, y_train, epochs=50, validation_split=0.1, callbacks=[early_stopping], verbose=1)
+
+		final_train_loss = history.history['loss'][-1]
+		final_val_loss = history.history['val_loss'][-1]
+		plt.plot(history.history['loss'], label='Training')
+		plt.plot(history.history['val_loss'], label='Validation')
+		plt.legend()
+		plt.xlabel('Epoch')
+		plt.ylabel('Categorical cross-entropy loss')
+		plt.title('Model loss during training'
+			f'\nFinal training loss: {final_train_loss:.3f}'
+			f'\nFinal validation loss: {final_val_loss:.3f}')
+		plt.show()
+
+		choice = input('\nSave this model (will override model.h5 if it exists)? (Y/[N])\n>>> ').upper()
+		if choice == 'Y':
+			model.save('model.h5')
+			print('Saved')
+	elif choice == 'L':
+		model = load_model('model.h5')
 	else:
-		print('Bad choice')
 		return
+
+	# Evaluate model
+
+	print('\n----- EVALUATION -----\n')
+	test_loss, test_accuracy = model.evaluate(x_test, y_test)
+	print('Test loss:', test_loss)
+	print('Test accuracy:', test_accuracy)
 
 	# Plot confusion matrices
 
-	train_predictions = [clf.predict(i) for i in x_train]
-	test_predictions = [clf.predict(i) for i in x_test]
+	train_predictions = model.predict(x_train)
+	test_predictions = model.predict(x_test)
 	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
 	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
 
@@ -136,51 +163,44 @@ def main():
 	pg.init()
 	pg.display.set_caption('Draw a digit!')
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
-	user_coords = []
+	user_drawing_coords = []
 	drawing = True
-	left_button_down = False
+	left_btn_down = False
 
 	while drawing:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				drawing = False
-				pg.quit()
+
 			elif event.type == pg.MOUSEBUTTONDOWN:
 				if event.button == 1:
-					left_button_down = True
+					left_btn_down = True
 					x, y = event.pos
-					user_coords.append([x, y])
+					user_drawing_coords.append([x, y])
 					scene.set_at((x, y), (255, 255, 255))
 					pg.display.update()
+
 			elif event.type == pg.MOUSEMOTION:
-				if left_button_down:
+				if left_btn_down:
 					x, y = event.pos
-					user_coords.append([x, y])
+					user_drawing_coords.append([x, y])
 					scene.set_at((x, y), (255, 255, 255))
 					pg.display.update()
+
 			elif event.type == pg.MOUSEBUTTONUP:
 				if event.button == 1:
-					left_button_down = False
+					left_btn_down = False
 
-	user_coords = np.array(user_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
-	user_coords = np.unique(user_coords, axis=0)  # Keep unique pairs only
-	drawn_digit_display = np.zeros((28, 28))
-	drawn_digit_display[user_coords[:, 1], user_coords[:, 0]] = 1
-	drawn_digit = drawn_digit_display.reshape(1, 784)[0].astype(int)
-	pred_vector = clf.predict(drawn_digit)
+	user_drawing_coords = np.array(user_drawing_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
+	user_drawing_coords = np.unique(user_drawing_coords, axis=0)  # Keep unique pairs only
+	drawn_digit_grid = np.zeros((28, 28))
+	drawn_digit_grid[user_drawing_coords[:, 1], user_drawing_coords[:, 0]] = 1
+	drawn_digit_input = drawn_digit_grid.reshape((1, *drawn_digit_grid.shape, 1))
+	pred_vector = model.predict(drawn_digit_input)
 
-	plt.imshow(drawn_digit_display, cmap='gray')
-	plt.title(f'Drawn digit is: {np.argmax(pred_vector)}\n({(100 * np.max(pred_vector)):.1f}% sure)')
+	plt.imshow(drawn_digit_grid, cmap='gray')
+	plt.title(f'Drawn digit is {np.argmax(pred_vector)} ({(100 * np.max(pred_vector)):.1f}% sure)')
 	plt.show()
-
-	# Plot loss graph
-
-	if choice == 'T':
-		plt.plot(clf.loss, color='red')
-		plt.xlabel('Training iteration')
-		plt.ylabel('Mean loss')
-		plt.title('Loss')
-		plt.show()
 
 if __name__ == '__main__':
 	main()

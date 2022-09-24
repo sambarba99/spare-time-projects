@@ -279,7 +279,7 @@ def main():
 	while True:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
-				sys.exit(0)
+				sys.exit()
 
 			elif event.type == pg.KEYDOWN:
 				if game_over and event.key != pg.K_SPACE: continue
