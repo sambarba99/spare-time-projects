@@ -223,10 +223,9 @@ def calculate_marginals(known, msg_order):
 def main():
 	global data
 
-	# 1. Get machine data
+	# 1. Get coffee machine data
 
-	data = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\coffeeMachines.txt',
-		dtype=str, delimiter='\n')
+	data = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\coffeeMachines.txt', dtype=str, delimiter='\n')
 	# Skip header and convert to ints
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(int)

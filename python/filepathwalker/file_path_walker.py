@@ -46,7 +46,7 @@ def file_walk(path):
 		for s in subfolders:
 			discovered_files.append(f'Found subfolder: {s}')
 		for f in filenames:
-			file_path = folder_name + '\\' + str(f)
+			file_path = f'{folder_name}\\{f}'
 			file_size = os.path.getsize(file_path)
 			path_size += file_size
 			file_size, suffix = get_suffix(file_size)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 	enter_path_lbl = tk.Label(root, text='Enter a file path:', font='consolas', bg='#000024', fg='white')
 
 	entry_box = tk.Entry(root, font='consolas', justify='center')
-	entry_box.insert(0, os.path.expanduser('~') + '\\Desktop')
+	entry_box.insert(0, os.path.expanduser('~') + r'\Desktop')
 
 	button = tk.Button(root, text='Walk', font='consolas', command=lambda: file_walk(entry_box.get()))
 

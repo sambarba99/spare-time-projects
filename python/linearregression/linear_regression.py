@@ -55,9 +55,9 @@ def main():
 		+ '\nor M for medical insurance dataset\n>>> ').upper()
 
 	match choice:
-		case 'B': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\bostonData.txt'
-		case 'C': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\carValueData.txt'
-		case _: path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\medicalInsuranceData.txt'
+		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.txt'
+		case 'C': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.txt'
+		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.txt'
 
 	feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)
 

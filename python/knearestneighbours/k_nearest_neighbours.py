@@ -42,9 +42,9 @@ def plot_matrix(k, conf_mat, accuracy):
 
 if __name__ == '__main__':
 	choice = input('Enter I to use iris dataset or W for wine dataset\n>>> ').upper()
-	print()
-	path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt' if choice == 'I' \
-		else 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt'
+	path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.txt' \
+		if choice == 'I' \
+		else r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.txt'
 
 	data = np.genfromtxt(path, dtype=str, delimiter='\n')
 	# Skip header and convert to floats
@@ -67,6 +67,6 @@ if __name__ == '__main__':
 		if acc > best_acc:
 			best_acc, best_k, best_conf_mat = acc, k, conf_mat
 
-		print(f'Accuracy with k = {k}: {acc}')
+		print(f'\nAccuracy with k = {k}: {acc}')
 
 	plot_matrix(best_k, best_conf_mat, best_acc)

@@ -83,13 +83,13 @@ def main():
 
 	match choice:
 		case 'B':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.txt'
 			classes = ['malignant', 'benign']
 		case 'P':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.txt'
 			classes = ['not pulsar', 'pulsar']
 		case _:
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.txt'
 			classes = ['did not survive', 'survived']
 
 	feature_names, x_train, y_train, x_test, y_test, data = extract_data(path)

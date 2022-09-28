@@ -1,5 +1,5 @@
 """
-MNIST neural network demo
+MNIST convolutional neural network demo
 
 Author: Sam Barba
 Created 20/10/2021
@@ -15,33 +15,34 @@ from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
-from tensorflow import keras
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.datasets import mnist
 
-N_CLASSES = 10  # 10 classes for 10 digits
+N_CLASSES = 10  # Class for each digit 0-9
 INPUT_SHAPE = (28, 28, 1)
 DRAWING_SIZE = 500
 
-plt.rcParams['figure.figsize'] = (12, 6)
+plt.rcParams['figure.figsize'] = (10, 5)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+	# Ratio 6:1 train set size to test set size
+	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-	# Scale images to 0-1 range
-	x_train = np.array(x_train) / 255
-	x_test = np.array(x_test) / 255
+	# Normalise images to 0-1 range
+	x_train = x_train.astype(float) / 255
+	x_test = x_test.astype(float) / 255
 
-	# Ensure shape (28, 28, 1)
-	x_train = np.expand_dims(x_train, -1)
-	x_test = np.expand_dims(x_test, -1)
+	# Correct shape
+	x_train = np.reshape(x_train, (len(x_train), *INPUT_SHAPE))
+	x_test = np.reshape(x_test, (len(x_test), *INPUT_SHAPE))
 
-	# Convert Y to binary class matrices
-	y_train = keras.utils.to_categorical(y_train, N_CLASSES)
-	y_test = keras.utils.to_categorical(y_test, N_CLASSES)
+	# One-hot encode y
+	y_train = np.eye(N_CLASSES).astype(int)[y_train]
+	y_test = np.eye(N_CLASSES).astype(int)[y_test]
 
 	return x_train, y_train, x_test, y_test
 
@@ -79,6 +80,8 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
 	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
 	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
+	axes[0].set_xticks(range(10))
+	axes[0].set_yticks(range(10))
 	axes[0].xaxis.set_ticks_position('bottom')
 	axes[1].xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
@@ -102,12 +105,13 @@ def main():
 	if choice == 'T':
 		# Plot some training examples
 
-		for i in range(3):
-			sample = np.squeeze(x_train[i])
-			sample_class = np.argmax(y_train[i])
-			plt.imshow(sample, cmap='gray')
-			plt.title(f'Digit: {sample_class}')
-			plt.show()
+		_, axes = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True)
+		for idx, ax in enumerate(axes.flatten()):
+			train_idx = np.where(np.argmax(y_train, axis=1) == idx)[0][0]
+			sample = np.squeeze(x_train[train_idx])
+			ax.imshow(sample, cmap='gray')
+		plt.title('10 training samples', x=-1.92, y=2.65)
+		plt.show()
 
 		# Build model
 
@@ -118,19 +122,36 @@ def main():
 		# Train model
 
 		print('\n----- TRAINING -----\n')
-		early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5,	restore_best_weights=True)
-		history = model.fit(x_train, y_train, epochs=50, validation_split=0.1, callbacks=[early_stopping], verbose=1)
 
-		final_train_loss = history.history['loss'][-1]
-		final_val_loss = history.history['val_loss'][-1]
-		plt.plot(history.history['loss'], label='Training')
-		plt.plot(history.history['val_loss'], label='Validation')
-		plt.legend()
-		plt.xlabel('Epoch')
-		plt.ylabel('Categorical cross-entropy loss')
-		plt.title('Model loss during training'
-			f'\nFinal training loss: {final_train_loss:.3f}'
-			f'\nFinal validation loss: {final_val_loss:.3f}')
+		# Define early stopping:
+		# - min_delta = min. change in monitored quality to qualify as an improvement
+		# - patience = no. epochs with no improvement after which training will stop
+		# - restore_best_weights = whether to restore model weights from the epoch with
+		# 	the best value of the monitored quantity (validation loss in this case)
+
+		early_stopping = EarlyStopping(monitor='val_loss',
+			min_delta=0,
+			patience=5,
+			restore_best_weights=True)
+
+		history = model.fit(x_train, y_train,
+			epochs=50,
+			validation_split=0.1,
+			callbacks=[early_stopping],
+			verbose=1)
+
+		# Plot loss and accuracy throughout training
+		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True)
+		ax_loss.plot(history.history['loss'], label='Training loss')
+		ax_loss.plot(history.history['val_loss'], label='Validation loss')
+		ax_accuracy.plot(history.history['accuracy'], label='Training accuracy')
+		ax_accuracy.plot(history.history['val_accuracy'], label='Validation accuracy')
+		ax_loss.set_ylabel('Categorical cross-entropy loss')
+		ax_accuracy.set_ylabel('Accuracy')
+		ax_accuracy.set_xlabel('Epoch')
+		ax_loss.legend()
+		ax_accuracy.legend()
+		plt.title('Model loss and accuracy during training', y=2.24)
 		plt.show()
 
 		choice = input('\nSave this model (will override model.h5 if it exists)? (Y/[N])\n>>> ').upper()
@@ -180,12 +201,11 @@ def main():
 					scene.set_at((x, y), (255, 255, 255))
 					pg.display.update()
 
-			elif event.type == pg.MOUSEMOTION:
-				if left_btn_down:
-					x, y = event.pos
-					user_drawing_coords.append([x, y])
-					scene.set_at((x, y), (255, 255, 255))
-					pg.display.update()
+			elif event.type == pg.MOUSEMOTION and left_btn_down:
+				x, y = event.pos
+				user_drawing_coords.append([x, y])
+				scene.set_at((x, y), (255, 255, 255))
+				pg.display.update()
 
 			elif event.type == pg.MOUSEBUTTONUP:
 				if event.button == 1:
@@ -199,7 +219,7 @@ def main():
 	pred_vector = model.predict(drawn_digit_input)
 
 	plt.imshow(drawn_digit_grid, cmap='gray')
-	plt.title(f'Drawn digit is {np.argmax(pred_vector)} ({(100 * np.max(pred_vector)):.1f}% sure)')
+	plt.title(f'Drawn digit is {np.argmax(pred_vector)} ({(100 * np.max(pred_vector)):.3f}% sure)')
 	plt.show()
 
 if __name__ == '__main__':

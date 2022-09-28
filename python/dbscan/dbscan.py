@@ -21,8 +21,7 @@ plt.rcParams['figure.figsize'] = (8, 5)
 def main():
 	# 1. Load file coords
 
-	coords = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\dbscanData.txt',
-		dtype=str, delimiter='\n')
+	coords = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\dbscanData.txt', dtype=str, delimiter='\n')
 	# Skip header and convert to floats
 	coords = [row.split() for row in coords[1:]]
 	coords = np.array(coords).astype(float)

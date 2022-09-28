@@ -32,14 +32,14 @@ n_epicycles = 0
 def load_fourier_from_file(path, image_name):
 	"""For presets, just load saved DFTs from their file intead of computing again"""
 
-	print(f'\nLoading saved DFT for {image_name}... ', end='')
+	print(f'\nLoading saved DFT for {image_name} ', end='')
 
 	with open(path, 'r') as file:
 		data = file.read()[:-1].split('\n')
 
 	fourier = [json.loads(line.replace("'", '"')) for line in data]
 
-	print(f'done ({len(fourier)} total epicycles)')
+	print(f'({len(fourier)} total epicycles)')
 
 	return fourier
 

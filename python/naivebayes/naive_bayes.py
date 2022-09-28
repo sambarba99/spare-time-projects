@@ -72,11 +72,11 @@ if __name__ == '__main__':
 		+ '\nor W for wine dataset\n>>> ').upper()
 
 	match choice:
-		case 'B': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt'
-		case 'I': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt'
-		case 'P': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt'
-		case 'T': path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt'
-		case _: path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt'
+		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.txt'
+		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.txt'
+		case 'P': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.txt'
+		case 'T': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.txt'
+		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.txt'
 
 	x_train, y_train, x_test, y_test = extract_data(path)
 

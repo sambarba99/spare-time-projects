@@ -18,8 +18,7 @@ plt.rcParams['figure.figsize'] = (7, 6)
 def extract_data(train_test_ratio=0.8):
 	"""Split file data into train/test"""
 
-	data = np.genfromtxt('C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\svmData.txt',
-		dtype=str, delimiter='\n')
+	data = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\svmData.txt', dtype=str, delimiter='\n')
 	# Skip header and convert to floats
 	data = [row.split() for row in data[1:]]
 	data = np.array(data).astype(float)

@@ -1,3 +1,3 @@
-3D rotating torus rendering
+Rendering a 3D ASCII rotating torus
 
-![](torus.gif)
+![](rotating_torus.gif)

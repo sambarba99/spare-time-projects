@@ -24,19 +24,19 @@ if __name__ == '__main__':
 
 	match choice:
 		case 'B':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\breastTumourData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.txt'
 			classes = ['malignant', 'benign']
 		case 'I':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\irisData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.txt'
 			classes = ['setosa', 'versicolor', 'virginica']
 		case 'P':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\pulsarData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.txt'
 			classes = ['not pulsar', 'pulsar']
 		case 'T':
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\titanicData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.txt'
 			classes = ['did not survive', 'survived']
 		case _:
-			path = 'C:\\Users\\Sam Barba\\Desktop\\Programs\\datasets\\wineData.txt'
+			path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.txt'
 			classes = ['class 0', 'class 1', 'class 2']
 
 	data = np.genfromtxt(path, dtype=str, delimiter='\n')
