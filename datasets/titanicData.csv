@@ -1,0 +1,881 @@
+fare,passenger class,is male,age,no. siblings/spouses aboard,no. parents/children aboard,classification
+12.48,3,no,5,0,0,did survive
+7.23,3,no,13,0,0,did survive
+7.22,3,no,15,0,0,did survive
+8.03,3,no,15,0,0,did survive
+86.5,1,no,16,0,0,did survive
+7.73,3,no,16,0,0,did survive
+7.75,3,no,16,0,0,did survive
+7.83,3,no,16,0,0,did survive
+8.05,3,yes,16,0,0,did survive
+10.5,2,no,17,0,0,did survive
+12.0,2,no,17,0,0,did survive
+7.5,3,no,18,0,0,did survive
+7.75,3,no,18,0,0,did survive
+9.84,3,no,18,0,0,did survive
+7.23,3,yes,18,0,0,did survive
+8.05,3,yes,18,0,0,did survive
+30.0,1,no,19,0,0,did survive
+26.0,2,no,19,0,0,did survive
+7.73,3,no,19,0,0,did survive
+7.88,3,no,19,0,0,did survive
+10.5,2,yes,19,0,0,did survive
+7.75,3,yes,19,0,0,did survive
+8.05,3,yes,19,0,0,did survive
+7.75,3,no,20,0,0,did survive
+7.23,3,yes,20,0,0,did survive
+77.96,1,no,21,0,0,did survive
+10.5,2,no,21,0,0,did survive
+7.65,3,no,21,0,0,did survive
+7.75,3,no,21,0,0,did survive
+7.8,3,yes,21,0,0,did survive
+151.55,1,no,22,0,0,did survive
+7.22,3,no,22,0,0,did survive
+7.25,3,no,22,0,0,did survive
+7.75,3,no,22,0,0,did survive
+7.75,3,no,22,0,0,did survive
+7.75,3,no,22,0,0,did survive
+7.75,3,no,22,0,0,did survive
+7.78,3,no,22,0,0,did survive
+7.88,3,no,22,0,0,did survive
+7.22,3,yes,22,0,0,did survive
+13.79,2,no,23,0,0,did survive
+7.55,3,no,23,0,0,did survive
+7.88,3,no,23,0,0,did survive
+13.0,2,yes,23,0,0,did survive
+49.5,1,no,24,0,0,did survive
+69.3,1,no,24,0,0,did survive
+69.3,1,no,24,0,0,did survive
+83.16,1,no,24,0,0,did survive
+13.0,2,no,24,0,0,did survive
+7.88,3,no,24,0,0,did survive
+7.14,3,yes,24,0,0,did survive
+0.0,3,yes,25,0,0,did survive
+78.85,1,no,26,0,0,did survive
+7.85,3,no,26,0,0,did survive
+7.92,3,no,26,0,0,did survive
+30.0,1,yes,26,0,0,did survive
+18.79,3,yes,26,0,0,did survive
+56.5,3,yes,26,0,0,did survive
+10.5,2,no,27,0,0,did survive
+7.75,3,no,27,0,0,did survive
+7.92,3,no,27,0,0,did survive
+30.5,1,yes,27,0,0,did survive
+76.73,1,yes,27,0,0,did survive
+13.86,2,yes,27,0,0,did survive
+6.98,3,yes,27,0,0,did survive
+7.8,3,yes,27,0,0,did survive
+8.66,3,yes,27,0,0,did survive
+12.65,2,no,28,0,0,did survive
+13.0,2,no,28,0,0,did survive
+13.0,2,no,28,0,0,did survive
+7.74,3,no,28,0,0,did survive
+26.55,1,yes,28,0,0,did survive
+35.5,1,yes,28,0,0,did survive
+211.34,1,no,29,0,0,did survive
+10.5,2,no,29,0,0,did survive
+29.7,1,yes,29,0,0,did survive
+7.75,3,yes,29,0,0,did survive
+7.78,3,yes,29,0,0,did survive
+7.9,3,yes,29,0,0,did survive
+8.11,3,yes,29,0,0,did survive
+9.5,3,yes,29,0,0,did survive
+31.0,1,no,30,0,0,did survive
+56.93,1,no,30,0,0,did survive
+86.5,1,no,30,0,0,did survive
+93.5,1,no,30,0,0,did survive
+106.42,1,no,30,0,0,did survive
+12.35,2,no,30,0,0,did survive
+13.0,2,no,30,0,0,did survive
+12.48,3,no,30,0,0,did survive
+9.5,3,yes,30,0,0,did survive
+33.0,2,no,31,0,0,did survive
+7.79,3,no,31,0,0,did survive
+8.68,3,no,31,0,0,did survive
+13.0,2,yes,31,0,0,did survive
+7.92,3,yes,31,0,0,did survive
+76.29,1,no,32,0,0,did survive
+13.0,2,no,32,0,0,did survive
+30.5,1,yes,32,0,0,did survive
+7.85,3,yes,32,0,0,did survive
+7.92,3,yes,32,0,0,did survive
+8.05,3,yes,32,0,0,did survive
+56.5,3,yes,32,0,0,did survive
+56.5,3,yes,32,0,0,did survive
+56.5,3,yes,32,0,0,did survive
+13.0,2,no,32,0,0,did survive
+86.5,1,no,33,0,0,did survive
+7.75,3,no,33,0,0,did survive
+10.5,2,no,34,0,0,did survive
+13.0,2,no,34,0,0,did survive
+26.55,1,yes,34,0,0,did survive
+13.0,2,yes,34,0,0,did survive
+135.63,1,no,35,0,0,did survive
+512.33,1,no,35,0,0,did survive
+21.0,2,no,35,0,0,did survive
+7.23,3,no,35,0,0,did survive
+26.29,1,yes,35,0,0,did survive
+26.55,1,yes,35,0,0,did survive
+512.33,1,yes,35,0,0,did survive
+135.63,1,no,36,0,0,did survive
+13.0,2,no,36,0,0,did survive
+13.0,2,no,36,0,0,did survive
+26.29,1,yes,36,0,0,did survive
+26.39,1,yes,36,0,0,did survive
+26.55,1,yes,37,0,0,did survive
+56.5,3,yes,37,0,0,did survive
+79.2,1,no,38,0,0,did survive
+80.0,1,no,38,0,0,did survive
+227.52,1,no,38,0,0,did survive
+7.92,3,yes,39,0,0,did survive
+153.46,1,no,40,0,0,did survive
+13.0,2,no,40,0,0,did survive
+15.75,2,no,40,0,0,did survive
+31.0,1,yes,40,0,0,did survive
+134.5,1,no,41,0,0,did survive
+110.88,1,no,42,0,0,did survive
+227.52,1,no,42,0,0,did survive
+13.0,2,no,42,0,0,did survive
+26.29,1,yes,42,0,0,did survive
+13.0,2,yes,42,0,0,did survive
+27.72,1,no,44,0,0,did survive
+7.92,3,yes,44,0,0,did survive
+13.5,2,no,45,0,0,did survive
+26.55,1,yes,45,0,0,did survive
+30.0,1,yes,45,0,0,did survive
+8.05,3,yes,45,0,0,did survive
+12.35,2,no,46,0,0,did survive
+35.5,1,yes,46,0,0,did survive
+30.5,1,yes,47,0,0,did survive
+25.93,1,no,48,0,0,did survive
+26.55,1,yes,48,0,0,did survive
+25.93,1,no,49,0,0,did survive
+10.5,2,no,50,0,0,did survive
+10.5,2,no,50,0,0,did survive
+26.55,1,yes,51,0,0,did survive
+30.5,1,yes,52,0,0,did survive
+16.0,2,no,55,0,0,did survive
+35.5,1,yes,56,0,0,did survive
+26.55,1,no,58,0,0,did survive
+146.52,1,no,58,0,0,did survive
+80.0,1,no,62,0,0,did survive
+10.5,2,yes,62,0,0,did survive
+9.59,3,no,63,0,0,did survive
+30.0,1,yes,80,0,0,did survive
+11.24,3,yes,12,1,0,did survive
+30.07,2,no,14,1,0,did survive
+11.24,3,no,14,1,0,did survive
+14.45,3,no,15,1,0,did survive
+57.0,1,no,17,1,0,did survive
+108.9,1,no,17,1,0,did survive
+227.52,1,no,18,1,0,did survive
+15.5,3,no,18,1,0,did survive
+15.5,3,no,18,1,0,did survive
+91.08,1,no,19,1,0,did survive
+26.0,2,no,19,1,0,did survive
+7.85,3,no,19,1,0,did survive
+7.92,3,yes,20,1,0,did survive
+66.6,1,no,22,1,0,did survive
+113.28,1,no,23,1,0,did survive
+26.0,2,no,24,1,0,did survive
+15.85,3,no,24,1,0,did survive
+82.17,1,no,25,1,0,did survive
+55.44,1,yes,25,1,0,did survive
+91.08,1,yes,25,1,0,did survive
+7.78,3,yes,25,1,0,did survive
+15.5,3,no,26,1,0,did survive
+13.86,2,no,27,1,0,did survive
+53.1,1,yes,27,1,0,did survive
+24.0,2,no,28,1,0,did survive
+26.0,2,no,28,1,0,did survive
+24.15,3,no,28,1,0,did survive
+26.0,2,no,29,1,0,did survive
+26.0,2,no,29,1,0,did survive
+113.28,1,no,31,1,0,did survive
+57.0,1,yes,31,1,0,did survive
+26.0,2,yes,32,1,0,did survive
+53.1,1,no,33,1,0,did survive
+90.0,1,no,33,1,0,did survive
+16.1,3,no,33,1,0,did survive
+16.1,3,no,34,1,0,did survive
+52.0,1,no,35,1,0,did survive
+53.1,1,no,35,1,0,did survive
+83.48,1,no,35,1,0,did survive
+90.0,1,no,35,1,0,did survive
+26.0,2,no,36,1,0,did survive
+17.4,3,no,36,1,0,did survive
+71.28,1,no,38,1,0,did survive
+90.0,1,yes,38,1,0,did survive
+55.9,1,no,39,1,0,did survive
+89.1,1,no,40,1,0,did survive
+51.86,1,no,41,1,0,did survive
+133.65,1,no,42,1,0,did survive
+26.0,2,no,42,1,0,did survive
+52.55,1,yes,42,1,0,did survive
+39.6,1,no,48,1,0,did survive
+52.0,1,no,48,1,0,did survive
+146.52,1,no,48,1,0,did survive
+52.0,1,yes,48,1,0,did survive
+76.73,1,yes,48,1,0,did survive
+76.73,1,no,49,1,0,did survive
+56.93,1,yes,49,1,0,did survive
+89.1,1,yes,49,1,0,did survive
+77.96,1,no,51,1,0,did survive
+78.27,1,no,52,1,0,did survive
+59.4,1,no,54,1,0,did survive
+78.27,1,no,54,1,0,did survive
+75.25,1,no,60,1,0,did survive
+77.96,1,no,63,1,0,did survive
+23.25,3,yes,24,2,0,did survive
+23.25,3,no,28,2,0,did survive
+133.65,1,yes,50,2,0,did survive
+51.48,1,no,53,2,0,did survive
+21.0,2,no,30,3,0,did survive
+15.85,3,no,33,3,0,did survive
+12.29,3,no,2,0,1,did survive
+13.42,3,no,4,0,1,did survive
+33.0,2,no,6,0,1,did survive
+12.48,3,yes,6,0,1,did survive
+19.5,2,no,13,0,1,did survive
+211.34,1,no,15,0,1,did survive
+39.4,1,no,16,0,1,did survive
+57.98,1,no,16,0,1,did survive
+23.0,2,no,18,0,1,did survive
+9.35,3,no,18,0,1,did survive
+55.0,1,no,22,0,1,did survive
+63.36,1,yes,23,0,1,did survive
+26.0,2,no,25,0,1,did survive
+12.48,3,no,27,0,1,did survive
+23.0,2,no,34,0,1,did survive
+512.33,1,yes,36,0,1,did survive
+19.5,2,no,41,0,1,did survive
+211.34,1,no,43,0,1,did survive
+57.98,1,no,44,0,1,did survive
+55.0,1,no,48,0,1,did survive
+247.52,1,no,50,0,1,did survive
+26.0,2,no,50,0,1,did survive
+83.16,1,no,56,0,1,did survive
+153.46,1,no,58,0,1,did survive
+11.13,3,no,1,1,1,did survive
+26.0,2,no,2,1,1,did survive
+22.36,3,no,2,1,1,did survive
+26.0,2,yes,2,1,1,did survive
+18.75,2,yes,3,1,1,did survive
+26.0,2,yes,3,1,1,did survive
+15.9,3,yes,3,1,1,did survive
+23.0,2,no,4,1,1,did survive
+16.7,3,no,4,1,1,did survive
+11.13,3,yes,4,1,1,did survive
+15.25,3,yes,4,1,1,did survive
+15.25,3,yes,7,1,1,did survive
+36.75,2,yes,8,1,1,did survive
+15.9,3,yes,9,1,1,did survive
+15.74,3,yes,20,1,1,did survive
+29.0,2,no,22,1,1,did survive
+30.0,2,no,25,1,1,did survive
+26.25,2,no,31,1,1,did survive
+20.52,3,no,31,1,1,did survive
+32.5,2,no,34,1,1,did survive
+20.25,3,no,35,1,1,did survive
+52.55,1,yes,37,1,1,did survive
+79.65,1,no,39,1,1,did survive
+83.16,1,no,39,1,1,did survive
+110.88,1,no,39,1,1,did survive
+134.5,1,no,40,1,1,did survive
+39.0,2,no,40,1,1,did survive
+164.87,1,no,45,1,1,did survive
+26.25,2,no,45,1,1,did survive
+52.55,1,no,47,1,1,did survive
+93.5,1,no,52,1,1,did survive
+79.2,1,yes,60,1,1,did survive
+39.0,2,yes,1,2,1,did survive
+39.0,2,no,4,2,1,did survive
+19.26,3,no,5,2,1,did survive
+27.0,2,no,24,2,1,did survive
+15.74,3,no,1,0,2,did survive
+37.0,2,yes,1,0,2,did survive
+22.02,3,no,4,0,2,did survive
+81.86,1,yes,4,0,2,did survive
+26.25,2,no,7,0,2,did survive
+26.25,2,no,8,0,2,did survive
+20.52,3,yes,9,0,2,did survive
+110.88,1,yes,17,0,2,did survive
+79.65,1,no,18,0,2,did survive
+13.0,2,no,18,0,2,did survive
+26.28,1,no,19,0,2,did survive
+49.5,1,no,22,0,2,did survive
+14.5,2,no,24,0,2,did survive
+16.7,3,no,24,0,2,did survive
+22.36,3,no,24,0,2,did survive
+11.13,3,no,27,0,2,did survive
+15.25,3,no,29,0,2,did survive
+164.87,1,no,31,0,2,did survive
+26.0,2,no,33,0,2,did survive
+71.0,1,no,36,0,2,did survive
+20.58,3,yes,1,1,2,did survive
+41.58,2,no,3,1,2,did survive
+27.75,2,no,5,1,2,did survive
+120.0,1,yes,11,1,2,did survive
+120.0,1,no,14,1,2,did survive
+41.58,2,no,22,1,2,did survive
+65.0,2,no,24,1,2,did survive
+27.75,2,no,33,1,2,did survive
+120.0,1,no,36,1,2,did survive
+120.0,1,yes,36,1,2,did survive
+65.0,2,no,48,1,2,did survive
+262.38,1,no,18,2,2,did survive
+262.38,1,no,21,2,2,did survive
+263.0,1,no,23,3,2,did survive
+263.0,1,no,24,3,2,did survive
+31.39,3,yes,3,4,2,did survive
+31.39,3,no,5,4,2,did survive
+7.92,3,no,17,4,2,did survive
+19.26,3,no,24,0,3,did survive
+23.0,2,no,54,1,3,did survive
+18.75,2,no,24,2,3,did survive
+31.39,3,no,38,1,5,did survive
+18.79,3,yes,11,0,0,did not survive
+7.85,3,no,14,0,0,did not survive
+10.5,2,yes,16,0,0,did not survive
+26.0,2,yes,16,0,0,did not survive
+7.78,3,yes,16,0,0,did not survive
+8.05,3,yes,16,0,0,did not survive
+8.71,3,yes,16,0,0,did not survive
+9.22,3,yes,16,0,0,did not survive
+9.5,3,yes,16,0,0,did not survive
+14.46,3,no,17,0,0,did not survive
+7.12,3,yes,17,0,0,did not survive
+7.23,3,yes,17,0,0,did not survive
+7.75,3,yes,17,0,0,did not survive
+8.66,3,yes,17,0,0,did not survive
+8.66,3,yes,17,0,0,did not survive
+8.66,3,yes,17,0,0,did not survive
+6.75,3,no,18,0,0,did not survive
+7.78,3,no,18,0,0,did not survive
+11.5,2,yes,18,0,0,did not survive
+11.5,2,yes,18,0,0,did not survive
+13.0,2,yes,18,0,0,did not survive
+73.5,2,yes,18,0,0,did not survive
+7.22,3,yes,18,0,0,did not survive
+7.23,3,yes,18,0,0,did not survive
+7.25,3,yes,18,0,0,did not survive
+7.73,3,yes,18,0,0,did not survive
+7.75,3,yes,18,0,0,did not survive
+7.78,3,yes,18,0,0,did not survive
+7.8,3,yes,18,0,0,did not survive
+8.3,3,yes,18,0,0,did not survive
+0.0,2,yes,19,0,0,did not survive
+10.5,2,yes,19,0,0,did not survive
+13.0,2,yes,19,0,0,did not survive
+0.0,3,yes,19,0,0,did not survive
+6.75,3,yes,19,0,0,did not survive
+7.65,3,yes,19,0,0,did not survive
+7.73,3,yes,19,0,0,did not survive
+7.75,3,yes,19,0,0,did not survive
+7.78,3,yes,19,0,0,did not survive
+7.9,3,yes,19,0,0,did not survive
+7.9,3,yes,19,0,0,did not survive
+7.9,3,yes,19,0,0,did not survive
+8.05,3,yes,19,0,0,did not survive
+8.05,3,yes,19,0,0,did not survive
+8.16,3,yes,19,0,0,did not survive
+10.17,3,yes,19,0,0,did not survive
+14.5,3,yes,19,0,0,did not survive
+8.66,3,no,20,0,0,did not survive
+4.01,3,yes,20,0,0,did not survive
+7.05,3,yes,20,0,0,did not survive
+7.75,3,yes,20,0,0,did not survive
+7.75,3,yes,20,0,0,did not survive
+7.85,3,yes,20,0,0,did not survive
+7.85,3,yes,20,0,0,did not survive
+7.9,3,yes,20,0,0,did not survive
+7.92,3,yes,20,0,0,did not survive
+8.05,3,yes,20,0,0,did not survive
+8.05,3,yes,20,0,0,did not survive
+8.05,3,yes,20,0,0,did not survive
+8.66,3,yes,20,0,0,did not survive
+9.22,3,yes,20,0,0,did not survive
+9.5,3,yes,20,0,0,did not survive
+9.85,3,yes,20,0,0,did not survive
+7.25,3,yes,20,0,0,did not survive
+7.55,3,no,21,0,0,did not survive
+7.63,3,no,21,0,0,did not survive
+7.75,3,no,21,0,0,did not survive
+7.75,3,no,21,0,0,did not survive
+0.0,2,yes,21,0,0,did not survive
+0.0,2,yes,21,0,0,did not survive
+73.5,2,yes,21,0,0,did not survive
+7.05,3,yes,21,0,0,did not survive
+7.25,3,yes,21,0,0,did not survive
+7.55,3,yes,21,0,0,did not survive
+7.73,3,yes,21,0,0,did not survive
+7.78,3,yes,21,0,0,did not survive
+7.8,3,yes,21,0,0,did not survive
+7.83,3,yes,21,0,0,did not survive
+7.85,3,yes,21,0,0,did not survive
+7.92,3,yes,21,0,0,did not survive
+7.92,3,yes,21,0,0,did not survive
+8.05,3,yes,21,0,0,did not survive
+8.05,3,yes,21,0,0,did not survive
+8.43,3,yes,21,0,0,did not survive
+8.66,3,yes,21,0,0,did not survive
+16.1,3,yes,21,0,0,did not survive
+9.84,3,no,22,0,0,did not survive
+10.52,3,no,22,0,0,did not survive
+135.63,1,yes,22,0,0,did not survive
+0.0,2,yes,22,0,0,did not survive
+7.12,3,yes,22,0,0,did not survive
+7.23,3,yes,22,0,0,did not survive
+7.25,3,yes,22,0,0,did not survive
+7.25,3,yes,22,0,0,did not survive
+7.52,3,yes,22,0,0,did not survive
+7.72,3,yes,22,0,0,did not survive
+7.74,3,yes,22,0,0,did not survive
+7.75,3,yes,22,0,0,did not survive
+7.8,3,yes,22,0,0,did not survive
+7.9,3,yes,22,0,0,did not survive
+7.9,3,yes,22,0,0,did not survive
+7.9,3,yes,22,0,0,did not survive
+8.05,3,yes,22,0,0,did not survive
+8.05,3,yes,22,0,0,did not survive
+8.05,3,yes,22,0,0,did not survive
+8.05,3,yes,22,0,0,did not survive
+9.0,3,yes,22,0,0,did not survive
+9.35,3,yes,22,0,0,did not survive
+7.92,3,no,23,0,0,did not survive
+10.5,2,yes,23,0,0,did not survive
+13.0,2,yes,23,0,0,did not survive
+13.0,2,yes,23,0,0,did not survive
+13.0,2,yes,23,0,0,did not survive
+15.05,2,yes,23,0,0,did not survive
+7.22,3,yes,23,0,0,did not survive
+7.85,3,yes,23,0,0,did not survive
+7.9,3,yes,23,0,0,did not survive
+7.9,3,yes,23,0,0,did not survive
+7.9,3,yes,23,0,0,did not survive
+7.9,3,yes,23,0,0,did not survive
+7.9,3,yes,23,0,0,did not survive
+9.22,3,yes,23,0,0,did not survive
+9.5,3,yes,23,0,0,did not survive
+14.5,3,yes,23,0,0,did not survive
+56.5,3,yes,23,0,0,did not survive
+7.23,3,yes,23,0,0,did not survive
+13.0,2,no,24,0,0,did not survive
+8.85,3,no,24,0,0,did not survive
+79.2,1,yes,24,0,0,did not survive
+10.5,2,yes,24,0,0,did not survive
+13.0,2,yes,24,0,0,did not survive
+7.05,3,yes,24,0,0,did not survive
+7.5,3,yes,24,0,0,did not survive
+7.8,3,yes,24,0,0,did not survive
+7.9,3,yes,24,0,0,did not survive
+8.05,3,yes,24,0,0,did not survive
+8.05,3,yes,24,0,0,did not survive
+9.5,3,yes,24,0,0,did not survive
+8.05,3,yes,24,0,0,did not survive
+7.78,3,no,25,0,0,did not survive
+13.0,2,yes,25,0,0,did not survive
+13.0,2,yes,25,0,0,did not survive
+13.0,2,yes,25,0,0,did not survive
+7.05,3,yes,25,0,0,did not survive
+7.05,3,yes,25,0,0,did not survive
+7.22,3,yes,25,0,0,did not survive
+7.25,3,yes,25,0,0,did not survive
+7.65,3,yes,25,0,0,did not survive
+7.74,3,yes,25,0,0,did not survive
+7.9,3,yes,25,0,0,did not survive
+10.5,2,yes,26,0,0,did not survive
+7.22,3,yes,26,0,0,did not survive
+7.78,3,yes,26,0,0,did not survive
+7.89,3,yes,26,0,0,did not survive
+7.9,3,yes,26,0,0,did not survive
+7.9,3,yes,26,0,0,did not survive
+8.05,3,yes,26,0,0,did not survive
+14.46,3,yes,26,0,0,did not survive
+13.0,2,yes,27,0,0,did not survive
+13.0,2,yes,27,0,0,did not survive
+26.0,2,yes,27,0,0,did not survive
+6.86,3,yes,27,0,0,did not survive
+7.31,3,yes,27,0,0,did not survive
+7.9,3,yes,27,0,0,did not survive
+7.9,3,yes,27,0,0,did not survive
+7.9,3,yes,27,0,0,did not survive
+8.46,3,yes,27,0,0,did not survive
+7.9,3,no,28,0,0,did not survive
+8.14,3,no,28,0,0,did not survive
+31.0,1,yes,28,0,0,did not survive
+47.1,1,yes,28,0,0,did not survive
+10.5,2,yes,28,0,0,did not survive
+13.0,2,yes,28,0,0,did not survive
+13.5,2,yes,28,0,0,did not survive
+7.23,3,yes,28,0,0,did not survive
+7.75,3,yes,28,0,0,did not survive
+7.75,3,yes,28,0,0,did not survive
+7.8,3,yes,28,0,0,did not survive
+7.85,3,yes,28,0,0,did not survive
+7.9,3,yes,28,0,0,did not survive
+7.9,3,yes,28,0,0,did not survive
+8.05,3,yes,28,0,0,did not survive
+8.05,3,yes,28,0,0,did not survive
+9.5,3,yes,28,0,0,did not survive
+9.5,3,yes,28,0,0,did not survive
+22.52,3,yes,28,0,0,did not survive
+56.5,3,yes,28,0,0,did not survive
+7.23,3,yes,28,0,0,did not survive
+16.1,3,yes,28,0,0,did not survive
+30.0,1,yes,29,0,0,did not survive
+10.5,2,yes,29,0,0,did not survive
+7.22,3,yes,29,0,0,did not survive
+7.78,3,yes,29,0,0,did not survive
+7.88,3,yes,29,0,0,did not survive
+7.9,3,yes,29,0,0,did not survive
+8.05,3,yes,29,0,0,did not survive
+9.48,3,yes,29,0,0,did not survive
+8.66,3,no,30,0,0,did not survive
+0.0,1,yes,30,0,0,did not survive
+27.72,1,yes,30,0,0,did not survive
+27.75,1,yes,30,0,0,did not survive
+10.5,2,yes,30,0,0,did not survive
+13.0,2,yes,30,0,0,did not survive
+13.0,2,yes,30,0,0,did not survive
+13.0,2,yes,30,0,0,did not survive
+7.22,3,yes,30,0,0,did not survive
+7.23,3,yes,30,0,0,did not survive
+7.23,3,yes,30,0,0,did not survive
+7.23,3,yes,30,0,0,did not survive
+7.25,3,yes,30,0,0,did not survive
+7.75,3,yes,30,0,0,did not survive
+7.9,3,yes,30,0,0,did not survive
+7.9,3,yes,30,0,0,did not survive
+8.05,3,yes,30,0,0,did not survive
+8.05,3,yes,30,0,0,did not survive
+8.05,3,yes,30,0,0,did not survive
+24.15,3,yes,30,0,0,did not survive
+7.75,3,no,30,0,0,did not survive
+8.05,3,yes,30,0,0,did not survive
+7.85,3,no,31,0,0,did not survive
+50.5,1,yes,31,0,0,did not survive
+10.5,2,yes,31,0,0,did not survive
+7.75,3,yes,31,0,0,did not survive
+7.78,3,yes,31,0,0,did not survive
+8.05,3,no,32,0,0,did not survive
+10.5,2,yes,32,0,0,did not survive
+7.75,3,yes,32,0,0,did not survive
+7.9,3,yes,32,0,0,did not survive
+7.9,3,yes,32,0,0,did not survive
+7.92,3,yes,32,0,0,did not survive
+7.92,3,yes,32,0,0,did not survive
+8.36,3,yes,32,0,0,did not survive
+5.0,1,yes,33,0,0,did not survive
+12.28,2,yes,33,0,0,did not survive
+7.78,3,yes,33,0,0,did not survive
+7.9,3,yes,33,0,0,did not survive
+7.9,3,yes,33,0,0,did not survive
+8.65,3,yes,33,0,0,did not survive
+8.66,3,yes,33,0,0,did not survive
+9.5,3,yes,33,0,0,did not survive
+13.0,2,yes,34,0,0,did not survive
+13.0,2,yes,34,0,0,did not survive
+6.5,3,yes,34,0,0,did not survive
+8.05,3,yes,34,0,0,did not survive
+8.05,3,yes,34,0,0,did not survive
+8.05,3,yes,34,0,0,did not survive
+6.44,3,yes,34,0,0,did not survive
+10.5,2,yes,35,0,0,did not survive
+26.0,2,yes,35,0,0,did not survive
+7.05,3,yes,35,0,0,did not survive
+7.12,3,yes,35,0,0,did not survive
+7.22,3,yes,35,0,0,did not survive
+7.9,3,yes,35,0,0,did not survive
+8.05,3,yes,35,0,0,did not survive
+8.05,3,yes,35,0,0,did not survive
+40.12,1,yes,36,0,0,did not survive
+10.5,2,yes,36,0,0,did not survive
+12.88,2,yes,36,0,0,did not survive
+13.0,2,yes,36,0,0,did not survive
+0.0,3,yes,36,0,0,did not survive
+6.95,3,yes,36,0,0,did not survive
+7.5,3,yes,36,0,0,did not survive
+7.9,3,yes,36,0,0,did not survive
+9.59,3,no,37,0,0,did not survive
+42.4,1,yes,37,0,0,did not survive
+0.0,2,yes,37,0,0,did not survive
+8.66,3,yes,37,0,0,did not survive
+13.0,2,no,38,0,0,did not survive
+0.0,1,yes,38,0,0,did not survive
+7.05,3,yes,38,0,0,did not survive
+7.9,3,yes,38,0,0,did not survive
+8.66,3,yes,38,0,0,did not survive
+0.0,1,yes,39,0,0,did not survive
+0.0,1,yes,39,0,0,did not survive
+50.0,1,yes,39,0,0,did not survive
+13.0,2,yes,39,0,0,did not survive
+13.0,2,yes,39,0,0,did not survive
+15.05,2,yes,39,0,0,did not survive
+26.0,2,yes,39,0,0,did not survive
+7.25,3,yes,39,0,0,did not survive
+7.92,3,yes,39,0,0,did not survive
+24.15,3,yes,39,0,0,did not survive
+0.0,1,yes,40,0,0,did not survive
+27.72,1,yes,40,0,0,did not survive
+52.0,1,yes,40,0,0,did not survive
+7.22,3,yes,40,0,0,did not survive
+7.9,3,yes,40,0,0,did not survive
+8.05,3,yes,40,0,0,did not survive
+7.75,3,yes,40,0,0,did not survive
+26.55,1,yes,41,0,0,did not survive
+0.0,2,yes,41,0,0,did not survive
+7.12,3,yes,41,0,0,did not survive
+13.0,2,yes,42,0,0,did not survive
+7.55,3,yes,42,0,0,did not survive
+7.65,3,yes,42,0,0,did not survive
+7.9,3,yes,42,0,0,did not survive
+7.9,3,yes,42,0,0,did not survive
+8.66,3,yes,42,0,0,did not survive
+30.7,1,yes,43,0,0,did not survive
+35.0,1,yes,43,0,0,did not survive
+6.45,3,yes,43,0,0,did not survive
+8.05,3,yes,43,0,0,did not survive
+8.05,3,yes,44,0,0,did not survive
+8.05,3,yes,44,0,0,did not survive
+7.75,3,no,45,0,0,did not survive
+26.55,1,yes,45,0,0,did not survive
+35.5,1,yes,45,0,0,did not survive
+227.52,1,yes,45,0,0,did not survive
+6.98,3,yes,45,0,0,did not survive
+28.5,1,yes,45,0,0,did not survive
+7.22,3,yes,45,0,0,did not survive
+39.6,1,yes,46,0,0,did not survive
+79.2,1,yes,46,0,0,did not survive
+26.0,2,yes,46,0,0,did not survive
+25.59,1,yes,47,0,0,did not survive
+34.02,1,yes,47,0,0,did not survive
+38.5,1,yes,47,0,0,did not survive
+52.0,1,yes,47,0,0,did not survive
+15.0,2,yes,47,0,0,did not survive
+7.25,3,yes,47,0,0,did not survive
+9.0,3,yes,47,0,0,did not survive
+13.0,2,yes,48,0,0,did not survive
+7.85,3,yes,48,0,0,did not survive
+221.78,1,yes,49,0,0,did not survive
+0.0,3,yes,49,0,0,did not survive
+7.78,3,yes,49,0,0,did not survive
+28.71,1,no,50,0,0,did not survive
+13.0,2,yes,50,0,0,did not survive
+8.05,3,yes,50,0,0,did not survive
+12.52,2,yes,51,0,0,did not survive
+7.05,3,yes,51,0,0,did not survive
+7.75,3,yes,51,0,0,did not survive
+8.05,3,yes,51,0,0,did not survive
+13.0,2,yes,52,0,0,did not survive
+13.5,2,yes,52,0,0,did not survive
+51.86,1,yes,54,0,0,did not survive
+14.0,2,yes,54,0,0,did not survive
+26.0,2,yes,54,0,0,did not survive
+7.25,3,yes,54,0,0,did not survive
+30.5,1,yes,55,0,0,did not survive
+15.1,3,yes,55,0,0,did not survive
+8.05,3,yes,55,0,0,did not survive
+26.55,1,yes,56,0,0,did not survive
+30.7,1,yes,56,0,0,did not survive
+10.5,2,no,57,0,0,did not survive
+26.0,1,yes,57,0,0,did not survive
+12.35,2,yes,57,0,0,did not survive
+29.7,1,yes,58,0,0,did not survive
+13.5,2,yes,59,0,0,did not survive
+7.25,3,yes,59,0,0,did not survive
+25.92,1,yes,60,0,0,did not survive
+26.55,1,yes,60,0,0,did not survive
+32.32,1,yes,61,0,0,did not survive
+33.5,1,yes,61,0,0,did not survive
+6.24,3,yes,61,0,0,did not survive
+8.05,3,no,62,0,0,did not survive
+26.55,1,yes,62,0,0,did not survive
+26.55,1,yes,62,0,0,did not survive
+26.0,1,yes,64,0,0,did not survive
+27.72,1,yes,64,0,0,did not survive
+26.55,1,yes,65,0,0,did not survive
+7.75,3,yes,65,0,0,did not survive
+10.5,2,yes,66,0,0,did not survive
+8.05,3,yes,66,0,0,did not survive
+14.5,3,yes,69,0,0,did not survive
+10.5,2,yes,70,0,0,did not survive
+7.75,3,yes,70,0,0,did not survive
+34.65,1,yes,71,0,0,did not survive
+49.5,1,yes,71,0,0,did not survive
+7.78,3,yes,74,0,0,did not survive
+14.45,3,no,14,1,0,did not survive
+7.05,3,yes,17,1,0,did not survive
+14.46,3,no,18,1,0,did not survive
+17.8,3,no,18,1,0,did not survive
+108.9,1,yes,18,1,0,did not survive
+6.5,3,yes,18,1,0,did not survive
+14.45,3,no,19,1,0,did not survive
+53.1,1,yes,19,1,0,did not survive
+19.97,3,yes,19,1,0,did not survive
+9.82,3,no,20,1,0,did not survive
+15.5,3,yes,20,1,0,did not survive
+9.82,3,no,21,1,0,did not survive
+11.5,2,yes,21,1,0,did not survive
+7.25,3,yes,22,1,0,did not survive
+7.75,3,yes,22,1,0,did not survive
+16.1,3,yes,24,1,0,did not survive
+7.92,3,no,25,1,0,did not survive
+26.0,2,yes,25,1,0,did not survive
+7.78,3,yes,25,1,0,did not survive
+17.8,3,yes,25,1,0,did not survive
+16.1,3,no,26,1,0,did not survive
+7.85,3,yes,26,1,0,did not survive
+14.45,3,yes,26,1,0,did not survive
+21.0,2,no,27,1,0,did not survive
+14.45,3,yes,27,1,0,did not survive
+15.5,3,yes,27,1,0,did not survive
+82.17,1,yes,28,1,0,did not survive
+15.85,3,yes,28,1,0,did not survive
+19.97,3,yes,28,1,0,did not survive
+24.15,3,yes,28,1,0,did not survive
+66.6,1,yes,29,1,0,did not survive
+21.0,2,yes,29,1,0,did not survive
+27.72,2,yes,29,1,0,did not survive
+7.05,3,yes,29,1,0,did not survive
+24.0,2,yes,30,1,0,did not survive
+16.1,3,yes,30,1,0,did not survive
+18.0,3,no,31,1,0,did not survive
+52.0,1,yes,31,1,0,did not survive
+15.85,3,yes,32,1,0,did not survive
+30.07,2,yes,32,1,0,did not survive
+21.0,2,yes,34,1,0,did not survive
+21.0,2,yes,34,1,0,did not survive
+26.0,2,yes,34,1,0,did not survive
+78.85,1,yes,36,1,0,did not survive
+15.55,3,yes,36,1,0,did not survive
+53.1,1,yes,37,1,0,did not survive
+26.0,2,yes,37,1,0,did not survive
+16.1,3,yes,37,1,0,did not survive
+9.48,3,no,40,1,0,did not survive
+52.0,1,yes,42,1,0,did not survive
+27.0,2,yes,42,1,0,did not survive
+26.0,2,no,44,1,0,did not survive
+26.0,2,yes,44,1,0,did not survive
+83.48,1,yes,45,1,0,did not survive
+61.18,1,yes,46,1,0,did not survive
+14.5,3,no,47,1,0,did not survive
+55.9,1,yes,50,1,0,did not survive
+106.42,1,yes,50,1,0,did not survive
+26.0,2,yes,54,1,0,did not survive
+18.0,3,yes,16,2,0,did not survive
+21.68,3,yes,16,2,0,did not survive
+18.0,3,no,18,2,0,did not survive
+73.5,2,yes,21,2,0,did not survive
+73.5,2,yes,24,2,0,did not survive
+24.15,3,yes,24,2,0,did not survive
+8.66,3,yes,26,2,0,did not survive
+7.92,3,yes,28,2,0,did not survive
+73.5,2,yes,32,2,0,did not survive
+7.92,3,yes,37,2,0,did not survive
+14.11,3,yes,41,2,0,did not survive
+90.0,1,yes,44,2,0,did not survive
+10.46,3,no,2,0,1,did not survive
+14.45,3,no,18,0,1,did not survive
+77.29,1,yes,21,0,1,did not survive
+247.52,1,yes,24,0,1,did not survive
+33.0,2,yes,28,0,1,did not survive
+29.7,1,yes,37,0,1,did not survive
+153.46,1,yes,38,0,1,did not survive
+8.4,3,yes,42,0,1,did not survive
+16.1,3,yes,44,0,1,did not survive
+14.45,3,no,45,0,1,did not survive
+61.38,1,yes,51,0,1,did not survive
+77.29,1,yes,54,0,1,did not survive
+61.98,1,yes,65,0,1,did not survive
+15.25,3,no,9,1,1,did not survive
+7.23,3,yes,15,1,1,did not survive
+20.25,3,yes,16,1,1,did not survive
+7.23,3,yes,17,1,1,did not survive
+7.85,3,yes,18,1,1,did not survive
+20.21,3,yes,18,1,1,did not survive
+36.75,2,yes,19,1,1,did not survive
+26.0,2,no,26,1,1,did not survive
+14.4,3,no,28,1,1,did not survive
+10.46,3,no,29,1,1,did not survive
+24.15,3,no,30,1,1,did not survive
+26.25,2,yes,31,1,1,did not survive
+37.0,2,yes,31,1,1,did not survive
+15.5,3,no,32,1,1,did not survive
+20.52,3,yes,33,1,1,did not survive
+14.4,3,yes,34,1,1,did not survive
+24.15,3,yes,36,1,1,did not survive
+15.5,3,yes,40,1,1,did not survive
+26.25,2,yes,43,1,1,did not survive
+110.88,1,yes,49,1,1,did not survive
+79.65,1,yes,52,1,1,did not survive
+39.0,2,yes,60,1,1,did not survive
+71.0,1,yes,70,1,1,did not survive
+11.5,2,yes,23,2,1,did not survive
+21.08,3,yes,2,3,1,did not survive
+21.08,3,no,3,3,1,did not survive
+25.47,3,no,3,3,1,did not survive
+25.47,3,yes,5,3,1,did not survive
+21.08,3,no,8,3,1,did not survive
+25.47,3,no,8,3,1,did not survive
+25.47,3,no,12,3,1,did not survive
+39.69,3,yes,1,4,1,did not survive
+29.12,3,yes,2,4,1,did not survive
+39.69,3,yes,2,4,1,did not survive
+29.12,3,yes,4,4,1,did not survive
+29.12,3,yes,7,4,1,did not survive
+39.69,3,yes,7,4,1,did not survive
+29.12,3,yes,8,4,1,did not survive
+39.69,3,yes,14,4,1,did not survive
+39.69,3,yes,16,4,1,did not survive
+24.15,3,no,10,0,2,did not survive
+211.5,1,yes,27,0,2,did not survive
+26.0,2,yes,36,0,2,did not survive
+7.75,3,no,40,0,2,did not survive
+15.25,3,no,40,0,2,did not survive
+14.5,3,yes,40,0,2,did not survive
+20.21,3,no,41,0,2,did not survive
+113.28,1,yes,58,0,2,did not survive
+151.55,1,no,2,1,2,did not survive
+23.45,3,no,7,1,2,did not survive
+151.55,1,no,25,1,2,did not survive
+41.58,2,yes,25,1,2,did not survive
+20.58,3,yes,26,1,2,did not survive
+23.45,3,yes,35,1,2,did not survive
+27.75,2,yes,36,1,2,did not survive
+34.38,3,no,9,2,2,did not survive
+34.38,3,no,21,2,2,did not survive
+27.9,3,no,2,3,2,did not survive
+27.9,3,yes,4,3,2,did not survive
+27.9,3,no,9,3,2,did not survive
+27.9,3,yes,10,3,2,did not survive
+263.0,1,yes,19,3,2,did not survive
+31.28,3,no,2,4,2,did not survive
+31.28,3,yes,4,4,2,did not survive
+31.28,3,no,6,4,2,did not survive
+31.28,3,no,9,4,2,did not survive
+31.39,3,yes,9,4,2,did not survive
+31.28,3,no,11,4,2,did not survive
+46.9,3,yes,1,5,2,did not survive
+46.9,3,yes,9,5,2,did not survive
+46.9,3,yes,11,5,2,did not survive
+46.9,3,yes,14,5,2,did not survive
+46.9,3,no,16,5,2,did not survive
+69.55,3,yes,5,8,2,did not survive
+69.55,3,no,8,8,2,did not survive
+69.55,3,no,14,8,2,did not survive
+69.55,3,yes,17,8,2,did not survive
+69.55,3,yes,18,8,2,did not survive
+69.55,3,yes,20,8,2,did not survive
+69.55,3,no,21,8,2,did not survive
+34.38,3,yes,16,1,3,did not survive
+34.38,3,no,48,1,3,did not survive
+21.08,3,no,29,0,4,did not survive
+27.9,3,yes,40,1,4,did not survive
+27.9,3,no,45,1,4,did not survive
+263.0,1,yes,64,1,4,did not survive
+29.12,3,no,39,0,5,did not survive
+39.69,3,no,41,0,5,did not survive
+31.28,3,no,39,1,5,did not survive
+31.28,3,yes,39,1,5,did not survive
+46.9,3,no,43,1,6,did not survive

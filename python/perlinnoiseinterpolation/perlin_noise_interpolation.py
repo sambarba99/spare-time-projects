@@ -50,6 +50,8 @@ if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Perlin Noise Visualiser')
 	root.config(width=320, height=180, bg='#000024')
+	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	select_iters_lbl = tk.Label(root, text='Select no. steps:', font='consolas', bg='#000024', fg='white')
 

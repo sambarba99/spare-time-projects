@@ -76,6 +76,7 @@ if __name__ == '__main__':
 	root.title('Roman Numeral Converter')
 	root.config(width=400, height=200, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	enter_num_lbl = tk.Label(root, text='Enter a number or numerals:',
 		font='consolas', bg='#000024', fg='white')

@@ -5,15 +5,52 @@ Author: Sam Barba
 Created 11/09/2021
 """
 
-from knn_classifier import KNN
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-plt.rcParams['figure.figsize'] = (6, 6)
+from knn_classifier import KNN
+
+plt.rcParams['figure.figsize'] = (5, 5)
+pd.set_option('display.max_columns', 12)
+pd.set_option('display.width', None)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
+
+def load_data(path):
+	df = pd.read_csv(path)
+	print(f'\nRaw data:\n{df}')
+
+	x, y = df.iloc[:, :-1], df.iloc[:, -1]
+	x_to_encode = x.select_dtypes(exclude=np.number).columns
+	classes = y.unique()
+
+	for col in x_to_encode:
+		if len(x[col].unique()) > 2:
+			one_hot = pd.get_dummies(x[col], prefix=col)
+			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
+		else:  # Binary feature
+			x[col] = pd.get_dummies(x[col], drop_first=True)
+
+	if len(classes) > 2:
+		one_hot = pd.get_dummies(y, prefix='class')
+		y = pd.concat([y, one_hot], axis=1)
+		y = y.drop(y.columns[0], axis=1)
+	else:  # Binary class
+		y = pd.get_dummies(y, prefix='class')
+		# Ensure dummy column corresponds with 'classes'
+		drop_idx = int(y.columns[0].endswith(classes[0]))
+		y = y.drop(y.columns[drop_idx], axis=1)
+
+	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
+
+	x, y = x.to_numpy().astype(float), np.squeeze(y.to_numpy().astype(int))
+	if np.ndim(y) > 1:
+		y = np.argmax(y, axis=1)
+
+	return x, y
 
 def confusion_matrix(predictions, actual):
 	n_classes = len(np.unique(actual))
@@ -25,39 +62,37 @@ def confusion_matrix(predictions, actual):
 	accuracy = np.trace(conf_mat) / conf_mat.sum()
 	return conf_mat, accuracy
 
-def plot_matrix(k, conf_mat, accuracy):
+def plot_confusion_matrix(k, conf_mat, accuracy):
 	ax = plt.subplot()
-	ax.matshow(conf_mat, cmap=plt.cm.Blues, alpha=0.7)
+	ax.matshow(conf_mat, cmap=plt.cm.plasma)
 	ax.xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(conf_mat):
 		ax.text(x=i, y=j, s=val, ha='center', va='center')
 	plt.xlabel('Predictions')
 	plt.ylabel('Actual')
-	plt.title(f'Confusion Matrix (optimal k = {k})\nAccuracy = {accuracy:.3f}')
+	plt.title(f'Confusion Matrix (optimal k = {k})\nAccuracy: {accuracy}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-if __name__ == '__main__':
-	choice = input('Enter I to use iris dataset or W for wine dataset\n>>> ').upper()
-	path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.txt' \
-		if choice == 'I' \
-		else r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.txt'
+def main():
+	choice = input('Enter B to use breast tumour dataset,'
+		+ '\nI for iris dataset,'
+		+ '\nor W for wine dataset\n>>> ').upper()
 
-	data = np.genfromtxt(path, dtype=str, delimiter='\n')
-	# Skip header and convert to floats
-	data = [row.split() for row in data[1:]]
-	data = np.array(data).astype(float)
-	np.random.shuffle(data)
+	match choice:
+		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
+		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
 
-	x, y = data[:, :-1], data[:, -1].astype(int)
+	x, y = load_data(path)
 
 	best_acc = best_k = -1
 	best_conf_mat = None
 
-	for k in range(3, int(len(data) ** 0.5) + 1, 2):
+	for k in range(3, int(len(x) ** 0.5) + 1, 2):
 		clf = KNN(k)
 		clf.fit(x, y)
 
@@ -67,6 +102,9 @@ if __name__ == '__main__':
 		if acc > best_acc:
 			best_acc, best_k, best_conf_mat = acc, k, conf_mat
 
-		print(f'\nAccuracy with k = {k}: {acc}')
+		print(f'Accuracy with k = {k}: {acc}')
 
-	plot_matrix(best_k, best_conf_mat, best_acc)
+	plot_confusion_matrix(best_k, best_conf_mat, best_acc)
+
+if __name__ == '__main__':
+	main()

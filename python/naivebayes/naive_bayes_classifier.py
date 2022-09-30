@@ -21,8 +21,9 @@ class NaiveBayesClassifier:
 		self.y_train = y_train
 
 		n_samples, n_features = self.x_train.shape
-		self.classes = np.unique(self.y_train)
-		n_classes = len(self.classes)
+		classes, counts = np.unique(self.y_train, return_counts=True)
+		self.classes = classes
+		n_classes = sum(counts)
 
 		# Calculate mean, variance, and prior for each class
 		self.means = np.zeros((n_classes, n_features))

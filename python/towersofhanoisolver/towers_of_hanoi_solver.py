@@ -40,6 +40,7 @@ if __name__ == '__main__':
 	root.title('Towers of Hanoi solver')
 	root.config(width=500, height=650, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	select_ratio_lbl = tk.Label(root, text='Select no. discs:', font='consolas', bg='#000024', fg='white')
 

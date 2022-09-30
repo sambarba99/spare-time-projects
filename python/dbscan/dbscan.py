@@ -1,13 +1,15 @@
 """
-Demonstration of the DBSCAN algorithm
+DBSCAN demo
 
 Author: Sam Barba
 Created 27/12/2021
 """
 
-from dbscan_clusterer import DBSCANclusterer
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+
+from dbscan_clusterer import DBSCANclusterer
 
 UNDEFINED = -1
 NOISE = 0
@@ -19,15 +21,12 @@ plt.rcParams['figure.figsize'] = (8, 5)
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	# 1. Load file coords
+	# 1. Load data
 
-	coords = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\dbscanData.txt', dtype=str, delimiter='\n')
-	# Skip header and convert to floats
-	coords = [row.split() for row in coords[1:]]
-	coords = np.array(coords).astype(float)
+	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\dbscanData.csv')
 
 	# Initialise all points with undefined labels
-	points = [{'x': x, 'y': y, 'label': UNDEFINED} for x, y in coords]
+	points = [{'x': x, 'y': y, 'label': UNDEFINED} for x, y in df.to_numpy()]
 
 	# 2. Cluster samples
 
@@ -48,7 +47,7 @@ def main():
 		clusters[p['label']].append(coords)
 
 	for idx, c in enumerate(clusters):
-		if idx == 0 and len(c) > 0:
+		if idx == 0 and c:
 			# If there's noise, plot it as black
 			plt.scatter(*np.array(c).T, color='black', label=f'Noise ({len(c)} samples)')
 		else:

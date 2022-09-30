@@ -117,16 +117,17 @@ if __name__ == '__main__':
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-			elif event.type == pg.KEYDOWN:
-				match event.key:
-					case pg.K_r:
-						a1, a2 = np.random.uniform(0, 2 * np.pi, size=2)
-						vel1 = vel2 = 0
-						positions = []
-					case pg.K_SPACE:
-						paused = not paused
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					match event.key:
+						case pg.K_r:
+							a1, a2 = np.random.uniform(0, 2 * np.pi, size=2)
+							vel1 = vel2 = 0
+							positions = []
+							paused = False
+						case pg.K_SPACE:
+							paused = not paused
 
 		if not paused:
 			draw()

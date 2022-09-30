@@ -59,11 +59,11 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-			elif event.type == pg.KEYDOWN:
-				if event.key == pg.K_SPACE:
-					paused = not paused
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					if event.key == pg.K_SPACE:
+						paused = not paused
 
 		if paused: continue
 

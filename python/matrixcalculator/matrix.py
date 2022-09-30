@@ -1,5 +1,5 @@
 """
-Matrix class
+Matrix class for matrix_calculator.py
 
 Author: Sam Barba
 Created 03/09/2021
@@ -19,8 +19,8 @@ class Matrix:
 
 			return grid
 
-		self.rows = rows if rows is not None else len(values)
-		self.cols = cols if cols is not None else len(values[0])
+		self.rows = rows if rows else len(values)
+		self.cols = cols if cols else len(values[0])
 		self.grid = values if isinstance(values, list) else create_grid_from_line(values)
 
 	def add_subtract(self, other, add):
@@ -41,10 +41,9 @@ class Matrix:
 		return Matrix(result_grid)
 
 	def determinant(self, rows):
-		if rows == 1:
-			return self.grid[0][0]
-		elif rows == 2:
-			return self.grid[0][0] * self.grid[1][1] - self.grid[0][1] * self.grid[1][0]
+		match rows:
+			case 1: return self.grid[0][0]
+			case 2: return self.grid[0][0] * self.grid[1][1] - self.grid[0][1] * self.grid[1][0]
 
 		det = 0
 		sub_grid = [[0] * (rows - 1) for _ in range(rows - 1)]

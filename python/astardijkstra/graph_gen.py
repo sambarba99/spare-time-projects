@@ -28,7 +28,7 @@ class GraphGen:
 		x = np.random.uniform(10, self.max_x - 10, size=self.n_vertices)
 		y = np.random.uniform(10, self.max_y - 10, size=self.n_vertices)
 		coords = np.vstack((x, y)).T
-		adjacency_list = dict()
+		adjacency_list = {}
 
 		# Link each vertex to its closest N neighbours,
 		# where N is random between 1 and max_neighbours
@@ -48,8 +48,8 @@ class GraphGen:
 
 		# Create graph, as a list of vertices
 		vertices = [GraphVertex(idx, x, y) for idx, (x, y) in enumerate(coords)]
-		for idx, v in enumerate(vertices):
-			vertices[idx].neighbours = [vertices[i] for i in adjacency_list[v.idx]]
+		for v in vertices:
+			vertices[v.idx].neighbours = [vertices[i] for i in adjacency_list[v.idx]]
 
 		# Check if graph is connected, via depth-first search (start arbitrarily from vertex no. 0)
 		visited = []

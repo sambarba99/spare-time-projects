@@ -35,7 +35,7 @@ def load_fourier_from_file(path, image_name):
 	print(f'\nLoading saved DFT for {image_name} ', end='')
 
 	with open(path, 'r') as file:
-		data = file.read()[:-1].split('\n')
+		data = file.read().splitlines()
 
 	fourier = [json.loads(line.replace("'", '"')) for line in data]
 
@@ -156,72 +156,73 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				if event.button == 1:  # Left-click
-					if user_drawing_mode:
-						left_btn_down = True
-				elif event.button == 3:  # Right-click
-					user_drawing_mode = not user_drawing_mode
-					if user_drawing_mode:  # Start drawing
-						print('\nDraw something or select a preset\n(right-click to exit drawing mode)')
-						user_drawing_coords = []  # Clear for new drawing
-						path = []  # Clear any previously rendered path
-						time = 0
-					else:  # Finished drawing
-						if len(user_drawing_coords) < 2:
-							print('\nNeed at least 2 points')
-							user_drawing_mode = True
-						else:
-							fourier = compute_fourier_from_coords(user_drawing_coords, 'user drawing')
-							dt = 2 * np.pi / len(fourier)
-							n_epicycles = len(fourier)
-							paused = False
-
-			elif event.type == pg.MOUSEMOTION and left_btn_down and user_drawing_mode:
-				user_drawing_coords.append(event.pos)
-
-			elif event.type == pg.MOUSEBUTTONUP and left_btn_down and user_drawing_mode:
-				user_drawing_coords.append(event.pos)
-				left_btn_down = False
-
-			elif event.type == pg.KEYDOWN:
-				match event.key:
-					case pg.K_UP | pg.K_DOWN:
-						if event.key == pg.K_UP and fourier:
-							n_epicycles = min(n_epicycles * 2, len(fourier))
-							print(f'\nNumber of epicycles = {n_epicycles}', end='')
-							print(' (max)' if n_epicycles == len(fourier) else '')
-						elif event.key == pg.K_DOWN and fourier:
-							pow2 = 2 ** int(np.log2(n_epicycles))
-							n_epicycles = pow2 // 2 if pow2 == n_epicycles else pow2
-							n_epicycles = max(n_epicycles, 2)
-							print(f'\nNumber of epicycles = {n_epicycles}')
-						path, time = [], 0
-						continue
-					case pg.K_p:
-						# fourier = compute_fourier_from_coords(PI, 'pi symbol')
-						fourier = load_fourier_from_file('dft_pi.txt', 'pi symbol')
-					case pg.K_g:
-						# fourier = compute_fourier_from_coords(GUITAR, 'guitar')
-						fourier = load_fourier_from_file('dft_guitar.txt', 'guitar')
-					case pg.K_t:
-						# fourier = compute_fourier_from_coords(T_REX, 'T. Rex')
-						fourier = load_fourier_from_file('dft_t_rex.txt', 'T. Rex')
-					case pg.K_c:
-						# fourier = compute_fourier_from_coords(COLOSSEUM, 'Colosseum')
-						fourier = load_fourier_from_file('dft_colosseum.txt', 'Colosseum')
-					case pg.K_SPACE:
-						paused = not paused
-						continue
-					case _:
-						continue
-				user_drawing_mode = paused = False
-				path, time = [], 0
-				dt = 2 * np.pi / len(fourier)
-				n_epicycles = len(fourier)
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					match event.button:
+						case 1:  # Left-click
+							if user_drawing_mode:
+								left_btn_down = True
+						case 3:  # Right-click
+							user_drawing_mode = not user_drawing_mode
+							if user_drawing_mode:  # Start drawing
+								print('\nDraw something or select a preset\n(right-click to exit drawing mode)')
+								user_drawing_coords = []  # Clear for new drawing
+								fourier, path = [], []  # Clear previous calculations/renders
+								time = 0
+							else:  # Finished drawing
+								if len(user_drawing_coords) < 2:
+									print('\nNeed at least 2 points')
+									user_drawing_mode = True
+								else:
+									fourier = compute_fourier_from_coords(user_drawing_coords, 'user drawing')
+									dt = 2 * np.pi / len(fourier)
+									n_epicycles = len(fourier)
+									paused = False
+				case pg.MOUSEMOTION:
+					if left_btn_down and user_drawing_mode:
+						user_drawing_coords.append(event.pos)
+				case pg.MOUSEBUTTONUP:
+					if left_btn_down and user_drawing_mode:
+						user_drawing_coords.append(event.pos)
+						left_btn_down = False
+				case pg.KEYDOWN:
+					match event.key:
+						case pg.K_UP | pg.K_DOWN:
+							if not fourier: continue
+							match event.key:
+								case pg.K_UP:
+									n_epicycles = min(n_epicycles * 2, len(fourier))
+									print(f'\nNumber of epicycles = {n_epicycles}', end='')
+									print(' (max)' if n_epicycles == len(fourier) else '')
+								case pg.K_DOWN:
+									pow2 = 2 ** int(np.log2(n_epicycles))
+									n_epicycles = pow2 // 2 if pow2 == n_epicycles else pow2
+									n_epicycles = max(n_epicycles, 2)
+									print(f'\nNumber of epicycles = {n_epicycles}')
+							path, time = [], 0
+							continue
+						case pg.K_p:
+							# fourier = compute_fourier_from_coords(PI, 'pi symbol')
+							fourier = load_fourier_from_file('dft_pi.txt', 'pi symbol')
+						case pg.K_g:
+							# fourier = compute_fourier_from_coords(GUITAR, 'guitar')
+							fourier = load_fourier_from_file('dft_guitar.txt', 'guitar')
+						case pg.K_t:
+							# fourier = compute_fourier_from_coords(T_REX, 'T. Rex')
+							fourier = load_fourier_from_file('dft_t_rex.txt', 'T. Rex')
+						case pg.K_c:
+							# fourier = compute_fourier_from_coords(COLOSSEUM, 'Colosseum')
+							fourier = load_fourier_from_file('dft_colosseum.txt', 'Colosseum')
+						case pg.K_SPACE:
+							paused = not paused
+							continue
+						case _:
+							continue
+					user_drawing_mode = paused = False
+					path, time = [], 0
+					dt = 2 * np.pi / len(fourier)
+					n_epicycles = len(fourier)
 
 		if paused and not user_drawing_mode: continue
 

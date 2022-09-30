@@ -5,17 +5,22 @@ Author: Sam Barba
 Created 08/09/2021
 """
 
-from binary_tree import Tree
 import numpy as np
+
+from binary_tree import Tree
+from tree_plotter import plot_tree
+
+N_NODES = 31  # No. people names (max 113)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def make_random_binary_tree():
-	names = np.genfromtxt('people_names.txt', dtype=str, delimiter='\n')
+	with open('people_names.txt', 'r') as file:
+		names = file.read().splitlines()
 
-	tree_keys = np.random.choice(names, size=15, replace=False)
+	tree_keys = np.random.choice(names, size=N_NODES, replace=False)
 
 	bin_tree = Tree(tree_keys[0])
 
@@ -44,30 +49,29 @@ def make_balanced_bst(data, lo=0, hi=None):
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
-	while True:
+	assert isinstance(N_NODES, int) and 1 <= N_NODES <= 113
+
+	binary_tree = make_random_binary_tree()
+	while binary_tree.is_balanced() and binary_tree.get_height() > 1:
 		binary_tree = make_random_binary_tree()
-		while binary_tree.is_balanced():
-			binary_tree = make_random_binary_tree()
 
-		print('{:>21}:  {}'.format('Tree', binary_tree.to_tuple()))
-		print('{:>21}:  {}'.format('Tree height', binary_tree.get_height()))
-		print('{:>21}:  {}'.format('Is Binary Search Tree', binary_tree.is_bst()[0]))
-		print('{:>21}:  {}'.format('Is balanced', binary_tree.is_balanced()), '\n')
+	print('Tree:\n', binary_tree.to_tuple())
+	print('Height:', binary_tree.get_height())
+	print('Is Binary Search Tree:', binary_tree.is_bst()[0])
+	print('Balanced:', binary_tree.is_balanced())
 
-		binary_tree.display()
+	plot_tree(binary_tree, 'unbalanced')
 
-		binary_tree = make_balanced_bst(binary_tree.list_data())
+	binary_tree = make_balanced_bst(binary_tree.list_data())
 
-		print('\n{:-^50}\n'.format(' After balancing '))
-		print('{:>21}:  {}'.format('Tree', binary_tree.to_tuple()))
-		print('{:>21}:  {}'.format('Tree height', binary_tree.get_height()))
-		print('{:>21}:  {}'.format('In-order traversal', binary_tree.in_order_traversal()))
-		print('{:>21}:  {}'.format('Pre-order traversal', binary_tree.pre_order_traversal()))
-		print('{:>21}:  {}'.format('Post-order traversal', binary_tree.post_order_traversal()), '\n')
+	print()
+	print('-' * 50, 'After balancing', '-' * 50)
+	print()
+	print('Tree:\n', binary_tree.to_tuple())
+	print('Height:', binary_tree.get_height())
+	print('In-order traversal:\n', binary_tree.in_order_traversal())
+	print('Pre-order traversal:\n', binary_tree.pre_order_traversal())
+	print('Post-order traversal:\n', binary_tree.post_order_traversal())
+	print('Breadth-first traversal:\n', binary_tree.bfs_traversal())
 
-		binary_tree.display()
-
-		choice = input('\nEnter to continue or X to exit\n>>> ').upper()
-		if choice and choice[0] == 'X':
-			break
-		print()
+	plot_tree(binary_tree, 'balanced')

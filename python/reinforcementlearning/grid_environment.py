@@ -81,7 +81,7 @@ class GridEnv:
 			for x in range(self.size):
 				best_action_val = None
 
-				if final_q_table is None or (y, x) not in final_q_table:
+				if not final_q_table or (y, x) not in final_q_table:
 					col = (0, 0, 0)
 				else:
 					best_action_val = max(final_q_table[y, x])

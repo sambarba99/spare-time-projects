@@ -22,11 +22,10 @@ MAX_ATTEMPTS = 6
 CELL_SIZE = 70
 GRID_OFFSET = 50
 GAP = 5
-BACKGROUND = (12, 12, 12)
-LIGHT_GREY = (130, 130, 130)
-GREY = (50, 50, 50)     # Letter not in word
-YELLOW = (255, 160, 0)  # Letter in word, but wrong position
-GREEN = (60, 160, 60)   # Letter in word and in correct position
+BACKGROUND = (18, 18, 18)
+GREY = (59, 59, 59)      # Letter not in word
+YELLOW = (181, 159, 59)  # Letter in word, but wrong position
+GREEN = (83, 141, 78)    # Letter in word and in correct position
 
 KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM']
 KEY_SIZE = 34
@@ -159,7 +158,7 @@ def draw_grid(colour_current_row, status=None):
 					y * (CELL_SIZE + GAP) + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
 			else:
 				if y == attempt_num and x < col_num:
-					pg.draw.rect(scene, LIGHT_GREY,
+					pg.draw.rect(scene, GREY,
 						pg.Rect(x * (CELL_SIZE + GAP) + GRID_OFFSET,
 							y * (CELL_SIZE + GAP) + GRID_OFFSET, CELL_SIZE, CELL_SIZE),
 						width=2)
@@ -187,8 +186,7 @@ def draw_grid(colour_current_row, status=None):
 			match letter:
 				case letter if letter in green_letters: fill_col = GREEN
 				case letter if letter in yellow_letters: fill_col = YELLOW
-				case letter if letter in grey_letters: fill_col = GREY
-				case _: fill_col = LIGHT_GREY
+				case _: fill_col = (130, 130, 130)
 
 			pg.draw.rect(scene, fill_col, pg.Rect(x * (KEY_SIZE + KEY_GAP) + offset,
 				530 + y * (KEY_SIZE + KEY_GAP), KEY_SIZE, KEY_SIZE))
@@ -200,7 +198,7 @@ def draw_grid(colour_current_row, status=None):
 	# Draw status label
 	status_font = pg.font.SysFont('consolas', 18)
 
-	if status is None:
+	if not status:
 		status_lbl = status_font.render(f'Attempt {attempt_num + 1}/{MAX_ATTEMPTS}', True, (220, 220, 220))
 	else:
 		status_lbl = status_font.render(status, True, (255, 255, 255))
@@ -226,7 +224,7 @@ def main():
 
 	draw_grid(colour_current_row=False, status='Generating pattern dictionary...')
 
-	all_words = np.genfromtxt('five_letter_words.txt', dtype=str, delimiter='\n')
+	all_words = np.loadtxt('five_letter_words.txt', dtype=str, delimiter='\n')
 	pattern_dict = generate_pattern_dict(all_words)
 
 	draw_grid(colour_current_row=False)
@@ -278,67 +276,64 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					if game_over and event.key != pg.K_SPACE: continue
 
-			elif event.type == pg.KEYDOWN:
-				if game_over and event.key != pg.K_SPACE: continue
+					match event.key:
+						case pg.K_SPACE:  # Reset if game over
+							if game_over:
+								attempts = [[''] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
+								attempt_num = col_num = 0
+								green_letters, yellow_letters, grey_letters = [], [], []
+								game_over = False
+								target_word = np.random.choice(all_words)
+								words_left = set(all_words)
+								draw_grid(colour_current_row=False)
+						case event.key if 97 <= event.key <= 122:  # a - z
+							if attempt_num < MAX_ATTEMPTS and col_num < WORD_LEN:
+								attempts[attempt_num][col_num] = chr(event.key - 32)  # -32 to capitalise
+								col_num += 1
+								draw_grid(colour_current_row=False)
+						case pg.K_RETURN:  # Submit attempt
+							if col_num != WORD_LEN: continue
 
-				if game_over and event.key == pg.K_SPACE:  # Reset if game over
-					attempts = [[''] * WORD_LEN for _ in range(MAX_ATTEMPTS)]
-					attempt_num = col_num = 0
-					green_letters, yellow_letters, grey_letters = [], [], []
-					game_over = False
-					words_left = set(all_words)
-					target_word = np.random.choice(all_words)
-					draw_grid(colour_current_row=False)
+							user_word = ''.join(attempts[attempt_num])
 
-				elif 97 <= event.key <= 122:  # a - z
-					if attempt_num < MAX_ATTEMPTS and col_num < WORD_LEN:
-						attempts[attempt_num][col_num] = chr(event.key - 32)  # -32 to capitalise
-						col_num += 1
-						draw_grid(colour_current_row=False)
+							if user_word not in all_words:
+								draw_grid(colour_current_row=False, status=f"'{user_word}' not in word list!")
+								sleep(1.5)
+								attempts[attempt_num] = [''] * WORD_LEN
+								col_num = 0
+								draw_grid(colour_current_row=False)
+							elif user_word == target_word:
+								draw_grid(colour_current_row=True, status=f'You win! SPACE to reset.')
+								game_over = True
+							elif user_word != target_word and attempt_num == MAX_ATTEMPTS - 1:
+								draw_grid(colour_current_row=True, status=f"You lose! The target was '{target_word}'.")
+								game_over = True
+							else:
+								attempt_num += 1
+								col_num = 0
+								draw_grid(colour_current_row=True)
 
-				elif event.key == pg.K_RETURN:  # Submit attempt
-					if col_num != WORD_LEN: continue
+								# Filter list of remaining possible words
+								info = get_information(user_word, target_word, update_keyboard=False)
+								words = pattern_dict[user_word][info]
+								words_left = words_left.intersection(words)
+						case pg.K_BACKSPACE:  # Delete last char
+							col_num = max(col_num - 1, 0)
+							attempts[attempt_num][col_num] = ''
+							draw_grid(colour_current_row=False)
+						case pg.K_TAB:  # AI assistance
+							# Suggest word left with highest entropy
+							entropies = calculate_word_entropies(words_left, pattern_dict, all_patterns)
+							attempt_word = max(entropies, key=entropies.get)
 
-					user_word = ''.join(attempts[attempt_num])
-
-					if user_word not in all_words:
-						draw_grid(colour_current_row=False, status=f"'{user_word}' not in word list!")
-						sleep(1.5)
-						attempts[attempt_num] = [''] * WORD_LEN
-						col_num = 0
-						draw_grid(colour_current_row=False)
-					elif user_word == target_word:
-						draw_grid(colour_current_row=True, status=f'You win! SPACE to reset.')
-						game_over = True
-					elif user_word != target_word and attempt_num == MAX_ATTEMPTS - 1:
-						draw_grid(colour_current_row=True, status=f"You lose! The target was '{target_word}'.")
-						game_over = True
-					else:
-						attempt_num += 1
-						col_num = 0
-						draw_grid(colour_current_row=True)
-
-						# Filter list of remaining possible words
-						info = get_information(user_word, target_word, update_keyboard=False)
-						words = pattern_dict[user_word][info]
-						words_left = words_left.intersection(words)
-
-				elif event.key == pg.K_BACKSPACE:  # Delete last char
-					col_num = max(col_num - 1, 0)
-					attempts[attempt_num][col_num] = ''
-					draw_grid(colour_current_row=False)
-
-				elif event.key == pg.K_TAB:  # AI assistance
-					# Suggest word left with highest entropy
-					entropies = calculate_word_entropies(words_left, pattern_dict, all_patterns)
-					attempt_word = max(entropies, key=entropies.get)
-
-					draw_grid(colour_current_row=False, status=f"Try '{attempt_word}'...")
-					sleep(1)
-					draw_grid(colour_current_row=False)
+							draw_grid(colour_current_row=False, status=f"Try '{attempt_word}'...")
+							sleep(1)
+							draw_grid(colour_current_row=False)
 
 if __name__ == '__main__':
 	main()

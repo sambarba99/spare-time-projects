@@ -22,10 +22,10 @@ class DBSCANclusterer:
 		self.min_points = min_points
 
 	def predict(self, points):
-		def euclidean_dist(p1, p2):
-			coords1 = np.array([p1['x'], p1['y']])
-			coords2 = np.array([p2['x'], p2['y']])
-			return np.linalg.norm(coords1 - coords2)
+		def euclidean_dist(a, b):
+			coords_a = np.array([a['x'], a['y']])
+			coords_b = np.array([b['x'], b['y']])
+			return np.linalg.norm(coords_a - coords_b)
 
 		c = 1  # Cluster counter
 

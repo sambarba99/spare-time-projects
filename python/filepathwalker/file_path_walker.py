@@ -78,6 +78,7 @@ if __name__ == '__main__':
 	root.title('File Path Walker')
 	root.config(width=600, height=680, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	enter_path_lbl = tk.Label(root, text='Enter a file path:', font='consolas', bg='#000024', fg='white')
 

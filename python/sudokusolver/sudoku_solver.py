@@ -118,10 +118,9 @@ def draw_grid(*, difficulty_lvl, solve_status):
 def wait_for_click():
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.MOUSEBUTTONDOWN:
-				return
-			elif event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.MOUSEBUTTONDOWN: return
+				case pg.QUIT: sys.exit()
 
 def plot_backtracks(*, difficulty_lvl, time_to_solve):
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards

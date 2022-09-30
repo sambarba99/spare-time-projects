@@ -79,6 +79,7 @@ if __name__ == '__main__':
 	root.title('Root/Stationary Point Finder')
 	root.config(width=400, height=200, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	enter_coeffs_lbl = tk.Label(root, text='Enter polynomial coefficients\n(e.g. for 3x^2 - 5 enter: 3 0 -5):',
 		font='consolas', bg='#000024', fg='white')

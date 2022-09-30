@@ -29,9 +29,10 @@ def handle_mouse_click(y, x):
 
 	y = (y - GRID_OFFSET) // CELL_SIZE
 	x = (x - GRID_OFFSET) // CELL_SIZE
-	if y not in range(BOARD_SIZE) or x not in range(BOARD_SIZE) \
-		or board[y][x] is not None \
-		or find_winner() is not None:
+	if y not in range(BOARD_SIZE) \
+		or x not in range(BOARD_SIZE) \
+		or board[y][x] \
+		or find_winner():
 		return
 
 	board[y][x] = HUMAN
@@ -39,11 +40,11 @@ def handle_mouse_click(y, x):
 	result = find_winner()
 	# No point checking if human wins...
 	if result == TIE: status_text = "It's a tie! Click to reset"
-	if result is None: status_text = "AI's turn (x)"
+	if not result: status_text = "AI's turn (x)"
 
 	draw_grid()
 
-	if result is None:  # AI's turn
+	if not result:  # AI's turn
 		sleep(1)
 		make_best_ai_move()
 		draw_grid()
@@ -52,18 +53,18 @@ def find_winner():
 	# Check rows and columns
 	for i in range(BOARD_SIZE):
 		row = board[i]
-		if len(set(row)) == 1 and row[0] is not None:
+		if len(set(row)) == 1 and row[0]:
 			return row[0]
 		col = [row[i] for row in board]
-		if len(set(col)) == 1 and col[0] is not None:
+		if len(set(col)) == 1 and col[0]:
 			return col[0]
 
 	# Check diagonals
 	main_diagonal = [board[i][i] for i in range(BOARD_SIZE)]
-	if len(set(main_diagonal)) == 1 and main_diagonal[0] is not None:
+	if len(set(main_diagonal)) == 1 and main_diagonal[0]:
 		return main_diagonal[0]
 	right_diagonal = [board[i][BOARD_SIZE - i - 1] for i in range(BOARD_SIZE)]
-	if len(set(right_diagonal)) == 1 and right_diagonal[0] is not None:
+	if len(set(right_diagonal)) == 1 and right_diagonal[0]:
 		return right_diagonal[0]
 
 	free_spots = sum(token is None for row in board for token in row)
@@ -81,7 +82,7 @@ def make_best_ai_move():
 
 		for y in range(BOARD_SIZE):
 			for x in range(BOARD_SIZE):
-				if board[y][x] is None:
+				if not board[y][x]:
 					if maximising:
 						board[y][x] = AI
 						best_score = max(minimax(depth + 1, alpha, beta, False), best_score)
@@ -108,7 +109,7 @@ def make_best_ai_move():
 
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
-			if board[y][x] is None:
+			if not board[y][x]:
 				board[y][x] = AI
 				score = minimax(1, -2, 2, False)
 				board[y][x] = None
@@ -122,7 +123,7 @@ def make_best_ai_move():
 	result = find_winner()
 	if result == AI: status_text = 'AI wins! Click to reset'
 	if result == TIE: status_text = "It's a tie! Click to reset"
-	if result is None: status_text = 'Your turn (o)!'
+	if not result: status_text = 'Your turn (o)!'
 
 def draw_grid():
 	scene.fill((20, 20, 20))
@@ -136,7 +137,7 @@ def draw_grid():
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
 			token = board[y][x]
-			if token is None: continue
+			if not token: continue
 
 			colour = (220, 20, 20) if token == AI else (20, 120, 220)
 			cell_lbl = token_font.render(token, True, colour)
@@ -164,21 +165,19 @@ if __name__ == '__main__':
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				if find_winner() is not None:  # Click to reset if game over
-					board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-					status_text = "Your turn! (Or 'A' to make AI go first)"
-					draw_grid()
-				else:
-					x, y = event.pos
-					handle_mouse_click(y, x)
-
-			elif event.type == pg.KEYDOWN:
-				if event.key == pg.K_a:  # Make AI play first
-					# If no moves have been played yet
-					if all(cell is None for row in board for cell in row):
-						make_best_ai_move()
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					if find_winner():  # Click to reset if game over
+						board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+						status_text = "Your turn! (Or 'A' to make AI go first)"
 						draw_grid()
+					else:
+						x, y = event.pos
+						handle_mouse_click(y, x)
+				case pg.KEYDOWN:
+					if event.key == pg.K_a:  # Make AI play first
+						# If no moves have been played yet
+						if all(cell is None for row in board for cell in row):
+							make_best_ai_move()
+							draw_grid()

@@ -177,10 +177,9 @@ def hsv_to_rgb(h, s, v):
 def wait_for_click():
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.MOUSEBUTTONDOWN:
-				return
-			elif event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.MOUSEBUTTONDOWN: return
+				case pg.QUIT: sys.exit()
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #

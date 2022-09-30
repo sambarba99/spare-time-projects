@@ -149,7 +149,7 @@ def draw():
 
 	pg.display.update()
 
-	if path is None: return
+	if not path: return
 
 	if maze_mode:
 		time_interval = 5 / len(path)  # Want drawing to last around 5s
@@ -198,6 +198,7 @@ if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('A*/Dijkstra Demo')
 	root.config(width=350, height=230, bg='#000024')
+	root.resizable(False, False)
 
 	btn_generate_graph = tk.Button(root, text='Generate graph', font='consolas',
 		command=lambda: generate_and_draw_graph())

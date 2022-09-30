@@ -138,28 +138,26 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					done = False
+					key = event.key
+					match key:
+						case pg.K_r:  # Reset params (move sliders to centre)
+							do_separation = do_alignment = do_cohesion = True
 
-			elif event.type == pg.KEYDOWN:
-				done = False
-				key = event.key
-				match key:
-					case pg.K_r:  # Reset params (move sliders to centre)
-						do_separation = do_alignment = do_cohesion = True
-
-						percep_radius_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 - 7],
-							[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
-						max_steering_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
-							[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
-						max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
-							[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
-					case pg.K_1: do_separation = not do_separation
-					case pg.K_2: do_alignment = not do_alignment
-					case pg.K_3: do_cohesion = not do_cohesion
-
-			elif event.type == pg.KEYUP:
-				done = True
+							percep_radius_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 - 7],
+								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
+							max_steering_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
+								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
+							max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
+								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
+						case pg.K_1: do_separation = not do_separation
+						case pg.K_2: do_alignment = not do_alignment
+						case pg.K_3: do_cohesion = not do_cohesion
+				case pg.KEYUP:
+					done = True
 
 		if not done:
 			if key == pg.K_q:

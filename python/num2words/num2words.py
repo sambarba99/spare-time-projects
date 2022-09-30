@@ -76,6 +76,7 @@ if __name__ == '__main__':
 	root.title('Number to word converter')
 	root.config(width=470, height=200, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	enter_num_lbl = tk.Label(root, text='Enter number to convert:', font='consolas', bg='#000024', fg='white')
 

@@ -30,6 +30,7 @@ if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Reinforcement learning demo')
 	root.config(width=550, height=350, bg='#000024')
+	root.resizable(False, False)
 
 	dp_methods_lbl = tk.Label(root, text='Dynamic Programming methods',
 		font='consolas', bg='#000024', fg='white')

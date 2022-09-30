@@ -13,7 +13,7 @@ import numpy as np
 import pygame as pg
 import sys
 
-SIZE = 800
+SIZE = 600
 FPS = 20
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -98,27 +98,27 @@ if __name__ == '__main__':
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				if event.button == 1:  # Left-click
-					if len(graph) == 30:
-						print('Size limit reached')
-						continue
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					match event.button:
+						case 1:  # Left-click
+							if len(graph) == 30:
+								print('Size limit reached')
+								continue
 
-					x, y = event.pos
-					# Constrain x and y to range [5, SIZE - 5]
-					x = np.clip(x, 5, SIZE - 5)
-					y = np.clip(y, 5, SIZE - 5)
+							x, y = event.pos
+							# Constrain x and y to range [5, SIZE - 5]
+							x = np.clip(x, 5, SIZE - 5)
+							y = np.clip(y, 5, SIZE - 5)
 
-					x_vel, y_vel = np.random.uniform(-3, 3, size=2)
-					vertex = {'idx': len(graph), 'x': x, 'y': y, 'x-vel': x_vel, 'y-vel': y_vel}
-					graph.append(vertex)
-
-				elif event.button == 3:  # Right-click
-					graph = []
-					scene.fill((20, 20, 20))
-					pg.display.update()
+							x_vel, y_vel = np.random.uniform(-3, 3, size=2)
+							vertex = {'idx': len(graph), 'x': x, 'y': y, 'x-vel': x_vel, 'y-vel': y_vel}
+							graph.append(vertex)
+						case 3:  # Right-click
+							graph = []
+							scene.fill((20, 20, 20))
+							pg.display.update()
 
 		draw_mst(graph)
 		move_points(graph)

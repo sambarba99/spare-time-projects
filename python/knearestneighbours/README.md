@@ -1,3 +1,5 @@
 K Nearest Neighbours demo
 
-![](knn_iris.png)
+KNN performance on iris dataset:
+
+![](knn_iris_performance.png)

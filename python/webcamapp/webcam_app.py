@@ -84,7 +84,7 @@ def main():
 		target_colour_frame = np.zeros((90, 90, 3))
 		target_colour_frame[:] = np.array(TARGET_RGB[::-1])
 		closest_colour_frame = np.zeros((90, 90, 3))
-		closest_colour_frame[:] = np.array(closest_colour)
+		closest_colour_frame[:] = closest_colour
 		target_and_closest = np.hstack((target_colour_frame, closest_colour_frame))
 
 		# Put target_and_closest in bottom-left of img

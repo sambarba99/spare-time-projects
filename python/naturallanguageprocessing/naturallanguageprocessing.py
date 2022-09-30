@@ -1,14 +1,13 @@
 """
 NLP demo
 
-Here, sentiment analysis of movie reviews is performed by an SVM and a boosting-based algorithm.
+Sentiment analysis of movie reviews is performed by an SVM and a boosting-based algorithm.
 NLTK (Natural Language Toolkit) is used.
 
 Author: Sam Barba
 Created 29/09/2022
 """
 
-from gradientboost import GradientBoost
 import nltk
 from nltk.stem import LancasterStemmer
 from nltk.tokenize import word_tokenize
@@ -16,6 +15,9 @@ import numpy as np
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+from gradientboost import GradientBoost
 from svmclassifier import SVMClassifier
 
 STOP_WORDS = ['!', '(', ')', '*', '-', '..', '/', ':', ';', '<', '>', '?', '``']
@@ -30,9 +32,8 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 	cleaned_data = []
 
 	for row in raw_data:
-		rightmost_comma_idx = row.rfind(',')
-		review, sentiment = row[:rightmost_comma_idx], row[rightmost_comma_idx + 1:]
-		review = re.sub(r"[\"\'`]", '', review)
+		review, sentiment = row.rsplit(',', maxsplit=1)
+		review = re.sub(r'["\'`]', '', review)
 		word_tokens = word_tokenize(re.sub(r'[.,]', '', review))
 		stemmed_doc = [stemmer.stem(w) for w in word_tokens]
 		filtered_review = ' '.join([word for word in stemmed_doc if word.lower() not in STOP_WORDS])
@@ -41,12 +42,9 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 	x, y = np.array(cleaned_data).astype(str).T
 
 	# Convert positive/negative to 1/-1 respectively
-	for idx, sentiment in enumerate(y):
-		y[idx] = 1 if sentiment == 'positive' else -1
+	y = np.where(y == 'positive', 1, -1)
 
-	split = int(len(cleaned_data) * train_test_ratio)
-	x_train, y_train = x[:split], y[:split].astype(int)
-	x_test, y_test = x[split:], y[split:].astype(int)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
 
 	vectorizer = TfidfVectorizer()
 	x_train = vectorizer.fit_transform(x_train).toarray()
@@ -67,8 +65,8 @@ if __name__ == '__main__':
 	# Uncomment and run this if not done already (just needs to run once)
 	# nltk.download('punkt')
 
-	with open(r'C:\Users\Sam Barba\Desktop\Programs\datasets\movieReviews.txt', 'r', encoding='UTF-8') as file:
-		data = file.read().split('\n')[1:]  # Skip header
+	with open(r'C:\Users\Sam Barba\Desktop\Programs\datasets\movieReviews.csv', 'r', encoding='UTF-8') as file:
+		data = file.read().splitlines()[1:]
 
 	x_train, y_train, x_test, y_test = extract_bag_of_words(data)
 

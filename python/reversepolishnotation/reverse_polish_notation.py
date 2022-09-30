@@ -68,7 +68,7 @@ def convert_and_solve(*_):
 	try:
 		error_msg = evaluate_rpn(rpn)
 	except Exception as e:
-		error_msg = str(e)
+		error_msg = e.args[-1]
 
 	if error_msg:
 		output_num.config(state='normal')
@@ -140,7 +140,7 @@ def evaluate_rpn(rpn_expression):
 
 	output_num.config(state='normal')
 	output_num.delete('1.0', tk.END)
-	output_num.insert('1.0', '\n'.join(str(i) for i in txt_stack))
+	output_num.insert('1.0', '\n'.join(map(str, txt_stack)))
 	output_num.tag_add('center', '1.0', tk.END)
 	output_num.config(state='disabled')
 
@@ -155,6 +155,7 @@ if __name__ == '__main__':
 	root.title('Infix to RPN Converter')
 	root.config(width=500, height=600, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	enter_exp_lbl = tk.Label(root, text='Enter an infix expression:',
 		font='consolas', bg='#000024', fg='white')

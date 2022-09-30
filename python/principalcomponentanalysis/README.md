@@ -2,4 +2,4 @@ PCA demo
 
 Iris dataset example:
 
-![](pca.png)
+![](iris_pca.png)

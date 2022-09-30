@@ -92,14 +92,14 @@ if __name__ == '__main__':
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-			elif event.type == pg.KEYDOWN:
-				match event.key:
-					case pg.K_1: set_pattern(GLIDER_GUN)
-					case pg.K_2: set_pattern(R_PENTOMINO)
-					case pg.K_r: randomise_live_cells()
-					case pg.K_SPACE: running = not running
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					match event.key:
+						case pg.K_1: set_pattern(GLIDER_GUN)
+						case pg.K_2: set_pattern(R_PENTOMINO)
+						case pg.K_r: randomise_live_cells()
+						case pg.K_SPACE: running = not running
 
 		draw_grid()
 		if running: update_grid()

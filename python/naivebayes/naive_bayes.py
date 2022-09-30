@@ -6,30 +6,52 @@ Created 21/11/2021
 """
 
 import matplotlib.pyplot as plt
-from naive_bayes_classifier import NaiveBayesClassifier
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+from naive_bayes_classifier import NaiveBayesClassifier
 
 plt.rcParams['figure.figsize'] = (7, 5)
+pd.set_option('display.max_columns', 12)
+pd.set_option('display.width', None)
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def extract_data(path, train_test_ratio=0.8):
-	"""Split file data into train/test"""
+def load_data(path, train_test_ratio=0.8):
+	df = pd.read_csv(path)
+	print(f'\nRaw data:\n{df}')
 
-	data = np.genfromtxt(path, dtype=str, delimiter='\n')
-	# Skip header and convert to floats
-	data = [row.split() for row in data[1:]]
-	data = np.array(data).astype(float)
-	np.random.shuffle(data)
+	x, y = df.iloc[:, :-1], df.iloc[:, -1]
+	x_to_encode = x.select_dtypes(exclude=np.number).columns
+	classes = y.unique()
 
-	x, y = data[:, :-1], data[:, -1].astype(int)
+	for col in x_to_encode:
+		if len(x[col].unique()) > 2:
+			one_hot = pd.get_dummies(x[col], prefix=col)
+			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
+		else:  # Binary feature
+			x[col] = pd.get_dummies(x[col], drop_first=True)
 
-	split = int(len(data) * train_test_ratio)
+	if len(classes) > 2:
+		one_hot = pd.get_dummies(y, prefix='class')
+		y = pd.concat([y, one_hot], axis=1)
+		y = y.drop(y.columns[0], axis=1)
+	else:  # Binary class
+		y = pd.get_dummies(y, prefix='class')
+		# Ensure dummy column corresponds with 'classes'
+		drop_idx = int(y.columns[0].endswith(classes[0]))
+		y = y.drop(y.columns[drop_idx], axis=1)
 
-	x_train, y_train = x[:split], y[:split]
-	x_test, y_test = x[split:], y[split:]
+	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
+
+	x, y = x.to_numpy().astype(float), np.squeeze(y.to_numpy().astype(int))
+	if np.ndim(y) > 1:
+		y = np.argmax(y, axis=1)
+
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
 
 	return x_train, y_train, x_test, y_test
 
@@ -44,20 +66,18 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, accuracy
 
 def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
-	# axes[0] = training confusion matrix
-	# axes[1] = test confusion matrix
-	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
-	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position('bottom')
-	axes[1].xaxis.set_ticks_position('bottom')
+	_, (train, test) = plt.subplots(ncols=2, sharex=True, sharey=True)
+	train.matshow(train_conf_mat, cmap=plt.cm.plasma)
+	test.matshow(test_conf_mat, cmap=plt.cm.plasma)
+	train.xaxis.set_ticks_position('bottom')
+	test.xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
-	axes[0].set_xlabel('Predictions')
-	axes[0].set_ylabel('Actual')
-	axes[0].set_title(f'Training Confusion Matrix\nAccuracy = {train_acc:.3f}')
-	axes[1].set_title(f'Test Confusion Matrix\nAccuracy = {test_acc:.3f}')
+		train.text(x=i, y=j, s=val, ha='center', va='center')
+		test.text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	train.set_xlabel('Predictions')
+	train.set_ylabel('Actual')
+	train.set_title(f'Training Confusion Matrix\nAccuracy: {train_acc}')
+	test.set_title(f'Test Confusion Matrix\nAccuracy: {test_acc}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -72,13 +92,13 @@ if __name__ == '__main__':
 		+ '\nor W for wine dataset\n>>> ').upper()
 
 	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.txt'
-		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.txt'
-		case 'P': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.txt'
-		case 'T': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.txt'
-		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.txt'
+		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
+		case 'P': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
+		case 'T': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
+		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
 
-	x_train, y_train, x_test, y_test = extract_data(path)
+	x_train, y_train, x_test, y_test = load_data(path)
 
 	clf = NaiveBayesClassifier()
 	clf.fit(x_train, y_train)

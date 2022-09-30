@@ -2,4 +2,4 @@ Naive Bayes classifier demo
 
 Breast tumour dataset example:
 
-![](naive_bayes.png)
+![](tumour_naive_bayes.png)

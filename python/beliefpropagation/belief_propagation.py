@@ -32,6 +32,10 @@ Diagnostic (the tests a mechanic can run - observable)     |
 """
 
 import numpy as np
+import pandas as pd
+
+pd.set_option('display.max_columns', 11)
+pd.set_option('display.width', None)
 
 RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
 
@@ -225,13 +229,11 @@ def main():
 
 	# 1. Get coffee machine data
 
-	data = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\coffeeMachines.txt', dtype=str, delimiter='\n')
-	# Skip header and convert to ints
-	data = [row.split() for row in data[1:]]
-	data = np.array(data).astype(int)
+	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\coffeeMachines.csv')
+	print(f'\nRaw data:\n{df}\n')
+	data = df.to_numpy()
 
-	print('Data: {} exemplars, {} features'.format(*data.shape))
-	print('No. working machines:', data[:, nti['he']].sum())  # Works only if 'he' is true ('makes hot espresso')
+	print('No. working machines:', data[:, nti['he']].sum())  # Works only if 'he' ('makes hot espresso') is true
 	print('No. broken machines:', len(data) - data[:, nti['he']].sum())
 
 	# 2. Display RVs and their calculated probability distributions
@@ -250,7 +252,7 @@ def main():
 			# Conditional
 			print(f'{rv[1]}:')
 			for bit_permutation in generate_bit_permutations(len(indices) - 1):
-				bits = ','.join([str(i) for i in bit_permutation[1:]])
+				bits = ','.join(map(str, bit_permutation[1:]))
 				conditionals = rv[0][bit_permutation]
 				print(f'    P({event_name}|{bits}) = {conditionals}')
 

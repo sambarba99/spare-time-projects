@@ -5,6 +5,7 @@
 !.gitignore
 !*.gif
 !*.cpp
+!*.csv
 !*.h5
 !*.jpg
 !*.md

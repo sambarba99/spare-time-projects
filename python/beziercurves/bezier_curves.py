@@ -54,7 +54,7 @@ def draw_curve():
 
 		while len(control_points) > 1:
 			control_points = zip(control_points[:-1], control_points[1:])
-			control_points = [lerp(p1, p2, t) for p1, p2 in control_points]
+			control_points = [lerp(point, next_point, t) for point, next_point in control_points]
 
 		return control_points[0]
 
@@ -80,39 +80,38 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					x, y = event.pos
 
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				x, y = event.pos
+					if event.button == 1 and points:  # Left-click to drag point
+						point_distances_from_mouse = np.linalg.norm(
+							np.array(points) - np.array([x, y]),
+							axis=1
+						)
+						min_dist = min(point_distances_from_mouse)
+						if min_dist <= POINT_RADIUS:  # Mouse is on a point
+							clicked_point_idx = np.argmin(point_distances_from_mouse)
 
-				if event.button == 1 and points:  # Left-click to drag point
-					point_distances_from_mouse = np.linalg.norm(
-						np.array(points) - np.array([x, y]),
-						axis=1
-					)
-					min_dist = min(point_distances_from_mouse)
-					if min_dist <= POINT_RADIUS:  # Mouse is on a point
-						clicked_point_idx = np.argmin(point_distances_from_mouse)
+					elif event.button == 3:  # Right-click to add point
+						if len(points) == MAX_POINTS:
+							print('Max. no. points added')
+							continue
 
-				elif event.button == 3:  # Right-click to add point
-					if len(points) == MAX_POINTS:
-						print('Max. no. points added')
-						continue
-
-					# Constrain x and y
-					x = np.clip(x, POINT_RADIUS, SIZE - POINT_RADIUS)
-					y = np.clip(y, POINT_RADIUS, SIZE - POINT_RADIUS)
-					points.append([x, y])
-					draw_points_and_curve()
-
-			elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-				clicked_point_idx = None
-
-			elif event.type == pg.KEYDOWN and event.key == pg.K_r:  # Reset
-				points = []
-				scene.fill((0, 0, 0))
-				pg.display.update()
+						# Constrain x and y
+						x = np.clip(x, POINT_RADIUS, SIZE - POINT_RADIUS)
+						y = np.clip(y, POINT_RADIUS, SIZE - POINT_RADIUS)
+						points.append([x, y])
+						draw_points_and_curve()
+				case pg.MOUSEBUTTONUP:
+					if event.button == 1:
+						clicked_point_idx = None
+				case pg.KEYDOWN:
+					if event.key == pg.K_r:  # Reset
+						points = []
+						scene.fill((0, 0, 0))
+						pg.display.update()
 
 		if clicked_point_idx is not None:
 			points[clicked_point_idx] = list(pg.mouse.get_pos())

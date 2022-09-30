@@ -1,5 +1,5 @@
 """
-Demonstration of critical path analysis on this task data:
+Critical Path Analysis demo on this task data:
 
 Example: engineering project
 +------------------+------+----------+--------------+
@@ -39,7 +39,7 @@ def forward_pass(df):
 	ef = es[:]
 
 	for idx, p in enumerate(df['PREDECESSORS']):
-		if p is not None:
+		if p:
 			es[idx] = max(ef[task_code] for task_code in p)
 		ef[idx] = es[idx] + df['DURATION'][idx]
 
@@ -53,19 +53,19 @@ def backward_pass(df):
 	successors = [None] * len(df['CODE'])
 
 	for idx, p in reversed(list(enumerate(df['PREDECESSORS']))):
-		if p is not None:
+		if p:
 			for task_code in p:
-				if successors[task_code] is None:
+				if not successors[task_code]:
 					successors[task_code] = [idx]  # idx = data['CODE'][idx]
 				else:
 					successors[task_code].append(idx)  # idx = data['CODE'][idx]
 
 	for idx, arr in enumerate(successors):
-		if arr is not None:
+		if arr:
 			successors[idx] = sorted(arr)
 
 	for idx, s in reversed(list(enumerate(successors))):
-		if s is None:
+		if not s:
 			lf[idx] = max(df['EF'])
 		else:
 			lf[idx] = min(ls[task_code] for task_code in s)

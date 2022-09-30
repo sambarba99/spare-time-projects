@@ -118,44 +118,41 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					if event.button == 1:  # Left-click
+						print('Setting origin... ', end='')
+						x_axis, y_axis = event.pos
+						centre_around_origin()
+						draw()
+						print(f'origin = {calculate_origin()}')
+				case pg.KEYDOWN:
+					match event.key:
+						case pg.K_2 | pg.K_4 | pg.K_8 | pg.K_0:  # Magnify
+							if event.key == pg.K_0:
+								factor = 100
+							else:
+								# Subtract 48 to get magnification factor ('2' key id = 50)
+								factor = event.key - 48
 
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				if event.button == 1:  # Left-click
-					print('Setting origin... ', end='')
-					x_axis, y_axis = event.pos
-					centre_around_origin()
-					draw()
-					print(f'origin = {calculate_origin()}')
-
-			elif event.type == pg.KEYDOWN:
-				if event.key in (pg.K_2, pg.K_4, pg.K_8, pg.K_0):  # Magnify
-					if event.key == pg.K_0:
-						factor = 100
-					else:
-						# Subtract 48 to get magnification factor ('2' key id = 50)
-						factor = event.key - 48
-
-					print(f'Magnifying by {factor}... ', end='')
-					magnify(factor)
-					draw()
-					print('Done')
-
-				elif event.key == pg.K_t:  # Toggle axes
-					print('Toggling axes... ', end='')
-					show_axes = not show_axes
-					draw()
-					print('Done')
-
-				elif event.key == pg.K_r:  # Reset
-					print('Resetting... ', end='')
-					scale = 200
-					x_axis = x_offset = WIDTH / 2
-					y_axis = y_offset = HEIGHT / 2
-					show_axes = True
-					draw()
-					print('Done')
+							print(f'Magnifying by {factor}... ', end='')
+							magnify(factor)
+							draw()
+							print('Done')
+						case pg.K_t:  # Toggle axes
+							print('Toggling axes... ', end='')
+							show_axes = not show_axes
+							draw()
+							print('Done')
+						case pg.K_r:  # Reset
+							print('Resetting... ', end='')
+							scale = 200
+							x_axis = x_offset = WIDTH / 2
+							y_axis = y_offset = HEIGHT / 2
+							show_axes = True
+							draw()
+							print('Done')
 
 if __name__ == '__main__':
 	main()

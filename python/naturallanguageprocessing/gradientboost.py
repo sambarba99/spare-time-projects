@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 29/09/2022
 """
 
-from numpy import exp, log
+from numpy import exp, log, where
 from sklearn.tree import DecisionTreeRegressor
 
 class GradientBoost:
@@ -18,10 +18,10 @@ class GradientBoost:
 		self.max_depth = max_depth
 
 	def fit(self, x_train, y_train):
-		y_train = [0 if sentiment == -1 else 1 for sentiment in y_train]
+		y_train = where(y_train == -1, 0, 1)
 
 		# Calculate log odds
-		pos_odds = y_train.count(1) / y_train.count(0)
+		pos_odds = (y_train == 1).sum() / (y_train == 0).sum()
 		log_odds = log(pos_odds)
 		self.initial_log_odd = log_odds
 
@@ -49,8 +49,7 @@ class GradientBoost:
 			predictions = self.trees[tree_idx].predict(x_train)
 
 			# Assign each datapoint to leaf
-			leaves = {}
-			leaf_vals = {}
+			leaves, leaf_vals = {}, {}
 			for idx, pred in enumerate(predictions):
 				leaf_list = leaves.get(pred, [])
 				leaf_list.append(idx)
@@ -106,5 +105,5 @@ class GradientBoost:
 
 		# Convert log odds to probabilities
 		probs = [exp(log_odd) / (1 + exp(log_odd)) for log_odd in log_odds]
-
-		return [1 if prob > 0.5 else -1 for prob in probs]
+		class_predictions = where(probs > 0.5, 1, -1)
+		return class_predictions

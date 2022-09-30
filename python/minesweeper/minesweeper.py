@@ -187,16 +187,16 @@ if __name__ == '__main__':
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-			elif event.type == pg.MOUSEBUTTONDOWN:
-				if game_over:  # Reset
-					setup_game()
-				else:
-					x, y = event.pos
-					y = (y - GRID_OFFSET) // CELL_SIZE
-					x = (x - GRID_OFFSET) // CELL_SIZE
-					if y in range(ROWS) and x in range(COLS):
-						minefield[y][x].handle_mouse_click(event.button)
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					if game_over:  # Reset
+						setup_game()
+					else:
+						x, y = event.pos
+						y = (y - GRID_OFFSET) // CELL_SIZE
+						x = (x - GRID_OFFSET) // CELL_SIZE
+						if y in range(ROWS) and x in range(COLS):
+							minefield[y][x].handle_mouse_click(event.button)
 
-				draw_grid()
+					draw_grid()

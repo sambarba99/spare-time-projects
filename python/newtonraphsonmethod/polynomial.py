@@ -55,7 +55,7 @@ class Polynomial:
 		def expr(degree):
 			if degree == 0: return ''
 			if degree == 1: return 'x'
-			return 'x^' + str(degree)
+			return f'x^{degree}'
 
 		degree = len(self.coefficients) - 1
 		result = ''
@@ -64,7 +64,7 @@ class Polynomial:
 			c = self.coefficients[i]
 
 			if abs(c) == 1 and i < degree:
-				result += (' +' if c > 0 else ' -')
+				result += ' +' if c > 0 else ' -'
 				if i > 0: result += ' '
 				result += expr(degree - i)
 			elif c != 0:
@@ -73,7 +73,7 @@ class Polynomial:
 				if c > 0: result += ' + '
 				else: result += ' -' if i == 0 else ' - '
 
-				result += str(abs(c)) + expr(degree - i)
+				result += f'{abs(c)}{expr(degree - i)}'
 
 		return result.lstrip(' + ')  # Remove leading ' + '
 

@@ -65,8 +65,8 @@ class LogisticRegressor:
 	def predict(self, inputs):
 		linear_model = inputs.dot(self.weights) + self.bias
 		probs = self.__sigmoid(linear_model)
-		class_predictions = [1 if i > 0.5 else 0 for i in probs]
-		return np.array(class_predictions)
+		class_predictions = np.where(probs > 0.5, 1, 0)
+		return class_predictions
 
 	def __sigmoid(self, x):
 		return 1 / (1 + np.exp(-x))

@@ -7,6 +7,9 @@ Created 22/11/2021
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
 from svm import SVM
 
 plt.rcParams['figure.figsize'] = (7, 6)
@@ -15,21 +18,12 @@ plt.rcParams['figure.figsize'] = (7, 6)
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def extract_data(train_test_ratio=0.8):
-	"""Split file data into train/test"""
-
-	data = np.genfromtxt(r'C:\Users\Sam Barba\Desktop\Programs\datasets\svmData.txt', dtype=str, delimiter='\n')
-	# Skip header and convert to floats
-	data = [row.split() for row in data[1:]]
-	data = np.array(data).astype(float)
-	np.random.shuffle(data)
-
+def load_data(train_test_ratio=0.8):
+	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\svmData.csv')
+	data = df.to_numpy()
 	x, y = data[:, :-1], data[:, -1].astype(int)
 
-	split = int(len(data) * train_test_ratio)
-
-	x_train, y_train = x[:split], y[:split]
-	x_test, y_test = x[split:], y[split:]
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
 
 	return x_train, y_train, x_test, y_test
 
@@ -37,8 +31,7 @@ def confusion_matrix(predictions, actual):
 	predictions[predictions == -1] = 0
 	actual[actual == -1] = 0
 
-	n_classes = len(np.unique(actual))
-	conf_mat = np.zeros((n_classes, n_classes)).astype(int)
+	conf_mat = np.zeros((2, 2)).astype(int)
 
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
@@ -54,20 +47,18 @@ def confusion_matrix(predictions, actual):
 	return conf_mat, f1_score
 
 def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
-	# axes[0] = training confusion matrix
-	# axes[1] = test confusion matrix
-	_, axes = plt.subplots(ncols=2, sharex=True, sharey=True)
-	axes[0].matshow(train_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[1].matshow(test_conf_mat, cmap=plt.cm.Blues, alpha=0.7)
-	axes[0].xaxis.set_ticks_position('bottom')
-	axes[1].xaxis.set_ticks_position('bottom')
+	_, (train, test) = plt.subplots(ncols=2, sharex=True, sharey=True)
+	train.matshow(train_conf_mat, cmap=plt.cm.plasma)
+	test.matshow(test_conf_mat, cmap=plt.cm.plasma)
+	train.xaxis.set_ticks_position('bottom')
+	test.xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(train_conf_mat):
-		axes[0].text(x=i, y=j, s=val, ha='center', va='center')
-		axes[1].text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
-	axes[0].set_xlabel('Predictions')
-	axes[0].set_ylabel('Actual')
-	axes[0].set_title(f'Training Confusion Matrix\nF1 score = {train_acc:.3f}')
-	axes[1].set_title(f'Test Confusion Matrix\nF1 score = {test_acc:.3f}')
+		train.text(x=i, y=j, s=val, ha='center', va='center')
+		test.text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
+	train.set_xlabel('Predictions')
+	train.set_ylabel('Actual')
+	train.set_title(f'Training Confusion Matrix\nAccuracy: {train_acc}')
+	test.set_title(f'Test Confusion Matrix\nAccuracy: {test_acc}')
 	plt.show()
 
 def get_hyperplane_value(x, weights, bias, offset):
@@ -78,7 +69,7 @@ def get_hyperplane_value(x, weights, bias, offset):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	x_train, y_train, x_test, y_test = extract_data()
+	x_train, y_train, x_test, y_test = load_data()
 
 	clf = SVM()
 	clf.fit(x_train, y_train)

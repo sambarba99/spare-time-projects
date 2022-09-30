@@ -1,5 +1,5 @@
 Linear regression demo
 
-Boston housing dataset example:
+Car value dataset example:
 
-![](linear_regression.png)
+![](car_value_lr.png)

@@ -39,6 +39,7 @@ if __name__ == '__main__':
 	root.title('Apollonian Gasket Drawing')
 	root.config(width=400, height=330, bg='#000024')
 	root.eval('tk::PlaceWindow . center')
+	root.resizable(False, False)
 
 	select_iters_lbl = tk.Label(root, text='Select no. steps:', font='consolas', bg='#000024', fg='white')
 	slider_steps = tk.Scale(root, from_=0, to=6, resolution=1, orient='horizontal', font='consolas', command=lambda _: generate())

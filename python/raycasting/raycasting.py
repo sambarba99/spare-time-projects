@@ -132,30 +132,28 @@ def main():
 
 	while True:
 		for event in pg.event.get():
-			if event.type == pg.QUIT:
-				sys.exit()
-
-			elif event.type == pg.KEYDOWN:
-				if event.key == pg.K_r:  # Reset
-					player_x = player_y = 2
-					player_heading = np.deg2rad(45)
-					generate_walls()
-				else:
-					key_pressed = event.key
-
-			elif event.type == pg.KEYUP:
-				key_pressed = None
+			match event.type:
+				case pg.QUIT: sys.exit()
+				case pg.KEYDOWN:
+					if event.key == pg.K_r:  # Reset
+						player_x = player_y = 2
+						player_heading = np.deg2rad(45)
+						generate_walls()
+					else:
+						key_pressed = event.key
+				case pg.KEYUP:
+					key_pressed = None
 
 		match key_pressed:
 			case pg.K_w:  # Move forwards
-				dx = 4 * np.cos(player_heading)
-				dy = 4 * np.sin(player_heading)
+				dx = 3 * np.cos(player_heading)
+				dy = 3 * np.sin(player_heading)
 				if 2 <= player_x + dx < WIDTH // 2 - 2 and 2 <= player_y + dy < HEIGHT - 2:
 					player_x += dx
 					player_y += dy
 			case pg.K_s:  # Move backwards
-				dx = 4 * np.cos(player_heading)
-				dy = 4 * np.sin(player_heading)
+				dx = 3 * np.cos(player_heading)
+				dy = 3 * np.sin(player_heading)
 				if 2 <= player_x - dx < WIDTH // 2 - 2 and 2 <= player_y - dy < HEIGHT - 2:
 					player_x -= dx
 					player_y -= dy

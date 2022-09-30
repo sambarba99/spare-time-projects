@@ -25,7 +25,7 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	plt.scatter(x_train, y_train, color='black', zorder=2, label='Training samples')
 	plt.plot(x_test, approx_data, color='#0080ff', zorder=3, label='Prediction')
 
-	if not (lower_bounds is None or upper_bounds is None):
+	if lower_bounds is not None and upper_bounds is not None:
 		plt.fill_between(x_test.flatten(), lower_bounds, upper_bounds, color='#0080ff', alpha=0.2,
 			zorder=0, label='Error')
 		plot_lim1 = np.min(lower_bounds) - 0.2

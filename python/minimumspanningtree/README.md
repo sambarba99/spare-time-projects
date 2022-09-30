@@ -1,3 +1,3 @@
 Minimum spanning tree demo
 
-![](mst.gif)
+![](mst_animated.gif)

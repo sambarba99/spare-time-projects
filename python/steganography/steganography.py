@@ -9,7 +9,7 @@ from math import ceil
 from PIL import Image
 import random
 
-CHARS = [chr(i) for i in range(65, 91)] + [chr(i) for i in range(97, 123)] + [str(i) for i in range(10)]
+CHARS = [chr(i) for i in range(65, 91)] + [chr(i) for i in range(97, 123)] + list(map(str, range(10)))
 IMG = Image.open('img.jpg')
 WIDTH, HEIGHT = IMG.size
 
@@ -75,7 +75,7 @@ def get_message_from_image(steg_img):
 	# Least significant bit of each RGB value of each pixel
 	pixels = steg_img.getdata()
 	binary = [(pixels[y][x] & 1) for y in range(len(pixels)) for x in range(3)]
-	binary = [str(b) for b in binary]
+	binary = list(map(str, binary))
 
 	chunks = [binary[i:i + 8] for i in range(0, len(binary), 8)]
 	msg = [chr(int(''.join(c), 2)) for c in chunks]

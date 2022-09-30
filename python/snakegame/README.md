@@ -1,3 +1,0 @@
-Snake game
-
-![](snake.gif)
