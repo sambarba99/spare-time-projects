@@ -40,6 +40,8 @@ def plot_tree(tree, features):
 	for i in range(tree.get_depth() + 1):
 		level = get_level(tree, i)
 		for idx, node in enumerate(level):
+			# GraphViz requires unique labels, so do this
+			# E.g. a tree may have multiple 'CRIM <= 0.58' nodes
 			level[idx] = f'{n}--{node}'
 			n += 1
 		levels.append(level)
@@ -54,7 +56,7 @@ def plot_tree(tree, features):
 
 	for level in levels:
 		for node in level:
-			# Colour feature splits blue, leaf values green
+			# Colour feature split nodes blue, value (leaf) nodes green
 			colour = '#80c0ff' if '<=' in node else '#30e090'
 			g.node(node, label=node.split('--')[-1], color=colour)
 

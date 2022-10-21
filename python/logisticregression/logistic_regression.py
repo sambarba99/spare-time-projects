@@ -103,13 +103,15 @@ def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	choice = input('Enter B to use breast tumour dataset,'
-		+ '\nP for pulsar dataset,'
-		+ '\nor T for Titanic dataset\n>>> ').upper()
+	choice = input('Enter 1 to use banknote dataset,'
+		+ '\n2 for breast tumour dataset,'
+		+ '\n3 for pulsar dataset,'
+		+ '\nor 4 for Titanic dataset\n>>> ')
 
 	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case 'P': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
+		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
+		case '2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case '3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
 		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
 
 	features, classes, x_train, y_train, x_test, y_test, data = load_data(path)

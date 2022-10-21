@@ -80,13 +80,15 @@ def plot_confusion_matrix(k, conf_mat, f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	choice = input('Enter B to use breast tumour dataset,'
-		+ '\nI for iris dataset,'
-		+ '\nor W for wine dataset\n>>> ').upper()
+	choice = input('Enter 1 to use banknote dataset,'
+		+ '\n2 for breast tumour dataset,'
+		+ '\n3 for iris dataset,'
+		+ '\nor 4 for wine dataset\n>>> ')
 
 	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
+		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
+		case '2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case '3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
 		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
 
 	x, y = load_data(path)
@@ -101,10 +103,12 @@ def main():
 		predictions = [clf.predict(i) for i in x]
 		conf_mat, f1 = confusion_matrix(predictions, y)
 
+		print(f'F1 score with k = {k}: {f1}')
+
 		if f1 > best_f1:
 			best_f1, best_k, best_conf_mat = f1, k, conf_mat
-
-		print(f'F1 score with k = {k}: {f1}')
+		else:
+			break  # No improvement, so stop
 
 	plot_confusion_matrix(best_k, best_conf_mat, best_f1)
 

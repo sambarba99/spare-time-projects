@@ -12,7 +12,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
 import matplotlib.pyplot as plt
-from neural_net_plotter import plot_model
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
@@ -20,6 +19,8 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.random import set_seed
+
+from neural_net_plotter import plot_model
 
 plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
@@ -144,9 +145,10 @@ def main():
 
 	match task_choice:
 		case 'B':
-			dataset_choice = input('Enter B for breast tumour dataset,'
-				+ '\nP for pulsar dataset,'
-				+ '\nor T for Titanic dataset\n>>> ').upper()
+			dataset_choice = input('Enter 1 for banknote dataset,'
+				+ '\n2 for breast tumour dataset,'
+				+ '\n3 for pulsar dataset,'
+				+ '\nor 4 for Titanic dataset\n>>> ')
 		case 'M':
 			dataset_choice = input('Enter I for iris dataset,'
 				+ '\nor W for wine dataset\n>>> ').upper()
@@ -159,9 +161,10 @@ def main():
 			return
 
 	match task_choice + dataset_choice:
-		case 'BB': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case 'BP': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
-		case 'BT': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
+		case 'B1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
+		case 'B2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case 'B3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
+		case 'B4': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
 		case 'MI': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
 		case 'MW': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
 		case 'RB': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv'
@@ -182,13 +185,13 @@ def main():
 	n_features = x_train.shape[1]
 
 	match task_choice + dataset_choice:
-		case 'BB' | 'BP':  # Breast tumour or pulsar dataset
+		case 'B1' | 'B2' | 'B3':  # Banknote, breast tumour, or pulsar dataset
 			model = Sequential([
 				Dense(units=8, input_shape=(n_features,), activation='relu'),
 				Dense(units=1, input_shape=(n_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-		case 'BT':  # Titanic dataset
+		case 'B4':  # Titanic dataset
 			model = Sequential([
 				Dense(units=8, input_shape=(n_features,), activation='relu'),
 				Dropout(0.1),

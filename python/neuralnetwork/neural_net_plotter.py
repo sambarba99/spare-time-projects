@@ -10,20 +10,16 @@ from graphviz import Digraph
 MAX_LAYER_NODES = 8
 
 def plot_model(model):
-	# These store layer names and sizes
-	input_layer = output_layer = None
-	hidden_layers = []
-
-	for idx, layer in enumerate(model.layers):
-		name = layer.__class__.__name__
-
-		if idx == 0:
-			input_layer = (name, layer.input_shape[-1])
-			hidden_layers.append([model.layers[idx + 1].__class__.__name__, layer.output_shape[-1]])
-		elif idx == len(model.layers) - 1:
-			output_layer = (name, layer.output_shape[-1])
-		else:
-			hidden_layers.append((name, layer.output_shape[-1]))
+	# Store layer names and sizes
+	layers = model.layers
+	layers.insert(0, layers[0])
+	layers = [
+		(None, l.input_shape[-1]) if idx == 0 else (l.__class__.__name__, l.output_shape[-1])
+		for idx, l in enumerate(layers)
+	]
+	input_layer = layers[0]
+	hidden_layers = layers[1:-1]
+	output_layer = layers[-1]
 
 	# ----- Set up global attributes ----- #
 
@@ -36,12 +32,12 @@ def plot_model(model):
 
 	# Input layer
 	with g.subgraph(name='cluster_input') as c:
-		name, size = input_layer[0].lower(), input_layer[1]
+		_, size = input_layer
 		size_limit = min(MAX_LAYER_NODES, size)
 		if size > size_limit:
-			c.attr(label=f'Input layer ({name}) (+ {size - size_limit})')
+			c.attr(label=f'Input layer (+ {size - size_limit})')
 		else:
-			c.attr(label=f'Input layer ({name})')
+			c.attr(label=f'Input layer')
 		c.attr(color='white')
 		c.node_attr.update(fillcolor='#80c0ff')
 		for i in range(size_limit):
@@ -50,7 +46,7 @@ def plot_model(model):
 	# Hidden layers
 	for layer_idx, layer in enumerate(hidden_layers):
 		with g.subgraph(name=f'cluster_hidden_{layer_idx + 1}') as c:
-			name, size = layer[0].lower(), layer[1]
+			name, size = layer
 			size_limit = min(MAX_LAYER_NODES, size)
 			if size > size_limit:
 				c.attr(label=f'Hidden layer {layer_idx + 1} ({name}) (+ {size - size_limit})')
@@ -63,7 +59,7 @@ def plot_model(model):
 
 	# Output layer
 	with g.subgraph(name='cluster_output') as c:
-		name, size = output_layer[0].lower(), output_layer[1]
+		name, size = output_layer
 		size_limit = min(MAX_LAYER_NODES, size)
 		if size > size_limit:
 			c.attr(label=f'Output layer ({name}) (+ {size - size_limit})')
@@ -100,5 +96,5 @@ def plot_model(model):
 	g.format = 'png'
 	g.render('neural_net', view=True, cleanup=True)
 
-	with open('neural_net_graph_src.gz', 'w') as file:
-		file.write(g.source)
+	# with open('neural_net_graph_src.gz', 'w') as file:
+	# 	file.write(g.source)

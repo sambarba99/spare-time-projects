@@ -116,17 +116,19 @@ def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
-	choice = input('Enter B to use breast tumour dataset,'
-		+ '\nI for iris dataset,'
-		+ '\nP for pulsar dataset,'
-		+ '\nT for Titanic dataset,'
-		+ '\nor W for wine dataset\n>>> ').upper()
+	choice = input('Enter 1 to use banknote dataset,'
+		+ '\n2 for breast tumour dataset,'
+		+ '\n3 for iris dataset,'
+		+ '\n4 for pulsar dataset,'
+		+ '\n5 for Titanic dataset,'
+		+ '\nor 6 for wine dataset\n>>> ')
 
 	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case 'I': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
-		case 'P': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
-		case 'T': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
+		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
+		case '2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case '3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
+		case '4': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
+		case '5': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
 		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
 
 	features, classes, x_train, y_train, x_test, y_test = load_data(path)

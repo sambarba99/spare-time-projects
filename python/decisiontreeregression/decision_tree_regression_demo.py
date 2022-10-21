@@ -98,7 +98,7 @@ if __name__ == '__main__':
 		for max_depth in [0, 1, 6]:
 			tree = DecisionTree(x_train, y_train, max_depth)
 			pred = [tree.predict([xi]) for xi in x]
-			plt.plot(x, pred, label=f'Tree depth {max_depth}')
+			plt.plot(x, pred, label=f'Tree depth {tree.get_depth()}')
 		plt.title('Sine wave prediction with different tree depths')
 		plt.legend()
 		plt.show()
