@@ -8,6 +8,7 @@ Created 03/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 from decision_tree import DecisionTree
@@ -64,17 +65,17 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 	# e.g. for iris dataset, classifying them all as 0 (setosa) = 33% accuracy
 	max_depth = 0
 	best_tree = None
-	best_mean_acc = -1
+	best_mean_f1 = -1
 
 	while True:
 		tree = DecisionTree(x_train, y_train, max_depth)
-		train_acc = tree.evaluate(x_train, y_train)
-		test_acc = tree.evaluate(x_test, y_test)
-		mean_acc = (train_acc + test_acc) / 2
-		print(f'max_depth {max_depth}: training accuracy = {train_acc} | test accuracy = {test_acc} | mean = {mean_acc}')
+		train_f1 = tree.evaluate(x_train, y_train)
+		test_f1 = tree.evaluate(x_test, y_test)
+		mean_f1 = (train_f1 + test_f1) / 2
+		print(f'max_depth {max_depth}: training F1 score = {train_f1} | test F1 score = {test_f1} | mean = {mean_f1}')
 
-		if mean_acc > best_mean_acc:
-			best_tree, best_mean_acc = tree, mean_acc
+		if mean_f1 > best_mean_f1:
+			best_tree, best_mean_f1 = tree, mean_f1
 		else:
 			break  # No improvement, so stop
 
@@ -91,10 +92,11 @@ def confusion_matrix(predictions, actual):
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
 
-	accuracy = np.trace(conf_mat) / conf_mat.sum()
-	return conf_mat, accuracy
+	f1 = f1_score(actual, predictions, average='binary' if n_classes == 2 else 'weighted')
 
-def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
+	return conf_mat, f1
+
+def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 	_, (train, test) = plt.subplots(ncols=2, sharex=True, sharey=True)
 	train.matshow(train_conf_mat, cmap=plt.cm.plasma)
 	test.matshow(test_conf_mat, cmap=plt.cm.plasma)
@@ -105,8 +107,8 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 		test.text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
 	train.set_xlabel('Predictions')
 	train.set_ylabel('Actual')
-	train.set_title(f'Training Confusion Matrix\nAccuracy: {train_acc}')
-	test.set_title(f'Test Confusion Matrix\nAccuracy: {test_acc}')
+	train.set_title(f'Training Confusion Matrix\nF1 score: {train_f1}')
+	test.set_title(f'Test Confusion Matrix\nF1 score: {test_f1}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -139,7 +141,7 @@ if __name__ == '__main__':
 
 	train_predictions = [tree.predict(i) for i in x_train]
 	test_predictions = [tree.predict(i) for i in x_test]
-	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	train_conf_mat, train_f1 = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_f1 = confusion_matrix(test_predictions, y_test)
 
-	plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc)
+	plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1)

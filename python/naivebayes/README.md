@@ -1,5 +1,5 @@
 Naive Bayes classifier demo
 
-Breast tumour dataset example:
+Iris dataset example:
 
-![](tumour_naive_bayes.png)
+![](iris_naive_bayes.png)

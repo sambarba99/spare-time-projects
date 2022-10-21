@@ -8,6 +8,7 @@ Created 11/09/2021
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import f1_score
 
 from knn_classifier import KNN
 
@@ -59,10 +60,11 @@ def confusion_matrix(predictions, actual):
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
 
-	accuracy = np.trace(conf_mat) / conf_mat.sum()
-	return conf_mat, accuracy
+	f1 = f1_score(actual, predictions, average='binary' if n_classes == 2 else 'weighted')
 
-def plot_confusion_matrix(k, conf_mat, accuracy):
+	return conf_mat, f1
+
+def plot_confusion_matrix(k, conf_mat, f1):
 	ax = plt.subplot()
 	ax.matshow(conf_mat, cmap=plt.cm.plasma)
 	ax.xaxis.set_ticks_position('bottom')
@@ -70,7 +72,7 @@ def plot_confusion_matrix(k, conf_mat, accuracy):
 		ax.text(x=i, y=j, s=val, ha='center', va='center')
 	plt.xlabel('Predictions')
 	plt.ylabel('Actual')
-	plt.title(f'Confusion Matrix (optimal k = {k})\nAccuracy: {accuracy}')
+	plt.title(f'Confusion Matrix (optimal k = {k})\nF1 score: {f1}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -89,7 +91,7 @@ def main():
 
 	x, y = load_data(path)
 
-	best_acc = best_k = -1
+	best_f1 = best_k = -1
 	best_conf_mat = None
 
 	for k in range(3, int(len(x) ** 0.5) + 1, 2):
@@ -97,14 +99,14 @@ def main():
 		clf.fit(x, y)
 
 		predictions = [clf.predict(i) for i in x]
-		conf_mat, acc = confusion_matrix(predictions, y)
+		conf_mat, f1 = confusion_matrix(predictions, y)
 
-		if acc > best_acc:
-			best_acc, best_k, best_conf_mat = acc, k, conf_mat
+		if f1 > best_f1:
+			best_f1, best_k, best_conf_mat = f1, k, conf_mat
 
-		print(f'Accuracy with k = {k}: {acc}')
+		print(f'F1 score with k = {k}: {f1}')
 
-	plot_confusion_matrix(best_k, best_conf_mat, best_acc)
+	plot_confusion_matrix(best_k, best_conf_mat, best_f1)
 
 if __name__ == '__main__':
 	main()

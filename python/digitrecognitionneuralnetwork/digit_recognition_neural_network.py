@@ -15,6 +15,7 @@ from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.datasets import mnist
@@ -75,10 +76,11 @@ def confusion_matrix(predictions, actual):
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
 
-	accuracy = np.trace(conf_mat) / conf_mat.sum()
-	return conf_mat, accuracy
+	f1 = f1_score(predictions, actual, average='weighted')
 
-def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
+	return conf_mat, f1
+
+def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 	_, (train, test) = plt.subplots(ncols=2, sharex=True, sharey=True)
 	train.matshow(train_conf_mat, cmap=plt.cm.plasma)
 	test.matshow(test_conf_mat, cmap=plt.cm.plasma)
@@ -91,8 +93,8 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 		test.text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
 	train.set_xlabel('Predictions')
 	train.set_ylabel('Actual')
-	train.set_title(f'Training Confusion Matrix\nAccuracy: {train_acc}')
-	test.set_title(f'Test Confusion Matrix\nAccuracy: {test_acc}')
+	train.set_title(f'Training Confusion Matrix\nF1 score: {train_f1}')
+	test.set_title(f'Test Confusion Matrix\nF1 score: {test_f1}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -179,10 +181,10 @@ def main():
 
 	train_predictions = model.predict(x_train)
 	test_predictions = model.predict(x_test)
-	train_conf_mat, train_acc = confusion_matrix(train_predictions, y_train)
-	test_conf_mat, test_acc = confusion_matrix(test_predictions, y_test)
+	train_conf_mat, train_f1 = confusion_matrix(train_predictions, y_train)
+	test_conf_mat, test_f1 = confusion_matrix(test_predictions, y_test)
 
-	plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc)
+	plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1)
 
 	# User draws a digit to predict
 

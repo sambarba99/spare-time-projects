@@ -8,6 +8,7 @@ Created 23/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 from perceptron_classifier import PerceptronClf
@@ -34,17 +35,11 @@ def confusion_matrix(predictions, actual):
 	for a, p in zip(actual, predictions):
 		conf_mat[a][p] += 1
 
-	# True positive, false positive, false negative
-	tp = conf_mat[1][1]
-	fp = conf_mat[0][1]
-	fn = conf_mat[1][0]
-	precision = tp / (tp + fp)
-	recall = tp / (tp + fn)
-	f1_score = 2 * (precision * recall) / (precision + recall)
+	f1 = f1_score(actual, predictions)
 
-	return conf_mat, f1_score
+	return conf_mat, f1
 
-def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
+def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 	_, (train, test) = plt.subplots(ncols=2, sharex=True, sharey=True)
 	train.matshow(train_conf_mat, cmap=plt.cm.plasma)
 	test.matshow(test_conf_mat, cmap=plt.cm.plasma)
@@ -55,8 +50,8 @@ def plot_confusion_matrices(train_conf_mat, train_acc, test_conf_mat, test_acc):
 		test.text(x=i, y=j, s=test_conf_mat[j][i], ha='center', va='center')
 	train.set_xlabel('Predictions')
 	train.set_ylabel('Actual')
-	train.set_title(f'Training Confusion Matrix\nAccuracy: {train_acc}')
-	test.set_title(f'Test Confusion Matrix\nAccuracy: {test_acc}')
+	train.set_title(f'Training Confusion Matrix\nF1 score: {train_f1}')
+	test.set_title(f'Test Confusion Matrix\nF1 score: {test_f1}')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #

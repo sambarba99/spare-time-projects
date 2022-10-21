@@ -14,7 +14,7 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 from gradientboost import GradientBoost
@@ -74,10 +74,10 @@ if __name__ == '__main__':
 	svm = SVMClassifier()
 	svm.fit(x_train, y_train)
 	y_pred = svm.predict(x_test)
-	print(f'\nSVM accuracy: {accuracy_score(y_test, y_pred)}\n')
+	print(f'\nSVM F1 score: {f1_score(y_test, y_pred)}\n')
 
 	# Test boosting classifier
 	gb = GradientBoost(learning_rate=0.5, n_trees=50, max_depth=2)
 	gb.fit(x_train, y_train)
 	y_pred = gb.predict(x_test)
-	print('\n\nBoosting accuracy:', accuracy_score(y_test, y_pred))
+	print('\n\nBoosting F1 score:', f1_score(y_test, y_pred))

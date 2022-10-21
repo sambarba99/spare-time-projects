@@ -6,7 +6,7 @@ Created 01/10/2022
 """
 
 import numpy as np
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 class DecisionTree:
 	def __init__(self, x, y, max_depth):
@@ -101,7 +101,9 @@ class DecisionTree:
 		predictions = np.array([self.predict(sample) for sample in x])
 		if np.ndim(y) > 1:
 			y = np.argmax(y, axis=1)
-		return accuracy_score(y, predictions)
+		n_classes = len(np.unique(y))
+
+		return f1_score(y, predictions, average='binary' if n_classes == 2 else 'weighted')
 
 	def get_depth(self):
 		if self.is_leaf:
