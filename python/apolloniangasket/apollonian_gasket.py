@@ -5,9 +5,11 @@ Author: Sam Barba
 Created 23/09/2022
 """
 
-from generation import ApollonianGasketGenerator
-import matplotlib.pyplot as plt
 import tkinter as tk
+
+import matplotlib.pyplot as plt
+
+from generation import ApollonianGasketGenerator
 
 plt.rcParams['figure.figsize'] = (7, 7)
 

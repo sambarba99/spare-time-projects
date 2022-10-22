@@ -11,10 +11,12 @@ A/S: +/- max steering force
 R: reset parameter values
 """
 
-from boid import Boid
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
+
+from boid import Boid
 
 # Simulation constants
 WIDTH, HEIGHT = 1500, 900

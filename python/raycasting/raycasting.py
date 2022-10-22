@@ -9,9 +9,10 @@ WASD: move around
 R: reset
 """
 
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 # Half of screen is for bird's-eye view, other half for 3D POV
 WIDTH, HEIGHT = 1442, 721

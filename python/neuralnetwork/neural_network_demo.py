@@ -11,6 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
+from keras.utils import vis_utils
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ def load_classification_data(path):
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
-	classes = y.unique()
+	classes = sorted(y.unique())
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -50,13 +51,7 @@ def load_classification_data(path):
 		y = pd.concat([y, one_hot], axis=1)
 		y = y.drop(y.columns[0], axis=1)
 	else:  # Binary class
-		y = pd.get_dummies(y, prefix='class')
-		# Ensure dummy column corresponds with 'classes'
-		drop_idx = int(y.columns[0].endswith(classes[0]))
-		y = y.drop(y.columns[drop_idx], axis=1)
-		if y.iloc[0][0] == 1:
-			# classes[0] = no/false/0
-			classes = classes[::-1]
+		y = pd.get_dummies(y, prefix='class', drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
@@ -187,54 +182,55 @@ def main():
 	match task_choice + dataset_choice:
 		case 'B1' | 'B2' | 'B3':  # Banknote, breast tumour, or pulsar dataset
 			model = Sequential([
-				Dense(units=8, input_shape=(n_features,), activation='relu'),
-				Dense(units=1, input_shape=(n_features,), activation='sigmoid')
+				Dense(8, input_shape=(n_features,), activation='relu'),
+				Dense(1, input_shape=(n_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 		case 'B4':  # Titanic dataset
 			model = Sequential([
-				Dense(units=8, input_shape=(n_features,), activation='relu'),
+				Dense(8, input_shape=(n_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(units=1, input_shape=(n_features,), activation='sigmoid')
+				Dense(1, input_shape=(n_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 		case 'MI':  # Iris dataset
 			model = Sequential([
-				Dense(units=64, input_shape=(n_features,), activation='relu'),
-				Dense(units=64, input_shape=(n_features,), activation='relu'),
-				Dense(units=len(classes), input_shape=(n_features,), activation='softmax')
+				Dense(64, input_shape=(n_features,), activation='relu'),
+				Dense(64, input_shape=(n_features,), activation='relu'),
+				Dense(len(classes), input_shape=(n_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 		case 'MW':  # Wine dataset
 			model = Sequential([
-				Dense(units=16, input_shape=(n_features,), activation='relu'),
-				Dense(units=len(classes), input_shape=(n_features,), activation='softmax')
+				Dense(16, input_shape=(n_features,), activation='relu'),
+				Dense(len(classes), input_shape=(n_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 		case 'RB':  # Boston housing dataset
 			model = Sequential([
-				Dense(units=256, input_shape=(n_features,), activation='relu'),
+				Dense(256, input_shape=(n_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(units=1, input_shape=(n_features,), activation='linear')
+				Dense(1, input_shape=(n_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
 		case 'RC':  # Car value dataset
 			model = Sequential([
-				Dense(units=256, input_shape=(n_features,), activation='relu'),
-				Dense(units=256, input_shape=(n_features,), activation='relu'),
-				Dense(units=1, input_shape=(n_features,), activation='linear')
+				Dense(256, input_shape=(n_features,), activation='relu'),
+				Dense(256, input_shape=(n_features,), activation='relu'),
+				Dense(1, input_shape=(n_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
 		case _:  # Medical insurance dataset
 			model = Sequential([
-				Dense(units=4096, input_shape=(n_features,), activation='relu'),
-				Dense(units=1, input_shape=(n_features,), activation='linear')
+				Dense(4096, input_shape=(n_features,), activation='relu'),
+				Dense(1, input_shape=(n_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
 
 	model.build(input_shape=(n_features,))
 	model.summary()
 	plot_model(model)
+	vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
 	# ----- Training ----- #
 
@@ -261,10 +257,13 @@ def main():
 		ax_accuracy.plot(history.history['val_accuracy'], label='Validation accuracy')
 		ax_accuracy.set_xlabel('Epoch')
 		ax_accuracy.set_ylabel('Accuracy')
-		ax_loss.set_ylabel('Categorical cross-entropy loss')
+		if task_choice == 'B':
+			ax_loss.set_ylabel('Binary\ncross-entropy')
+		else:
+			ax_loss.set_ylabel('Categorical\ncross-entropy')
 		ax_loss.legend()
 		ax_accuracy.legend()
-		plt.title('Loss and accuracy during training', y=2.24)
+		plt.suptitle('Loss and accuracy during training', y=0.95)
 	else:
 		plt.plot(history.history['loss'], label='Training MSE')
 		plt.plot(history.history['val_loss'], label='Validation MSE')

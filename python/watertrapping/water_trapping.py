@@ -45,5 +45,5 @@ def trap(heights):
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
-	wall_heights = np.random.randint(0, 6, size=8)
+	wall_heights = np.random.randint(0, 6, size=10)
 	trap(wall_heights)

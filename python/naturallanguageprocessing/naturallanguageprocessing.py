@@ -8,11 +8,12 @@ Author: Sam Barba
 Created 29/09/2022
 """
 
+import re
+
 import nltk
 from nltk.stem import LancasterStemmer
 from nltk.tokenize import word_tokenize
 import numpy as np
-import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split

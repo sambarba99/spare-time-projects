@@ -11,9 +11,10 @@ R: reset and randomise
 Space: play/pause
 """
 
-import pygame as pg
 import random
 import sys
+
+import pygame as pg
 
 ROWS, COLS = 140, 240
 CELL_SIZE = 7

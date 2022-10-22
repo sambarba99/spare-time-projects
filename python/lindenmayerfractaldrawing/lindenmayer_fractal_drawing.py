@@ -8,9 +8,10 @@ Controls:
 Click to cycle through drawings
 """
 
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 # Below are rules that generate interesting geometry
 # A,B: move forward

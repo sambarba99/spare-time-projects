@@ -9,9 +9,10 @@ Left-click: add a vertex
 Right-click: reset graph
 """
 
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 SIZE = 600
 FPS = 20

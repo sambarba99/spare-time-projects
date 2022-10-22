@@ -6,6 +6,7 @@ Created 23/05/2022
 """
 
 import numpy as np
+
 from vertex_graph import GraphVertex
 
 class GraphGen:

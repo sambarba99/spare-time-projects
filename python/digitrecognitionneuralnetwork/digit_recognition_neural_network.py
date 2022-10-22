@@ -52,13 +52,13 @@ def build_model():
 	model = Sequential(
 		layers=[
 			Input(shape=INPUT_SHAPE),
-			Conv2D(filters=32, kernel_size=(3, 3), activation='relu'),
-			MaxPooling2D(pool_size=(2, 2)),
-			Conv2D(filters=64, kernel_size=(3, 3), activation='relu'),
-			MaxPooling2D(pool_size=(2, 2)),
+			Conv2D(32, kernel_size=(3, 3), activation='relu'),
+			MaxPooling2D((2, 2)),
+			Conv2D(64, kernel_size=(3, 3), activation='relu'),
+			MaxPooling2D((2, 2)),
 			Flatten(),
 			Dropout(0.5),
-			Dense(units=N_CLASSES, activation='softmax')
+			Dense(N_CLASSES, activation='softmax')
 		],
 		name='digit_recognition_model'
 	)
@@ -113,11 +113,14 @@ def main():
 			# Plot some training examples
 
 			_, axes = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True)
+			plt.subplots_adjust(hspace=0.01, wspace=0.1)
 			for idx, ax in enumerate(axes.flatten()):
 				train_idx = np.where(np.argmax(y_train, axis=1) == idx)[0][0]
 				sample = np.squeeze(x_train[train_idx])
 				ax.imshow(sample, cmap='gray')
-			plt.title('10 training samples', x=-1.92, y=2.65)
+				ax.set_xticks([])
+				ax.set_yticks([])
+			plt.suptitle('Training data examples', x=0.51, y=0.92)
 			plt.show()
 
 			# Build model
@@ -248,9 +251,7 @@ def main():
 			ax.set_xticks([])
 			ax.set_yticks([])
 			ax.imshow(filt[:, :, 0], cmap='gray')  # Plot only 0th (red) channel
-		plt.title(f"Filters for '{layer.name}' layer",
-			x=(-3.7 if n_filters == 32 else -7.9),
-			y=(4.7 if n_filters == 32 else 9.5))
+		plt.suptitle(f"Filters for '{layer.name}' layer", x=0.512, y=0.94)
 		plt.show()
 
 	outputs = [model.layers[i].output for i in conv_layer_indices]  # Conv outputs for user digit
@@ -301,9 +302,7 @@ def main():
 			ax.set_xticks([])
 			ax.set_yticks([])
 			ax.imshow(feature_map[0, :, :, ax_idx], cmap='gray')  # Plot feature_map of depth 'ax_idx'
-		plt.title(f'Feature map of convolutional layer {idx}/{len(feature_output)}\n(user-drawn digit)',
-			x=(-3.7 if map_depth == 32 else -7.9),
-			y=(4.7 if map_depth == 32 else 9.5))
+		plt.suptitle(f'Feature map of convolutional layer {idx}/{len(feature_output)}\n(user-drawn digit)', x=0.512, y=0.97)
 		plt.show()
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 """
-Linear regression demo
+Linear regression demo on Boston housing dataset
 
 Author: Sam Barba
 Created 10/11/2021
@@ -12,7 +12,9 @@ from sklearn.model_selection import train_test_split
 
 from linear_regressor import LinearRegressor
 
-plt.rcParams['figure.figsize'] = (10, 7)
+plt.rcParams['figure.figsize'] = (8, 5)
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
@@ -20,12 +22,13 @@ pd.set_option('display.width', None)
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def load_data(path, train_test_ratio=0.8):
-	df = pd.read_csv(path)
+def load_data(train_test_ratio=0.8):
+	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv')
 	print(f'\nRaw data:\n{df}')
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
+	y_name = df.columns[-1]
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -40,81 +43,65 @@ def load_data(path, train_test_ratio=0.8):
 	data = pd.concat([x, y], axis=1).to_numpy().astype(float)
 	x, y = data[:, :-1], data[:, -1]
 
-	# Standardise x (numeric features only)
-	numeric_feature_indices = [idx for idx, f in enumerate(features) if f not in x_to_encode]
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
-	training_mean = np.mean(x_train[:, numeric_feature_indices], axis=0)
-	training_std = np.std(x_train[:, numeric_feature_indices], axis=0)
-	x_train[:, numeric_feature_indices] = (x_train[:, numeric_feature_indices] - training_mean) / training_std
-	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
-
-	return features, x_train, y_train, x_test, y_test, data
-
-def analytic_solution(x, y):
-	# Adding dummy x0 = 1 makes the first weight w0 equal the bias
-	x = np.hstack((np.ones((x.shape[0], 1)), x))
-	solution = ((np.linalg.inv(x.T.dot(x))).dot(x.T)).dot(y)
-	weights, bias = solution[1:], solution[0]
-	return weights, bias
-
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
-	choice = input('Enter B to use Boston housing dataset,'
-		+ '\nC for car value dataset,'
-		+ '\nor M for medical insurance dataset\n>>> ').upper()
-
-	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv'
-		case 'C': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.csv'
-		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.csv'
-
-	features, x_train, y_train, x_test, y_test, data = load_data(path)
-
-	weights, bias = analytic_solution(x_train, y_train)
-	weights = ', '.join(f'{we:.3f}' for we in weights)
-	print(f'\nAnalytic solution:\nweights = {weights}\nbias = {bias:.3f}\n')
-
-	regressor = LinearRegressor()
-	regressor.fit(x_train, y_train)
-
-	print('Training MAE:', regressor.cost_history[-1])
-	print('Test MAE:', regressor.cost(x_test, y_test, regressor.weights, regressor.bias))
-
-	# Plot regression line using column with the strongest correlation with y variable
+	# Keep only most correlated feature to y
 
 	corr_coeffs = np.corrcoef(data.T)
 	# Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
 	corr_coeffs[-1, -1] = 0
 
-	# Index of column that has the strongest correlation with y
-	idx_max_corr = np.argmax(np.abs(corr_coeffs[:, -1]))
-	max_corr = corr_coeffs[idx_max_corr, -1]
+	# Index of column with highest correlation with y
+	idx = np.argmax(np.abs(corr_coeffs[:, -1]))
+	# Keep strongest
+	max_corr = corr_coeffs[idx, -1]
+	feature = features[idx]
+	x = x[:, idx]
 
-	print('\nFeatures:', ', '.join(features))
-	print(f'Highest (abs) correlation with y ({features[-1]}): {max_corr} '
-		f"(feature '{features[idx_max_corr]}')")
+	print(f"\nHighest (abs) correlation with y ({df.columns[-1]}): {max_corr}  (feature '{feature}')")
 
-	weights = ', '.join(f'{we:.3f}' for we in regressor.weights)
-	x_plot = np.append(x_train[:, idx_max_corr], x_test[:, idx_max_corr])
-	y_plot = regressor.weights[idx_max_corr] * x_plot + regressor.bias
-	y_scatter = np.append(y_train, y_test)
-	plt.scatter(x_plot, y_scatter, color='black', alpha=0.6, s=10)
-	plt.plot(x_plot, y_plot, color='red')
-	plt.xlabel(features[idx_max_corr] + ' (standardised)')
-	plt.ylabel(features[-1] + ' (standardised)')
-	plt.title(f'Gradient descent solution\nweights = {weights}\nbias = {regressor.bias:.3f}')
-	plt.show()
+	# Standardise x if numeric
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
 
-	# Plot MAE graph
+	if feature not in x_to_encode:
+		training_mean = np.mean(x_train)
+		training_std = np.std(x_train)
+		x_train = (x_train - training_mean) / training_std
+		x_test = (x_test - training_mean) / training_std
 
-	plt.plot(regressor.cost_history, color='red')
+	x_train = np.expand_dims(x_train, -1)
+	y_train = np.expand_dims(y_train, -1)
+	x_test = np.expand_dims(x_test, -1)
+	y_test = np.expand_dims(y_test, -1)
+
+	return feature, y_name, x_train, y_train, x_test, y_test
+
+def analytic_solution(x, y):
+	# Adding dummy x0 = 1 makes the first weight w0 equal the bias
+	x = np.hstack((np.ones((x.shape[0], 1)), x))
+	solution = ((np.linalg.inv(x.T.dot(x))).dot(x.T)).dot(y)
+	bias, weights = solution[0], solution[1:]
+	return bias, weights
+
+# ---------------------------------------------------------------------------------------------------- #
+# ----------------------------------------------  MAIN  ---------------------------------------------- #
+# ---------------------------------------------------------------------------------------------------- #
+
+if __name__ == '__main__':
+	feature, y_name, x_train, y_train, x_test, y_test = load_data()
+
+	bias, weight = analytic_solution(x_train, y_train)
+	print(f'\nAnalytic solution:\nweight = {weight[0][0]}\nbias = {bias[0]:.3f}')
+
+	regressor = LinearRegressor(feature, y_name)
+	regressor.fit(x_train, y_train)
+
+	y_pred = regressor.predict(x_test)
+	mae = np.abs(y_pred[:, 0] - y_test[:, 0]).sum() / len(y_test)
+	print('\nTest MAE:', mae)
+
+	# Plot cost history
+
+	plt.plot(regressor.cost_history)
 	plt.xlabel('Training iteration')
 	plt.ylabel('MAE')
 	plt.title('MAE during training')
 	plt.show()
-
-if __name__ == '__main__':
-	main()

@@ -6,10 +6,10 @@ Created 17/09/2021
 """
 
 class Item:
-	def __init__(self, index, value, weight):
+	def __init__(self, index, weight, value):
 		self.index = index
-		self.value = value
 		self.weight = weight
+		self.value = value
 
 	def __repr__(self):
-		return f'Item {self.index}:  value: {self.value}  weight: {self.weight}'
+		return f'Item {self.index}:  weight: {self.weight}  value: {self.value}'

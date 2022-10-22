@@ -46,7 +46,7 @@ def file_walk(path):
 		for s in subfolders:
 			discovered_files.append(f'Found subfolder: {s}')
 		for f in filenames:
-			file_path = f'{folder_name}\\{f}'
+			file_path = fr'{folder_name}\{f}'
 			file_size = os.path.getsize(file_path)
 			path_size += file_size
 			file_size, suffix = get_suffix(file_size)

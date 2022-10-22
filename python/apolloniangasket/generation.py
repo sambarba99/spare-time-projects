@@ -5,8 +5,9 @@ Author: Sam Barba
 Created 23/09/2022
 """
 
-from circle import Circle
 from cmath import sqrt
+
+from circle import Circle
 
 def tangent_circles_from_radii(r2, r3, r4):
 	"""

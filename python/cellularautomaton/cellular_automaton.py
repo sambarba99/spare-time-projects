@@ -5,9 +5,10 @@ Author: Sam Barba
 Created 23/09/2021
 """
 
-import pygame as pg
 import sys
 from time import sleep
+
+import pygame as pg
 
 IMG_SIZE = 369
 CELL_SIZE = 2

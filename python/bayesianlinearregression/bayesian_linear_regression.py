@@ -5,9 +5,10 @@ Author: Sam Barba
 Created 03/03/2022
 """
 
-import bayesian_utility
 import matplotlib.pyplot as plt
 import numpy as np
+
+import bayesian_utility
 
 N_TRAIN = 14
 N_VAL = N_TRAIN
@@ -43,7 +44,7 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 
 def fit_pls(phi, y, lam):
 	"""Partial least squares"""
-	return np.linalg.inv(phi.T.dot(phi) + lam * np.identity(phi.shape[1])).dot(phi.T).dot(y)
+	return np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1])).dot(phi.T).dot(y)
 
 def compute_posterior(phi, y, alpha, s2):
 	"""
@@ -51,8 +52,8 @@ def compute_posterior(phi, y, alpha, s2):
 	phi and hyperparameters alpha and sigma^2, where lambda = alpha * sgima^2 (lambda = regularisation parameter)
 	"""
 	lam = alpha * s2
-	mu = np.linalg.inv(phi.T.dot(phi) + lam * np.identity(phi.shape[1])).dot(phi.T).dot(y)
-	sigma = s2 * np.linalg.inv(phi.T.dot(phi) + lam * np.identity(phi.shape[1]))
+	mu = np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1])).dot(phi.T).dot(y)
+	sigma = s2 * np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1]))
 	return mu, sigma
 
 def compute_log_marginal(phi, y, alpha, s2):
@@ -62,8 +63,8 @@ def compute_log_marginal(phi, y, alpha, s2):
 	"""
 	y = y.flatten()
 	n = phi.shape[0]
-	lml1 = (2 * np.pi) ** (-n / 2) * np.linalg.det(s2 * np.identity(n) + phi.dot(phi.T) / alpha) ** -0.5
-	lml2 = np.exp(-0.5 * y.T.dot(np.linalg.inv(s2 * np.identity(n) + phi.dot(phi.T) / alpha)).dot(y))
+	lml1 = (2 * np.pi) ** (-n / 2) * np.linalg.det(s2 * np.eye(n) + phi.dot(phi.T) / alpha) ** -0.5
+	lml2 = np.exp(-0.5 * y.T.dot(np.linalg.inv(s2 * np.eye(n) + phi.dot(phi.T) / alpha)).dot(y))
 	return np.log(lml1 * lml2)
 
 # ---------------------------------------------------------------------------------------------------- #

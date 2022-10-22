@@ -67,11 +67,9 @@ class KMeans:
 			plt.axis('scaled')
 			plt.legend()
 			plt.title(title)
-			if title != 'Converged':
-				plt.show(block=False)
-				plt.pause(0.8)
-			else:
-				plt.show()
+			
+			plt.show(block=(title == 'Converged'))
+			if title != 'Converged': plt.pause(0.8)
 
 		self.x = x
 		self.n_samples = x.shape[0]

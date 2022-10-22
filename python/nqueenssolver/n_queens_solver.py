@@ -5,11 +5,12 @@ Author: Sam Barba
 Created 08/02/2022
 """
 
+import sys
+from time import perf_counter
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
-import sys
-from time import perf_counter
 
 plt.rcParams['figure.figsize'] = (7, 5)
 

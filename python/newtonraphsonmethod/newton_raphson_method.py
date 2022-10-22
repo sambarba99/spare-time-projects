@@ -5,12 +5,17 @@ Author: Sam Barba
 Created 14/10/2021
 """
 
+import tkinter as tk
+from tkinter import messagebox
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 from polynomial import Polynomial
-import tkinter as tk
 
 plt.rcParams['figure.figsize'] = (10, 6)
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -24,7 +29,7 @@ def handle_button_click(*, coefficients, find_root):
 		coefficients = [float(i) for i in coefficients.split()]
 	except:
 		entry_box.delete(0, tk.END)
-		entry_box.insert(0, 'Bad input!')
+		messagebox.showerror(title='Error', message='Bad input!')
 		return
 
 	polynomial = Polynomial(coefficients)
@@ -34,7 +39,7 @@ def handle_button_click(*, coefficients, find_root):
 
 	if isinstance(solution, str):  # No solution
 		entry_box.delete(0, tk.END)
-		entry_box.insert(0, solution)
+		messagebox.showerror(title='Error', message=solution)
 		return
 
 	root, iters, initial_guess = solution
@@ -51,21 +56,22 @@ def handle_button_click(*, coefficients, find_root):
 	y_max = max(y_plot + y_deriv_plot)
 
 	plt.cla()
-	plt.plot(x_plot, y_plot, color='#0080ff', label='f(x)')
-	plt.plot(x_plot, y_deriv_plot, color='#ff8000', label=f"f'(x) = {str(poly_deriv)}")
+	plt.plot(x_plot, y_plot, color='#0080ff', label=r'$f(x)$')
+	plt.plot(x_plot, y_deriv_plot, color='#ff8000', label=fr"$d/dx$ = ${str(poly_deriv)}$")
+	plt.subplots_adjust(top=0.86)
 	plt.axhline(color='black')
 	plt.vlines(root, y_min, y_max, color='red', ls='--', linewidth=1)
-	plt.xlabel('x')
-	plt.ylabel("f(x) and f'(x)")
+	plt.xlabel(r'$x$')
+	plt.ylabel(r"$f(x)$ and $d/dx$")
 	plt.legend()
 
 	if find_root:
-		plt.title(f'f(x) = {str(polynomial)}'
-			+ f'\nRoot: x = {root:.6f}'
+		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
+			+ '\n' + fr'Root: $x$ = {root:.6f}'
 			+ f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
 	else:
 		stationary_y = polynomial(root)
-		plt.title(f'f(x) = {str(polynomial)}'
+		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
 			+ f'\nStationary point: {root:.6f}, {stationary_y:.6f}'
 			+ f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
 	plt.show()

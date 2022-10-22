@@ -15,3 +15,7 @@
 
 # Ignore PyCharm .idea folders
 python/*/.idea/
+
+# Ignore large UTKFace dataset and model
+datasets/UTKFace/
+python/agegenderraceconvnet/model.h5

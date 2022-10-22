@@ -5,11 +5,12 @@ Author: Sam Barba
 Created 07/09/2021
 """
 
+import sys
+from time import perf_counter
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
-import sys
-from time import perf_counter
 
 BOARD_SIZE = 9
 CELL_SIZE = 50

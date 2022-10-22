@@ -5,8 +5,9 @@ Author: Sam Barba
 Created 26/03/2022
 """
 
-import pygame as pg
 import sys
+
+import pygame as pg
 
 # Ensure this is odd
 GRID_SIZE = 999

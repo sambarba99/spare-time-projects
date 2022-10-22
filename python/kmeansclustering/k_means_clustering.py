@@ -5,8 +5,9 @@ Author: Sam Barba
 Created 21/11/2021
 """
 
-from k_means_clusterer import KMeans
 import numpy as np
+
+from k_means_clusterer import KMeans
 
 N_CLUSTERS = 4
 

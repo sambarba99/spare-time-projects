@@ -9,9 +9,10 @@ R: reset
 Space: play/pause
 """
 
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 R1 = 300
 R2 = 300

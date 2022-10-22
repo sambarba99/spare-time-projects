@@ -7,9 +7,10 @@ Created 09/06/2022
 
 # Faster than np.sin, np.cos
 from math import sin, cos
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 SIZE = 70  # Rows = cols
 PIXEL_SIZE = 12

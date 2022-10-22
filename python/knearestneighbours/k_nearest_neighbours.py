@@ -26,7 +26,6 @@ def load_data(path):
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
-	classes = y.unique()
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -35,15 +34,12 @@ def load_data(path):
 		else:  # Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
-	if len(classes) > 2:
+	if len(y.unique()) > 2:
 		one_hot = pd.get_dummies(y, prefix='class')
 		y = pd.concat([y, one_hot], axis=1)
 		y = y.drop(y.columns[0], axis=1)
 	else:  # Binary class
-		y = pd.get_dummies(y, prefix='class')
-		# Ensure dummy column corresponds with 'classes'
-		drop_idx = int(y.columns[0].endswith(classes[0]))
-		y = y.drop(y.columns[drop_idx], axis=1)
+		y = pd.get_dummies(y, prefix='class', drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 

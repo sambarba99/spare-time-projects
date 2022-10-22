@@ -13,9 +13,10 @@ Space: toggle animation
 """
 
 import json
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 from presets import PI, GUITAR, T_REX, COLOSSEUM
 

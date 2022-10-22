@@ -11,10 +11,11 @@ Tab: AI assistance
 Space: reset when game over
 """
 
-import numpy as np
-import pygame as pg
 import sys
 from time import sleep
+
+import numpy as np
+import pygame as pg
 
 WORD_LEN = 5
 MAX_ATTEMPTS = 6
@@ -224,7 +225,9 @@ def main():
 
 	draw_grid(colour_current_row=False, status='Generating pattern dictionary...')
 
-	all_words = np.loadtxt('five_letter_words.txt', dtype=str, delimiter='\n')
+	with open('five_letter_words.txt', 'r') as file:
+		all_words = file.read().splitlines()
+
 	pattern_dict = generate_pattern_dict(all_words)
 
 	draw_grid(colour_current_row=False)

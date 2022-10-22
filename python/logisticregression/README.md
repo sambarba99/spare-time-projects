@@ -2,4 +2,4 @@ Logistic regression demo
 
 Breast tumour dataset example:
 
-![](lr_tumour.png)
+![](breast_tumour_logistic_regression.gif)

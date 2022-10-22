@@ -5,9 +5,10 @@ Author: Sam Barba
 Created 08/02/2022
 """
 
-import pygame as pg
 import sys
 from time import sleep
+
+import pygame as pg
 
 AI = 'x'
 HUMAN = 'o'

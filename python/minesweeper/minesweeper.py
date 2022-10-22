@@ -5,9 +5,10 @@ Author: Sam Barba
 Created 27/09/2021
 """
 
+import sys
+
 import pygame as pg
 import random
-import sys
 
 ROWS, COLS = 35, 60
 CELL_SIZE = 22

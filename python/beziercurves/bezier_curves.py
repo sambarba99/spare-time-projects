@@ -10,9 +10,10 @@ Left-click and drag: move a point
 R: reset
 """
 
+import sys
+
 import numpy as np
 import pygame as pg
-import sys
 
 SIZE = 800
 MAX_POINTS = 5

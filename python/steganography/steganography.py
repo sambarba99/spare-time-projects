@@ -6,8 +6,9 @@ Created 01/10/2021
 """
 
 from math import ceil
-from PIL import Image
 import random
+
+from PIL import Image
 
 CHARS = [chr(i) for i in range(65, 91)] + [chr(i) for i in range(97, 123)] + list(map(str, range(10)))
 IMG = Image.open('img.jpg')

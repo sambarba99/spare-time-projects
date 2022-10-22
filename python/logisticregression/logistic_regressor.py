@@ -5,17 +5,20 @@ Author: Sam Barba
 Created 10/11/2021
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 class LogisticRegressor:
-	def __init__(self):
+	def __init__(self, features, classes):
 		self.x_train = None
 		self.y_train = None
 		self.weights = None
 		self.bias = 0
 		self.cost_history = []
+		self.features = features
+		self.classes = classes
 
-	def fit(self, x_train, y_train, learning_rate=0.001, converge_threshold=1e-6):
+	def fit(self, x_train, y_train, learning_rate=1e-4, converge_threshold=1e-4):
 		"""Gradient descent"""
 
 		def cost(x, y, weights, bias):
@@ -31,16 +34,57 @@ class LogisticRegressor:
 			bias_deriv = (probs - self.y_train).sum()
 			return weight_deriv, bias_deriv
 
+		def plot_decision_boundary(weights, bias, converged, first_time):
+			"""
+			See https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/
+			for calculation of m and c
+			"""
+
+			w1, w2 = weights
+			m = -w1 / w2 if not first_time else None
+			c = -bias / w2 if not first_time else None
+
+			padding = 2
+			line_x = np.array([np.min(self.x_train[:, 0]) - padding, np.max(self.x_train[:, 0]) + padding]) \
+				if not first_time else None
+			line_y = m * line_x + c \
+				if not first_time else None
+
+			plt.cla()
+			for idx, class_ in enumerate(self.classes):
+				plt.scatter(*self.x_train[self.y_train == idx].T, alpha=0.7, label=class_)
+			if not first_time:
+				plt.plot(line_x, line_y, color='black', linewidth=1, ls='--')
+				plt.fill_between(line_x, line_y, -100, color='tab:blue', alpha=0.2)
+				plt.fill_between(line_x, line_y, 100, color='tab:orange', alpha=0.2)
+			padding = 0.5
+			plt.xlim(np.min(self.x_train[:, 0]) - padding, np.max(self.x_train[:, 0]) + padding)
+			plt.ylim(np.min(self.x_train[:, 1]) - padding, np.max(self.x_train[:, 1]) + padding)
+			plt.xlabel(fr'$x_1$ ({self.features[0]}) (standardised)')
+			plt.ylabel(fr'$x_2$ ({self.features[1]}) (standardised)')
+			if first_time:
+				plt.title('Start')
+			else:
+				plt.title(fr'Gradient descent solution: $m$ = {m:.3f}  |  $c$ = {c:.3f}' + f'\n(converged: {converged})')
+			plt.legend()
+
+			plt.show(block=converged)
+			if not converged: plt.pause(2 if first_time else 1e-6)
+
 		self.x_train = x_train
 		self.y_train = y_train
 
 		# Initial guesses and error
-		weights_current = np.zeros(self.x_train.shape[1])
+		weights_current = np.array([1, 0])  # Arbitrary vertical class division
 		bias_current = 0
 		e_current = cost(self.x_train, self.y_train, weights_current, bias_current)
 		self.cost_history.append(e_current)
+		plot_decision_boundary(weights_current, bias_current, converged=False, first_time=True)
 
+		i = 0
 		while True:
+			i += 1
+
 			weight_deriv, bias_deriv = calculate_gradients(weights_current, bias_current)
 
 			weights_new = weights_current - weight_deriv * learning_rate
@@ -50,6 +94,7 @@ class LogisticRegressor:
 
 			# Stop if converged
 			if abs(e_new - e_current) < converge_threshold:
+				plot_decision_boundary(weights_new, bias_new, converged=True, first_time=False)
 				break
 
 			# Decrease step size if error increases
@@ -58,6 +103,8 @@ class LogisticRegressor:
 
 			# Take the step
 			weights_current, bias_current, e_current = weights_new, bias_new, e_new
+
+			if i % 2 == 0: plot_decision_boundary(weights_current, bias_current, converged=False, first_time=False)
 
 		self.weights = weights_current
 		self.bias = bias_current

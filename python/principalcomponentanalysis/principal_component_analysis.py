@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from pca import transform
-
 plt.rcParams['figure.figsize'] = (7, 7)
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
@@ -25,7 +25,7 @@ def load_data(path):
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
-	classes = y.unique()
+	classes = sorted(y.unique())
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -39,13 +39,7 @@ def load_data(path):
 		y = pd.concat([y, one_hot], axis=1)
 		y = y.drop(y.columns[0], axis=1)
 	else:  # Binary class
-		y = pd.get_dummies(y, prefix='class')
-		# Ensure dummy column corresponds with 'classes'
-		drop_idx = int(y.columns[0].endswith(classes[0]))
-		y = y.drop(y.columns[drop_idx], axis=1)
-		if y.iloc[0][0] == 1:
-			# classes[0] = no/false/0
-			classes = classes[::-1]
+		y = pd.get_dummies(y, prefix='class', drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
@@ -53,6 +47,24 @@ def load_data(path):
 	x = (x - np.min(x, axis=0)) / (np.max(x, axis=0) - np.min(x, axis=0))  # Normalise
 
 	return classes, x, y
+
+def transform(x, n_components=2):
+	x -= np.mean(x, axis=0)
+
+	covariance = np.cov(x.T)
+	variability = np.trace(covariance)
+
+	eigenvalues, eigenvectors = np.linalg.eig(covariance)
+	eigenvectors = eigenvectors.T
+	indices = np.argsort(eigenvalues)[::-1]
+	eigenvalues = eigenvalues[indices]
+	eigenvectors = eigenvectors[indices]
+
+	components = eigenvectors[:n_components]
+
+	pca_variability = (eigenvalues / variability)[:n_components].sum()
+
+	return x.dot(components.T), pca_variability
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -82,15 +94,14 @@ if __name__ == '__main__':
 		plt.scatter(*x_transform[y == 0].T, alpha=0.7, label=classes[0])
 		plt.scatter(*x_transform[y == 1].T, alpha=0.7, label=classes[1])
 	else:
-		for idx, class_one_hot in enumerate(sorted(np.unique(y, axis=0), key=str, reverse=True)):
-			# E.g. for iris dataset, class_one_hot will iterate through [1 0 0], [0 1 0], [0 0 1]
-			# This means that 'classes' will be indexed correctly with 'idx'
-			class_indices = np.all(y == class_one_hot, axis=1)
-			plt.scatter(*x_transform[class_indices].T, alpha=0.7, label=classes[idx])
+		for idx, class_ in enumerate(classes):
+			class_indices = np.where(np.argmax(y, axis=1) == idx)[0]
+			plt.scatter(*x_transform[class_indices].T, alpha=0.7, label=class_)
 
 	plt.xlabel('Principal component 1')
 	plt.ylabel('Principal component 2')
-	plt.title(f'Shape of x: {x.shape}\nShape of PCA transform: {x_transform.shape}'
-		f'\nCaptured variability: {new_variability}')
+	plt.title(fr'Shape of $x$: {x.shape}'
+		+ f'\nShape of PCA transform: {x_transform.shape}'
+		+ f'\nCaptured variability: {new_variability}')
 	plt.legend()
 	plt.show()

@@ -6,6 +6,7 @@ Created 20/09/2021
 """
 
 import random
+
 from vertex_maze import MazeVertex
 
 class Daedalus:

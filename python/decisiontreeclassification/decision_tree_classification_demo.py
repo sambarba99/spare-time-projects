@@ -28,7 +28,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
-	classes = y.unique()
+	classes = sorted(y.unique())
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -43,13 +43,7 @@ def load_data(path, train_test_ratio=0.8):
 		y = pd.concat([y, one_hot], axis=1)
 		y = y.drop(y.columns[0], axis=1)
 	else:  # Binary class
-		y = pd.get_dummies(y, prefix='class')
-		# Ensure dummy column corresponds with 'classes'
-		drop_idx = int(y.columns[0].endswith(classes[0]))
-		y = y.drop(y.columns[drop_idx], axis=1)
-		if y.iloc[0][0] == 1:
-			# classes[0] = no/false/0
-			classes = classes[::-1]
+		y = pd.get_dummies(y, prefix='class', drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 

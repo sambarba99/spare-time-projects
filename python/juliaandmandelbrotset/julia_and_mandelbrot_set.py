@@ -12,8 +12,9 @@ R: reset
 """
 
 from math import log
-import pygame as pg
 import sys
+
+import pygame as pg
 
 WIDTH, HEIGHT = 800, 550
 MAX_ITERATIONS = 200

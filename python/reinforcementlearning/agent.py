@@ -5,8 +5,9 @@ Author: Sam Barba
 Created 25/02/2022
 """
 
-from grid_environment import GridEnv
 import numpy as np
+
+from grid_environment import GridEnv
 
 class Agent:
 	def __init__(self, gamma=0.9, alpha=0.2, epsilon=0.1):

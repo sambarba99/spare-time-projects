@@ -5,13 +5,15 @@ Author: Sam Barba
 Created 20/09/2021
 """
 
-from daedalus import Daedalus
-from graph_gen import GraphGen
-import numpy as np
-import pygame as pg
 import sys
 from time import sleep
 import tkinter as tk
+
+import numpy as np
+import pygame as pg
+
+from daedalus import Daedalus
+from graph_gen import GraphGen
 
 CELL_SIZE = 6  # For maze mode
 
