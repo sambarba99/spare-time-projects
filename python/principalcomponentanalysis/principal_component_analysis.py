@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	plt.xlabel('Principal component 1')
 	plt.ylabel('Principal component 2')
 	plt.title(fr'Shape of $x$: {x.shape}'
-		+ f'\nShape of PCA transform: {x_transform.shape}'
-		+ f'\nCaptured variability: {new_variability}')
+		f'\nShape of PCA transform: {x_transform.shape}'
+		f'\nCaptured variability: {new_variability}')
 	plt.legend()
 	plt.show()

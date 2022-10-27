@@ -2,4 +2,4 @@ Newton-Raphson method demo
 
 Example output:
 
-![](example.png)
+![](newton_raphson_example.png)

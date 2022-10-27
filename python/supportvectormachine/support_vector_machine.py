@@ -95,9 +95,9 @@ def main():
 	positive_plane_start_y = get_hyperplane_value(hyperplane_start_x, clf.weights, clf.bias, 1)
 	positive_plane_end_y = get_hyperplane_value(hyperplane_end_x, clf.weights, clf.bias, 1)
 
-	plt.plot([hyperplane_start_x, hyperplane_end_x], [hyperplane_start_y, hyperplane_end_y], color='black', ls='--')
-	plt.plot([hyperplane_start_x, hyperplane_end_x], [negative_plane_start_y, negative_plane_end_y], color='red')
-	plt.plot([hyperplane_start_x, hyperplane_end_x], [positive_plane_start_y, positive_plane_end_y], color='red')
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [hyperplane_start_y, hyperplane_end_y], '--', color='black')
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [negative_plane_start_y, negative_plane_end_y], 'r-')
+	plt.plot([hyperplane_start_x, hyperplane_end_x], [positive_plane_start_y, positive_plane_end_y], 'r-')
 
 	y_min = np.min(x_scatter[:, 1])
 	y_max = np.max(x_scatter[:, 1])

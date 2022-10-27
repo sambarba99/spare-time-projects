@@ -56,8 +56,8 @@ def handle_button_click(*, coefficients, find_root):
 	y_max = max(y_plot + y_deriv_plot)
 
 	plt.cla()
-	plt.plot(x_plot, y_plot, color='#0080ff', label=r'$f(x)$')
-	plt.plot(x_plot, y_deriv_plot, color='#ff8000', label=fr"$d/dx$ = ${str(poly_deriv)}$")
+	plt.plot(x_plot, y_plot, label=r'$f(x)$')
+	plt.plot(x_plot, y_deriv_plot, label=fr"$d/dx$ = ${str(poly_deriv)}$")
 	plt.subplots_adjust(top=0.86)
 	plt.axhline(color='black')
 	plt.vlines(root, y_min, y_max, color='red', ls='--', linewidth=1)
@@ -67,13 +67,13 @@ def handle_button_click(*, coefficients, find_root):
 
 	if find_root:
 		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
-			+ '\n' + fr'Root: $x$ = {root:.6f}'
-			+ f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
+			'\n' + fr'Root: $x$ = {root:.6f}'
+			f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
 	else:
 		stationary_y = polynomial(root)
 		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
-			+ f'\nStationary point: {root:.6f}, {stationary_y:.6f}'
-			+ f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
+			f'\nStationary point: {root:.6f}, {stationary_y:.6f}'
+			f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
 	plt.show()
 
 # ---------------------------------------------------------------------------------------------------- #

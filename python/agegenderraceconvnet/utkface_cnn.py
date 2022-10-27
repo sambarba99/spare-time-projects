@@ -19,6 +19,7 @@ import pandas as pd
 from PIL import Image
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
+from tqdm import tqdm
 
 DATA_PATH = r'C:\Users\Sam Barba\Desktop\Programs\datasets\UTKFace'  # Available from Kaggle
 BATCH_SIZE = 32
@@ -43,6 +44,46 @@ def clean_data(df):
 
 	df = pd.concat([df, gender, race_one_hot], axis=1)
 	return df
+
+def preprocess_img(path):
+	img = Image.open(path)
+	img = img.resize((128, 128))
+	img = np.array(img) / 255  # Scale from 0-1
+
+	return img
+
+def generate_splits(df_shape):
+	train_prop, val_prop = 0.8, 0.1  # Test proportion = 0.1
+	train_size = int(df_shape * train_prop)
+	val_size = int(df_shape * val_prop)
+
+	perm = np.random.permutation(df_shape)
+	train_idx = perm[:train_size]
+	val_idx = perm[train_size:train_size + val_size]
+	test_idx = perm[train_size + val_size:]
+
+	return train_idx, val_idx, test_idx
+
+def data_generator(*, preprocessed_images, df, idx, is_training):
+	images, ages, races, genders = [], [], [], []
+
+	while True:
+		for i in idx:
+			img = preprocessed_images[i]
+			age = df.iloc[i, 1]
+			gender = df.iloc[i, 2]
+			race = df.iloc[i, 3:]
+
+			images.append(img)
+			ages.append(age)
+			genders.append(gender)
+			races.append(race)
+
+			if len(images) >= BATCH_SIZE:
+				yield np.array(images), [np.array(ages), np.array(genders), np.array(races, dtype=np.int32)]
+				images, ages, genders, races = [], [], [], []
+
+		if not is_training: break
 
 def make_model():
 	vgg = VGG16(include_top=False, pooling='avg', input_shape=(128, 128, 3))
@@ -79,46 +120,6 @@ def make_model():
 	output_race = Dense(5, activation='softmax', name='output_race')(dropout_race_2)
 
 	return Model(inputs=vgg.input, outputs=[output_age, output_gender, output_race])
-
-def generate_splits(df):
-	train_prop, val_prop = 0.8, 0.1  # Test proportion = 0.1
-	train_size = int(df.shape[0] * train_prop)
-	val_size = int(df.shape[0] * val_prop)
-
-	perm = np.random.permutation(df.shape[0])
-	train_idx = perm[:train_size]
-	val_idx = perm[train_size:train_size + val_size]
-	test_idx = perm[train_size + val_size:]
-
-	return train_idx, val_idx, test_idx
-
-def generate_images(*, df, idx, for_training):
-	def preprocess_img(path):
-		img = Image.open(path)
-		img = img.resize((128, 128))
-		img = np.array(img) / 255  # Scale from 0-1
-
-		return img
-
-	images, ages, races, genders = [], [], [], []
-
-	while True:
-		for i in idx:
-			img = preprocess_img(df.iloc[i, 0])
-			age = df.iloc[i, 1]
-			gender = df.iloc[i, 2]
-			race = df.iloc[i, 3:]
-
-			images.append(img)
-			ages.append(age)
-			genders.append(gender)
-			races.append(race)
-
-			if len(images) >= BATCH_SIZE:
-				yield np.array(images), [np.array(ages), np.array(genders), np.array(races, dtype=np.int32)]
-				images, ages, genders, races = [], [], [], []
-
-		if not for_training: break
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -170,12 +171,16 @@ def main():
 
 	print(f'\nRaw data:\n{df}')
 	df = clean_data(df)
-	print(f'\nCleaned data:\n{df}')
+	print(f'\nCleaned data:\n{df}\n')
 
-	train_idx, val_idx, test_idx = generate_splits(df)
-	train_gen = generate_images(df=df, idx=train_idx, for_training=True)
-	val_gen = generate_images(df=df, idx=val_idx, for_training=True)
-	test_gen = generate_images(df=df, idx=test_idx, for_training=False)
+	processed = []
+	for p in tqdm(df['img_path'], desc='Preprocessing images'):
+		processed.append(preprocess_img(p))
+
+	train_idx, val_idx, test_idx = generate_splits(df.shape[0])
+	train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx, is_training=True)
+	val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx, is_training=True)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, is_training=False)
 
 	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
 
@@ -281,14 +286,14 @@ def main():
 	print('Test race accuracy:', test_acc_race)
 
 	# Plot predictions of first 9 images of first test batch
-	test_gen = generate_images(df=df, idx=test_idx, for_training=False)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, is_training=False)
 	first_batch = next(test_gen)
 	images, (ages, genders, races) = first_batch
 
 	_, axes = plt.subplots(nrows=3, ncols=3)
 	plt.subplots_adjust(top=0.8, bottom=0.05, hspace=0.5, wspace=0.4)
 	for idx, ax in enumerate(axes.flatten()):
-		age, gender, race = ages[idx], genders[idx], races[idx]
+		img, age, gender, race = images[idx], ages[idx], genders[idx], races[idx]
 
 		# Subtract gender from 1, as model is predicting 'gender_male'.
 		# If 'gender_male' = 1, the DATASET_DICT index should be 1 - 1 = 0
@@ -298,7 +303,6 @@ def main():
 		race = np.argmax(race)
 		race = DATASET_DICT['race_id'][str(race)]
 
-		img = images[idx]
 		age_pred, gender_pred, race_pred = model.predict(np.expand_dims(img, 0))
 		age_pred = round(age_pred[0][0])
 		gender_pred = 1 - round(gender_pred[0][0])

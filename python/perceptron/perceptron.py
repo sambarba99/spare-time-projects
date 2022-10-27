@@ -86,8 +86,7 @@ if __name__ == '__main__':
 	decision_bound_y1 = (-clf.weights[0] * decision_bound_x1 - clf.bias) / clf.weights[1]
 	decision_bound_y2 = (-clf.weights[0] * decision_bound_x2 - clf.bias) / clf.weights[1]
 
-	plt.plot([decision_bound_x1, decision_bound_x2], [decision_bound_y1, decision_bound_y2],
-		color='black', ls='--')
+	plt.plot([decision_bound_x1, decision_bound_x2], [decision_bound_y1, decision_bound_y2], '--', color='black')
 
 	y_min = np.min(x_scatter[:, 1])
 	y_max = np.max(x_scatter[:, 1])

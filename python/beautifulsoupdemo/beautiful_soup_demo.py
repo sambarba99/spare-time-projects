@@ -23,11 +23,12 @@ def read_bbc_news():
 	ordered_list = html.find(text='Most read').find_next('ol')
 	list_items = ordered_list.find_all('li')  # <li> = list item
 
-	result = 'Most read BBC News stories:\n\n'
-	result += '\n'.join(
-		f'{idx + 1}: {item.find("a").text.strip()}\n   (https://www.bbc.co.uk{item.find("a")["href"]})'
-		for idx, item in enumerate(list_items)
-	)
+	result = 'Most read BBC News stories:\n'
+	for idx, item in enumerate(list_items):
+		link_tag = item.find('a')  # <a> tags are links
+		link_text = link_tag.string
+		hyperlink = link_tag['href']  # Hypertext reference
+		result += f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})'
 
 	return result
 
@@ -39,9 +40,10 @@ def read_wiki_article_of_the_day():
 	# Search for "From today's featured article", then for next <p> (paragraph) tag after it in tree structure
 	p = html.find(text="From today's featured article").find_next('p')
 	p_text = p.text.strip().rsplit(' ', 1)[0]  # Exclude final "(Full article...)" hyperlink
-	link = p.find_all('a')[-1]['href']  # Grab link manually to write to file
+	link_tag = p.find_all('a')[-1]  # Grab hyperlink manually to add to file
+	hyperlink = link_tag['href']
 
-	result = f'Wikipedia article of the day:\n\n{p_text} (https://en.wikipedia.org{link})'
+	result = f'Wikipedia article of the day:\n\n{p_text} (https://en.wikipedia.org{hyperlink})'
 
 	return result
 

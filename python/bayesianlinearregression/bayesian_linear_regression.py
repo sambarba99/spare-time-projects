@@ -16,18 +16,20 @@ N_TEST = 300
 SIGMA = 0.3  # Noise = SIGMA ^ 2
 
 plt.rcParams['figure.figsize'] = (9, 6)
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bounds=None, upper_bounds=None):
-	plt.plot(x_test, y_test, color='#ff8000', ls='--', zorder=1, label='Ground truth')
+	plt.plot(x_test, y_test, '--', zorder=1, label='Ground truth')
 	plt.scatter(x_train, y_train, color='black', zorder=2, label='Training samples')
-	plt.plot(x_test, approx_data, color='#0080ff', zorder=3, label='Prediction')
+	plt.plot(x_test, approx_data, zorder=3, label='Prediction')
 
 	if lower_bounds is not None and upper_bounds is not None:
-		plt.fill_between(x_test.flatten(), lower_bounds, upper_bounds, color='#0080ff', alpha=0.2,
+		plt.fill_between(x_test.flatten(), lower_bounds, upper_bounds, color='tab:blue', alpha=0.2,
 			zorder=0, label='Error')
 		plot_lim1 = np.min(lower_bounds) - 0.2
 		plot_lim2 = np.max(upper_bounds) + 0.2
@@ -38,7 +40,9 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	plt.ylim([plot_lim1, plot_lim2])
 	plt.xlabel('x')
 	plt.ylabel('y')
-	plt.title(f'Regression with lambda = {lam:.3f}\n(alpha = {(lam / SIGMA ** 2):.3f})')
+	plt.title(fr'Regression with $\lambda$ = {lam:.4f}'
+		'\n'
+		fr'($\alpha$ = {(lam / SIGMA ** 2):.4f})')
 	plt.legend()
 	plt.show()
 
@@ -129,16 +133,16 @@ def main():
 	ax1 = plt.subplot()
 	ax2 = ax1.twinx()
 
-	ax1.plot(v, err_train, color='#cc0000', label='Train')
-	ax1.plot(v, err_test, color='#0080ff', ls='--', label='Test')
-	ax1.plot(v, err_val, color='#ff8000', ls='--', label='Val')
+	ax1.plot(v, err_train, label='Train')
+	ax1.plot(v, err_test, '--', label='Test')
+	ax1.plot(v, err_val, '--', label='Val')
 	ax1.set_xlabel('log(lambda)')
 	ax1.set_ylabel('MAE')
 	ax1.legend(loc='center left')
 
-	ax2.plot(v, neg_log_evidence, color='#008000', label='Train')
-	ax2.yaxis.label.set_color('#008000')
-	ax2.tick_params(axis='y', colors='#008000')
+	ax2.plot(v, neg_log_evidence, color='tab:green', label='Train')
+	ax2.yaxis.label.set_color('tab:green')
+	ax2.tick_params(axis='y', colors='tab:green')
 	ax2.set_ylabel('-log(evidence)')
 	ax2.legend(loc='center right')
 
