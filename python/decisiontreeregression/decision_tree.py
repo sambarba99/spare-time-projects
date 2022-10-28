@@ -25,7 +25,7 @@ class DecisionTree:
 			def calculate_mse(y):
 				if len(y) <= 1: return 0
 
-				y_mean = np.mean(y)  # Use mean as the prediction
+				y_mean = y.mean()  # Use mean as the prediction
 				mse = ((y - y_mean) ** 2).sum() / len(y)
 				return mse
 
@@ -53,7 +53,7 @@ class DecisionTree:
 		# If depth is 0, or only 1 value of y left, this is a leaf node
 		if max_depth == 0 or len(y) <= 1:
 			self.is_leaf = True
-			self.value = np.mean(y) if len(y) else 0
+			self.value = y.mean() if len(y) else 0
 		else:
 			split = find_best_split(x, y)
 			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1)
@@ -72,7 +72,7 @@ class DecisionTree:
 
 	def evaluate(self, x, y):
 		predictions = np.array([self.predict(sample) for sample in x])
-		y, predictions = np.squeeze(y), np.squeeze(predictions)
+		y, predictions = y.squeeze(), predictions.squeeze()
 		mse = ((y - predictions) ** 2).sum() / len(y)
 		return mse
 

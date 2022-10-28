@@ -59,12 +59,12 @@ def generate_boids(n=50):
 
 def draw():
 	def get_oriented_arrow(boid):
-		arrow_centre = np.mean(NORTH_ARROW, axis=0)
+		arrow_centre = NORTH_ARROW.mean(axis=0)
 
 		# Translate arrow so that its centre is at boid's position
 		translated_arrow = NORTH_ARROW + boid.pos - arrow_centre
 
-		arrow_centre = np.mean(translated_arrow, axis=0)
+		arrow_centre = translated_arrow.mean(axis=0)
 
 		# Heading based on x and y velocity (+ pi / 2 so that heading of 0 means north)
 		heading = np.arctan2(boid.vel[1], boid.vel[0]) + np.pi / 2

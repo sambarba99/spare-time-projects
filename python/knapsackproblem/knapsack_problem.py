@@ -37,11 +37,10 @@ def initialise_population():
 	for _ in range(POP_SIZE):
 		individual = Knapsack([False] * N_ITEMS)
 		indices = np.random.permutation(N_ITEMS)
-		items_shuffle = [(i, all_items[i]) for i in indices]
 
-		for idx, item in items_shuffle:
-			if individual.total_weight(all_items, N_ITEMS) + item.weight <= KNAPSACK_CAPACITY:
-				individual.item_config[idx] = True
+		for i in indices:
+			if individual.total_weight(all_items, N_ITEMS) + all_items[i].weight <= KNAPSACK_CAPACITY:
+				individual.item_config[i] = True
 
 		population.append(individual)
 

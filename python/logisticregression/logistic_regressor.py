@@ -45,7 +45,7 @@ class LogisticRegressor:
 			c = -bias / w2 if not first_time else None
 
 			padding = 2
-			line_x = np.array([np.min(self.x_train[:, 0]) - padding, np.max(self.x_train[:, 0]) + padding]) \
+			line_x = np.array([self.x_train[:, 0].min() - padding, self.x_train[:, 0].max() + padding]) \
 				if not first_time else None
 			line_y = m * line_x + c \
 				if not first_time else None
@@ -58,8 +58,8 @@ class LogisticRegressor:
 				plt.fill_between(line_x, line_y, -100, color='tab:blue', alpha=0.2)
 				plt.fill_between(line_x, line_y, 100, color='tab:orange', alpha=0.2)
 			padding = 0.5
-			plt.xlim(np.min(self.x_train[:, 0]) - padding, np.max(self.x_train[:, 0]) + padding)
-			plt.ylim(np.min(self.x_train[:, 1]) - padding, np.max(self.x_train[:, 1]) + padding)
+			plt.xlim(self.x_train[:, 0].min() - padding, self.x_train[:, 0].max() + padding)
+			plt.ylim(self.x_train[:, 1].min() - padding, self.x_train[:, 1].max() + padding)
 			plt.xlabel(fr'$x_1$ ({self.features[0]}) (standardised)')
 			plt.ylabel(fr'$x_2$ ({self.features[1]}) (standardised)')
 			if first_time:
@@ -112,7 +112,7 @@ class LogisticRegressor:
 	def predict(self, inputs):
 		linear_model = inputs.dot(self.weights) + self.bias
 		probs = self.__sigmoid(linear_model)
-		class_predictions = np.where(probs > 0.5, 1, 0)
+		class_predictions = probs.round().astype(int)
 		return class_predictions
 
 	def __sigmoid(self, x):

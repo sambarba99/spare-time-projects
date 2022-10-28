@@ -37,7 +37,7 @@ n_backtracks = 0
 
 def solve(difficulty_lvl):
 	def is_full():
-		return np.all(board)
+		return board.all()
 
 	def find_free_square():
 		for (y, x), val in np.ndenumerate(board):

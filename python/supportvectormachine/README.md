@@ -1,3 +1,0 @@
-SVM demo
-
-![](svm.png)

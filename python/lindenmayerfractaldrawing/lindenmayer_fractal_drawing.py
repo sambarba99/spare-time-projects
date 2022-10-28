@@ -132,10 +132,10 @@ def scale_and_centre_image(coords):
 	"""
 
 	coords = np.array(coords).astype(float)
-	min_x = np.min(coords[:, [0, 2]])
-	max_x = np.max(coords[:, [0, 2]])
-	min_y = np.min(coords[:, [1, 3]])
-	max_y = np.max(coords[:, [1, 3]])
+	min_x = coords[:, [0, 2]].min()
+	max_x = coords[:, [0, 2]].max()
+	min_y = coords[:, [1, 3]].min()
+	max_y = coords[:, [1, 3]].max()
 
 	k_x = (WIDTH * 0.85) / (max_x - min_x) if max_x > min_x else WIDTH * 0.85
 	k_y = (HEIGHT * 0.85) / (max_y - min_y) if max_y > min_y else HEIGHT * 0.85

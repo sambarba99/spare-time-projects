@@ -47,7 +47,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
-	x, y = x.to_numpy().astype(float), np.squeeze(y.to_numpy().astype(int))
+	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
 
 	return features, classes, x_train, y_train, x_test, y_test
@@ -79,7 +79,7 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 
 def confusion_matrix(predictions, actual):
 	if np.ndim(actual) > 1:
-		actual = np.argmax(actual, axis=1)
+		actual = actual.argmax(axis=1)  # Decode from one-hot
 	n_classes = len(np.unique(actual))
 	conf_mat = np.zeros((n_classes, n_classes)).astype(int)
 
@@ -110,7 +110,7 @@ def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
-	choice = input('Enter 1 to use banknote dataset,'
+	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\n2 for breast tumour dataset,'
 		+ '\n3 for iris dataset,'
 		+ '\n4 for pulsar dataset,'

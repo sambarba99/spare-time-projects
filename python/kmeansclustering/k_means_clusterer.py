@@ -39,7 +39,7 @@ class KMeans:
 			centroids = np.zeros((self.k, self.n_features))
 
 			for cluster_idx, cluster in enumerate(self.clusters):
-				cluster_mean = np.mean(self.x[cluster], axis=0)
+				cluster_mean = self.x[cluster].mean(axis=0)
 				centroids[cluster_idx] = cluster_mean
 
 			return centroids

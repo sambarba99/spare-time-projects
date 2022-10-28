@@ -241,7 +241,7 @@ class Agent:
 		if print_table:
 			print("\n# --- Final Q-table ('state: NESW values') --- #\n")
 			for state, action_vals in sorted(self.q_table.items()):
-				print(f'{state}: ', np.round(action_vals, 3))
+				print(f'{state}: ', action_vals.round(3))
 
 		# Draw environment grid depicting optimal policy and v(s) for each state
 		self.env.render(self.q_table)

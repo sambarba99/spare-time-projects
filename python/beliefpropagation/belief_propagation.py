@@ -7,7 +7,7 @@ Created 29/11/2021
 Each dataset row is a fully observed coffee machine, with the state of every random variable.
 These binary RVs are:
 
-Failures (aim is to detect these)                          |     # The graphical model (Bayes net) showing how the variables are related (given as conditional probs):
+Failures (aim is to detect these)                          |     The graphical model (Bayes net) showing how the variables are related (given as conditional probs):
 0 - ne (no electricity)                                    |     p_ne (prob of no electricity)
 1 - fp (fried power supply unit)                           |     p_fp (prob of fried PSU)
 2 - fc (fried circuitry)                                   |     p_fc (prob of fried circuitry)
@@ -102,8 +102,8 @@ def calculate_prob_distributions():
 			bits2 = bits[:]
 			bits2[0] = 1 - bits[0]
 
-			alpha = np.all(data[:, indices] == bits, axis=1).sum() + 1
-			beta = np.all(data[:, indices] == bits2, axis=1).sum() + 1
+			alpha = (data[:, indices] == bits).all(axis=1).sum() + 1
+			beta = (data[:, indices] == bits2).all(axis=1).sum() + 1
 
 			rvs[idx][0][tuple(bits)] = alpha / (alpha + beta)
 
@@ -298,7 +298,7 @@ def main():
 		for k, v in observations.items():
 			print(f'    {itn[k]}: {v}')
 		marginals = calculate_marginals(observations, msg_order)
-		idx = np.argmax(marginals[:7, 1])  # Consider only the failure marginals (first 7 rows)
+		idx = marginals[:7, 1].argmax()  # Consider only the failure marginals (first 7 rows)
 		print(f'    Most likely issue = {itn[idx]}')
 
 if __name__ == '__main__':

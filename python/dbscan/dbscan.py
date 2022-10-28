@@ -7,7 +7,7 @@ Created 27/12/2021
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+from sklearn.datasets import make_circles, make_moons
 
 from dbscan_clusterer import DBSCANclusterer
 
@@ -23,14 +23,21 @@ plt.rcParams['figure.figsize'] = (8, 5)
 def main():
 	# 1. Load data
 
-	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\dbscanData.csv')
+	choice = input('\nEnter C for circle-shaped data or M for moon-shaped data\n>>> ').upper()
+
+	coords, _ = make_circles(n_samples=500, noise=0.08, factor=0.5, random_state=1) \
+		if choice == 'C' else \
+		make_moons(n_samples=500, noise=0.15, random_state=1)
 
 	# Initialise all points with undefined labels
-	points = [{'x': x, 'y': y, 'label': UNDEFINED} for x, y in df.to_numpy()]
+	points = [{'x': x, 'y': y, 'label': UNDEFINED} for x, y in coords]
 
 	# 2. Cluster samples
 
-	clusterer = DBSCANclusterer(epsilon=10, min_points=12)
+	clusterer = DBSCANclusterer(epsilon=0.18, min_points=9) \
+		if choice == 'C' else \
+		DBSCANclusterer(epsilon=0.2, min_points=14)
+
 	clusterer.predict(points)
 
 	# 3. Plot clusters

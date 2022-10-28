@@ -27,9 +27,9 @@ class DecisionTree:
 			# 	if len(y) <= 1: return 0
 			#
 			# 	if np.ndim(y) > 1:
-			# 		y = np.argmax(y, axis=1)
-			# 	counts = np.bincount(y)
-			# 	probs = counts[np.nonzero(counts)] / len(y)  # np.nonzero ensures that we're not doing log(0) after
+			# 		y = y.argmax(axis=1)  # Decode from one-hot
+			# 	counts = y.bincount()
+			# 	probs = counts[counts.nonzero()] / len(y)  # .nonzero ensures that we're not doing log(0) after
 			#
 			# 	return -(probs * np.log2(probs)).sum()
 
@@ -37,7 +37,7 @@ class DecisionTree:
 				if len(y) <= 1: return 0
 
 				if np.ndim(y) > 1:
-					y = np.argmax(y, axis=1)
+					y = y.argmax(axis=1)  # Decode from one-hot
 				probs = np.bincount(y) / len(y)
 
 				return 1 - (probs ** 2).sum()
@@ -76,11 +76,11 @@ class DecisionTree:
 			return best
 
 		# If depth is 0, or all remaining class labels are the same, this is a leaf node
-		y_flat = np.argmax(y, axis=1) if np.ndim(y) > 1 else y
-		if max_depth == 0 or np.all(y_flat == y_flat[0]):
+		y_flat = y.argmax(axis=1) if np.ndim(y) > 1 else y
+		if max_depth == 0 or (y_flat == y_flat[0]).all():
 			classes, counts = np.unique(y_flat, return_counts=True)
 			self.is_leaf = True
-			self.class_idx = classes[np.argmax(counts)]
+			self.class_idx = classes[counts.argmax()]
 		else:
 			split = find_best_split(x, y)
 			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1)
@@ -100,7 +100,7 @@ class DecisionTree:
 	def evaluate(self, x, y):
 		predictions = np.array([self.predict(sample) for sample in x])
 		if np.ndim(y) > 1:
-			y = np.argmax(y, axis=1)
+			y = y.argmax(axis=1)  # Decode from one-hot
 		n_classes = len(np.unique(y))
 
 		return f1_score(y, predictions, average='binary' if n_classes == 2 else 'weighted')

@@ -29,7 +29,7 @@ class LinearRegressor:
 
 		def plot_regression_line(weights, bias, converged, first_time):
 			padding = 2
-			line_x = np.array([np.min(self.x_train) - padding, np.max(self.x_train) + padding]) \
+			line_x = np.array([self.x_train.min() - padding, self.x_train.max() + padding]) \
 				if not first_time else None
 			line_y = weights[0][0] * line_x + bias \
 				if not first_time else None
@@ -39,8 +39,8 @@ class LinearRegressor:
 			if not first_time:
 				plt.plot(line_x, line_y, color='black', linewidth=1)
 			padding = 0.5
-			plt.xlim(np.min(self.x_train) - padding, np.max(self.x_train) + padding)
-			plt.ylim(np.min(self.y_train) - padding, np.max(self.y_train) + padding)
+			plt.xlim(self.x_train.min() - padding, self.x_train.max() + padding)
+			plt.ylim(self.y_train.min() - padding, self.y_train.max() + padding)
 			plt.xlabel(fr'$x$ ({self.feature}) (standardised)')
 			plt.ylabel(fr'$y$ ({self.y_name})')
 			if first_time:

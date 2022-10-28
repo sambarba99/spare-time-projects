@@ -69,4 +69,5 @@ class RBFGenerator:
 
 def mae(pred, actual):
 	"""Mean absolute error"""
+
 	return np.abs(pred - actual).sum() / len(actual)

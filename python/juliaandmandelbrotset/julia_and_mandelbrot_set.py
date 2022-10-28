@@ -15,6 +15,7 @@ from math import log
 import sys
 
 import pygame as pg
+from tqdm import tqdm
 
 WIDTH, HEIGHT = 800, 550
 MAX_ITERATIONS = 200
@@ -52,7 +53,7 @@ def draw():
 
 	scene.fill((0, 0, 0))
 
-	for y in range(HEIGHT):
+	for y in tqdm(range(HEIGHT), desc='Drawing rows', ascii=True):
 		for x in range(WIDTH):
 			z_real = (x - x_offset) / scale
 			z_imag = (y - y_offset) / scale

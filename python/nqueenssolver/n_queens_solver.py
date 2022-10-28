@@ -94,7 +94,7 @@ def draw_grid(solve_status):
 def plot_backtracks():
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
 	# (line plt.gca().invert_yaxis() below)
-	grid_flipped = np.flip(backtrack_grid, axis=0)
+	grid_flipped = np.flipud(backtrack_grid)
 
 	ax = plt.subplot()
 	mat = ax.matshow(grid_flipped, cmap=plt.cm.plasma)

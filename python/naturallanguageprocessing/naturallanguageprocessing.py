@@ -17,6 +17,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 from gradientboost import GradientBoost
 from svmclassifier import SVMClassifier
@@ -32,7 +33,7 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 
 	cleaned_data = []
 
-	for row in raw_data:
+	for row in tqdm(raw_data, desc='Processing raw data', ascii=True):
 		review, sentiment = row.rsplit(',', maxsplit=1)
 		review = re.sub(r'["\'`]', '', review)
 		word_tokens = word_tokenize(re.sub(r'[.,]', '', review))
@@ -51,7 +52,7 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 	x_train = vectorizer.fit_transform(x_train).toarray()
 	x_test = vectorizer.transform(x_test).toarray()
 
-	print('x_train shape:', x_train.shape)
+	print('\nx_train shape:', x_train.shape)
 	print('y_train shape:', y_train.shape)
 	print('x_test shape:', x_test.shape)
 	print('y_test shape:', y_test.shape)

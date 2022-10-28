@@ -43,9 +43,9 @@ def load_data(path):
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
-	x, y = x.to_numpy().astype(float), np.squeeze(y.to_numpy().astype(int))
+	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
 	if np.ndim(y) > 1:
-		y = np.argmax(y, axis=1)
+		y = y.argmax(axis=1)  # Decode from one-hot
 
 	return x, y
 
@@ -76,7 +76,7 @@ def plot_confusion_matrix(k, conf_mat, f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	choice = input('Enter 1 to use banknote dataset,'
+	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\n2 for breast tumour dataset,'
 		+ '\n3 for iris dataset,'
 		+ '\nor 4 for wine dataset\n>>> ')

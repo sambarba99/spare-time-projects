@@ -50,7 +50,7 @@ def load_data(train_test_ratio=0.8):
 	corr_coeffs[-1, -1] = 0
 
 	# Index of column with highest correlation with y
-	idx = np.argmax(np.abs(corr_coeffs[:, -1]))
+	idx = np.abs(corr_coeffs[:, -1]).argmax()
 	# Keep strongest
 	max_corr = corr_coeffs[idx, -1]
 	feature = features[idx]
@@ -62,8 +62,8 @@ def load_data(train_test_ratio=0.8):
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
 
 	if feature not in x_to_encode:
-		training_mean = np.mean(x_train)
-		training_std = np.std(x_train)
+		training_mean = x_train.mean()
+		training_std = x_train.std()
 		x_train = (x_train - training_mean) / training_std
 		x_test = (x_test - training_mean) / training_std
 

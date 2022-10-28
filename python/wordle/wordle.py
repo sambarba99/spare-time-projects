@@ -16,6 +16,7 @@ from time import sleep
 
 import numpy as np
 import pygame as pg
+from tqdm import tqdm
 
 WORD_LEN = 5
 MAX_ATTEMPTS = 6
@@ -55,7 +56,7 @@ def generate_pattern_dict(word_list):
 
 	pattern_dict = {w: dict() for w in word_list}
 
-	for w1 in word_list:
+	for w1 in tqdm(word_list, desc='Generating pattern dictionary', ascii=True):
 		for w2 in word_list:
 			pattern = get_information(w1, w2, update_keyboard=False)
 			if pattern not in pattern_dict[w1]:
@@ -69,7 +70,7 @@ def calculate_word_entropies(words_left, pattern_dict, all_patterns):
 		if len(y) <= 1: return 0
 
 		counts = np.bincount(y)
-		probs = counts[np.nonzero(counts)] / len(y)  # np.nonzero ensures that we're not doing log(0) after
+		probs = counts[counts.nonzero()] / len(y)  # .nonzero ensures that we're not doing log(0) after
 
 		return -(probs * np.log2(probs)).sum()
 
@@ -218,17 +219,14 @@ def main():
 	global attempts, attempt_num, col_num, target_word, game_over, scene, \
 		green_letters, yellow_letters, grey_letters
 
+	with open('five_letter_words.txt', 'r') as file:
+		all_words = file.read().splitlines()
+	pattern_dict = generate_pattern_dict(all_words)
+
 	pg.init()
 	pg.display.set_caption('Wordle')
 	scene = pg.display.set_mode((WORD_LEN * (CELL_SIZE + GAP) + 2 * GRID_OFFSET,
 		MAX_ATTEMPTS * (CELL_SIZE + GAP) + 2 * GRID_OFFSET + 180))
-
-	draw_grid(colour_current_row=False, status='Generating pattern dictionary...')
-
-	with open('five_letter_words.txt', 'r') as file:
-		all_words = file.read().splitlines()
-
-	pattern_dict = generate_pattern_dict(all_words)
 
 	draw_grid(colour_current_row=False)
 
@@ -241,7 +239,7 @@ def main():
 
 	# If using AI to solve online wordle...
 
-	choice = input('Solving online wordle? (Y/N)\n>>> ').upper()
+	choice = input('\nSolving online wordle? (Y/N)\n>>> ').upper()
 	if choice == 'Y':
 		# Suggest start word with highest entropy
 		entropies = calculate_word_entropies(words_left, pattern_dict, all_patterns)

@@ -1,5 +1,5 @@
 """
-General neural network demo for binary classification, multiclass classification, or regression
+(TensorFlow) Neural network demo for binary classification, multiclass classification, or regression
 
 Author: Sam Barba
 Created 09/10/2022
@@ -18,7 +18,6 @@ import pandas as pd
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.random import set_seed
 
 from neural_net_plotter import plot_model
@@ -37,7 +36,6 @@ def load_classification_data(path):
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
-	classes = sorted(y.unique())
 
 	for col in x_to_encode:
 		if len(x[col].unique()) > 2:
@@ -46,7 +44,7 @@ def load_classification_data(path):
 		else:  # Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
-	if len(classes) > 2:
+	if len(y.unique()) > 2:
 		one_hot = pd.get_dummies(y, prefix='class')
 		y = pd.concat([y, one_hot], axis=1)
 		y = y.drop(y.columns[0], axis=1)
@@ -57,17 +55,17 @@ def load_classification_data(path):
 
 	# Standardise x (numeric features only)
 	numeric_feature_indices = [idx for idx, f in enumerate(x.columns) if f not in x_to_encode]
-	x, y = x.to_numpy().astype(float), np.squeeze(y.to_numpy().astype(int))
+	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
 	# Train:validation:test ratio of 0.7:0.2:0.1
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, stratify=y_train, random_state=1)
-	training_mean = np.mean(x_train[:, numeric_feature_indices], axis=0)
-	training_std = np.std(x_train[:, numeric_feature_indices], axis=0)
+	training_mean = x_train[:, numeric_feature_indices].mean(axis=0)
+	training_std = x_train[:, numeric_feature_indices].std(axis=0)
 	x_train[:, numeric_feature_indices] = (x_train[:, numeric_feature_indices] - training_mean) / training_std
 	x_val[:, numeric_feature_indices] = (x_val[:, numeric_feature_indices] - training_mean) / training_std
 	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
 
-	return classes, x_train, y_train, x_val, y_val, x_test, y_test
+	return x_train, y_train, x_val, y_val, x_test, y_test
 
 def load_regression_data(path):
 	df = pd.read_csv(path)
@@ -91,8 +89,8 @@ def load_regression_data(path):
 	# Train:validation:test ratio of 0.7:0.2:0.1
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, random_state=1)
-	training_mean = np.mean(x_train[:, numeric_feature_indices], axis=0)
-	training_std = np.std(x_train[:, numeric_feature_indices], axis=0)
+	training_mean = x_train[:, numeric_feature_indices].mean(axis=0)
+	training_std = x_train[:, numeric_feature_indices].mean(axis=0)
 	x_train[:, numeric_feature_indices] = (x_train[:, numeric_feature_indices] - training_mean) / training_std
 	x_val[:, numeric_feature_indices] = (x_val[:, numeric_feature_indices] - training_mean) / training_std
 	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
@@ -169,72 +167,78 @@ def main():
 			print('Bad choice')
 			return
 
-	classes = None
 	if task_choice in 'BM':
-		classes, x_train, y_train, x_val, y_val, x_test, y_test = load_classification_data(path)
+		x_train, y_train, x_val, y_val, x_test, y_test = load_classification_data(path)
 	else:
 		x_train, y_train, x_val, y_val, x_test, y_test = load_regression_data(path)
 
-	# ----- Build model ----- #
+	# 1. Build model
 
 	n_features = x_train.shape[1]
+	n_targets = 1 if task_choice in 'BR' else len(np.unique(y_train, axis=0))
 
 	match task_choice + dataset_choice:
 		case 'B1' | 'B2' | 'B3':  # Banknote, breast tumour, or pulsar dataset
 			model = Sequential([
 				Dense(8, input_shape=(n_features,), activation='relu'),
-				Dense(1, input_shape=(n_features,), activation='sigmoid')
+				Dense(n_targets, input_shape=(n_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 		case 'B4':  # Titanic dataset
 			model = Sequential([
 				Dense(8, input_shape=(n_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(1, input_shape=(n_features,), activation='sigmoid')
+				Dense(n_targets, input_shape=(n_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 		case 'MI':  # Iris dataset
 			model = Sequential([
 				Dense(64, input_shape=(n_features,), activation='relu'),
 				Dense(64, input_shape=(n_features,), activation='relu'),
-				Dense(len(classes), input_shape=(n_features,), activation='softmax')
+				Dense(n_targets, input_shape=(n_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 		case 'MW':  # Wine dataset
 			model = Sequential([
 				Dense(16, input_shape=(n_features,), activation='relu'),
-				Dense(len(classes), input_shape=(n_features,), activation='softmax')
+				Dense(n_targets, input_shape=(n_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 		case 'RB':  # Boston housing dataset
 			model = Sequential([
 				Dense(256, input_shape=(n_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(1, input_shape=(n_features,), activation='linear')
+				Dense(n_targets, input_shape=(n_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
+			model.compile(loss='mse', metrics='mae')
+
 		case 'RC':  # Car value dataset
 			model = Sequential([
 				Dense(256, input_shape=(n_features,), activation='relu'),
 				Dense(256, input_shape=(n_features,), activation='relu'),
-				Dense(1, input_shape=(n_features,), activation='linear')
+				Dense(n_targets, input_shape=(n_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
+			model.compile(loss='mse', metrics='mae')
+
 		case _:  # Medical insurance dataset
 			model = Sequential([
 				Dense(4096, input_shape=(n_features,), activation='relu'),
-				Dense(1, input_shape=(n_features,), activation='linear')
+				Dense(n_targets, input_shape=(n_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics=[RootMeanSquaredError()])
+			model.compile(loss='mse', metrics='mae')
 
 	model.build(input_shape=(n_features,))
 	model.summary()
 	plot_model(model)
 	vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
-	# ----- Training ----- #
+	# 2. Training
 
-	print('\nTraining...')
+	print('\n----- TRAINING -----\n')
 
 	early_stopping = EarlyStopping(monitor='val_loss',
 		min_delta=0,
@@ -247,65 +251,65 @@ def main():
 		callbacks=[early_stopping],
 		verbose=0)
 
-	# Plot loss and accuracy throughout training
+	# Plot loss and accuracy/MAE throughout training
 
-	if task_choice in 'BM':
-		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True)
-		ax_loss.plot(history.history['loss'], label='Training loss')
-		ax_loss.plot(history.history['val_loss'], label='Validation loss')
-		ax_accuracy.plot(history.history['accuracy'], label='Training accuracy')
-		ax_accuracy.plot(history.history['val_accuracy'], label='Validation accuracy')
-		ax_accuracy.set_xlabel('Epoch')
-		ax_accuracy.set_ylabel('Accuracy')
-		if task_choice == 'B':
-			ax_loss.set_ylabel('Binary\ncross-entropy')
-		else:
-			ax_loss.set_ylabel('Categorical\ncross-entropy')
-		ax_loss.legend()
-		ax_accuracy.legend()
-		plt.suptitle('Loss and accuracy during training', y=0.95)
-	else:
-		plt.plot(history.history['loss'], label='Training MSE')
-		plt.plot(history.history['val_loss'], label='Validation MSE')
-		plt.xlabel('Epoch')
-		plt.ylabel('MSE')
-		plt.legend()
-		plt.title('MSE during training')
+	loss = [history.history['loss'], history.history['val_loss']]
+	metric = [history.history['accuracy'], history.history['val_accuracy']] \
+		if task_choice in 'BM' \
+		else [history.history['mae'], history.history['val_mae']]
+
+	_, (ax_loss, ax_metric) = plt.subplots(nrows=2, sharex=True)
+	ax_loss.plot(loss[0], label='Training loss')
+	ax_loss.plot(loss[1], label='Validation loss')
+	ax_metric.plot(metric[0], label='Training accuracy' if task_choice in 'BM' else 'Training MAE')
+	ax_metric.plot(metric[1], label='Validation accuracy' if task_choice in 'BM' else 'Validation MAE')
+	ax_metric.set_xlabel('Epoch')
+	ax_metric.set_ylabel('Accuracy' if task_choice in 'BM' else 'MAE')
+	if task_choice == 'B': ax_loss.set_ylabel('Binary\ncross-entropy')
+	elif task_choice == 'M': ax_loss.set_ylabel('Categorical\ncross-entropy')
+	else: ax_loss.set_ylabel('MSE')
+	ax_loss.legend()
+	ax_metric.legend()
+	plt.suptitle(f'Loss and {"accuracy" if task_choice in "BM" else "MAE"} during training', y=0.95)
 	plt.show()
 
-	# ----- Evaluation ----- #
+	# 3. Evaluation
 
-	print('\nEvaluation\n')
+	print('----- EVALUATION -----\n')
 
 	if task_choice in 'BM':
 		test_loss, test_accuracy = model.evaluate(x_test, y_test)
 		print('\nTest loss:', test_loss)
 		print('Test accuracy:', test_accuracy)
 	else:
-		test_mse, test_rmse = model.evaluate(x_test, y_test)
+		test_mse, test_mae = model.evaluate(x_test, y_test)
 		print('\nTest MSE:', test_mse)
-		print('Test RMSE:', test_rmse)
+		print('Test MAE:', test_mae)
 
 	if task_choice == 'R': return
 
-	# ----- Testing ----- #
+	# 4. Testing
 
-	print('\nTesting')
+	print('\n----- TESTING -----')
 
 	train_predictions = model.predict(x_train)
 	test_predictions = model.predict(x_test)
 
 	if task_choice == 'B':
-		train_predictions = np.where(train_predictions > 0.5, 1, 0)
-		test_predictions = np.where(test_predictions > 0.5, 1, 0)
+		train_predictions = train_predictions.round().astype(int)
+		test_predictions = test_predictions.round().astype(int)
 	else:  # Multiclass
-		y_train, y_test = np.argmax(y_train, axis=1), np.argmax(y_test, axis=1)
-		train_predictions = np.argmax(train_predictions, axis=1)
-		test_predictions = np.argmax(test_predictions, axis=1)
+		y_train, y_test = y_train.argmax(axis=1), y_test.argmax(axis=1)
+		train_predictions = train_predictions.argmax(axis=1)
+		test_predictions = test_predictions.argmax(axis=1)
 
 	train_conf_mat, train_f1 = confusion_matrix(train_predictions, y_train)
 	test_conf_mat, test_f1 = confusion_matrix(test_predictions, y_test)
 	plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1)
+
+	# To save/load a model:
+	# model.save('model.h5')
+	# new_model = keras.models.load_model('model.h5')
 
 if __name__ == '__main__':
 	main()

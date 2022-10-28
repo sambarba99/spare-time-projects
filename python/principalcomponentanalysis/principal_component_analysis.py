@@ -43,20 +43,20 @@ def load_data(path):
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
-	x, y = x.to_numpy().astype(float), y.to_numpy().astype(int)
+	x, y = x.to_numpy().astype(float), y.squeeze().to_numpy().astype(int)
 	x = (x - np.min(x, axis=0)) / (np.max(x, axis=0) - np.min(x, axis=0))  # Normalise
 
 	return classes, x, y
 
 def transform(x, n_components=2):
-	x -= np.mean(x, axis=0)
+	x -= x.mean(axis=0)
 
 	covariance = np.cov(x.T)
-	variability = np.trace(covariance)
+	variability = covariance.trace()
 
 	eigenvalues, eigenvectors = np.linalg.eig(covariance)
 	eigenvectors = eigenvectors.T
-	indices = np.argsort(eigenvalues)[::-1]
+	indices = eigenvalues.argsort()[::-1]
 	eigenvalues = eigenvalues[indices]
 	eigenvectors = eigenvectors[indices]
 
@@ -71,7 +71,7 @@ def transform(x, n_components=2):
 # ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
-	choice = input('Enter 1 to use banknote dataset,'
+	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\n2 for breast tumour dataset,'
 		+ '\n3 for iris dataset,'
 		+ '\n4 for pulsar dataset,'
@@ -88,20 +88,15 @@ if __name__ == '__main__':
 
 	classes, x, y = load_data(path)
 	x_transform, new_variability = transform(x)
+	if np.ndim(y) > 1:
+		y = y.argmax(axis=1)  # Decode from one-hot (so can plot with c=y)
 
-	if len(classes) == 2:
-		y = np.squeeze(y)
-		plt.scatter(*x_transform[y == 0].T, alpha=0.7, label=classes[0])
-		plt.scatter(*x_transform[y == 1].T, alpha=0.7, label=classes[1])
-	else:
-		for idx, class_ in enumerate(classes):
-			class_indices = np.where(np.argmax(y, axis=1) == idx)[0]
-			plt.scatter(*x_transform[class_indices].T, alpha=0.7, label=class_)
-
+	scatter = plt.scatter(*x_transform.T, c=y, alpha=0.7, cmap=plt.cm.brg)
 	plt.xlabel('Principal component 1')
 	plt.ylabel('Principal component 2')
 	plt.title(fr'Shape of $x$: {x.shape}'
 		f'\nShape of PCA transform: {x_transform.shape}'
 		f'\nCaptured variability: {new_variability}')
-	plt.legend()
+	handles, _ = scatter.legend_elements()
+	plt.legend(handles, classes)
 	plt.show()

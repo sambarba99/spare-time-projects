@@ -109,7 +109,7 @@ class GridEnv:
 					scene.blit(act_value_lbl, lbl_rect)
 
 					# Draw arrow pointing in optimal direction (best policy)
-					best_action = np.argmax(final_q_table[y, x])
+					best_action = final_q_table[y, x].argmax()
 					if best_action == NORTH: pg.draw.polygon(scene, ARROW_COL, shift_arrow(NORTH_ARROW, x, y))
 					if best_action == EAST: pg.draw.polygon(scene, ARROW_COL, shift_arrow(EAST_ARROW, x, y))
 					if best_action == SOUTH: pg.draw.polygon(scene, ARROW_COL, shift_arrow(SOUTH_ARROW, x, y))

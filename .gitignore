@@ -10,12 +10,14 @@
 !*.jpg
 !*.md
 !*.png
+!*.pth
 !*.py
 !*.txt
 
 # Ignore PyCharm .idea folders
 python/*/.idea/
 
-# Ignore large UTKFace dataset and model
+# Ignore large UTKFace dataset and models
 datasets/UTKFace/
-python/agegenderraceconvnet/model.h5
+python/pytorchutkface/model.pth
+python/tensorflowutkface/model.h5

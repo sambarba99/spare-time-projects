@@ -1,5 +1,5 @@
 """
-VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
+(TensorFlow) VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
 
 Author: Sam Barba
 Created 22/10/2022
@@ -52,7 +52,7 @@ def preprocess_img(path):
 
 	return img
 
-def generate_splits(df_shape):
+def create_splits(df_shape):
 	train_prop, val_prop = 0.8, 0.1  # Test proportion = 0.1
 	train_size = int(df_shape * train_prop)
 	val_size = int(df_shape * val_prop)
@@ -64,28 +64,21 @@ def generate_splits(df_shape):
 
 	return train_idx, val_idx, test_idx
 
-def data_generator(*, preprocessed_images, df, idx, is_training):
-	images, ages, races, genders = [], [], [], []
+def data_generator(*, preprocessed_images, df, idx):
+	batches = [idx[i:i + BATCH_SIZE] for i in range(0, len(idx), BATCH_SIZE)]
 
-	while True:
-		for i in idx:
-			img = preprocessed_images[i]
-			age = df.iloc[i, 1]
-			gender = df.iloc[i, 2]
-			race = df.iloc[i, 3:]
+	for batch in batches:
+		images = [preprocessed_images[i] for i in batch]
+		ages = [df.iloc[i, 1] for i in batch]
+		genders = [df.iloc[i, 2] for i in batch]
+		races = [df.iloc[i, 3:] for i in batch]
 
-			images.append(img)
-			ages.append(age)
-			genders.append(gender)
-			races.append(race)
+		batch_x = np.array(images)
+		batch_y = [np.array(ages), np.array(genders), np.array(races, dtype=np.int32)]
 
-			if len(images) >= BATCH_SIZE:
-				yield np.array(images), [np.array(ages), np.array(genders), np.array(races, dtype=np.int32)]
-				images, ages, genders, races = [], [], [], []
+		yield batch_x, batch_y
 
-		if not is_training: break
-
-def make_model():
+def build_model():
 	vgg = VGG16(include_top=False, pooling='avg', input_shape=(128, 128, 3))
 	for layer in vgg.layers[:-6]:
 		layer.trainable = False
@@ -173,21 +166,22 @@ def main():
 	df = clean_data(df)
 	print(f'\nCleaned data:\n{df}\n')
 
-	processed = []
-	for p in tqdm(df['img_path'], desc='Preprocessing images'):
-		processed.append(preprocess_img(p))
+	processed = [
+		preprocess_img(p) for p in
+		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
+	]
 
-	train_idx, val_idx, test_idx = generate_splits(df.shape[0])
-	train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx, is_training=True)
-	val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx, is_training=True)
-	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, is_training=False)
+	train_idx, val_idx, test_idx = create_splits(df.shape[0])
+	train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx)
+	val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx)
 
 	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
 
 	if choice == 'T':
-		# 5. Create model
+		# 5. Build model
 
-		model = make_model()
+		model = build_model()
 		print('\nModel summary:\n')
 		model.summary()
 		plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
@@ -221,9 +215,9 @@ def main():
 
 		history = model.fit(train_gen,
 			epochs=50,
-			steps_per_epoch=len(train_idx) // BATCH_SIZE,
+			steps_per_epoch=int(np.ceil(len(train_idx) / BATCH_SIZE)),
 			validation_data=val_gen,
-			validation_steps=len(val_idx) // BATCH_SIZE,
+			validation_steps=int(np.ceil(len(val_idx) / BATCH_SIZE)),
 			callbacks=[early_stopping],
 			verbose=1)
 
@@ -265,17 +259,13 @@ def main():
 
 		model.save('model.h5')
 	elif choice == 'L':
-		try:
-			model = load_model('model.h5')
-		except Exception as e:
-			print(e)
-			return
+		model = load_model('model.h5')
 	else:
 		return
 
-	# 7. Evaluation
+	# 7. Testing/evaluation
 
-	print('\n----- EVALUATION -----\n')
+	print('\n----- TESTING/EVALUATION -----\n')
 
 	_, test_loss_age, test_loss_gender, test_loss_race, test_mae_age, test_acc_gender, test_acc_race = model.evaluate(test_gen)
 	print('\nTest age loss (MSE):', test_loss_age)
@@ -286,7 +276,7 @@ def main():
 	print('Test race accuracy:', test_acc_race)
 
 	# Plot predictions of first 9 images of first test batch
-	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, is_training=False)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx)
 	first_batch = next(test_gen)
 	images, (ages, genders, races) = first_batch
 
@@ -300,14 +290,14 @@ def main():
 		# (it's 0 for male, 1 for female)
 		gender = 1 - gender
 		gender = DATASET_DICT['gender_id'][str(gender)]
-		race = np.argmax(race)
+		race = race.argmax()
 		race = DATASET_DICT['race_id'][str(race)]
 
 		age_pred, gender_pred, race_pred = model.predict(np.expand_dims(img, 0))
 		age_pred = round(age_pred[0][0])
 		gender_pred = 1 - round(gender_pred[0][0])
 		gender_pred = DATASET_DICT['gender_id'][str(gender_pred)]
-		race_pred = np.argmax(race_pred[0])
+		race_pred = race_pred[0].argmax()
 		race_pred = DATASET_DICT['race_id'][str(race_pred)]
 
 		ax.imshow(Image.fromarray((img * 255).astype(np.uint8)))

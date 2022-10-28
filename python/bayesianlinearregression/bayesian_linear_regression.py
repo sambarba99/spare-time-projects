@@ -31,13 +31,13 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	if lower_bounds is not None and upper_bounds is not None:
 		plt.fill_between(x_test.flatten(), lower_bounds, upper_bounds, color='tab:blue', alpha=0.2,
 			zorder=0, label='Error')
-		plot_lim1 = np.min(lower_bounds) - 0.2
-		plot_lim2 = np.max(upper_bounds) + 0.2
+		plot_lim1 = lower_bounds.min() - 0.2
+		plot_lim2 = upper_bounds.max() + 0.2
 	else:
 		plot_lim1 = np.min(np.append(y_train, y_test)) - 0.2
 		plot_lim2 = np.max(np.append(y_train, y_test)) + 0.2
 
-	plt.ylim([plot_lim1, plot_lim2])
+	plt.ylim(plot_lim1, plot_lim2)
 	plt.xlabel('x')
 	plt.ylabel('y')
 	plt.title(fr'Regression with $\lambda$ = {lam:.4f}'
@@ -148,8 +148,8 @@ def main():
 
 	plt.show()
 
-	min_err_val_idx = np.argmin(err_val)
-	min_neg_log_evidence_idx = np.argmin(neg_log_evidence)
+	min_err_val_idx = err_val.argmin()
+	min_neg_log_evidence_idx = neg_log_evidence.argmin()
 
 	print('\nMin point on test curve:', min(err_test))
 	print('Point on test curve corresponding to min of val curve:', err_test[min_err_val_idx])
@@ -168,7 +168,7 @@ def main():
 	mu, sigma = compute_posterior(phi_train, y_train, alpha=best_alpha, s2=SIGMA ** 2)
 	y_posterior = phi_test.dot(mu).flatten()
 	var_matrix = SIGMA ** 2 + phi_test.dot(sigma).dot(phi_test.T)
-	var_matrix = np.diagonal(var_matrix)
+	var_matrix = var_matrix.diagonal()
 	sd = var_matrix ** 0.5
 	lower_bounds = y_posterior - sd
 	upper_bounds = y_posterior + sd

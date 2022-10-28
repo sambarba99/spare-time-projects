@@ -44,8 +44,8 @@ def generate_and_draw_graph():
 			np_coords - np.array([graph_generator.max_x, graph_generator.max_y]),
 			axis=1
 		)
-		start_vertex = graph[np.argmin(distances_from_top_left)]
-		target_vertex = graph[np.argmin(distances_from_bottom_right)]
+		start_vertex = graph[distances_from_top_left.argmin()]
+		target_vertex = graph[distances_from_bottom_right.argmin()]
 
 	path = None
 	draw()

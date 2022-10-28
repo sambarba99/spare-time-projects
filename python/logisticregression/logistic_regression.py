@@ -53,7 +53,7 @@ def load_data(path, train_test_ratio=0.8):
 	corr_coeffs[-1, -1] = 0
 
 	# Indices of columns in descending order of correlation with y
-	indices = np.argsort(np.abs(corr_coeffs[:, -1]))[::-1]
+	indices = np.abs(corr_coeffs[:, -1]).argsort()[::-1]
 	# Keep 2 strongest
 	indices = indices[:2]
 	max_corr = corr_coeffs[indices, -1]
@@ -65,8 +65,8 @@ def load_data(path, train_test_ratio=0.8):
 
 	# Standardise x
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
-	training_mean = np.mean(x_train, axis=0)
-	training_std = np.std(x_train, axis=0)
+	training_mean = x_train.mean(axis=0)
+	training_std = x_train.std(axis=0)
 	x_train = (x_train - training_mean) / training_std
 	x_test = (x_test - training_mean) / training_std
 
@@ -103,7 +103,7 @@ def plot_confusion_matrices(train_conf_mat, train_f1, test_conf_mat, test_f1):
 # ---------------------------------------------------------------------------------------------------- #
 
 def main():
-	choice = input('Enter 1 to use banknote dataset,'
+	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\nor 2 for breast tumour dataset\n>>> ')
 
 	match choice:

@@ -1,4 +1,4 @@
-Keras convolutional NN for MNIST digit recognition
+(TensorFlow) MNIST convolutional neural network
 
 Training samples:
 
@@ -13,3 +13,7 @@ Corresponding convolutional layer feature maps:
 
 ![](conv1_feature_map.png)
 ![](conv2_feature_map.png)
+
+Model architecture:
+
+![](model.png)

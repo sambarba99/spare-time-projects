@@ -32,8 +32,8 @@ class NaiveBayesClassifier:
 
 		for idx, c in enumerate(self.classes):
 			xc = self.x_train[self.y_train == c]
-			self.means[idx, :] = np.mean(xc, axis=0)
-			self.variances[idx, :] = np.var(xc, axis=0)
+			self.means[idx, :] = xc.mean(axis=0)
+			self.variances[idx, :] = xc.var(axis=0)
 			self.priors[idx] = len(xc) / n_samples
 
 	def predict(self, inputs):

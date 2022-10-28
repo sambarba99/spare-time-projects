@@ -39,7 +39,7 @@ class GraphGen:
 
 			neighbour_dists = np.linalg.norm(coords - c, axis=1)
 			# '1:' to exlude self from closest
-			closest_n = np.argsort(neighbour_dists)[1:np.random.randint(1, self.max_neighbours + 1) + 1]
+			closest_n = neighbour_dists.argsort()[1:np.random.randint(1, self.max_neighbours + 1) + 1]
 
 			for neighbour_idx in closest_n:
 				if neighbour_idx not in adjacency_list:
