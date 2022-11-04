@@ -15,101 +15,101 @@ import pygame as pg
 from daedalus import Daedalus
 from graph_gen import GraphGen
 
-CELL_SIZE = 6  # For maze mode
+CELL_SIZE = 7  # For maze mode
 
-maze_mode = True  # False means normal graph (vertices/edges) mode
+maze_mode = True  # False means normal graph (nodes/edges) mode
 maze_generator = Daedalus()
-graph_generator = GraphGen(max_x=maze_generator.cols * CELL_SIZE, max_y=maze_generator.rows * CELL_SIZE)
-graph = start_vertex = target_vertex = path = None
+graph_generator = GraphGen(x_max=maze_generator.cols * CELL_SIZE, y_max=maze_generator.rows * CELL_SIZE)
+graph = start_node = target_node = path = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
 def generate_and_draw_graph():
-	global graph, start_vertex, target_vertex, path
+	global graph, start_node, target_node, path
 
 	if maze_mode:
 		graph = maze_generator.make_maze()
 		# Start and target are top-left and bottom-right, respectively
-		start_vertex = graph[0][0]
-		target_vertex = graph[-1][-1]
+		start_node = graph[0][0]
+		target_node = graph[-1][-1]
 	else:
 		graph = graph_generator.make_graph()
-		np_coords = np.array(list(zip([v.x for v in graph], [v.y for v in graph])))
+		np_coords = np.array(list(zip([n.x for n in graph], [n.y for n in graph])))
 
-		# Start is top-left-most vertex; target is bottom-right-most vertex
+		# Start is top-left-most node; target is bottom-right-most node
 		distances_from_top_left = np.linalg.norm(np_coords, axis=1)
 		distances_from_bottom_right = np.linalg.norm(
-			np_coords - np.array([graph_generator.max_x, graph_generator.max_y]),
+			np_coords - np.array([graph_generator.x_max, graph_generator.y_max]),
 			axis=1
 		)
-		start_vertex = graph[distances_from_top_left.argmin()]
-		target_vertex = graph[distances_from_bottom_right.argmin()]
+		start_node = graph[distances_from_top_left.argmin()]
+		target_node = graph[distances_from_bottom_right.argmin()]
 
 	path = None
 	draw()
 
 def a_star():
-	open_set, closed_set = {start_vertex}, set()
+	open_set, closed_set = {start_node}, set()
 
 	while open_set:
 		# Sort by f_cost then by h_cost
-		cheapest_vertex = min(open_set, key=lambda v: (v.get_f_cost(), v.h_cost))
+		cheapest_node = min(open_set, key=lambda n: (n.get_f_cost(), n.h_cost))
 
-		if cheapest_vertex is target_vertex:
+		if cheapest_node is target_node:
 			retrace_path()
 			draw()
 			return
 
-		open_set.remove(cheapest_vertex)
-		closed_set.add(cheapest_vertex)
+		open_set.remove(cheapest_node)
+		closed_set.add(cheapest_node)
 
-		neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False) \
+		neighbours = cheapest_node.get_neighbours(graph, maze_generation=False) \
 			if maze_mode \
-			else cheapest_vertex.neighbours
+			else cheapest_node.neighbours
 
 		for n in neighbours:
 			if n in closed_set: continue
 
-			cost_move_to_n = cheapest_vertex.g_cost + cheapest_vertex.dist(n)
+			cost_move_to_n = cheapest_node.g_cost + cheapest_node.dist(n)
 			if cost_move_to_n < n.g_cost or n not in open_set:
 				n.g_cost = cost_move_to_n
-				n.h_cost = n.dist(target_vertex)
-				n.parent = cheapest_vertex
+				n.h_cost = n.dist(target_node)
+				n.parent = cheapest_node
 				open_set.add(n)
 
 def dijkstra():
 	"""Generates Shortest Path Tree"""
 
-	unvisited = {vertex for row in graph for vertex in row if not vertex.is_wall} \
+	unvisited = {node for row in graph for node in row if not node.is_wall} \
 		if maze_mode \
-		else {v for v in graph}
+		else {n for n in graph}
 
-	# Costs nothing to get from start to start (start_vertex parent will always be None)
-	start_vertex.cost = 0
+	# Costs nothing to get from start to start (start_node parent will always be None)
+	start_node.cost = 0
 
 	while unvisited:
-		cheapest_vertex = min(unvisited, key=lambda v: v.cost)
+		cheapest_node = min(unvisited, key=lambda node: node.cost)
 
-		if cheapest_vertex is target_vertex:
+		if cheapest_node is target_node:
 			# Stop generating Shortest Path Tree
-			# (only need path from start_vertex to target_vertex)
+			# (only need path from start_node to target_node)
 			break
 
-		neighbours = cheapest_vertex.get_neighbours(graph, maze_generation=False) \
+		neighbours = cheapest_node.get_neighbours(graph, maze_generation=False) \
 			if maze_mode \
-			else cheapest_vertex.neighbours
+			else cheapest_node.neighbours
 
 		for n in neighbours:
-			step = 1 if maze_mode else cheapest_vertex.dist(n)
+			step = 1 if maze_mode else cheapest_node.dist(n)
 
-			if cheapest_vertex.cost + step < n.cost:
-				n.cost = cheapest_vertex.cost + step
-				n.parent = cheapest_vertex
+			if cheapest_node.cost + step < n.cost:
+				n.cost = cheapest_node.cost + step
+				n.parent = cheapest_node
 
-		# Cheapest vertex has now been visited
-		unvisited.remove(cheapest_vertex)
+		# Cheapest node has now been visited
+		unvisited.remove(cheapest_node)
 
 	retrace_path()
 	draw()
@@ -118,10 +118,10 @@ def retrace_path():
 	global path
 
 	# Trace back from end
-	current = target_vertex
+	current = target_node
 	retraced_path = [current]
 
-	while current != start_vertex:
+	while current != start_node:
 		current = current.parent
 		retraced_path.append(current)
 
@@ -136,48 +136,33 @@ def draw():
 				c = (0, 0, 0) if graph[y][x].is_wall else (80, 80, 80)
 
 				pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-	else:
-		# Draw edges then vertices on top
-		for v in graph:
-			for neighbour in v.neighbours:
-				pg.draw.line(scene, (160, 160, 160), (v.x, v.y), (neighbour.x, neighbour.y))
 
-		for v in graph:
-			pg.draw.circle(scene, (255, 0, 0), (v.x, v.y), 4)
+		if path:
+			time_interval = 5 / len(path)  # Want drawing to last around 5s
+
+			for node in path:
+				for event in pg.event.get():
+					if event.type == pg.QUIT:
+						sys.exit()
+				pg.draw.rect(scene, (220, 0, 0), pg.Rect(node.x * CELL_SIZE, node.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+				sleep(time_interval)
+				pg.display.update()
+	else:
+		# Draw edges then nodes on top
+		for node in graph:
+			for neighbour in node.neighbours:
+				pg.draw.line(scene, (160, 160, 160), (node.x, node.y), (neighbour.x, neighbour.y))
+
+		if path:
+			for node, next_node in zip(path[:-1], path[1:]):
+				pg.draw.line(scene, (0, 255, 0), (node.x, node.y), (next_node.x, next_node.y), 4)
+
+		for node in graph:
+			pg.draw.circle(scene, (255, 0, 0), (node.x, node.y), 3)
 
 		# Start and target
-		pg.draw.circle(scene, (0, 80, 255), (start_vertex.x, start_vertex.y), 8)
-		pg.draw.circle(scene, (0, 80, 255), (target_vertex.x, target_vertex.y), 8)
-
-	pg.display.update()
-
-	if not path: return
-
-	if maze_mode:
-		time_interval = 5 / len(path)  # Want drawing to last around 5s
-
-		for v in path:
-			for event in pg.event.get():
-				if event.type == pg.QUIT:
-					sys.exit()
-			pg.draw.rect(scene, (220, 0, 0), pg.Rect(v.x * CELL_SIZE, v.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-			sleep(time_interval)
-			pg.display.update()
-	else:
-		# Draw edges then vertices on top
-		for v in graph:
-			for neighbour in v.neighbours:
-				pg.draw.line(scene, (160, 160, 160), (v.x, v.y), (neighbour.x, neighbour.y))
-
-		for vertex, next_vertex in zip(path[:-1], path[1:]):
-			pg.draw.line(scene, (0, 255, 0), (vertex.x, vertex.y), (next_vertex.x, next_vertex.y), 4)
-
-		for v in graph:
-			pg.draw.circle(scene, (255, 0, 0), (v.x, v.y), 4)
-
-		# Start and target
-		pg.draw.circle(scene, (0, 80, 255), (start_vertex.x, start_vertex.y), 8)
-		pg.draw.circle(scene, (0, 80, 255), (target_vertex.x, target_vertex.y), 8)
+		pg.draw.circle(scene, (0, 80, 255), (start_node.x, start_node.y), 6)
+		pg.draw.circle(scene, (0, 80, 255), (target_node.x, target_node.y), 6)
 
 	pg.display.update()
 

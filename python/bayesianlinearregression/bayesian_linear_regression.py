@@ -87,7 +87,7 @@ def main():
 	# Gaussians to make the basis 'complete' (i.e. for m = n)
 
 	m = N_TRAIN - 1
-	centres = np.linspace(data_generator.min_x, data_generator.max_x, m)
+	centres = np.linspace(data_generator.x_min, data_generator.x_max, m)
 	rbf_generator = bayesian_utility.RBFGenerator(centres=centres, radius=1)
 
 	phi_train = rbf_generator.evaluate(x_train)

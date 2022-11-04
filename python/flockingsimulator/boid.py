@@ -8,13 +8,13 @@ Created 11/03/2022
 import numpy as np
 
 class Boid:
-	def __init__(self, perception_radius, max_steering_force, max_x, max_y):
+	def __init__(self, perception_radius, max_steering_force, x_max, y_max):
 		self.perception_radius = perception_radius
 		self.max_steering_force = max_steering_force
 		self.max_vel = 8
-		self.max_x = max_x
-		self.max_y = max_y
-		self.pos = np.array([np.random.uniform(max_x), np.random.uniform(max_y)])
+		self.x_max = x_max
+		self.y_max = y_max
+		self.pos = np.array([np.random.uniform(x_max), np.random.uniform(y_max)])
 		self.vel = np.random.uniform(-self.max_vel, self.max_vel, size=2)
 		self.acc = np.zeros(2)
 
@@ -34,10 +34,10 @@ class Boid:
 		self.pos += self.vel
 
 		# Check bounds
-		if self.pos[0] > self.max_x: self.pos[0] = 0
-		if self.pos[0] < 0: self.pos[0] = self.max_x
-		if self.pos[1] > self.max_y: self.pos[1] = 0
-		if self.pos[1] < 0: self.pos[1] = self.max_y
+		if self.pos[0] > self.x_max: self.pos[0] = 0
+		if self.pos[0] < 0: self.pos[0] = self.x_max
+		if self.pos[1] > self.y_max: self.pos[1] = 0
+		if self.pos[1] < 0: self.pos[1] = self.y_max
 
 	def separation(self, flock):
 		"""Steer to avoid crowding boids in local flock"""

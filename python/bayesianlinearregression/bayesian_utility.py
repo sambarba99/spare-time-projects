@@ -11,8 +11,8 @@ class DataGenerator:
 	"""Generate data for prediction modelling (a sine wave with a blank region)"""
 
 	def __init__(self, noise):
-		self.min_x = 0
-		self.max_x = 2 * np.pi
+		self.x_min = 0
+		self.x_max = 2 * np.pi
 		self.noise = noise
 
 	def get_data(self, data_name, n):
@@ -24,8 +24,8 @@ class DataGenerator:
 	def __make_data(self, n):
 		"""Make 2 sine wave portions"""
 
-		portion_points1 = [self.min_x, self.max_x * 0.25]  # Start and end of portion 1
-		portion_points2 = [self.max_x * 0.65, self.max_x]  # Start and end of portion 2
+		portion_points1 = [self.x_min, self.x_max * 0.25]  # Start and end of portion 1
+		portion_points2 = [self.x_max * 0.65, self.x_max]  # Start and end of portion 2
 		points_per_portion = n // 2
 
 		x = np.zeros(0)
@@ -43,7 +43,7 @@ class DataGenerator:
 
 	def __make_test_data(self, n):
 		# Full sin wave
-		x = np.linspace(self.min_x, self.max_x, n).reshape((n, 1))
+		x = np.linspace(self.x_min, self.x_max, n).reshape((n, 1))
 		y = np.sin(x) + np.sin(2 * x)
 		return x, y
 

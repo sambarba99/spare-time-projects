@@ -1,5 +1,5 @@
-Logistic regression demo
+Logistic regression using PCA
 
 Breast tumour dataset example:
 
-![](breast_tumour_logistic_regression.gif)
+![](tumour_logistic_regression.gif)

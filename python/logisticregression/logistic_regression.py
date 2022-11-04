@@ -1,5 +1,5 @@
 """
-Logistic regression demo
+Logistic regression using PCA
 
 Author: Sam Barba
 Created 10/11/2021
@@ -8,6 +8,7 @@ Created 10/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
@@ -37,7 +38,6 @@ def load_data(path, train_test_ratio=0.8):
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
 		else:  # Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
-	features = x.columns
 
 	y = pd.get_dummies(y, prefix='class', drop_first=True)
 
@@ -46,22 +46,8 @@ def load_data(path, train_test_ratio=0.8):
 	data = pd.concat([x, y], axis=1).to_numpy().astype(float)
 	x, y = data[:, :-1], data[:, -1].astype(int)
 
-	# Keep only 2 most correlated features to y
-
-	corr_coeffs = np.corrcoef(data.T)
-	# Make bottom-right coefficient 0, as this doesn't count (correlation of last column with itself)
-	corr_coeffs[-1, -1] = 0
-
-	# Indices of columns in descending order of correlation with y
-	indices = np.abs(corr_coeffs[:, -1]).argsort()[::-1]
-	# Keep 2 strongest
-	indices = indices[:2]
-	max_corr = corr_coeffs[indices, -1]
-	features = features[indices]
-	x = x[:, indices]
-
-	print(f"\nHighest (abs) correlation with y (class): {max_corr[0]}  (feature '{features[0]}')")
-	print(f"2nd highest (abs) correlation with y (class): {max_corr[1]}  (feature '{features[1]}')")
+	pca = PCA(n_components=2)
+	x = pca.fit_transform(x)
 
 	# Standardise x
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
@@ -70,7 +56,7 @@ def load_data(path, train_test_ratio=0.8):
 	x_train = (x_train - training_mean) / training_std
 	x_test = (x_test - training_mean) / training_std
 
-	return features, classes, x_train, y_train, x_test, y_test
+	return classes, x_train, y_train, x_test, y_test
 
 def confusion_matrix(predictions, actual):
 	n_classes = len(np.unique(actual))
@@ -110,9 +96,9 @@ def main():
 		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
 		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
 
-	features, classes, x_train, y_train, x_test, y_test = load_data(path)
+	classes, x_train, y_train, x_test, y_test = load_data(path)
 
-	regressor = LogisticRegressor(features, classes)
+	regressor = LogisticRegressor(classes)
 	regressor.fit(x_train, y_train)
 
 	# Plot confusion matrices

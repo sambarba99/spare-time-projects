@@ -7,10 +7,10 @@ Created 20/09/2021
 
 import random
 
-from vertex_maze import MazeVertex
+from node_maze import MazeNode
 
 class Daedalus:
-	def __init__(self, rows=119, cols=199):  # Ensure rows and cols are odd
+	def __init__(self, rows=99, cols=149):  # Ensure rows and cols are odd
 		self.rows = rows
 		self.cols = cols
 
@@ -22,7 +22,7 @@ class Daedalus:
 			maze[a.y][a.x].is_wall = False
 			maze[b.y][b.x].is_wall = False
 
-		graph = [[MazeVertex(y, x) for x in range(self.cols)] for y in range(self.rows)]
+		graph = [[MazeNode(y, x) for x in range(self.cols)] for y in range(self.rows)]
 
 		# Make top-left start
 		graph[0][0].is_wall = False
@@ -33,10 +33,10 @@ class Daedalus:
 			walls = current.get_neighbours(graph, maze_generation=True)
 
 			if walls:
-				next_v = random.choice(walls)
+				next_node = random.choice(walls)
 				stack.append(current)
-				remove_walls(graph, current, next_v)
-				current = next_v
+				remove_walls(graph, current, next_node)
+				current = next_node
 			elif stack:
 				current = stack.pop()
 			else:

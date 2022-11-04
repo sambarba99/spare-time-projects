@@ -9,13 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class LogisticRegressor:
-	def __init__(self, features, classes):
+	def __init__(self, classes):
 		self.x_train = None
 		self.y_train = None
 		self.weights = None
 		self.bias = 0
 		self.cost_history = []
-		self.features = features
 		self.classes = classes
 
 	def fit(self, x_train, y_train, learning_rate=1e-4, converge_threshold=1e-4):
@@ -44,24 +43,23 @@ class LogisticRegressor:
 			m = -w1 / w2 if not first_time else None
 			c = -bias / w2 if not first_time else None
 
-			padding = 2
-			line_x = np.array([self.x_train[:, 0].min() - padding, self.x_train[:, 0].max() + padding]) \
-				if not first_time else None
-			line_y = m * line_x + c \
-				if not first_time else None
+			# Set up boundaries
+			x_min, x_max = self.x_train[:, 0].min() - 0.5, self.x_train[:, 0].max() + 0.5
+			y_min, y_max = self.x_train[:, 1].min() - 0.5, self.x_train[:, 1].max() + 0.5
 
 			plt.cla()
 			for idx, class_ in enumerate(self.classes):
 				plt.scatter(*self.x_train[self.y_train == idx].T, alpha=0.7, label=class_)
 			if not first_time:
-				plt.plot(line_x, line_y, color='black', linewidth=1, ls='--')
-				plt.fill_between(line_x, line_y, -100, color='tab:blue', alpha=0.2)
-				plt.fill_between(line_x, line_y, 100, color='tab:orange', alpha=0.2)
-			padding = 0.5
-			plt.xlim(self.x_train[:, 0].min() - padding, self.x_train[:, 0].max() + padding)
-			plt.ylim(self.x_train[:, 1].min() - padding, self.x_train[:, 1].max() + padding)
-			plt.xlabel(fr'$x_1$ ({self.features[0]}) (standardised)')
-			plt.ylabel(fr'$x_2$ ({self.features[1]}) (standardised)')
+				line_x = np.array([x_min, x_max])
+				line_y = m * line_x + c
+				# plt.plot(line_x, line_y, color='black', linewidth=1, ls='--')
+				plt.fill_between(line_x, line_y, -100, color='tab:orange', alpha=0.4)
+				plt.fill_between(line_x, line_y, 100, color='tab:blue', alpha=0.4)
+			plt.xlim(x_min, x_max)
+			plt.ylim(y_min, y_max)
+			plt.xlabel(r'$x_1$ (Principal component 1)')
+			plt.ylabel(r'$x_2$ (Principal component 2)')
 			if first_time:
 				plt.title('Start')
 			else:
@@ -74,8 +72,8 @@ class LogisticRegressor:
 		self.x_train = x_train
 		self.y_train = y_train
 
-		# Initial guesses and error
-		weights_current = np.array([1, 0])  # Arbitrary vertical class division
+		# Initial guesses and error (arbitrary)
+		weights_current = np.array([1, 0])
 		bias_current = 0
 		e_current = cost(self.x_train, self.y_train, weights_current, bias_current)
 		self.cost_history.append(e_current)

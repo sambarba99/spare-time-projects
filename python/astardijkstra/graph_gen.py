@@ -7,39 +7,39 @@ Created 23/05/2022
 
 import numpy as np
 
-from vertex_graph import GraphVertex
+from node_graph import GraphNode
 
 class GraphGen:
 	"""Note: if max_neighbours = 1, a minimum spanning tree is created"""
 
-	def __init__(self, max_x, max_y, n_vertices=500, max_neighbours=5):
-		self.max_x = max_x
-		self.max_y = max_y
-		self.n_vertices = n_vertices
-		self.max_neighbours = max_neighbours
+	def __init__(self, x_max, y_max, n_nodes=1000, n_neighbours=3):
+		self.x_max = x_max
+		self.y_max = y_max
+		self.n_nodes = n_nodes
+		self.n_neighbours = n_neighbours
 
 	def make_graph(self):
-		def dfs(visited, vertex):
+		def dfs(visited, node):
 			"""Depth-first search"""
-			if vertex not in visited:
-				visited.append(vertex)
-				for neighbour in vertex.neighbours:
+
+			if node not in visited:
+				visited.append(node)
+				for neighbour in node.neighbours:
 					dfs(visited, neighbour)
 
-		x = np.random.uniform(10, self.max_x - 10, size=self.n_vertices)
-		y = np.random.uniform(10, self.max_y - 10, size=self.n_vertices)
+		x = np.random.uniform(10, self.x_max - 10, size=self.n_nodes)
+		y = np.random.uniform(10, self.y_max - 10, size=self.n_nodes)
 		coords = np.vstack((x, y)).T
 		adjacency_list = {}
 
-		# Link each vertex to its closest N neighbours,
-		# where N is random between 1 and max_neighbours
+		# Link each node to its closest 'n_neighbours' neighbours
 		for idx, c in enumerate(coords):
 			if idx not in adjacency_list:
 				adjacency_list[idx] = set()
 
 			neighbour_dists = np.linalg.norm(coords - c, axis=1)
 			# '1:' to exlude self from closest
-			closest_n = neighbour_dists.argsort()[1:np.random.randint(1, self.max_neighbours + 1) + 1]
+			closest_n = neighbour_dists.argsort()[1:self.n_neighbours + 1]
 
 			for neighbour_idx in closest_n:
 				if neighbour_idx not in adjacency_list:
@@ -47,34 +47,34 @@ class GraphGen:
 				adjacency_list[idx].add(neighbour_idx)
 				adjacency_list[neighbour_idx].add(idx)
 
-		# Create graph, as a list of vertices
-		vertices = [GraphVertex(idx, x, y) for idx, (x, y) in enumerate(coords)]
-		for v in vertices:
-			vertices[v.idx].neighbours = [vertices[i] for i in adjacency_list[v.idx]]
+		# Create graph, as a list of node
+		nodes = [GraphNode(idx, x, y) for idx, (x, y) in enumerate(coords)]
+		for n in nodes:
+			nodes[n.idx].neighbours = [nodes[i] for i in adjacency_list[n.idx]]
 
-		# Check if graph is connected, via depth-first search (start arbitrarily from vertex no. 0)
+		# Check if graph is connected, via depth-first search (start arbitrarily from node 0)
 		visited = []
-		dfs(visited, vertices[0])
-		connected = len(visited) == len(vertices)
+		dfs(visited, nodes[0])
+		connected = len(visited) == len(nodes)
 
 		# Ensure graph connectivity
 		while not connected:
-			# Choose closest pair of vertices in 'visited' and 'unvisited', and link them
-			unvisited = [v for v in vertices if v not in visited]
+			# Choose closest pair of nodes in 'visited' and 'unvisited', and link them
+			unvisited = [n for n in nodes if n not in visited]
 			u_idx = v_idx = 0
 			min_dist = 1e9
 			for u in unvisited:
-				for v in visited:
-					if u is v: continue
-					d = v.dist(u)
+				for n in visited:
+					if u is n: continue
+					d = n.dist(u)
 					if d < min_dist:
 						min_dist = d
-						u_idx, v_idx = u.idx, v.idx
+						u_idx, v_idx = u.idx, n.idx
 
-			vertices[u_idx].neighbours.append(vertices[v_idx])
-			vertices[v_idx].neighbours.append(vertices[u_idx])
+			nodes[u_idx].neighbours.append(nodes[v_idx])
+			nodes[v_idx].neighbours.append(nodes[u_idx])
 			visited = []
-			dfs(visited, vertices[0])
-			connected = len(visited) == len(vertices)
+			dfs(visited, nodes[0])
+			connected = len(visited) == len(nodes)
 
-		return vertices
+		return nodes
