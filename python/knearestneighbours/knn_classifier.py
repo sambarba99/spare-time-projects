@@ -1,5 +1,5 @@
 """
-KNN classifier for k_nearest_neighbours.py
+KNN classifier
 
 Author: Sam Barba
 Created 22/10/2021
@@ -30,8 +30,8 @@ class KNN:
 		# Sort in ascending order by distance, but keep only first k training samples (nearest)
 		nearest_k = sorted(idx_and_distances, key=lambda i: i[1])[:self.k]
 
-		# Get classifications of nearest k samples
-		classes_of_nearest_k = [self.y_train[i[0]] for i in nearest_k]
+		# Get labels of nearest k samples
+		nearest_k_labels = [self.y_train[i[0]] for i in nearest_k]
 
 		# Return mode of these
-		return max(set(classes_of_nearest_k), key=classes_of_nearest_k.count)
+		return max(set(nearest_k_labels), key=nearest_k_labels.count)

@@ -1,5 +1,5 @@
 """
-Preset drawing coordinates for fourier_drawing.py
+Preset drawing coordinates
 
 Author: Sam Barba
 Created 22/09/2022

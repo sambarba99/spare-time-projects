@@ -1,5 +1,5 @@
 """
-Dataset class for pytorch_mnist.py
+Dataset class
 
 Author: Sam Barba
 Created 30/10/2022

@@ -1,5 +1,5 @@
 """
-Logistic regressor for logistic_regression.py
+Logistic regressor class
 
 Author: Sam Barba
 Created 10/11/2021
@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class LogisticRegressor:
-	def __init__(self, classes):
+	def __init__(self, labels):
 		self.x_train = None
 		self.y_train = None
 		self.weights = None
 		self.bias = 0
 		self.cost_history = []
-		self.classes = classes
+		self.labels = labels
 
 	def fit(self, x_train, y_train, learning_rate=1e-4, converge_threshold=1e-4):
 		"""Gradient descent"""
@@ -48,8 +48,8 @@ class LogisticRegressor:
 			y_min, y_max = self.x_train[:, 1].min() - 0.5, self.x_train[:, 1].max() + 0.5
 
 			plt.cla()
-			for idx, class_ in enumerate(self.classes):
-				plt.scatter(*self.x_train[self.y_train == idx].T, alpha=0.7, label=class_)
+			for idx, label in enumerate(self.labels):
+				plt.scatter(*self.x_train[self.y_train == idx].T, alpha=0.7, label=label)
 			if not first_time:
 				line_x = np.array([x_min, x_max])
 				line_y = m * line_x + c

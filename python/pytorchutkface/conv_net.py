@@ -1,5 +1,5 @@
 """
-CNN for pytorch_utkface.py
+CNN class
 
 Author: Sam Barba
 Created 30/10/2022

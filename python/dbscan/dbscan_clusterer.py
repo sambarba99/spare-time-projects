@@ -1,5 +1,5 @@
 """
-DBSCAN clusterer for dbscan.py
+DBSCAN clusterer class
 
 Author: Sam Barba
 Created 27/12/2021

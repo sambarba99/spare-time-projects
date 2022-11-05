@@ -1,5 +1,5 @@
 """
-Generation maths for apollonian_gasket.py
+Generation maths for Apollonian gaskets
 
 Author: Sam Barba
 Created 23/09/2022

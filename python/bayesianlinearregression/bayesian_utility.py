@@ -1,5 +1,5 @@
 """
-Utility class for bayesian_linear_regression.py
+Utility class for Bayesian linear regression demo
 
 Author: Sam Barba
 Created 03/03/2022

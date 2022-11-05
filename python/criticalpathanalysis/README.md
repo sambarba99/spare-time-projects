@@ -13,6 +13,6 @@ Critical path analysis demo (example: engineering project)
 | Assembly | 8 | 60 | 2,6,7 |
 | Testing | 9 | 90 | 8 |
 
-Output:
+Output (critical path red):
 
-![](path.png)
+![](critical_path_diagram.png)

@@ -1,5 +1,5 @@
 """
-Linear regressor for linear_regression.py
+Linear regressor class
 
 Author: Sam Barba
 Created 10/11/2021

@@ -2,4 +2,4 @@ K Nearest Neighbours demo
 
 KNN performance on iris dataset:
 
-![](iris_knn_performance.png)
+![](iris_confusion_matrix.png)

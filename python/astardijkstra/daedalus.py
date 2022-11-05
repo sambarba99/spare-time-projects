@@ -16,11 +16,11 @@ class Daedalus:
 
 	def make_maze(self):
 		def remove_walls(maze, a, b):
-			mid_y = (a.y + b.y) // 2
-			mid_x = (a.x + b.x) // 2
+			mid_y = (a.i + b.i) // 2
+			mid_x = (a.j + b.j) // 2
 			maze[mid_y][mid_x].is_wall = False
-			maze[a.y][a.x].is_wall = False
-			maze[b.y][b.x].is_wall = False
+			maze[a.i][a.j].is_wall = False
+			maze[b.i][b.j].is_wall = False
 
 		graph = [[MazeNode(y, x) for x in range(self.cols)] for y in range(self.rows)]
 

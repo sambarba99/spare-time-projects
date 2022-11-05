@@ -48,7 +48,7 @@ class GraphGen:
 				adjacency_list[neighbour_idx].add(idx)
 
 		# Create graph, as a list of node
-		nodes = [GraphNode(idx, x, y) for idx, (x, y) in enumerate(coords)]
+		nodes = [GraphNode(idx, y, x) for idx, (x, y) in enumerate(coords)]
 		for n in nodes:
 			nodes[n.idx].neighbours = [nodes[i] for i in adjacency_list[n.idx]]
 

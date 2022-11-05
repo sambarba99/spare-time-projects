@@ -1,5 +1,5 @@
 """
-Boid class for flocking_simulator.py
+Boid class
 
 Author: Sam Barba
 Created 11/03/2022

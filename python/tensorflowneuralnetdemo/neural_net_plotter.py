@@ -21,14 +21,14 @@ def plot_model(model):
 	hidden_layers = layers[1:-1]
 	output_layer = layers[-1]
 
-	# ----- Set up global attributes ----- #
+	# 1. Set up global attributes
 
 	g = Digraph(name='neural net',
 		graph_attr={'rankdir': 'LR', 'splines': 'line', 'nodesep': '0.05'},
 		node_attr={'style': 'filled,setlinewidth(0)', 'label': '', 'shape': 'circle'},
 		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'})
 
-	# ----- Create nodes ----- #
+	# 2. Create nodes
 
 	# Input layer
 	with g.subgraph(name='cluster_input') as c:
@@ -70,7 +70,7 @@ def plot_model(model):
 		for i in range(size_limit):
 			c.node(f'out_{i}')
 
-	# ----- Create edges ----- #
+	# 3. Create edges
 
 	# Connect input layer to 1st hidden layer
 	for i in range(min(MAX_LAYER_NODES, input_layer[1])):
@@ -91,7 +91,7 @@ def plot_model(model):
 		for j in range(min(MAX_LAYER_NODES, output_layer[1])):
 			g.edge(f'hid_{len(hidden_layers) - 1}_{i}', f'out_{j}')
 
-	# ----- Render graph and save source ----- #
+	# 4. Render graph
 
 	g.format = 'png'
 	g.render('neural_net', view=True, cleanup=True)

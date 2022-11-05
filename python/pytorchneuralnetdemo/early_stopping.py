@@ -1,5 +1,5 @@
 """
-Early Stopping class for pytorch_neural_net_demo.py
+Early Stopping class
 
 Author: Sam Barba
 Created 28/10/2022

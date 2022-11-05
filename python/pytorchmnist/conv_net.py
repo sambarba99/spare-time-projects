@@ -1,5 +1,5 @@
 """
-CNN for pytorch_mnist.py
+CNN class
 
 Author: Sam Barba
 Created 30/10/2022

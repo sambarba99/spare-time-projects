@@ -1,5 +1,5 @@
 """
-Decision tree class for decision_tree_regression_demo.py
+Decision tree class
 
 Author: Sam Barba
 Created 19/10/2022

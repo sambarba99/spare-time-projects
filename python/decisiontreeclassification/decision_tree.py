@@ -1,5 +1,5 @@
 """
-Decision tree class for decision_tree_classification_demo.py
+Decision tree class
 
 Author: Sam Barba
 Created 01/10/2022
@@ -78,9 +78,9 @@ class DecisionTree:
 		# If depth is 0, or all remaining class labels are the same, this is a leaf node
 		y_flat = y.argmax(axis=1) if np.ndim(y) > 1 else y
 		if max_depth == 0 or (y_flat == y_flat[0]).all():
-			classes, counts = np.unique(y_flat, return_counts=True)
+			labels, counts = np.unique(y_flat, return_counts=True)
 			self.is_leaf = True
-			self.class_idx = classes[counts.argmax()]
+			self.class_idx = labels[counts.argmax()]
 		else:
 			split = find_best_split(x, y)
 			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1)

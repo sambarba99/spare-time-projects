@@ -1,5 +1,5 @@
 """
-K-Means clusterer for k_means_clustering.py
+K-Means clusterer class
 
 Author: Sam Barba
 Created 21/11/2021

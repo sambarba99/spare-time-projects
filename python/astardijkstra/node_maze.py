@@ -6,9 +6,9 @@ Created 20/09/2021
 """
 
 class MazeNode:
-	def __init__(self, y, x):  # Y before X, as 2D arrays are row-major
-		self.y = y
-		self.x = x
+	def __init__(self, i, j):
+		self.i = i
+		self.j = j
 
 		# For A* and Dijkstra
 		self.is_wall = True
@@ -28,21 +28,21 @@ class MazeNode:
 		neighbours = []
 		rows, cols = len(maze), len(maze[0])
 
-		if self.x - dist >= 0 and maze[self.y][self.x - dist].is_wall == check_wall:
-			neighbours.append(maze[self.y][self.x - dist])
-		if self.x + dist < cols and maze[self.y][self.x + dist].is_wall == check_wall:
-			neighbours.append(maze[self.y][self.x + dist])
-		if self.y - dist >= 0 and maze[self.y - dist][self.x].is_wall == check_wall:
-			neighbours.append(maze[self.y - dist][self.x])
-		if self.y + dist < rows and maze[self.y + dist][self.x].is_wall == check_wall:
-			neighbours.append(maze[self.y + dist][self.x])
+		if self.j - dist >= 0 and maze[self.i][self.j - dist].is_wall == check_wall:
+			neighbours.append(maze[self.i][self.j - dist])
+		if self.j + dist < cols and maze[self.i][self.j + dist].is_wall == check_wall:
+			neighbours.append(maze[self.i][self.j + dist])
+		if self.i - dist >= 0 and maze[self.i - dist][self.j].is_wall == check_wall:
+			neighbours.append(maze[self.i - dist][self.j])
+		if self.i + dist < rows and maze[self.i + dist][self.j].is_wall == check_wall:
+			neighbours.append(maze[self.i + dist][self.j])
 
 		return neighbours
 
 	def dist(self, other):
 		"""For A* (Manhattan distance)"""
 
-		return abs(self.x - other.x) + abs(self.y - other.y)
+		return abs(self.j - other.j) + abs(self.i - other.i)
 
 	def get_f_cost(self):
 		"""FOr A* (F-cost = G-cost + H-cost)"""
