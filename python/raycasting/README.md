@@ -1,3 +1,3 @@
-Raycasting demo
+Ray casting demo
 
-![](raycasting.gif)
+![](ray_casting.gif)

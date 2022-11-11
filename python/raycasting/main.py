@@ -1,5 +1,5 @@
 """
-Raycasting demo
+Ray casting demo
 
 Author: Sam Barba
 Created 08/03/2022
@@ -14,36 +14,63 @@ import sys
 import numpy as np
 import pygame as pg
 
-# Half of screen is for bird's-eye view, other half for 3D POV
-WIDTH, HEIGHT = 1442, 721
-RAY_MAX_LENGTH = ((WIDTH / 2) ** 2 + HEIGHT ** 2) ** 0.5
-FOV_ANGLE = np.deg2rad(90)  # Field of View angle
+# World constants
+WIDTH, HEIGHT = 1600, 800
+GRID_COLS, GRID_ROWS = 20, 10  # World is a 20x10 grid
+GRID_SQUARE_SIZE = WIDTH // GRID_COLS  # HEIGHT // GRID_ROWS
+BORDER_LIM = 10
 
-rays, walls = [], []
+# Ray/rendering constants
+N_RAYS = 400
+FOV_ANGLE = np.pi / 3  # 60 deg
+DELTA_ANGLE = FOV_ANGLE / N_RAYS
+SCREEN_DIST = WIDTH * 0.5 / np.tan(FOV_ANGLE * 0.5)
+WALL_WIDTH = WIDTH / N_RAYS  # Width of each wall segment to render in 3D
+PROJ_HEIGHT_SCALE = 50
+MINIMAP_SCALE = 0.2
+
+# Player constants
+MOVEMENT_SPEED = 8
+TURNING_SPEED = 2.5
+FPS = 30
+
+walls = []
+ray_casting_result = []
 
 # Start at top-left, looking towards centre
-player_x = player_y = 2
-player_heading = np.deg2rad(45)
+player_x = player_y = BORDER_LIM
+player_heading = np.arctan2(HEIGHT, WIDTH)
 scene = None
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def generate_walls(n_walls=5):
+def generate_walls(n_boxes=15):
+	"""Choose random indices of the grid world, and draw boxes there"""
+
+	def make_box(grid_idx):
+		x_top_left = (grid_idx % GRID_COLS) * GRID_SQUARE_SIZE
+		y_top_left = (grid_idx // GRID_COLS) * GRID_SQUARE_SIZE
+		x_bottom_right = x_top_left + GRID_SQUARE_SIZE
+		y_bottom_right = y_top_left + GRID_SQUARE_SIZE
+		wall1 = {'x1': x_top_left, 'y1': y_top_left, 'x2': x_bottom_right, 'y2': y_top_left}
+		wall2 = {'x1': x_bottom_right, 'y1': y_top_left, 'x2': x_bottom_right, 'y2': y_bottom_right}
+		wall3 = {'x1': x_bottom_right, 'y1': y_bottom_right, 'x2': x_top_left, 'y2': y_bottom_right}
+		wall4 = {'x1': x_top_left, 'y1': y_bottom_right, 'x2': x_top_left, 'y2': y_top_left}
+		return [wall1, wall2, wall3, wall4]
+
 	global walls
 
 	walls = []
+	grid_indices = np.random.choice(GRID_ROWS * GRID_COLS, size=n_boxes, replace=False)
+	for idx in grid_indices:
+		walls.extend(make_box(idx))
 
-	for _ in range(n_walls):
-		x1, x2 = np.random.randint(WIDTH // 2, size=2)
-		y1, y2 = np.random.randint(HEIGHT, size=2)
-		walls.append({'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2})
-
-	# 4 walls of world border
-	walls.append({'x1': 0, 'y1': 0, 'x2': WIDTH // 2, 'y2': 0})
-	walls.append({'x1': WIDTH // 2 - 2, 'y1': 0, 'x2': WIDTH // 2 - 2, 'y2': HEIGHT})
-	walls.append({'x1': 0, 'y1': HEIGHT - 2, 'x2': WIDTH // 2, 'y2': HEIGHT - 2})
+	# World border
+	walls.append({'x1': 0, 'y1': 0, 'x2': WIDTH, 'y2': 0})
+	walls.append({'x1': WIDTH, 'y1': 0, 'x2': WIDTH, 'y2': HEIGHT})
+	walls.append({'x1': 0, 'y1': HEIGHT, 'x2': WIDTH, 'y2': HEIGHT})
 	walls.append({'x1': 0, 'y1': 0, 'x2': 0, 'y2': HEIGHT})
 
 def generate_rays():
@@ -67,14 +94,13 @@ def generate_rays():
 
 		return None
 
-	global rays
+	global ray_casting_result
 
-	rays = []
-	step = np.deg2rad(0.5)
-
-	for a in np.arange(-FOV_ANGLE / 2, FOV_ANGLE / 2, step):
-		end_x = RAY_MAX_LENGTH * np.cos(a + player_heading) + player_x
-		end_y = RAY_MAX_LENGTH * np.sin(a + player_heading) + player_y
+	ray_casting_result = []
+	ray_angle = player_heading - FOV_ANGLE / 2
+	for _ in range(N_RAYS):
+		end_x = 1e6 * np.cos(ray_angle) + player_x
+		end_y = 1e6 * np.sin(ray_angle) + player_y
 
 		# Initialise ray withouth 'length' attribute; this is calculated in loop below
 		ray = {'x1': player_x, 'y1': player_y, 'x2': end_x, 'y2': end_y}
@@ -86,32 +112,51 @@ def generate_rays():
 				ray['x2'], ray['y2'] = intersection
 				ray['length'] = ((ray['x1'] - ray['x2']) ** 2 + (ray['y1'] - ray['y2']) ** 2) ** 0.5
 
-		rays.append(ray)
+		distorted_dist = ray['length']
+		correct_dist = distorted_dist * np.cos(player_heading - ray_angle)  # Remove fish eye distortion
+		correct_dist += 1e-6  # Ensure nonzero
+		proj_height = SCREEN_DIST / correct_dist * PROJ_HEIGHT_SCALE
+		proj_height = min(HEIGHT, proj_height)
+
+		ray_casting_result.append((ray, proj_height))
+
+		ray_angle += DELTA_ANGLE
 
 def draw_pov_mode():
 	def map_range(x, from_lo, from_hi, to_lo, to_hi):
 		"""Map x from [from_lo, from_hi] to [to_lo, to_hi]"""
+
 		if from_hi - from_lo == 0:
 			return to_hi
 		return (x - from_lo) / (from_hi - from_lo) * (to_hi - to_lo) + to_lo
 
-	wall_segment_width = (WIDTH // 2) // len(rays)
+	# Draw sky and ground
+	pg.draw.rect(scene, (20, 100, 255), pg.Rect(0, 0, WIDTH, HEIGHT / 2))
+	pg.draw.rect(scene, (20, 150, 20), pg.Rect(0, HEIGHT / 2, WIDTH, HEIGHT / 2))
 
-	for idx, r in enumerate(rays):
-		d = r['length']
+	for idx, (_, proj_height) in enumerate(ray_casting_result):
+		c = map_range(proj_height ** 0.5, 0, HEIGHT ** 0.5, 20, 255)
+		y = (HEIGHT - proj_height) / 2  # Centre wall vertically
 
-		c = map_range(d, 0, RAY_MAX_LENGTH, 255, 20)
-		h = map_range(d ** 0.5, 0, RAY_MAX_LENGTH ** 0.5, HEIGHT, HEIGHT * 0.05)
-		y = (HEIGHT - h) / 2  # Draw rect from centre
+		pg.draw.rect(scene, (c, c, c), pg.Rect(idx * WALL_WIDTH, y, WALL_WIDTH, proj_height))
 
-		pg.draw.rect(scene, (c, c, c), pg.Rect(idx * wall_segment_width + WIDTH // 2 + 1, y, wall_segment_width, h))
+def draw_minimap():
+	for idx, (ray, _) in enumerate(ray_casting_result):
+		if idx % 10 == 0:
+			pg.draw.line(
+				scene,
+				(255, 0, 0),
+				(ray['x1'] * MINIMAP_SCALE, ray['y1'] * MINIMAP_SCALE), (ray['x2'] * MINIMAP_SCALE, ray['y2'] * MINIMAP_SCALE)
+			)
 
-def draw_birds_eye_mode():
-	for r in rays:
-		pg.draw.line(scene, (220, 220, 220), (r['x1'], r['y1']), (r['x2'], r['y2']))
+	pg.draw.circle(scene, (255, 0, 0), (player_x * MINIMAP_SCALE, player_y * MINIMAP_SCALE), 4)
 
-	for w in walls:
-		pg.draw.line(scene, (255, 60, 0), (w['x1'], w['y1']), (w['x2'], w['y2']), width=4)
+	for idx, w in enumerate(walls):
+		pg.draw.line(
+			scene,
+			(255, 255, 255),
+			(w['x1'] * MINIMAP_SCALE, w['y1'] * MINIMAP_SCALE), (w['x2'] * MINIMAP_SCALE, w['y2'] * MINIMAP_SCALE)
+		)
 
 # ---------------------------------------------------------------------------------------------------- #
 # ----------------------------------------------  MAIN  ---------------------------------------------- #
@@ -121,13 +166,14 @@ def main():
 	global player_heading, player_x, player_y, scene
 
 	pg.init()
-	pg.display.set_caption('Raycasting demo')
+	pg.display.set_caption('Ray casting demo')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
+	clock = pg.time.Clock()
 
 	generate_walls()
 	generate_rays()
 	draw_pov_mode()
-	draw_birds_eye_mode()
+	draw_minimap()
 
 	key_pressed = None
 
@@ -137,8 +183,8 @@ def main():
 				case pg.QUIT: sys.exit()
 				case pg.KEYDOWN:
 					if event.key == pg.K_r:  # Reset
-						player_x = player_y = 2
-						player_heading = np.deg2rad(45)
+						player_x = player_y = BORDER_LIM
+						player_heading = np.arctan2(HEIGHT, WIDTH)
 						generate_walls()
 					else:
 						key_pressed = event.key
@@ -147,27 +193,27 @@ def main():
 
 		match key_pressed:
 			case pg.K_w:  # Move forwards
-				dx = 3 * np.cos(player_heading)
-				dy = 3 * np.sin(player_heading)
-				if 2 <= player_x + dx < WIDTH // 2 - 2 and 2 <= player_y + dy < HEIGHT - 2:
+				dx = MOVEMENT_SPEED * np.cos(player_heading)
+				dy = MOVEMENT_SPEED * np.sin(player_heading)
+				if BORDER_LIM <= player_x + dx < WIDTH - BORDER_LIM and BORDER_LIM <= player_y + dy < HEIGHT - BORDER_LIM:
 					player_x += dx
 					player_y += dy
 			case pg.K_s:  # Move backwards
-				dx = 3 * np.cos(player_heading)
-				dy = 3 * np.sin(player_heading)
-				if 2 <= player_x - dx < WIDTH // 2 - 2 and 2 <= player_y - dy < HEIGHT - 2:
+				dx = MOVEMENT_SPEED * np.cos(player_heading)
+				dy = MOVEMENT_SPEED * np.sin(player_heading)
+				if BORDER_LIM <= player_x - dx < WIDTH - BORDER_LIM and BORDER_LIM <= player_y - dy < HEIGHT - BORDER_LIM:
 					player_x -= dx
 					player_y -= dy
 			case pg.K_a:  # Turn left
-				player_heading -= np.deg2rad(1)
+				player_heading -= np.deg2rad(TURNING_SPEED)
 			case pg.K_d:  # Turn right
-				player_heading += np.deg2rad(1)
+				player_heading += np.deg2rad(TURNING_SPEED)
 
-		scene.fill((0, 0, 0))
 		generate_rays()
 		draw_pov_mode()
-		draw_birds_eye_mode()
+		draw_minimap()
 		pg.display.update()
+		clock.tick(FPS)
 
 if __name__ == '__main__':
 	main()

@@ -1,3 +1,0 @@
-DBSCAN demo
-
-![](dbscan.png)

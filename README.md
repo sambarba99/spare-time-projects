@@ -1,7 +1,5 @@
 ## Overview
-<p align="justify">
-	This is a monorepo of Python and C++ projects created in my spare time. They are for strengthening my general programming skills, and allow me to discover/experiment with a variety of algorithms (especially for AI/Machine Learning).
-</p>
+This is a monorepo of Python and C++ projects created in my spare time. They are for strengthening my general programming skills, and allow me to discover/experiment with a variety of algorithms (especially for AI/Machine Learning - see `python/#artificial_intelligence_machine_learning`).
 
 ## Author
 Sam Barba

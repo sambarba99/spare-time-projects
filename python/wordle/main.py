@@ -1,5 +1,5 @@
 """
-Wordle game with AI assistance (solves with ~3.5 attempts on average)
+Wordle game with information theory assistance (solves with ~3.5 attempts on average)
 
 Author: Sam Barba
 Created 21/03/2022
