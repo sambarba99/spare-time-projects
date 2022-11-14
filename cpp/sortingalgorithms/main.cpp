@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 06/09/2021
 */
 
+#include <algorithm>
 #include <bits/stdc++.h>
 #include <chrono>
 #include <iostream>

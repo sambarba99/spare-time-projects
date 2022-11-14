@@ -1,3 +1,0 @@
-Minesweeper game
-
-![](minesweeper.gif)

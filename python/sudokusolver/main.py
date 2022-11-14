@@ -18,11 +18,11 @@ GRID_OFFSET = 75
 FOREGROUND = (220, 220, 220)
 
 # Puzzles in ascending order of difficulty
-PRESET_PUZZLES = {'Blank': '0' * 81,
-	'Easy': '000000000010020030000000000000000000040050060000000000000000000070080090000000000',
-	'Medium': '100000000020000000003000000000400000000050000000006000000000700000000080000000009',
-	'Hard': '120000034500000006000000000000070000000891000000020000000000000300000005670000089',
-	'Insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'}
+PRESET_PUZZLES = {'blank': '0' * 81,
+	'easy': '000000000010020030000000000000000000040050060000000000000000000070080090000000000',
+	'medium': '100000000020000000003000000000400000000050000000006000000000700000000080000000009',
+	'hard': '120000034500000006000000000000070000000891000000020000000000000300000005670000089',
+	'insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'}
 
 plt.rcParams['figure.figsize'] = (7, 5)
 
@@ -35,7 +35,7 @@ n_backtracks = 0
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def solve(difficulty_lvl):
+def solve():
 	def is_full():
 		return board.all()
 
@@ -68,8 +68,8 @@ def solve(difficulty_lvl):
 	for n in range(1, 10):
 		if legal(n, i, j):
 			board[i][j] = n
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solving...')
-			solve(difficulty_lvl)
+			draw_grid(f'Solving ({n_backtracks} backtracks)')
+			solve()
 
 	if is_full(): return
 
@@ -79,17 +79,15 @@ def solve(difficulty_lvl):
 	board[i][j] = 0
 	n_backtracks += 1
 	backtrack_grid[i][j] += 1
-	draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solving...')
+	draw_grid(f'Solving ({n_backtracks} backtracks)')
 
-def draw_grid(*, difficulty_lvl, solve_status):
+def draw_grid(status):
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont('consolas', 16)
-	cell_font = pg.font.SysFont('consolas', 30)
+	status_font = pg.font.SysFont('consolas', 14)
+	cell_font = pg.font.SysFont('consolas', 24)
 
-	status_lbl = status_font.render(f'Difficulty: {difficulty_lvl} ({solve_status})', True, FOREGROUND)
-	backtracks_lbl = status_font.render(f'{n_backtracks} backtracks', True, FOREGROUND)
+	status_lbl = status_font.render(status, True, FOREGROUND)
 	scene.blit(status_lbl, (GRID_OFFSET, 32))
-	scene.blit(backtracks_lbl, (GRID_OFFSET, 550))
 
 	for (i, j), val in np.ndenumerate(board):
 		str_val = '' if val == 0 else str(val)
@@ -123,7 +121,7 @@ def wait_for_click():
 				case pg.MOUSEBUTTONDOWN: return
 				case pg.QUIT: sys.exit()
 
-def plot_backtracks(*, difficulty_lvl, time_to_solve):
+def plot_backtracks(difficulty_lvl):
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
 	# (line 'plt.gca().invert_yaxis()' below)
 	grid_flipped = np.flipud(backtrack_grid)
@@ -133,8 +131,7 @@ def plot_backtracks(*, difficulty_lvl, time_to_solve):
 	ax.xaxis.set_ticks_position('bottom')
 	for (j, i), val in np.ndenumerate(grid_flipped):
 		ax.text(x=i, y=j, s=val, ha='center', va='center')
-	ax.set_title(f'Heatmap of backtracks for difficulty level: {difficulty_lvl.lower()}\n'
-		f'(solved in {time_to_solve:.1f}s)')
+	ax.set_title(f'Heatmap of backtracks for difficulty level: {difficulty_lvl}')
 	plt.gca().invert_yaxis()
 	plt.colorbar(mat, ax=ax)
 	plt.show()
@@ -160,11 +157,11 @@ if __name__ == '__main__':
 				board[i][j] = int(n)
 				if n != '0': given_ij.append((i, j))
 
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='click to solve')
+			draw_grid(f'Level: {difficulty_lvl} (click to solve)')
 			wait_for_click()
 			start = perf_counter()
-			solve(difficulty_lvl)
+			solve()
 			interval = perf_counter() - start
-			draw_grid(difficulty_lvl=difficulty_lvl, solve_status='solved! Click for next puzzle')
-			plot_backtracks(difficulty_lvl=difficulty_lvl, time_to_solve=interval)
+			draw_grid(f'Solved ({n_backtracks} backtracks, {interval:.3}s) - click for next puzzle')
+			plot_backtracks(difficulty_lvl)
 			wait_for_click()

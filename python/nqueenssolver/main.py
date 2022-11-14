@@ -17,7 +17,7 @@ plt.rcParams['figure.figsize'] = (7, 5)
 N = 12  # N > 3
 BLANK = 0
 QUEEN = 1
-CELL_SIZE = 40
+CELL_SIZE = 30
 GRID_OFFSET = 60
 
 board = np.zeros((N, N)).astype(int)
@@ -66,7 +66,7 @@ def valid(row, col):
 	return True
 
 def draw_grid(solve_status):
-	scene.fill((20, 20, 20))
+	scene.fill('black')
 	status_font = pg.font.SysFont('consolas', 16)
 	cell_font = pg.font.SysFont('consolas', 24)
 
@@ -75,16 +75,16 @@ def draw_grid(solve_status):
 
 	for i in range(N):
 		for j in range(N):
+			if (i + j) % 2:
+				pg.draw.rect(scene, (20, 20, 20), pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+			else:
+				pg.draw.rect(scene, (60, 60, 60), pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+
 			if board[i][j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
 				lbl_rect = cell_lbl.get_rect(center=((j + 0.5) * CELL_SIZE + GRID_OFFSET,
 					(i + 0.5) * CELL_SIZE + GRID_OFFSET))
 				scene.blit(cell_lbl, lbl_rect)
-
-	# Grid lines
-	for i in range(GRID_OFFSET, N * CELL_SIZE + GRID_OFFSET + 1, CELL_SIZE):
-		pg.draw.line(scene, (220, 220, 220), (i, GRID_OFFSET), (i, N * CELL_SIZE + GRID_OFFSET))
-		pg.draw.line(scene, (220, 220, 220), (GRID_OFFSET, i), (N * CELL_SIZE + GRID_OFFSET, i))
 
 	pg.display.update()
 

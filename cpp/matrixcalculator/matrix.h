@@ -15,8 +15,8 @@ class Matrix {
 		int rows;
 		int cols;
 
-		Matrix(const vector<vector<long double>> gridParam) {
-			grid = gridParam;
+		Matrix(const vector<vector<long double>> grid) {
+			this->grid = grid;
 			rows = grid.size();
 			cols = grid[0].size();
 		}

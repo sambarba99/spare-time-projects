@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 06/09/2021
 */
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <iostream>
 #include <map>
 #include <string>
@@ -41,7 +41,7 @@ string intToNumerals(int n) {
 			numerals += k;
 			n -= v;
 		}
-		if (n == 0) break;
+		if (!n) break;
 	}
 
 	return numerals;

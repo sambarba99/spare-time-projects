@@ -17,7 +17,7 @@ CELL_SIZE = 2
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
 # ---------------------------------------------------------------------------------------------------- #
 
-def set_ruleset(n):
+def get_ruleset(n):
 	if n not in range(1, 256):
 		raise ValueError('Rule no. must be 1 - 255')
 
@@ -35,7 +35,7 @@ def generate_plot(ruleset):
 	gen[IMG_SIZE // 2] = 1  # Turn on centre pixel of first generation
 	plot = [None] * IMG_SIZE
 
-	for i in range(IMG_SIZE):  # Y before X, as 2D arrays are row-major
+	for i in range(IMG_SIZE):
 		plot[i] = gen[:]
 		next_gen = [0] * IMG_SIZE
 
@@ -52,7 +52,7 @@ def generate_plot(ruleset):
 	sleep(1)
 	for i in range(IMG_SIZE):
 		for j in range(IMG_SIZE):
-			c = (220, 220, 220) if plot[i][j] == 1 else (20, 20, 20)
+			c = (255, 255, 255) if plot[i][j] == 1 else (20, 20, 20)
 			pg.draw.rect(scene, c, pg.Rect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 		pg.display.update()
 		sleep(0.01)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 	i = 0
 
 	while True:
-		ruleset = set_ruleset(rules[i])
+		ruleset = get_ruleset(rules[i])
 		pg.display.set_caption(f'Elementary Cellular Automaton (rule {rules[i]}: {ruleset})')
 		generate_plot(ruleset)
 		i = (i + 1) % len(rules)

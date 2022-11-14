@@ -19,7 +19,7 @@ GRID_OFFSET = 80
 FOREGROUND = (220, 220, 220)
 
 board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-status_text = "Your turn! (Or 'A' to make AI go first)"
+status_text = "Your turn (or 'A' to make AI go first)"
 
 # ---------------------------------------------------------------------------------------------------- #
 # --------------------------------------------  FUNCTIONS  ------------------------------------------- #
@@ -119,7 +119,7 @@ def make_best_ai_move():
 	result = find_winner()
 	if result == AI: status_text = 'AI wins! Click to reset'
 	if result == TIE: status_text = "It's a tie! Click to reset"
-	if not result: status_text = 'Your turn (o)!'
+	if not result: status_text = 'Your turn (o)'
 
 def draw_grid():
 	scene.fill((20, 20, 20))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
 				case pg.MOUSEBUTTONDOWN:
 					if find_winner():  # Click to reset if game over
 						board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
-						status_text = "Your turn! (Or 'A' to make AI go first)"
+						status_text = "Your turn (or 'A' to make AI go first)"
 						draw_grid()
 					else:
 						j, i = event.pos

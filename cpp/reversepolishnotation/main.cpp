@@ -16,10 +16,6 @@ using std::map;
 using std::stack;
 using std::string;
 
-map<char, int> PRECEDENCE = {
-	{'^', 3}, {'/', 2}, {'*', 2}, {'+', 1}, {'-', 1}
-};
-
 long double charToLongDouble(const char c) {
 	int value = c - '0';
 	return static_cast<long double>(value);
@@ -45,6 +41,7 @@ long double operation(const long double a, const long double b, const char op) {
 }
 
 string infixToPostfix(const string expression) {
+	map<char, int> precedence = {{'^', 3}, {'/', 2}, {'*', 2}, {'+', 1}, {'-', 1}};
 	stack<char> stk;
     string postfix;
   
@@ -57,9 +54,8 @@ string infixToPostfix(const string expression) {
                 stk.pop();
             }
             stk.pop();
-        }
-        else if (isOperator(c)) {
-            while (!stk.empty() && PRECEDENCE[c] <= PRECEDENCE[stk.top()]) {
+        } else if (isOperator(c)) {
+            while (!stk.empty() && precedence[c] <= precedence[stk.top()]) {
                 postfix += stk.top();
                 stk.pop();
             }

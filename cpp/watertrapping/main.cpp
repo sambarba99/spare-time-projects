@@ -13,14 +13,12 @@ Created 03/09/2022
 
 using std::cin;
 using std::cout;
+using std::getline;
 using std::max;
 using std::string;
 using std::vector;
-using std::getline;
 
 int trap(const vector<int> heights) {
-	if (heights.size() == 0) return 0;
-
 	int l = 0, r = heights.size() - 1;
 	int leftMax = heights[l], rightMax = heights[r];
 	int res = 0;

@@ -17,6 +17,7 @@ using std::cout;
 using std::map;
 using std::pair;
 using std::regex;
+using std::regex_replace;
 using std::stold;
 using std::string;
 using std::vector;

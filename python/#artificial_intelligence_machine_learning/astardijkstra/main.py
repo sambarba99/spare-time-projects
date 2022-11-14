@@ -12,14 +12,15 @@ import tkinter as tk
 import numpy as np
 import pygame as pg
 
-from daedalus import Daedalus
-from graph_gen import GraphGen
+from daedalus import make_maze
+from graph_gen import make_graph
 
-CELL_SIZE = 7  # For maze mode
+# For maze mode
+ROWS = 99
+COLS = 149
+CELL_SIZE = 7
 
 maze_mode = True  # False means normal graph (nodes/edges) mode
-maze_generator = Daedalus()
-graph_generator = GraphGen(x_max=maze_generator.cols * CELL_SIZE, y_max=maze_generator.rows * CELL_SIZE)
 graph = start_node = target_node = path = None
 
 # ---------------------------------------------------------------------------------------------------- #
@@ -30,22 +31,18 @@ def generate_and_draw_graph():
 	global graph, start_node, target_node, path
 
 	if maze_mode:
-		graph = maze_generator.make_maze()
+		graph = make_maze(ROWS, COLS)
 		# Start and target are top-left and bottom-right, respectively
 		start_node = graph[0][0]
 		target_node = graph[-1][-1]
 	else:
-		graph = graph_generator.make_graph()
+		graph = make_graph(x_max=COLS * CELL_SIZE, y_max=ROWS * CELL_SIZE)
 		np_coords = np.array(list(zip([n.j for n in graph], [n.i for n in graph])))
 
-		# Start is top-left-most node; target is bottom-right-most node
+		# Start is top-left-most node; target is node furthest from this
 		distances_from_top_left = np.linalg.norm(np_coords, axis=1)
-		distances_from_bottom_right = np.linalg.norm(
-			np_coords - np.array([graph_generator.x_max, graph_generator.y_max]),
-			axis=1
-		)
 		start_node = graph[distances_from_top_left.argmin()]
-		target_node = graph[distances_from_bottom_right.argmin()]
+		target_node = graph[distances_from_top_left.argmax()]
 
 	path = None
 	draw()
@@ -128,24 +125,19 @@ def retrace_path():
 	path = retraced_path[::-1]
 
 def draw():
-	scene.fill((0, 0, 0))
+	scene.fill('black')
 
 	if maze_mode:
-		for i in range(maze_generator.rows):
-			for j in range(maze_generator.cols):
+		for i in range(ROWS):
+			for j in range(COLS):
 				c = (0, 0, 0) if graph[i][j].is_wall else (80, 80, 80)
 
 				pg.draw.rect(scene, c, pg.Rect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 		if path:
-			time_interval = 5 / len(path)  # Want drawing to last around 5s
-
 			for node in path:
-				for event in pg.event.get():
-					if event.type == pg.QUIT:
-						sys.exit()
 				pg.draw.rect(scene, (220, 0, 0), pg.Rect(node.j * CELL_SIZE, node.i * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-				sleep(time_interval)
+				sleep(2e-3)
 				pg.display.update()
 	else:
 		# Draw edges then nodes on top
@@ -178,7 +170,7 @@ def toggle_maze_mode():
 if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption('A* and Dijkstra demo')
-	scene = pg.display.set_mode((maze_generator.cols * CELL_SIZE, maze_generator.rows * CELL_SIZE))
+	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
 
 	generate_and_draw_graph()
 

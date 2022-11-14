@@ -5,13 +5,12 @@ Author: Sam Barba
 Created 08/09/2021
 */
 
+#include <algorithm>
 #include <bits/stdc++.h>
 
 #include "tree.h"
 
-using std::default_random_engine;
 using std::setw;
-using std::shuffle;
 
 void displayTreeInfo(Tree* tree) {
 	cout << "Tree (height " << tree->getHeight() << "):\n\n";
@@ -63,8 +62,7 @@ Tree* makeBalancedBST(vector<string> data, int lo = 0, int hi = INT_MIN) {
 int main() {
 	vector<string> data = {"alice", "bob", "charlie", "david", "emily", "francis", "george",
 		"harrison", "isaac", "jason", "leo", "maria", "nathan", "olivia", "penelope"};
-	auto rnd = default_random_engine {};
-	shuffle(data.begin(), data.end(), rnd);
+	random_shuffle(data.begin(), data.end());
 
 	Tree* tree = new Tree(data[0]);
 	for (int i = 1; i < data.size(); i++)

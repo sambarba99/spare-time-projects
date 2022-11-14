@@ -1,3 +1,5 @@
 'N Queens' depth-first search solver
 
-![](n_queens.gif)
+E.g. N = 16:
+
+![](n_queens.png)

@@ -19,8 +19,8 @@ class Tree {
 		Tree* leftChild;
 		Tree* rightChild;
 
-		Tree(const string dataParam) {
-			data = dataParam;
+		Tree(const string data) {
+			this->data = data;
 			leftChild = NULL;
 			rightChild = NULL;
 		}
