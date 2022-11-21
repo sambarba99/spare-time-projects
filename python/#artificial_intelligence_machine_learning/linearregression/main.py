@@ -18,10 +18,6 @@ plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data(train_test_ratio=0.8):
 	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv')
 	print(f'\nRaw data:\n{df}')
@@ -80,10 +76,6 @@ def analytic_solution(x, y):
 	solution = ((np.linalg.inv(x.T.dot(x))).dot(x.T)).dot(y)
 	bias, weights = solution[0], solution[1:]
 	return bias, weights
-
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
 	feature, y_name, x_train, y_train, x_test, y_test = load_data()

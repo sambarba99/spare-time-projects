@@ -12,10 +12,6 @@ from tree_plotter import plot_tree
 
 N_NODES = 31  # No. people names (max 113)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def make_random_binary_tree():
 	with open(r'C:\Users\Sam Barba\Desktop\Programs\datasets\peopleNames.csv', 'r') as file:
 		names = file.read().splitlines()
@@ -53,10 +49,6 @@ def make_balanced_bst(data, lo=0, hi=None):
 	tree.left_child = make_balanced_bst(data, lo, mid - 1)
 	tree.right_child = make_balanced_bst(data, mid + 1, hi)
 	return tree
-
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
 	binary_tree = make_random_binary_tree()

@@ -30,10 +30,6 @@ plt.rcParams['figure.figsize'] = (9, 6)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def clean_data(df):
 	gender, race = df.pop('gender'), df.pop('race')
 
@@ -79,11 +75,7 @@ def data_generator(*, preprocessed_images, df, idx, device):
 
 		yield batch_x, batch_y
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	np.random.seed(1)
 	torch.manual_seed(1)
 
@@ -216,7 +208,7 @@ def main():
 	elif choice == 'L':
 		model = torch.load('model.pth')
 	else:
-		return
+		raise ValueError('Bad choice')
 
 	# 7. Testing/evaluation
 
@@ -292,6 +284,3 @@ def main():
 		plt.suptitle('Test output examples', x=0.508, y=0.95)
 		plt.savefig('output_examples.png')
 		plt.show()
-
-if __name__ == '__main__':
-	main()

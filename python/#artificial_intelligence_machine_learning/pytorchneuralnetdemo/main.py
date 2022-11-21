@@ -22,10 +22,6 @@ plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_classification_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -115,11 +111,7 @@ def plot_confusion_matrix(actual, predictions, labels):
 	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	np.random.seed(1)
 	torch.manual_seed(1)
 
@@ -142,8 +134,7 @@ def main():
 				+ '\nC for car value dataset,'
 				+ '\nor M for medical insurance dataset\n>>> ').upper()
 		case _:
-			print('Bad choice')
-			return
+			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
 		case 'B1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
@@ -156,8 +147,7 @@ def main():
 		case 'RC': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.csv'
 		case 'RM': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.csv'
 		case _:
-			print('Bad choice')
-			return
+			raise ValueError('Bad choice')
 
 	labels = None
 	if task_choice in 'BM':
@@ -395,6 +385,3 @@ def main():
 	# To save/load a model:
 	# torch.save(model, 'model.pth')
 	# model = torch.load('model.pth')
-
-if __name__ == '__main__':
-	main()

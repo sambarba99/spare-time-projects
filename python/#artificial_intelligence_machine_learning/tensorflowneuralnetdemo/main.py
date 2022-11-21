@@ -28,10 +28,6 @@ plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_classification_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -109,11 +105,7 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	np.random.seed(1)
 	set_seed(1)
 
@@ -136,8 +128,7 @@ def main():
 				+ '\nC for car value dataset,'
 				+ '\nor M for medical insurance dataset\n>>> ').upper()
 		case _:
-			print('Bad choice')
-			return
+			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
 		case 'B1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
@@ -150,8 +141,7 @@ def main():
 		case 'RC': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.csv'
 		case 'RM': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.csv'
 		case _:
-			print('Bad choice')
-			return
+			raise ValueError('Bad choice')
 
 	labels = None
 	if task_choice in 'BM':
@@ -273,30 +263,26 @@ def main():
 		print('\nTest MSE:', test_mse)
 		print('Test MAE:', test_mae)
 
-	if task_choice == 'R': return
-
 	# 4. Testing
+	if task_choice in 'BM':
 
-	print('\n----- TESTING -----')
+		print('\n----- TESTING -----')
 
-	train_pred = np.squeeze(model.predict(x_train))
-	test_pred = np.squeeze(model.predict(x_test))
+		train_pred = np.squeeze(model.predict(x_train))
+		test_pred = np.squeeze(model.predict(x_test))
 
-	if task_choice == 'B':  # Binary
-		train_pred = train_pred.round().astype(int)
-		test_pred = test_pred.round().astype(int)
-	else:  # Multiclass
-		y_train = y_train.argmax(axis=1)
-		y_test = y_test.argmax(axis=1)
-		train_pred = train_pred.argmax(axis=1)
-		test_pred = test_pred.argmax(axis=1)
+		if task_choice == 'B':  # Binary
+			train_pred = train_pred.round().astype(int)
+			test_pred = test_pred.round().astype(int)
+		else:  # Multiclass
+			y_train = y_train.argmax(axis=1)
+			y_test = y_test.argmax(axis=1)
+			train_pred = train_pred.argmax(axis=1)
+			test_pred = test_pred.argmax(axis=1)
 
-	plot_confusion_matrix(y_train, train_pred, labels, True)
-	plot_confusion_matrix(y_test, test_pred, labels, False)
+		plot_confusion_matrix(y_train, train_pred, labels, True)
+		plot_confusion_matrix(y_test, test_pred, labels, False)
 
 	# To save/load a model:
 	# model.save('model.h5')
 	# new_model = keras.models.load_model('model.h5')
-
-if __name__ == '__main__':
-	main()

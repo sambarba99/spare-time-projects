@@ -25,10 +25,6 @@ all_items = None
 
 plt.rcParams['figure.figsize'] = (7, 5)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def initialise_population():
 	"""Initialise population of individuals with random items"""
 
@@ -104,13 +100,7 @@ def find_fittest(*population):
 
 	return max(population, key=lambda ind: ind.fitness)
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
-	global all_items
-
+if __name__ == '__main__':
 	np.random.seed(1)
 
 	# Generate random items
@@ -167,6 +157,3 @@ def main():
 	print('Weight left:', KNAPSACK_CAPACITY - sum(item.weight for item in items))
 
 	plt.show()
-
-if __name__ == '__main__':
-	main()

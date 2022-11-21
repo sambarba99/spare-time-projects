@@ -15,10 +15,6 @@ plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -62,10 +58,6 @@ def transform(x, n_components):
 	pca_variability = (eigenvalues / variability)[:n_components].sum()
 
 	return x.dot(components.T), pca_variability
-
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
 	choice = input('\nEnter 1 to use banknote dataset,'

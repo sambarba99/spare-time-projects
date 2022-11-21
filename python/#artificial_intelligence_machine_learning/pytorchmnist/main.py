@@ -31,10 +31,6 @@ DRAWING_SIZE = 500
 
 plt.rcParams['figure.figsize'] = (10, 5)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data(device):
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -71,11 +67,7 @@ def plot_confusion_matrix(actual, predictions, labels):
 	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	torch.manual_seed(1)
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -169,7 +161,7 @@ def main():
 		case 'L':
 			model = torch.load('model.pth')
 		case _:
-			return
+			raise ValueError('Bad choice')
 
 	# Testing/evaluation
 
@@ -229,6 +221,3 @@ def main():
 	plt.imshow(drawn_digit_grid, cmap='gray')
 	plt.title(f'Drawn digit is {pred_vector.argmax()} ({(100 * pred_vector.max()):.3f}% sure)')
 	plt.show()
-
-if __name__ == '__main__':
-	main()

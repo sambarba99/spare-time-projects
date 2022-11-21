@@ -29,10 +29,6 @@ DRAWING_SIZE = 500
 
 plt.rcParams['figure.figsize'] = (10, 5)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -79,11 +75,7 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	set_seed(1)
 
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
@@ -150,7 +142,7 @@ def main():
 		case 'L':
 			model = load_model('model.h5')
 		case _:
-			return
+			raise ValueError('Bad choice')
 
 	# Evaluate model
 
@@ -281,6 +273,3 @@ def main():
 			ax.imshow(feature_map[0, :, :, ax_idx], cmap='gray')  # Plot feature_map of depth 'ax_idx'
 		plt.suptitle(f'Feature map of convolutional layer {idx}/{len(feature_output)}\n(user-drawn digit)', x=0.512, y=0.97)
 		plt.show()
-
-if __name__ == '__main__':
-	main()

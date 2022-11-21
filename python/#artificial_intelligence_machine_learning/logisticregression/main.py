@@ -22,10 +22,6 @@ plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data(path, train_test_ratio=0.8):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -69,11 +65,7 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\nor 2 for breast tumour dataset\n>>> ')
 
@@ -100,6 +92,3 @@ def main():
 	plt.ylabel('Cost')
 	plt.title('Cost during training')
 	plt.show()
-
-if __name__ == '__main__':
-	main()

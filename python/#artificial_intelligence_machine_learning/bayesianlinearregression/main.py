@@ -19,10 +19,6 @@ plt.rcParams['figure.figsize'] = (9, 6)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bounds=None, upper_bounds=None):
 	plt.plot(x_test, y_test, '--', zorder=1, label='Ground truth')
 	plt.scatter(x_train, y_train, color='black', zorder=2, label='Training samples')
@@ -71,11 +67,7 @@ def compute_log_marginal(phi, y, alpha, s2):
 	lml2 = np.exp(-0.5 * y.T.dot(np.linalg.inv(s2 * np.eye(n) + phi.dot(phi.T) / alpha)).dot(y))
 	return np.log(lml1 * lml2)
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	# Synthesise datasets
 
 	data_generator = bayesian_utility.DataGenerator(SIGMA ** 2)
@@ -178,6 +170,3 @@ def main():
 	# Print log marginal likelihood given optimal lambda and alpha
 	print(f'\nLog marginal likelihood with sigma^2 = {SIGMA ** 2}, lambda = optimal, alpha = optimal:')
 	print(compute_log_marginal(phi_train, y_train, best_alpha, SIGMA ** 2))
-
-if __name__ == '__main__':
-	main()

@@ -18,10 +18,6 @@ plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def load_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -59,11 +55,7 @@ def plot_confusion_matrix(k, actual, predictions, labels):
 
 	return f1
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	choice = input('\nEnter 1 to use banknote dataset,'
 		+ '\n2 for breast tumour dataset,'
 		+ '\n3 for iris dataset,'
@@ -94,6 +86,3 @@ def main():
 			break  # No improvement, so stop
 
 	print('Best k found:', best_k)
-
-if __name__ == '__main__':
-	main()

@@ -45,10 +45,6 @@ do_separation = do_alignment = do_cohesion = True
 
 flock = scene = None
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def generate_boids(n=50):
 	global flock
 
@@ -120,14 +116,7 @@ def get_slider_val(slider, min_val, max_val):
 	slider_x = slider[0][0]
 	return (slider_x - SLIDER_MIN_X) / (SLIDER_MAX_X - SLIDER_MIN_X) * (max_val - min_val) + min_val
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
-	global percep_radius_slider, max_steering_force_slider, max_vel_slider, scene, \
-		do_separation, do_alignment, do_cohesion
-
+if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption('Flocking Simulator')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
@@ -194,6 +183,3 @@ def main():
 		draw()
 
 		clock.tick(FPS)
-
-if __name__ == '__main__':
-	main()

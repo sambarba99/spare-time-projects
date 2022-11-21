@@ -32,10 +32,6 @@ plt.rcParams['figure.figsize'] = (9, 6)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def clean_data(df):
 	gender, race = df.pop('gender'), df.pop('race')
 
@@ -114,11 +110,7 @@ def build_model():
 
 	return Model(inputs=vgg.input, outputs=[output_age, output_gender, output_race])
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
 	np.random.seed(1)
 
 	# 1. Convert data to dataframe
@@ -261,7 +253,7 @@ def main():
 	elif choice == 'L':
 		model = load_model('model.h5')
 	else:
-		return
+		raise ValueError('Bad choice')
 
 	# 7. Testing/evaluation
 
@@ -309,6 +301,3 @@ def main():
 	plt.suptitle('Test output examples', x=0.508, y=0.95)
 	plt.savefig('output_examples.png')
 	plt.show()
-
-if __name__ == '__main__':
-	main()

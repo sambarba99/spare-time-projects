@@ -23,5 +23,8 @@ datasets/UTKFace/
 python/\#artificial_intelligence_machine_learning/pytorchutkface/model.pth
 python/\#artificial_intelligence_machine_learning/tensorflowutkface/model.h5
 
+# Ignore MySQL password
+sql_password.txt
+
 # Ignore makefiles
 cpp/*/makefile

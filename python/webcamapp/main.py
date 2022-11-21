@@ -23,10 +23,6 @@ MAX_DIST = 441.673  # Maximum Euclidean distance between 2 colours = root(255^2 
 CROSSHAIR_GAP = 8
 SCALE = 2
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def find_most_similar_colour(frame, target_colour):
 	# Convert RGB to BGR, as OpenCV image data is BGR
 	target_colour = target_colour[::-1]
@@ -55,11 +51,8 @@ def crosshairs(frame, i, j):
 		frame[i, :j - CROSSHAIR_GAP] = \
 		frame[i, j + CROSSHAIR_GAP:] = np.array([0, 0, 255])
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
+if __name__ == '__main__':
+	print(PROCESSING)
 	vidcap = cv.VideoCapture(0)
 
 	# Set width and height properties to small values for faster processing
@@ -107,7 +100,3 @@ def main():
 
 	vidcap.release()
 	cv.destroyAllWindows()
-
-if __name__ == '__main__':
-	print(PROCESSING)
-	main()

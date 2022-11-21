@@ -17,10 +17,6 @@ plt.rcParams['figure.figsize'] = (10, 6)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def handle_button_click(*, coefficients, find_root):
 	# If find_root = True, find a root of f(x). Else, find a stationary point of f(x)
 	# (i.e. a root of the derivative of f(x)).
@@ -38,7 +34,6 @@ def handle_button_click(*, coefficients, find_root):
 	solution = polynomial.find_root() if find_root else poly_deriv.find_root()
 
 	if isinstance(solution, str):  # No solution
-		entry_box.delete(0, tk.END)
 		messagebox.showerror(title='Error', message=solution)
 		return
 
@@ -67,18 +62,14 @@ def handle_button_click(*, coefficients, find_root):
 
 	if find_root:
 		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
-			'\n' + fr'Root: $x$ = {root:.6f}'
-			f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
+			'\n' + fr'Root: $x$ = {root:.4g}'
+			f'\nFound after {iters} iterations (initial guess = {initial_guess:.4g})')
 	else:
 		stationary_y = polynomial(root)
 		plt.title(fr'$f(x)$ = ${str(polynomial)}$'
-			f'\nStationary point: {root:.6f}, {stationary_y:.6f}'
-			f'\nFound after {iters} iterations (initial guess = {initial_guess:.6f})')
+			f'\nStationary point: {root:.4g}, {stationary_y:.4g}'
+			f'\nFound after {iters} iterations (initial guess = {initial_guess:.4g})')
 	plt.show()
-
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
 
 if __name__ == '__main__':
 	root = tk.Tk()

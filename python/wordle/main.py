@@ -39,10 +39,6 @@ green_letters, yellow_letters, grey_letters = [], [], []
 game_over = False
 target_word = scene = None
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
 def generate_pattern_dict(word_list):
 	"""
 	E.g. If word_list = ['BEARS', 'CRANE', 'WEARY']:
@@ -211,14 +207,7 @@ def draw_grid(colour_current_row, status=None):
 
 	pg.display.update()
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
-	global attempts, attempt_num, col_num, target_word, game_over, scene, \
-		green_letters, yellow_letters, grey_letters
-
+if __name__ == '__main__':
 	with open('five_letter_words.txt', 'r') as file:
 		all_words = file.read().splitlines()
 	pattern_dict = generate_pattern_dict(all_words)
@@ -335,6 +324,3 @@ def main():
 							draw_grid(colour_current_row=False, status=f"Try '{attempt_word}'...")
 							sleep(1)
 							draw_grid(colour_current_row=False)
-
-if __name__ == '__main__':
-	main()

@@ -50,7 +50,8 @@ Below are rules that generate interesting geometry. Their alphabet:
 	Other characters are ignored (simply placeholders).
 */
 
-const Fractal BINARY_TREE = {"Binary tree", "F0", {{'0', "<[+F0]-F0"}}, 9, 45, -90};
+const Fractal BINARY_TREE = {"Binary tree", "F", {{'F', "G[-F]+F"}, {'G', "GG"}}, 8, 45, -90};
+const Fractal H_FIGURE = {"'H' figure", "[F]--[F]", {{'F', "<G[+F][-F]"}}, 12, 90, 0};
 const Fractal SIERPINSKI_TRIANGLE = {"Sierpinski triangle", "F-G-G", {{'F', "F-G+F+G-F"}, {'G', "GG"}}, 7, 120, 0};
 const Fractal SIERPINSKI_ARROWHEAD = {"Sierpinski arrowhead", "F", {{'F', "G-F-G"}, {'G', "F+G+F"}}, 7, 60, 240};
 const Fractal KOCH_SNOWFLAKE = {"Koch snowflake", "F--F--F", {{'F', "F+F--F+F"}}, 5, 60, 0};
@@ -58,15 +59,14 @@ const Fractal KOCH_ISLAND = {"Koch island", "F+F+F+F", {{'F', "F-F+F+FFF-F-F+F"}
 const Fractal KOCH_RING = {"Koch ring", "F+F+F+F", {{'F', "FF+F+F+F+F+F-F"}}, 5, 90, 0};
 const Fractal PENTAPLEXITY = {"Pentaplexity", "F++F++F++F++F", {{'F', "F++F++F+++++F-F++F"}}, 5, 36, 36};
 const Fractal TRIANGLES = {"Triangles", "F+F+F", {{'F', "F-F+F"}}, 8, 120, 0};
-const Fractal PENROSE = {"Penrose", "+0F--1F---2F--3F", {{'F', ""}, {'0', "2F++3F----1F[-2F----0F]++"}, {'1', "+2F--3F[---0F--1F]+"}, {'2', "-0F++1F[+++2F++3F]-"}, {'3', "--2F++++0F[+3F++++1F]--1F"}}, 7, 36, 0};
+const Fractal PENROSE = {"Penrose", "[1]++[1]++[1]++[1]++[1]", {{'F', ""}, {'0', "2F++3F----1F[-2F----0F]++"}, {'1', "+2F--3F[---0F--1F]+"}, {'2', "-0F++1F[+++2F++3F]-"}, {'3', "--2F++++0F[+3F++++1F]--1F"}}, 7, 36, -90};
 const Fractal PEANO_GOSPER_CURVE = {"Peano-Gosper curve", "F0", {{'0', "0+1F++1F-F0--F0F0-1F+"}, {'1', "-F0+1F1F++1F+F0--F0-1"}}, 5, 60, 180};
 const Fractal HILBERT_CURVE = {"Hilbert curve", "0", {{'0', "+1F-0F0-F1+"}, {'1', "-0F+1F1+F0-"}}, 8, 90, 180};
 const Fractal LEVY_C_CURVE = {"Levy C curve", "F", {{'F', "+F--F+"}}, 16, 45, 0};
 const Fractal DRAGON_CURVE = {"Dragon curve", "F0", {{'F', ""}, {'0', "-F0++F1-"}, {'1', "+F0--F1+"}}, 16, 45, 0};
 const Fractal ASYMMETRIC_TREE_1 = {"Asymmetric tree 1", "F", {{'F', "G+[[F]-F]-G[-GF]+F"}}, 7, 15, -90};
-const Fractal ASYMMETRIC_TREE_2 = {"Asymmetric tree 2", "F", {{'F', "G[+FG-[F]--F][---F]"}, {'G', "GG"}}, 7, 22, -90};
-const Fractal ASYMMETRIC_TREE_3 = {"Asymmetric tree 3", "F", {{'F', "FF[++F][-FF]"}}, 7, 20, -90};
-const Fractal ASYMMETRIC_TREE_4 = {"Asymmetric tree 4", "F", {{'F', "FF+[+F-F-F]-[-F+F+F]"}}, 5, 20, -90};
+const Fractal ASYMMETRIC_TREE_2 = {"Asymmetric tree 2", "F", {{'F', "FF[++F][-FF]"}}, 7, 20, -90};
+const Fractal ASYMMETRIC_TREE_3 = {"Asymmetric tree 3", "F", {{'F', "FF+[+F-F-F]-[-F+F+F]"}}, 5, 20, -90};
 
 const int WIDTH = 1500;
 const int HEIGHT = 900;
@@ -197,7 +197,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 				coordsToDraw.push_back({x, y, nextX, nextY});
 				break;
 			case '<':  // Decrease step size
-				state = {x, y, heading, stepSize * 0.595};
+				state = {x, y, heading, stepSize * 0.67};
 				break;
 			case '+':  // Turn clockwise
 				state = {x, y, heading + turnAngle, stepSize};
@@ -221,7 +221,8 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	window.clear(sf::Color::Black);
 	for (int i = 0; i < coordsToDraw.size(); i++) {
 		vector<double> coordSet = coordsToDraw[i];
-		int startX = coordSet[0], startY = coordSet[1], endX = coordSet[2], endY = coordSet[3];
+		int startX = round(coordSet[0]), startY = round(coordSet[1]);
+		int endX = round(coordSet[2]), endY = round(coordSet[3]);
 		float hue = float(i) / float(coordsToDraw.size()) * 60.f;
 		vector<int> rgb = hsv2rgb(hue, 1.f, 1.f);
 		sf::Vertex line[] = {
@@ -268,9 +269,9 @@ void waitForClick() {
 
 int main() {
 	// Draw each fractal, each from iteration 0 to its max (i.e. computer won't crash) iteration
-	vector<Fractal> allFractals = {BINARY_TREE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE,
-		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE,
-		LEVY_C_CURVE, DRAGON_CURVE, ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3, ASYMMETRIC_TREE_4};
+	vector<Fractal> allFractals = {BINARY_TREE, H_FIGURE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE,
+		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE,
+		DRAGON_CURVE, ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3};
 
 	for (Fractal fract : allFractals) {
 		for (int i = 0; i <= fract.maxIters; i++) {

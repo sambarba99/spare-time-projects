@@ -1,5 +1,5 @@
 """
-Belief propagation demo
+Belief propagation in a Bayesian network demo
 
 Author: Sam Barba
 Created 29/11/2021
@@ -33,6 +33,8 @@ Diagnostic (the tests a mechanic can run - observable)     |
 
 import numpy as np
 import pandas as pd
+
+from graph_plotter import plot_graphical_model, plot_factor_graph
 
 pd.set_option('display.max_columns', 11)
 pd.set_option('display.width', None)
@@ -89,9 +91,12 @@ rvs = [(p_ne, 'P(ne)', [nti['ne']], 'F'),
 
 data = None
 
-# ---------------------------------------------------------------------------------------------------- #
-# --------------------------------------------  FUNCTIONS  ------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
+def generate_bit_permutations(n_bits):
+	if n_bits < 1: yield slice(None),
+	else:
+		for head in generate_bit_permutations(n_bits - 1):
+			yield head + (0,)
+			yield head + (1,)
 
 def calculate_prob_distributions():
 	for idx, rv in enumerate(rvs):
@@ -106,13 +111,6 @@ def calculate_prob_distributions():
 			beta = (data[:, indices] == bits2).all(axis=1).sum() + 1
 
 			rvs[idx][0][tuple(bits)] = alpha / (alpha + beta)
-
-def generate_bit_permutations(n_bits):
-	if n_bits < 1: yield slice(None),
-	else:
-		for head in generate_bit_permutations(n_bits - 1):
-			yield head + (0,)
-			yield head + (1,)
 
 def calculate_edges():
 	"""
@@ -201,10 +199,10 @@ def calculate_marginals(known, msg_order):
 	msgs = {dest: {} for _, dest in msg_order}
 
 	for src, dest in msg_order:
-		if src < RV_TO_FACTOR:  # RV
+		if src < RV_TO_FACTOR:  # src is a RV
 			if src in known:
 				msgs[dest][src] = np.array([0, 1] if known[src] else [1, 0])
-			else:
+			else:  # src is a factor
 				msgs[dest][src] = rv_to_factor_msg(src, dest, msgs)
 		else:  # Factor
 			msgs[dest][src] = factor_to_rv_msg(src, dest, msgs)
@@ -220,13 +218,7 @@ def calculate_marginals(known, msg_order):
 
 	return marginals
 
-# ---------------------------------------------------------------------------------------------------- #
-# ----------------------------------------------  MAIN  ---------------------------------------------- #
-# ---------------------------------------------------------------------------------------------------- #
-
-def main():
-	global data
-
+if __name__ == '__main__':
 	# 1. Get coffee machine data
 
 	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\coffeeMachines.csv')
@@ -236,7 +228,9 @@ def main():
 	print('No. working machines:', data[:, nti['he']].sum())  # Works only if 'he' ('makes hot espresso') is true
 	print('No. broken machines:', len(data) - data[:, nti['he']].sum())
 
-	# 2. Display RVs and their calculated probability distributions
+	# 2. Display graphical model, RVs, and their calculated probability distributions
+
+	plot_graphical_model(rvs)
 
 	calculate_prob_distributions()
 
@@ -259,17 +253,17 @@ def main():
 	# 3. Display factor graph
 
 	edges = calculate_edges()
-	print(f'\nGenerated {len(edges)} factor graph edges:\n')
-	for idx, e in enumerate(edges):
-		print(f'{e[0]} ({itn[e[0]]}) - {e[1]}', end='    ')
-		if (idx + 1) % 3 == 0:
-			print()
+	plot_factor_graph(edges, itn, rvs)
 
 	# 4. Display message order
 
 	msg_order = calculate_message_order(edges)
-	msg_order_str = ', '.join(str(m[0]) + '->' + str(m[1]) for m in msg_order)
-	print(f'\nMessage order ({len(msg_order)} messages):\n\n{msg_order_str}')
+	print(f'\nFactor graph message order ({len(msg_order)} messages):')
+	for src, dest in msg_order:
+		if src < RV_TO_FACTOR:  # src is a RV
+			print(f'{src} ({itn[src]}) -> {dest} (factor)')
+		else:  # src is a factor
+			print(f'{src} (factor) -> {dest} ({itn[dest]})')
 
 	# 5. Display marginals ('beliefs')
 
@@ -279,7 +273,7 @@ def main():
 	for idx, m in enumerate(marginals):
 		print(f'P({itn[idx]}) = {m}')
 
-	print('\nMarginals if water reservoir empty:\n')
+	print('\nMarginals if e.g. water reservoir empty:\n')
 	known = {nti['wr']: True}
 	marginals = calculate_marginals(known, msg_order)
 	for idx, m in enumerate(marginals):
@@ -300,6 +294,3 @@ def main():
 		marginals = calculate_marginals(observations, msg_order)
 		idx = marginals[:7, 1].argmax()  # Consider only the failure marginals (first 7 rows)
 		print(f'    Most likely issue = {itn[idx]}')
-
-if __name__ == '__main__':
-	main()
