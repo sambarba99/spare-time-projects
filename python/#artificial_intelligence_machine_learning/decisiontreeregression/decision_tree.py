@@ -18,15 +18,15 @@ class DecisionTree:
 
 		def find_best_split(x, y):
 			"""
-			Given a dataest and its target values, find the optimal combination of
+			Given a dataset and its target values, find the optimal combination of
 			feature and split point that yields minimum MSE
 			"""
 
 			def calculate_mse(y):
 				if len(y) <= 1: return 0
 
-				y_mean = y.mean()  # Use mean as the prediction
-				mse = ((y - y_mean) ** 2).sum() / len(y)
+				pred = y.mean()  # Use mean as the prediction
+				mse = ((y - pred) ** 2).sum() / len(y)
 				return mse
 
 			best = {'mse': np.inf}

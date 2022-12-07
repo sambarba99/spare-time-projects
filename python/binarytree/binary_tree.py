@@ -90,7 +90,6 @@ class Tree:
 			if self.data < prev:
 				return False
 
-			prev = self.data
 			return Tree.is_bst(self.right_child)
 
 		return True

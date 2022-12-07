@@ -19,7 +19,7 @@ class DecisionTree:
 
 		def find_best_split(x, y):
 			"""
-			Given a dataest and its target values, find the optimal combination of feature
+			Given a dataset and its target values, find the optimal combination of feature
 			and split point that yields minimum gini impurity (or max info gain if using commented code)
 			"""
 

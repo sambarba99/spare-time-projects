@@ -30,7 +30,8 @@ if __name__ == '__main__':
 	freqs = [STRING.count(c) for c in set_str]
 
 	# Convert to probabilities/weights (so they sum to 1)
-	weights = [f / sum(freqs) for f in freqs]
+	sum_ = sum(freqs)
+	weights = [f / sum_ for f in freqs]
 	symbols_weights = list(zip(set_str, weights))
 
 	# Sort symbols/weights (not needed - just for visualisation)

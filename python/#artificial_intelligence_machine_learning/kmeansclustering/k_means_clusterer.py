@@ -58,7 +58,7 @@ class KMeans:
 
 			# Plot cluster points
 			for idx, c in enumerate(self.clusters, start=1):
-				plt.scatter(*self.x[c].T, alpha=0.7, label=f'Class {idx}')
+				plt.scatter(*self.x[c].T, alpha=0.7, label=f'Class {idx} ({len(x[c])} samples)')
 
 			# Plot cluster centres
 			for point in self.centroids:

@@ -145,7 +145,7 @@ if __name__ == '__main__':
 			n_backtracks = 0
 
 			for idx, n in enumerate(config):
-				i, j = idx // BOARD_SIZE, idx % BOARD_SIZE
+				i, j = divmod(idx, BOARD_SIZE)
 				board[i][j] = int(n)
 				if n != '0': given_ij.append((i, j))
 

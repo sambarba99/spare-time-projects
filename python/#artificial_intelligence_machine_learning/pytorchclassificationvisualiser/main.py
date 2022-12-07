@@ -48,7 +48,7 @@ def gen_data(mode):
 			lr = 8e-5
 		case 'moons':
 			x, y = make_moons(n_samples=500, noise=0.15)
-			x[:, 1] *= 1.7  # Stretch a bit in the y (geometric) direction
+			x[:, 1] *= 1.7  # Stretch a bit in the geometric y direction
 			lr = 3e-4
 		case 'spirals':
 			class1, class2 = make_spiral_classes()
@@ -153,20 +153,13 @@ if __name__ == '__main__':
 	train_model_lbl = tk.Label(root, text='2. Train model',
 		font='consolas', bg='#000024', fg='white')
 
-	btn_3_blobs = tk.Button(root, text='3 blobs', font='consolas',
-		command=lambda: gen_data('3 blobs'))
-	btn_4_blobs = tk.Button(root, text='4 blobs', font='consolas',
-		command=lambda: gen_data('4 blobs'))
-	btn_5_blobs = tk.Button(root, text='5 blobs', font='consolas',
-		command=lambda: gen_data('5 blobs'))
-	btn_circles = tk.Button(root, text='Circles', font='consolas',
-		command=lambda: gen_data('circles'))
-	btn_moons = tk.Button(root, text='Moons', font='consolas',
-		command=lambda: gen_data('moons'))
-	btn_spirals = tk.Button(root, text='Spirals', font='consolas',
-		command=lambda: gen_data('spirals'))
-	btn_train = tk.Button(root, text='Train', font='consolas',
-		command=train_model)
+	btn_3_blobs = tk.Button(root, text='3 blobs', font='consolas', command=lambda: gen_data('3 blobs'))
+	btn_4_blobs = tk.Button(root, text='4 blobs', font='consolas', command=lambda: gen_data('4 blobs'))
+	btn_5_blobs = tk.Button(root, text='5 blobs', font='consolas', command=lambda: gen_data('5 blobs'))
+	btn_circles = tk.Button(root, text='Circles', font='consolas', command=lambda: gen_data('circles'))
+	btn_moons = tk.Button(root, text='Moons', font='consolas', command=lambda: gen_data('moons'))
+	btn_spirals = tk.Button(root, text='Spirals', font='consolas', command=lambda: gen_data('spirals'))
+	btn_train = tk.Button(root, text='Train', font='consolas', command=train_model)
 
 	gen_data_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.15, anchor='center')
 	train_model_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.65, anchor='center')

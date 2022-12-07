@@ -14,7 +14,7 @@ import pygame as pg
 
 plt.rcParams['figure.figsize'] = (7, 5)
 
-N = 12  # N > 3
+N = 12
 BLANK = 0
 QUEEN = 1
 CELL_SIZE = 30

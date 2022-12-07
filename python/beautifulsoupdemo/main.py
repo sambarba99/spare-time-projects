@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 26/10/2022
 """
 
+import io
 import os
 import requests
 
@@ -19,14 +20,14 @@ def read_bbc_news():
 	ordered_list = html.find(text='Most read').find_next('ol')
 	list_items = ordered_list.find_all('li')  # <li> = list item
 
-	result = 'Most read BBC News stories:\n'
+	ss = io.StringIO()
 	for idx, item in enumerate(list_items):
 		link_tag = item.find('a')  # <a> tags are links
 		link_text = link_tag.string
 		hyperlink = link_tag['href']  # Hypertext reference
-		result += f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})'
+		ss.write(f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})')
 
-	return result
+	return f'Most read BBC News stories:\n{ss.getvalue()}'
 
 def read_wiki_article_of_the_day():
 	url = 'https://en.wikipedia.org/wiki/Main_Page'
@@ -56,13 +57,14 @@ def read_crypto_prices():
 	result = 'Crypto prices:'
 	result += f'\n\n{name_h:>15}   |   {price_h}'
 	result += '\n' + '-' * 38
+	ss = io.StringIO()
 
 	for tr in table_rows[1:10]:
 		row_data = tr.find_all('td')[2:4]  # <td> = table data
 		name, price = row_data
-		result += f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}'
+		ss.write(f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}')
 
-	return result
+	return f'{result}{ss.getvalue()}'
 
 if __name__ == '__main__':
 	path = os.path.expanduser('~') + r'\Desktop\daily.txt'

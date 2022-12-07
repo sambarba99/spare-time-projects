@@ -27,6 +27,6 @@ class CNN(nn.Module):
 
 	def forward(self, x):
 		conv_out = self.conv_block(x)
-		# print(conv_out.shape)  # To determine in_features of fc_block
+		# print(conv_out.shape)  # To determine in_features of self.fc_block
 		fc_out = self.fc_block(conv_out)
 		return fc_out

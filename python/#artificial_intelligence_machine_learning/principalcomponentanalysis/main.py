@@ -89,10 +89,10 @@ if __name__ == '__main__':
 	ax.set_xlabel('Principal component 1')
 	ax.set_ylabel('Principal component 2')
 	if n_components == 3:
-		x, y, z = x_transform.T
-		ax.plot(y, z, 'k.', markersize=2, alpha=0.4, zdir='x', zs=x.min() - 0.1)
-		ax.plot(x, z, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y.min() - 0.1)
-		ax.plot(x, y, 'k.', markersize=2, alpha=0.4, zdir='z', zs=z.min() - 0.1)
+		x_plt, y_plt, z_plt = x_transform.T
+		ax.plot(y_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='x', zs=x_plt.min() - 0.1)
+		ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.min() - 0.1)
+		ax.plot(x_plt, y_plt, 'k.', markersize=2, alpha=0.4, zdir='z', zs=z_plt.min() - 0.1)
 		ax.set_zlabel('Principal component 3')
 	ax.set_title(fr'Shape of $x$: {x.shape}'
 		f'\nShape of PCA transform: {x_transform.shape}'
