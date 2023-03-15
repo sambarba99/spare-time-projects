@@ -1,5 +1,5 @@
 """
-(TensorFlow) MNIST convolutional neural network
+TensorFlow MNIST convolutional neural network
 
 Author: Sam Barba
 Created 20/10/2021
@@ -19,18 +19,19 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.datasets import mnist
-from tensorflow.random import set_seed
+import tensorflow as tf
+
+
+plt.rcParams['figure.figsize'] = (10, 5)
+tf.random.set_seed(1)
 
 N_CLASSES = 10  # Class for each digit 0-9
 INPUT_SHAPE = (28, 28, 1)  # W, H, colour channels
 DRAWING_SIZE = 500
 
-plt.rcParams['figure.figsize'] = (10, 5)
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 	# Normalise images to 0-1 range and correct shape
 	x = np.concatenate([x_train, x_test], axis=0).astype(float) / 255
@@ -46,13 +47,14 @@ def load_data():
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
+
 def build_model():
 	model = Sequential(
 		layers=[
 			Input(shape=INPUT_SHAPE),
-			Conv2D(32, kernel_size=(3, 3), activation='relu'),
+			Conv2D(32, kernel_size=3, activation='relu'),
 			MaxPooling2D(),  # pool_size = (2, 2)
-			Conv2D(64, kernel_size=(3, 3), activation='relu'),
+			Conv2D(64, kernel_size=3, activation='relu'),
 			MaxPooling2D(),
 			Flatten(),
 			Dropout(0.5),
@@ -66,6 +68,7 @@ def build_model():
 
 	return model
 
+
 def plot_confusion_matrix(actual, predictions, labels, is_training):
 	cm = confusion_matrix(actual, predictions)
 	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
@@ -75,9 +78,8 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-if __name__ == '__main__':
-	set_seed(1)
 
+if __name__ == '__main__':
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
 
 	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
@@ -113,7 +115,7 @@ if __name__ == '__main__':
 			# - restore_best_weights = whether to restore model weights from the epoch with
 			# 	the best value of the monitored quantity (validation loss in this case)
 
-			early_stopping = EarlyStopping(monitor='val_loss',
+			early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
 				min_delta=0,
 				patience=5,
 				restore_best_weights=True)
@@ -147,7 +149,7 @@ if __name__ == '__main__':
 	# Evaluate model
 
 	print('\n----- EVALUATION -----\n')
-	test_loss, test_accuracy = model.evaluate(x_test, y_test)
+	test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
 	print('Test loss:', test_loss)
 	print('Test accuracy:', test_accuracy)
 

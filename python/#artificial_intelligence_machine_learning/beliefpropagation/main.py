@@ -36,6 +36,7 @@ import pandas as pd
 
 from graph_plotter import plot_graphical_model, plot_factor_graph
 
+
 pd.set_option('display.max_columns', 11)
 pd.set_option('display.width', None)
 
@@ -91,12 +92,14 @@ rvs = [(p_ne, 'P(ne)', [nti['ne']], 'F'),
 
 data = None
 
+
 def generate_bit_permutations(n_bits):
 	if n_bits < 1: yield slice(None),
 	else:
 		for head in generate_bit_permutations(n_bits - 1):
 			yield head + (0,)
 			yield head + (1,)
+
 
 def calculate_prob_distributions():
 	for idx, rv in enumerate(rvs):
@@ -112,6 +115,7 @@ def calculate_prob_distributions():
 
 			rvs[idx][0][tuple(bits)] = alpha / (alpha + beta)
 
+
 def calculate_edges():
 	"""
 	Calculate edges of factor graph - much simpler computation than on a Bayesian network
@@ -126,6 +130,7 @@ def calculate_edges():
 			edges.append((idx, factor))
 
 	return sorted(edges)
+
 
 def calculate_message_order(edges):
 	"""
@@ -155,6 +160,7 @@ def calculate_message_order(edges):
 
 	return msg_order
 
+
 def calculate_marginals(known, msg_order):
 	"""
 	Belief propagation - a trick is that if an RV is known (observed), then instead of using
@@ -176,6 +182,7 @@ def calculate_marginals(known, msg_order):
 
 		return msg
 
+
 	def factor_to_rv_msg(src, dest, msgs):
 		msg = np.ones(2)
 		subscript_choices = 'ijkl'
@@ -194,6 +201,7 @@ def calculate_marginals(known, msg_order):
 						shape = new_shape
 
 		return msg
+
 
 	# Nested dict, accessed via [dest][src] = msg
 	msgs = {dest: {} for _, dest in msg_order}
@@ -218,10 +226,11 @@ def calculate_marginals(known, msg_order):
 
 	return marginals
 
+
 if __name__ == '__main__':
 	# 1. Get coffee machine data
 
-	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\coffeeMachines.csv')
+	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\coffeeMachines.csv')
 	print(f'\nRaw data:\n{df}\n')
 	data = df.to_numpy()
 

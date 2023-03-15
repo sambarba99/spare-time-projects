@@ -9,9 +9,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 
+
 plt.rcParams['figure.figsize'] = (9, 6)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
+
 
 def optimisation():
 	"""
@@ -33,6 +35,7 @@ def optimisation():
 	res = scipy.optimize.minimize(f, x0=(2, 0), bounds=bounds, constraints=constraints)
 	print(res)
 
+
 def interpolation():
 	x = np.linspace(0, 10, 10)
 	y = x ** 2 * np.sin(x)
@@ -50,6 +53,7 @@ def interpolation():
 	plt.title('Interpolation')
 	plt.show()
 
+
 def derivation():
 	f = lambda x: x ** 2 * np.sin(3 * x) * np.exp(-x)
 	x = np.linspace(0, 1, 100)
@@ -61,6 +65,7 @@ def derivation():
 	plt.title('Derivation')
 	plt.show()
 
+
 def integration():
 	f = lambda x: np.sin(x ** 0.5) * np.exp(-x)
 	x = np.linspace(0, 2 * np.pi, 100)
@@ -71,6 +76,7 @@ def integration():
 	plt.title(f'Integration\nArea = {res[0]}, error = {res[1]}')
 	plt.fill_between(x, y, color='tab:blue', alpha=0.2)
 	plt.show()
+
 
 def curve_fitting():
 	"""
@@ -117,6 +123,7 @@ def curve_fitting():
 		fr'$A, \omega, \phi$ = {A_opt:.4f}, {w_opt:.4f}, {phi_opt:.4f}'
 		f'\nErrors = {A_error:.4f}, {w_error:.4f}, {phi_error:.4f}')
 	plt.show()
+
 
 if __name__ == '__main__':
 	print('----- Optimisation -----')

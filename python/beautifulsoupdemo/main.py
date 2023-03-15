@@ -11,6 +11,7 @@ import requests
 
 from bs4 import BeautifulSoup
 
+
 def read_bbc_news():
 	url = 'https://www.bbc.co.uk/news'
 	result = requests.get(url)
@@ -29,6 +30,7 @@ def read_bbc_news():
 
 	return f'Most read BBC News stories:\n{ss.getvalue()}'
 
+
 def read_wiki_article_of_the_day():
 	url = 'https://en.wikipedia.org/wiki/Main_Page'
 	result = requests.get(url)
@@ -43,6 +45,7 @@ def read_wiki_article_of_the_day():
 	result = f'Wikipedia article of the day:\n\n{p_text} (https://en.wikipedia.org{hyperlink})'
 
 	return result
+
 
 def read_crypto_prices():
 	url = 'https://coinmarketcap.com/'
@@ -65,6 +68,7 @@ def read_crypto_prices():
 		ss.write(f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}')
 
 	return f'{result}{ss.getvalue()}'
+
 
 if __name__ == '__main__':
 	path = os.path.expanduser('~') + r'\Desktop\daily.txt'

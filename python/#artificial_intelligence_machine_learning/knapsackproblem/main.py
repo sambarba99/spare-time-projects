@@ -13,6 +13,10 @@ import numpy as np
 from item import Item
 from knapsack import Knapsack
 
+
+plt.rcParams['figure.figsize'] = (7, 5)
+np.random.seed(1)
+
 KNAPSACK_CAPACITY = 100
 N_ITEMS = 100
 GENERATIONS = 50
@@ -23,7 +27,6 @@ CROSSOVER_RATE = 0.8
 
 all_items = None
 
-plt.rcParams['figure.figsize'] = (7, 5)
 
 def initialise_population():
 	"""Initialise population of individuals with random items"""
@@ -42,6 +45,7 @@ def initialise_population():
 
 	return population
 
+
 def selection(population):
 	"""Roulette wheel selection"""
 
@@ -50,6 +54,7 @@ def selection(population):
 	parents = list(np.random.choice(population, size=POP_SIZE, p=probs))
 
 	return parents
+
 
 def crossover(parents):
 	"""Single-point crossover"""
@@ -75,6 +80,7 @@ def crossover(parents):
 
 	return offspring
 
+
 def mutation(offspring):
 	"""Single bit-flip mutation"""
 
@@ -89,20 +95,21 @@ def mutation(offspring):
 
 	return mutants
 
+
 def evaluate(*population):
 	if isinstance(population[0], list): population = population[0]
 
 	for individual in population:
 		individual.calc_fitness(all_items, N_ITEMS, KNAPSACK_CAPACITY)
 
+
 def find_fittest(*population):
 	if isinstance(population[0], list): population = population[0]
 
 	return max(population, key=lambda ind: ind.fitness)
 
-if __name__ == '__main__':
-	np.random.seed(1)
 
+if __name__ == '__main__':
 	# Generate random items
 	item_weights = np.random.uniform(1, KNAPSACK_CAPACITY, size=N_ITEMS)
 	item_values = np.random.uniform(1, 100, size=N_ITEMS)
@@ -146,7 +153,7 @@ if __name__ == '__main__':
 		plt.title('Mean and best fitness per generation')
 		plt.legend()
 
-		plt.show(block=False)
+		plt.draw()
 		plt.pause(0.1)
 
 	# Display best items

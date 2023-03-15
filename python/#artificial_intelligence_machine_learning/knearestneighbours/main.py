@@ -14,9 +14,11 @@ from sklearn.metrics import f1_score
 
 from knn_classifier import KNN
 
+
 plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
+
 
 def load_data(path):
 	df = pd.read_csv(path)
@@ -40,9 +42,10 @@ def load_data(path):
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
 	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
-	x = (x - np.min(x, axis=0)) / (np.max(x, axis=0) - np.min(x, axis=0))  # Normalise
+	x = (x - x.min(axis=0)) / (x.max(axis=0) - x.min(axis=0))  # Normalise
 
 	return x, y, labels
+
 
 def plot_confusion_matrix(k, actual, predictions, labels):
 	cm = confusion_matrix(actual, predictions)
@@ -55,19 +58,22 @@ def plot_confusion_matrix(k, actual, predictions, labels):
 
 	return f1
 
+
 if __name__ == '__main__':
-	choice = input('\nEnter 1 to use banknote dataset,'
-		+ '\n2 for breast tumour dataset,'
-		+ '\n3 for iris dataset,'
-		+ '\n4 for Titanic dataset,'
-		+ '\nor 5 for wine dataset\n>>> ')
+	choice = input(
+		'\nEnter 1 to use banknote dataset,'
+		'\n2 for breast tumour dataset,'
+		'\n3 for iris dataset,'
+		'\n4 for Titanic dataset,'
+		'\nor 5 for wine dataset\n>>> '
+	)
 
 	match choice:
-		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
-		case '2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case '3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
-		case '4': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
-		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
+		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
+		case '2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
+		case '3': path = r'C:\Users\Sam\Desktop\Projects\datasets\irisData.csv'
+		case '4': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
+		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
 
 	x, y, labels = load_data(path)
 	best_f1 = best_k = -1

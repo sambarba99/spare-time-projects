@@ -22,7 +22,9 @@ from tqdm import tqdm
 from gradientboost import GradientBoost
 from svmclassifier import SVMClassifier
 
+
 STOP_WORDS = ['!', '(', ')', '*', '-', '..', '/', ':', ';', '<', '>', '?', '``']
+
 
 def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 	stemmer = LancasterStemmer()
@@ -55,11 +57,12 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 
 	return x_train, y_train, x_test, y_test
 
+
 if __name__ == '__main__':
 	# Uncomment and run this if not done already (just needs to run once)
 	# nltk.download('punkt')
 
-	with open(r'C:\Users\Sam Barba\Desktop\Programs\datasets\movieReviews.csv', 'r', encoding='UTF-8') as file:
+	with open(r'C:\Users\Sam\Desktop\Projects\datasets\movieReviews.csv', 'r', encoding='UTF-8') as file:
 		data = file.read().splitlines()[1:]
 
 	x_train, y_train, x_test, y_test = extract_bag_of_words(data)

@@ -8,6 +8,7 @@ Created 11/09/2021
 import re
 import tkinter as tk
 
+
 NUMBER_REG = r'-?\d+(\.\d+)?'
 OPEN_PAREN_REG = r'\('
 CLOSED_PAREN_REG = r'\)'
@@ -34,6 +35,7 @@ OPS = {'^': {'prec': 3, 'left-assoc': False, 'calc': lambda op1, op2: op1 ** op2
 	'/': {'prec': 2, 'left-assoc': True, 'calc': lambda op1, op2: op1 / op2},
 	'+': {'prec': 1, 'left-assoc': True, 'calc': lambda op1, op2: op1 + op2},
 	'-': {'prec': 1, 'left-assoc': True, 'calc': lambda op1, op2: op1 - op2}}
+
 
 def convert_and_solve(*_):
 	expression = sv.get().strip()
@@ -73,6 +75,7 @@ def convert_and_solve(*_):
 		output_num.tag_add('center', '1.0', tk.END)
 		output_num.config(state='disabled')
 
+
 def is_valid(expression):
 	def parentheses_balanced(expression):
 		n = 0
@@ -83,7 +86,9 @@ def is_valid(expression):
 			if n < 0: return False
 		return n == 0
 
+
 	return parentheses_balanced(expression) and re.search(EXPRESSION_REG, expression)
+
 
 def infix_to_rpn(expression):
 	op_stack, rpn = [], []
@@ -114,6 +119,7 @@ def infix_to_rpn(expression):
 
 	return ' '.join(str(i if i in '+-*/^() ' else (int(float(i)) if float(i) % 1 == 0 else float(i))) for i in rpn)
 
+
 def evaluate_rpn(rpn_expression):
 	rpn_stack, txt_stack = [], []
 
@@ -141,6 +147,7 @@ def evaluate_rpn(rpn_expression):
 	output_num.config(state='disabled')
 
 	return None
+
 
 if __name__ == '__main__':
 	root = tk.Tk()

@@ -7,6 +7,7 @@ Created 19/10/2022
 
 from graphviz import Digraph
 
+
 def plot_tree(tree, features):
 	# def print_tree(tree, indent=0):
 	# 	if tree.is_leaf:
@@ -17,6 +18,7 @@ def plot_tree(tree, features):
 	# 		print_tree(tree.left, indent + 4)
 	# 		print(f'{" " * indent}{features[f]} > {tree.split_threshold}')
 	# 		print_tree(tree.right, indent + 4)
+
 
 	def get_level(tree, level, nodes=None):
 		"""Get the nodes of a certain tree level"""
@@ -35,9 +37,10 @@ def plot_tree(tree, features):
 
 		return nodes
 
+
 	levels = []
 	n = 0
-	for i in range(tree.get_depth() + 1):
+	for i in range(tree.depth + 1):
 		level = get_level(tree, i)
 		for idx, node in enumerate(level):
 			# GraphViz requires unique labels, so do this
@@ -48,9 +51,11 @@ def plot_tree(tree, features):
 
 	# 1. Set up global attributes
 
-	g = Digraph(name='decision tree',
+	g = Digraph(
+		name='decision tree',
 		node_attr={'style': 'filled,setlinewidth(0)', 'shape': 'rect'},
-		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'})
+		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'}
+	)
 
 	# 2. Create nodes
 
@@ -75,5 +80,4 @@ def plot_tree(tree, features):
 
 	# 4. Render graph
 
-	g.format = 'png'
-	g.render('tree', view=True, cleanup=True)
+	g.render('tree', view=True, cleanup=True, format='png')

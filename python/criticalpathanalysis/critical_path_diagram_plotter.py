@@ -7,13 +7,16 @@ Created 06/11/2022
 
 from graphviz import Digraph
 
+
 def plot_critical_path_diagram(df, duration):
 	# 1. Set up global attributes
 
 	lbl = f'Critical path diagram\n(critical path duration: {duration})'
-	g = Digraph(name='critical path diagram',
+	g = Digraph(
+		name='critical path diagram',
 		graph_attr={'rankdir': 'LR', 'fontsize': '20', 'fontname': 'consolas', 'label': lbl, 'labelloc': 't'},
-		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'})
+		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'}
+	)
 
 	# 2. Create nodes
 
@@ -31,5 +34,4 @@ def plot_critical_path_diagram(df, duration):
 
 	# 4. Render graph
 
-	g.format = 'png'
-	g.render('critical_path_diagram', view=True, cleanup=True)
+	g.render('critical_path_diagram', view=True, cleanup=True, format='png')

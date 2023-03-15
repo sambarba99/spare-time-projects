@@ -1,5 +1,5 @@
 """
-(TensorFlow) VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
+TensorFlow VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
 
 Author: Sam Barba
 Created 22/10/2022
@@ -9,6 +9,7 @@ Created 22/10/2022
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+import cv2 as cv
 from keras.applications.vgg16 import VGG16
 from keras.layers import BatchNormalization, Dense, Dropout, Flatten
 from keras.models import load_model, Model
@@ -21,18 +22,20 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tqdm import tqdm
 
-DATA_PATH = r'C:\Users\Sam Barba\Desktop\Programs\datasets\UTKFace'  # Available from Kaggle
-BATCH_SIZE = 32
-DATASET_DICT = {
-	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
-	'gender_id': {'0': 'male', '1': 'female'}
-}
 
 plt.rcParams['figure.figsize'] = (9, 6)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
+np.random.seed(1)
 
-def clean_data(df):
+DATA_PATH = r'C:\Users\Sam\Desktop\Projects\datasets\UTKFace'  # Available from Kaggle
+DATASET_DICT = {
+	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
+	'gender_id': {'0': 'male', '1': 'female'}
+}
+BATCH_SIZE = 32
+
+def process_data(df):
 	gender, race = df.pop('gender'), df.pop('race')
 
 	gender = pd.get_dummies(gender, prefix='gender', drop_first=True)
@@ -41,12 +44,15 @@ def clean_data(df):
 	df = pd.concat([df, gender, race_one_hot], axis=1)
 	return df
 
+
 def preprocess_img(path):
-	img = Image.open(path)
-	img = img.resize((128, 128))
-	img = np.array(img) / 255  # Scale from 0-1
+	img = cv.imread(path)
+	img = cv.resize(img, (128, 128))       # Make img smaller
+	img[:, :, [0, 2]] = img[:, :, [2, 0]]  # Change OpenCV's BGR to RGB
+	img = img.astype(np.float64) / 255     # Scale from 0-1
 
 	return img
+
 
 def create_splits(df_shape):
 	train_prop, val_prop = 0.8, 0.1  # Test proportion = 0.1
@@ -59,6 +65,7 @@ def create_splits(df_shape):
 	test_idx = perm[train_size + val_size:]
 
 	return train_idx, val_idx, test_idx
+
 
 def data_generator(*, preprocessed_images, df, idx):
 	batches = [idx[i:i + BATCH_SIZE] for i in range(0, len(idx), BATCH_SIZE)]
@@ -73,6 +80,7 @@ def data_generator(*, preprocessed_images, df, idx):
 		batch_y = [np.array(ages), np.array(genders), np.array(races, dtype=np.int32)]
 
 		yield batch_x, batch_y
+
 
 def build_model():
 	vgg = VGG16(include_top=False, pooling='avg', input_shape=(128, 128, 3))
@@ -110,9 +118,8 @@ def build_model():
 
 	return Model(inputs=vgg.input, outputs=[output_age, output_gender, output_race])
 
-if __name__ == '__main__':
-	np.random.seed(1)
 
+if __name__ == '__main__':
 	# 1. Convert data to dataframe
 
 	data = []
@@ -132,7 +139,8 @@ if __name__ == '__main__':
 	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0.3, wspace=0)
 	for idx, ax in enumerate(axes.flatten()):
 		r = rand_idx[idx]
-		sample = Image.open(df['img_path'][r])
+		sample = cv.imread(df['img_path'][r])
+		sample[:, :, [0, 2]] = sample[:, :, [2, 0]]  # Change OpenCV's BGR to RGB
 		ax.imshow(sample)
 		ax.set_xticks([])
 		ax.set_yticks([])
@@ -155,8 +163,8 @@ if __name__ == '__main__':
 	# 4. Clean up data and create generators
 
 	print(f'\nRaw data:\n{df}')
-	df = clean_data(df)
-	print(f'\nCleaned data:\n{df}\n')
+	df = process_data(df)
+	print(f'\nProcessed data:\n{df}\n')
 
 	processed = [
 		preprocess_img(p) for p in
@@ -259,8 +267,8 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING/EVALUATION -----\n')
 
-	_, test_loss_age, test_loss_gender, test_loss_race, test_mae_age, test_acc_gender, test_acc_race = model.evaluate(test_gen)
-	print('\nTest age loss (MSE):', test_loss_age)
+	_, test_loss_age, test_loss_gender, test_loss_race, test_mae_age, test_acc_gender, test_acc_race = model.evaluate(test_gen, verbose=0)
+	print('Test age loss (MSE):', test_loss_age)
 	print('Test gender loss (binary crossentropy):', test_loss_gender)
 	print('Test race loss (categorical crossentropy):', test_loss_race)
 	print('Test age MAE:', test_mae_age)

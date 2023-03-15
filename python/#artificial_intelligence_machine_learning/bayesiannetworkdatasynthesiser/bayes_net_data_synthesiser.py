@@ -9,6 +9,7 @@ import numpy as np
 
 from bayes_net_plotter import plot_bayes_net
 
+
 # Network as an adjacency matrix (A[i][j] = 1 means edge from node i to node j)
 A = [
 	[0, 0, 1, 0, 0, 0, 0, 0],
@@ -20,6 +21,7 @@ A = [
 	[0, 0, 0, 0, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0, 0]
 ]
+
 
 def generate_data_point(adj_mat):
 	dim = adj_mat.shape[0]
@@ -53,6 +55,7 @@ def generate_data_point(adj_mat):
 		adj_mat[:, sampled_nodes] = 0
 
 	return x
+
 
 if __name__ == '__main__':
 	plot_bayes_net(np.array(A))

@@ -10,6 +10,7 @@ import numpy as np
 
 import bayesian_utility
 
+
 N_TRAIN = 14
 N_VAL = N_TRAIN
 N_TEST = 300
@@ -18,6 +19,7 @@ SIGMA = 0.3  # Noise = SIGMA ^ 2
 plt.rcParams['figure.figsize'] = (9, 6)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
+
 
 def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bounds=None, upper_bounds=None):
 	plt.plot(x_test, y_test, '--', zorder=1, label='Ground truth')
@@ -30,8 +32,8 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 		plot_lim1 = lower_bounds.min() - 0.2
 		plot_lim2 = upper_bounds.max() + 0.2
 	else:
-		plot_lim1 = np.min(np.append(y_train, y_test)) - 0.2
-		plot_lim2 = np.max(np.append(y_train, y_test)) + 0.2
+		plot_lim1 = np.append(y_train, y_test).min() - 0.2
+		plot_lim2 = np.append(y_train, y_test).max() + 0.2
 
 	plt.ylim(plot_lim1, plot_lim2)
 	plt.xlabel('x')
@@ -42,9 +44,11 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	plt.legend()
 	plt.show()
 
+
 def fit_pls(phi, y, lam):
 	"""Partial least squares"""
 	return np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1])).dot(phi.T).dot(y)
+
 
 def compute_posterior(phi, y, alpha, s2):
 	"""
@@ -56,6 +60,7 @@ def compute_posterior(phi, y, alpha, s2):
 	sigma = s2 * np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1]))
 	return mu, sigma
 
+
 def compute_log_marginal(phi, y, alpha, s2):
 	"""
 	Compute the logarithm of the marginal likelihood for a Bayesian linear regression model
@@ -66,6 +71,7 @@ def compute_log_marginal(phi, y, alpha, s2):
 	lml1 = (2 * np.pi) ** (-n / 2) * np.linalg.det(s2 * np.eye(n) + phi.dot(phi.T) / alpha) ** -0.5
 	lml2 = np.exp(-0.5 * y.T.dot(np.linalg.inv(s2 * np.eye(n) + phi.dot(phi.T) / alpha)).dot(y))
 	return np.log(lml1 * lml2)
+
 
 if __name__ == '__main__':
 	# Synthesise datasets

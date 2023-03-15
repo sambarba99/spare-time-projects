@@ -8,11 +8,14 @@ Created 31/01/2022
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+plt.rcParams['figure.figsize'] = (12, 6)
+np.random.seed(1)
+
 N_POINTS = 20  # ~ 10^18 permutations
 TEMP_DECREASE_FACTOR = 0.995  # Cool down by 0.5% each iteration
 TEMP_THRESHOLD = 0.1  # Stop when this temperature has been reached
 
-plt.rcParams['figure.figsize'] = (12, 6)
 
 def calc_distance(candidate):
 	def euclidean_dist(a, b):
@@ -23,6 +26,7 @@ def calc_distance(candidate):
 	total_dist += euclidean_dist(candidate[0], candidate[-1])  # Loop back to start
 
 	return total_dist
+
 
 def generate_new_candidate(candidate):
 	"""
@@ -52,6 +56,7 @@ def generate_new_candidate(candidate):
 
 	return new_candidate, calc_distance(new_candidate)
 
+
 def plot_dist_graph(ax, dist_history):
 	ax.clear()
 	ax.plot(dist_history, linewidth=1)
@@ -59,12 +64,14 @@ def plot_dist_graph(ax, dist_history):
 	ax.set_ylabel('Distance')
 	ax.set_title(f'Distance vs iteration ({dist_history[-1]:.3f})')
 
+
 def plot_temp_graph(ax, temp_history):
 	ax.clear()
 	ax.plot(temp_history, linewidth=1)
 	ax.set_xlabel('Iteration')
 	ax.set_ylabel('Temperature')
 	ax.set_title(f'Temperature vs iteration ({temp_history[-1]:.3f})')
+
 
 def plot_candidate(ax, candidate, iter_num, max_iters):
 	# Make path a loop
@@ -78,9 +85,8 @@ def plot_candidate(ax, candidate, iter_num, max_iters):
 	ax.set_ylabel('Y')
 	ax.set_title(f'Current candidate (iteration {iter_num} / {max_iters})')
 
-if __name__ == '__main__':
-	np.random.seed(1)
 
+if __name__ == '__main__':
 	# Setup (initial solution is random)
 	best_candidate = np.random.uniform(0, 100, size=(N_POINTS, 2))
 	best_dist = calc_distance(best_candidate)
@@ -114,7 +120,7 @@ if __name__ == '__main__':
 		plot_dist_graph(ax_dist_vs_iteration, dist_history)
 		plot_temp_graph(ax_temp_vs_iteration, temp_history)
 		plot_candidate(ax_current_candidate, new_candidate, iter_num, max_iters)
-		plt.show(block=False)
+		plt.draw()
 		plt.pause(1e-6)
 
 	# Plot final graphs

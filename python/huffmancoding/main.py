@@ -10,12 +10,14 @@ import heapq
 from huffman_tree import HuffmanTree
 from tree_plotter import plot_tree
 
+
 # STRING = 'a mad boxer shot a quick, gloved jab to the jaw of his dizzy opponent'
 # STRING = 'pack my box with five dozen liquor jugs'
 # STRING = 'sphinx of black quartz, judge my vow'
 # STRING = 'the five boxing wizards jump quickly'
 # STRING = 'the quick brown fox jumps over the lazy dog'
 # STRING = 'we promptly judged antique ivory buckles for the next prize'
+
 
 if __name__ == '__main__':
 	with open('lyrics.txt', 'r') as file:

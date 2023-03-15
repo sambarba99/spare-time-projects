@@ -7,7 +7,8 @@ Created 23/05/2022
 
 import numpy as np
 
-from node_graph import GraphNode
+from graph_node import GraphNode
+
 
 def make_graph(x_max, y_max, n_nodes=1000, n_neighbours=4):
 	"""Note: if max_neighbours = 1, a minimum spanning tree is created"""
@@ -19,6 +20,7 @@ def make_graph(x_max, y_max, n_nodes=1000, n_neighbours=4):
 			visited.append(node)
 			for neighbour in node.neighbours:
 				dfs(visited, neighbour)
+
 
 	x = np.random.uniform(10, x_max - 10, size=n_nodes)
 	y = np.random.uniform(10, y_max - 10, size=n_nodes)

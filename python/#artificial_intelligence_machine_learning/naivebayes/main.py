@@ -15,9 +15,11 @@ from sklearn.metrics import f1_score
 
 from naive_bayes_classifier import NaiveBayesClassifier
 
+
 plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
+
 
 def load_data(path, train_test_ratio=0.8):
 	df = pd.read_csv(path)
@@ -45,6 +47,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	return x_train, y_train, x_test, y_test, labels
 
+
 def plot_confusion_matrix(actual, predictions, labels, is_training):
 	cm = confusion_matrix(actual, predictions)
 	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
@@ -54,21 +57,24 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
+
 if __name__ == '__main__':
-	choice = input('\nEnter 1 to use banknote dataset,'
-		+ '\n2 for breast tumour dataset,'
-		+ '\n3 for iris dataset,'
-		+ '\n4 for pulsar dataset,'
-		+ '\n5 for Titanic dataset,'
-		+ '\nor 6 for wine dataset\n>>> ')
+	choice = input(
+		'\nEnter 1 to use banknote dataset,'
+		'\n2 for breast tumour dataset,'
+		'\n3 for iris dataset,'
+		'\n4 for pulsar dataset,'
+		'\n5 for Titanic dataset,'
+		'\nor 6 for wine dataset\n>>> '
+	)
 
 	match choice:
-		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
-		case '2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case '3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
-		case '4': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
-		case '5': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
-		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
+		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
+		case '2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
+		case '3': path = r'C:\Users\Sam\Desktop\Projects\datasets\irisData.csv'
+		case '4': path = r'C:\Users\Sam\Desktop\Projects\datasets\pulsarData.csv'
+		case '5': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
+		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
 
 	x_train, y_train, x_test, y_test, labels = load_data(path)
 

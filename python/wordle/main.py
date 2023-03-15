@@ -7,7 +7,7 @@ Created 21/03/2022
 Controls:
 Enter: submit attempt
 Backspace: delete last char
-Tab: AI assistance
+Tab: use assistance
 Space: reset when game over
 """
 
@@ -17,6 +17,7 @@ from time import sleep
 import numpy as np
 import pygame as pg
 from tqdm import tqdm
+
 
 WORD_LEN = 5
 MAX_ATTEMPTS = 6
@@ -28,6 +29,7 @@ BACKGROUND = (18, 18, 18)
 GREY = (59, 59, 59)      # Letter not in word
 YELLOW = (181, 159, 59)  # Letter in word, but wrong position
 GREEN = (83, 141, 78)    # Letter in word and in correct position
+LIGHT_GREY = (130, 130, 130)
 
 KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM']
 KEY_SIZE = 34
@@ -38,6 +40,7 @@ attempt_num = col_num = 0
 green_letters, yellow_letters, grey_letters = [], [], []
 game_over = False
 target_word = scene = None
+
 
 def generate_pattern_dict(word_list):
 	"""
@@ -61,6 +64,7 @@ def generate_pattern_dict(word_list):
 
 	return pattern_dict
 
+
 def calculate_word_entropies(words_left, pattern_dict, all_patterns):
 	def calculate_entropy(y):
 		if len(y) <= 1: return 0
@@ -69,6 +73,7 @@ def calculate_word_entropies(words_left, pattern_dict, all_patterns):
 		probs = counts[counts.nonzero()] / len(y)  # .nonzero ensures that we're not doing log(0) after
 
 		return -(probs * np.log2(probs)).sum()
+
 
 	entropies = {}
 
@@ -86,6 +91,7 @@ def calculate_word_entropies(words_left, pattern_dict, all_patterns):
 
 	return entropies
 
+
 def generate_all_info_patterns(permutations, k=WORD_LEN, prefix=''):
 	if k == 0:
 		permutations.append(tuple([int(c) for c in prefix]))
@@ -93,6 +99,7 @@ def generate_all_info_patterns(permutations, k=WORD_LEN, prefix=''):
 		for c in '012':  # 0/1/2 = grey/yellow/green
 			new_prefix = prefix + c
 			generate_all_info_patterns(permutations, k - 1, new_prefix)
+
 
 def get_information(user_word, target_word, update_keyboard):
 	"""
@@ -132,6 +139,7 @@ def get_information(user_word, target_word, update_keyboard):
 			grey_letters.append(user_word[i])
 
 	return tuple(col_codes)
+
 
 def draw_grid(colour_current_row, status=None):
 	scene.fill(BACKGROUND)
@@ -184,7 +192,8 @@ def draw_grid(colour_current_row, status=None):
 			match letter:
 				case letter if letter in green_letters: fill_col = GREEN
 				case letter if letter in yellow_letters: fill_col = YELLOW
-				case _: fill_col = (130, 130, 130)
+				case letter if letter in grey_letters: fill_col = GREY
+				case _: fill_col = LIGHT_GREY
 
 			pg.draw.rect(scene, fill_col, pg.Rect(j * (KEY_SIZE + KEY_GAP) + offset,
 				530 + idx * (KEY_SIZE + KEY_GAP), KEY_SIZE, KEY_SIZE))
@@ -207,6 +216,7 @@ def draw_grid(colour_current_row, status=None):
 
 	pg.display.update()
 
+
 if __name__ == '__main__':
 	with open('five_letter_words.txt', 'r') as file:
 		all_words = file.read().splitlines()
@@ -226,7 +236,7 @@ if __name__ == '__main__':
 
 	words_left = set(all_words)
 
-	# If using AI to solve online wordle...
+	# If using assistance to solve online wordle...
 
 	choice = input('\nSolving online wordle? (Y/N)\n>>> ').upper()
 	if choice == 'Y':
@@ -298,7 +308,7 @@ if __name__ == '__main__':
 								col_num = 0
 								draw_grid(colour_current_row=False)
 							elif user_word == target_word:
-								draw_grid(colour_current_row=True, status=f'You win! SPACE to reset.')
+								draw_grid(colour_current_row=True, status='You win!')
 								game_over = True
 							elif user_word != target_word and attempt_num == MAX_ATTEMPTS - 1:
 								draw_grid(colour_current_row=True, status=f"You lose! The target was '{target_word}'.")
@@ -316,7 +326,7 @@ if __name__ == '__main__':
 							col_num = max(col_num - 1, 0)
 							attempts[attempt_num][col_num] = ''
 							draw_grid(colour_current_row=False)
-						case pg.K_TAB:  # AI assistance
+						case pg.K_TAB:  # Use assistance
 							# Suggest word left with highest entropy
 							entropies = calculate_word_entropies(words_left, pattern_dict, all_patterns)
 							attempt_word = max(entropies, key=entropies.get)

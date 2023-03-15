@@ -7,7 +7,9 @@ Created 10/10/2022
 
 from graphviz import Digraph
 
+
 MAX_LAYER_NODES = 8
+
 
 def plot_model(model):
 	# Store layer names and sizes
@@ -23,10 +25,12 @@ def plot_model(model):
 
 	# 1. Set up global attributes
 
-	g = Digraph(name='neural net',
+	g = Digraph(
+		name='neural net',
 		graph_attr={'rankdir': 'LR', 'splines': 'line', 'nodesep': '0.05'},
 		node_attr={'style': 'filled,setlinewidth(0)', 'label': '', 'shape': 'circle'},
-		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'})
+		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'}
+	)
 
 	# 2. Create nodes
 
@@ -93,8 +97,7 @@ def plot_model(model):
 
 	# 4. Render graph
 
-	g.format = 'png'
-	g.render('neural_net', view=True, cleanup=True)
+	g.render('neural_net', view=True, cleanup=True, format='png')
 
 	# with open('neural_net_graph_src.gz', 'w') as file:
 	# 	file.write(g.source)

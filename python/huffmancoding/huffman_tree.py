@@ -12,8 +12,10 @@ class HuffmanTree:
 		self.left_child = left_child
 		self.right_child = right_child
 
+
 	def __lt__(self, other):
 		return self.weight < other.weight or (self.weight == other.weight and self.symbol < other.symbol)
+
 
 	def create_huffman_dict(self, huffman_dict, h=''):
 		if not self.left_child and not self.right_child:  # Leaf
@@ -24,12 +26,14 @@ class HuffmanTree:
 		if self.right_child:
 			self.right_child.create_huffman_dict(huffman_dict, h + '1')
 
+
 	def encode(self, string, huffman_dict=None):
 		if not huffman_dict:
 			huffman_dict = {}
 			self.create_huffman_dict(huffman_dict)
 
 		return ''.join(huffman_dict[c] for c in string)
+
 
 	def decode(self, encoded):
 		is_binary = all(c in '01' for c in encoded)
@@ -40,6 +44,7 @@ class HuffmanTree:
 		while index < len(encoded) - 1:
 			index = self.__decode_util(index, encoded, result)
 		return ''.join(result)
+
 
 	def __decode_util(self, index, encoded, result):
 		if not self.left_child and not self.right_child:  # Leaf

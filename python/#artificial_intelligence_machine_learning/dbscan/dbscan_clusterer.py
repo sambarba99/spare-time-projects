@@ -7,6 +7,7 @@ Created 27/12/2021
 
 import numpy as np
 
+
 UNDEFINED = -1
 NOISE = 0
 
@@ -21,11 +22,13 @@ class DBSCANclusterer:
 		self.epsilon = epsilon
 		self.min_points = min_points
 
+
 	def predict(self, points):
 		def euclidean_dist(a, b):
 			coords_a = np.array([a['x'], a['y']])
 			coords_b = np.array([b['x'], b['y']])
 			return np.linalg.norm(coords_a - coords_b)
+
 
 		c = 1  # Cluster counter
 

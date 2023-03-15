@@ -13,5 +13,6 @@ class Circle:
 		self.r = r
 		self.curvature = 1 / r
 
+
 	def __repr__(self):
 		return f'Circle (centre=({self.centre.real}, {self.centre.imag}), r={self.r})'

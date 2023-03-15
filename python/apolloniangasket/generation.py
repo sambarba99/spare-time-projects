@@ -9,6 +9,7 @@ from cmath import sqrt
 
 from circle import Circle
 
+
 def tangent_circles_from_radii(r2, r3, r4):
 	"""
 	Takes 3 radii and calculates the corresponding externally tangent circles
@@ -31,6 +32,7 @@ def tangent_circles_from_radii(r2, r3, r4):
 
 		return circle4
 
+
 	circle2 = Circle(0, 0, r2)
 	circle3 = Circle(r2 + r3, 0, r3)
 	c4x = (r2 * r2 + r2 * r4 + r2 * r3 - r3 * r4) / (r2 + r3)
@@ -39,6 +41,7 @@ def tangent_circles_from_radii(r2, r3, r4):
 	circle1 = outer_tangent_circle(circle2, circle3, circle4)
 
 	return circle1, circle2, circle3, circle4
+
 
 def second_solution(fixed, c1, c2, c3):
 	"""Given 4 tangent circles, calculate the other one that is tangent to the last 3"""
@@ -52,6 +55,7 @@ def second_solution(fixed, c1, c2, c3):
 	c = (2 * (cur1 * c1.centre + cur2 * c2.centre + cur3 * c3.centre) - cur_fixed * fixed.centre) / cur
 	return Circle(c.real, c.imag, 1 / cur)
 
+
 class ApollonianGasketGenerator:
 	def __init__(self, r1, r2, r3):
 		"""
@@ -63,6 +67,7 @@ class ApollonianGasketGenerator:
 
 		self.start = tangent_circles_from_radii(r1, r2, r3)
 		self.gen_circles = list(self.start)
+
 
 	def recurse(self, circles, depth, max_depth):
 		"""Recursively calculate the smaller circles of the gasket up to the given depth"""
@@ -87,6 +92,7 @@ class ApollonianGasketGenerator:
 		self.recurse((cn2, c1, c3, c4), depth + 1, max_depth)
 		self.recurse((cn3, c1, c2, c4), depth + 1, max_depth)
 		self.recurse((cn4, c1, c2, c3), depth + 1, max_depth)
+
 
 	def generate(self, depth):
 		"""Wrapper for the recurse function (generates the gasket)"""

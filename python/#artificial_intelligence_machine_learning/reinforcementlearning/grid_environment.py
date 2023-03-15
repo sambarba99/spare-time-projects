@@ -8,6 +8,7 @@ Created 25/02/2022
 import numpy as np
 import pygame as pg
 
+
 # Possible actions
 NORTH, EAST, SOUTH, WEST = 0, 1, 2, 3
 
@@ -23,6 +24,7 @@ SOUTH_ARROW = ((0, 0), (15, 40), (30, 0))
 EAST_ARROW = ((0, 0), (0, 30), (40, 15))
 WEST_ARROW = ((0, 15), (40, 0), (40, 30))
 
+
 class GridEnv:
 	def __init__(self, size=6):
 		self.size = size
@@ -32,6 +34,7 @@ class GridEnv:
 		self.hole = None
 		self.rewards = None
 		self.generate()
+
 
 	def step(self, state, action):
 		new_y, new_x = state
@@ -49,8 +52,10 @@ class GridEnv:
 
 		return state, reward, terminal
 
+
 	def __is_terminal(self, state):
 		return state in (self.gold, self.hole)
+
 
 	def render(self, final_q_table=None):
 		def map_range(x, from_lo, from_hi, to_lo, to_hi):
@@ -58,11 +63,13 @@ class GridEnv:
 				return to_hi
 			return (x - from_lo) / (from_hi - from_lo) * (to_hi - to_lo) + to_lo
 
+
 		def shift_arrow(arrow, dx, dy):
 			new_points = []
 			for x, y in arrow:
 				new_points.append((x + CELL_SIZE * (dx + 0.34), y + CELL_SIZE * (dy + 0.48)))
 			return tuple(new_points)
+
 
 		pg.init()
 		pg.display.set_caption('Grid Environment')
@@ -120,6 +127,7 @@ class GridEnv:
 					scene.blit(start_lbl, lbl_rect)
 
 		pg.display.update()
+
 
 	def generate(self):
 		# y before x, as 2D arrays are row-major

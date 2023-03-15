@@ -12,35 +12,37 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
 
+
+plt.rcParams['figure.figsize'] = (7, 5)
+
 BOARD_SIZE = 9
 CELL_SIZE = 50
 GRID_OFFSET = 75
 FOREGROUND = (220, 220, 220)
 
 # Puzzles in ascending order of difficulty
-PRESET_PUZZLES = {'blank': '0' * 81,
+PRESET_PUZZLES = {
+	'blank': '0' * 81,
 	'easy': '000000000010020030000000000000000000040050060000000000000000000070080090000000000',
 	'medium': '100000000020000000003000000000400000000050000000006000000000700000000080000000009',
 	'hard': '120000034500000006000000000000070000000891000000020000000000000300000005670000089',
-	'insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'}
-
-plt.rcParams['figure.figsize'] = (7, 5)
+	'insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'
+}
 
 board = np.zeros((BOARD_SIZE, BOARD_SIZE)).astype(int)
 given_ij = None  # Store coords of numbers that are already given
 backtrack_grid = None  # For visualising backtracks
 n_backtracks = 0
 
+
 def solve():
 	def is_full():
 		return board.all()
 
-	def find_free_square():
-		for (i, j), val in np.ndenumerate(board):
-			if val == 0:
-				return i, j
 
-		raise AssertionError("Shouldn't have got here")
+	def find_free_square():
+		return next((i, j) for (i, j), val in np.ndenumerate(board) if val == 0)
+
 
 	def legal(n, i, j):
 		# Top-left coords of big square
@@ -51,6 +53,7 @@ def solve():
 		return n not in board[i] \
 			and n not in board[:, j] \
 			and n not in board[bi:bi + 3, bj:bj + 3]
+
 
 	if is_full(): return
 
@@ -76,6 +79,7 @@ def solve():
 	n_backtracks += 1
 	backtrack_grid[i][j] += 1
 	draw_grid(f'Solving ({n_backtracks} backtracks)')
+
 
 def draw_grid(status):
 	scene.fill((20, 20, 20))
@@ -110,12 +114,14 @@ def draw_grid(status):
 
 	pg.display.update()
 
+
 def wait_for_click():
 	while True:
 		for event in pg.event.get():
 			match event.type:
 				case pg.MOUSEBUTTONDOWN: return
 				case pg.QUIT: sys.exit()
+
 
 def plot_backtracks(difficulty_lvl):
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
@@ -131,6 +137,7 @@ def plot_backtracks(difficulty_lvl):
 	plt.gca().invert_yaxis()
 	plt.colorbar(mat, ax=ax)
 	plt.show()
+
 
 if __name__ == '__main__':
 	pg.init()

@@ -16,11 +16,13 @@ from sklearn.model_selection import train_test_split
 
 from logistic_regressor import LogisticRegressor
 
+
 plt.rcParams['figure.figsize'] = (8, 5)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
+
 
 def load_data(path, train_test_ratio=0.8):
 	df = pd.read_csv(path)
@@ -56,6 +58,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	return labels, x_train, y_train, x_test, y_test
 
+
 def plot_confusion_matrix(actual, predictions, labels, is_training):
 	cm = confusion_matrix(actual, predictions)
 	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
@@ -65,13 +68,13 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
+
 if __name__ == '__main__':
-	choice = input('\nEnter 1 to use banknote dataset,'
-		+ '\nor 2 for breast tumour dataset\n>>> ')
+	choice = input('\nEnter 1 to use banknote dataset or 2 for breast tumour dataset\n>>> ')
 
 	match choice:
-		case '1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
-		case _: path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
+		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
+		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
 
 	labels, x_train, y_train, x_test, y_test = load_data(path)
 

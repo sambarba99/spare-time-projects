@@ -7,6 +7,7 @@ Created 14/10/2021
 
 import random
 
+
 class Polynomial:
 	def __init__(self, coefficients):
 		"""
@@ -15,6 +16,7 @@ class Polynomial:
 		"""
 
 		self.coefficients = coefficients
+
 
 	def find_root(self, converge_threshold=1e-9, max_iters=1e6):
 		"""Approximate solution of f(x) = 0 via Newton-Raphson method"""
@@ -43,6 +45,7 @@ class Polynomial:
 
 		return xn, i + 1, x0
 
+
 	def derivative(self):
 		deriv_coefficients = []
 		exponent = len(self.coefficients) - 1
@@ -51,11 +54,13 @@ class Polynomial:
 			exponent -= 1
 		return Polynomial(deriv_coefficients)
 
+
 	def __str__(self):
 		def expr(degree):
 			if degree == 0: return ''
 			if degree == 1: return 'x'
 			return f'x^{degree}'
+
 
 		degree = len(self.coefficients) - 1
 		result = ''
@@ -76,6 +81,7 @@ class Polynomial:
 				result += f'{abs(c)}{expr(degree - i)}'
 
 		return result.lstrip(' + ')  # Remove leading ' + '
+
 
 	# Evaluate polynomial at x
 	def __call__(self, x):

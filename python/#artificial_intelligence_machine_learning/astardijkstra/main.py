@@ -15,6 +15,7 @@ import pygame as pg
 from daedalus import make_maze
 from graph_gen import make_graph
 
+
 # For maze mode
 ROWS = 99
 COLS = 149
@@ -22,6 +23,7 @@ CELL_SIZE = 7
 
 maze_mode = True  # False means normal graph (nodes/edges) mode
 graph = start_node = target_node = path = None
+
 
 def generate_and_draw_graph():
 	global graph, start_node, target_node, path
@@ -42,6 +44,7 @@ def generate_and_draw_graph():
 
 	path = None
 	draw()
+
 
 def a_star():
 	open_set, closed_set = {start_node}, set()
@@ -71,6 +74,7 @@ def a_star():
 				n.h_cost = n.dist(target_node)
 				n.parent = cheapest_node
 				open_set.add(n)
+
 
 def dijkstra():
 	"""Generates Shortest Path Tree"""
@@ -107,6 +111,7 @@ def dijkstra():
 	retrace_path()
 	draw()
 
+
 def retrace_path():
 	global path
 
@@ -119,6 +124,7 @@ def retrace_path():
 		retraced_path.append(current)
 
 	path = retraced_path[::-1]
+
 
 def draw():
 	scene.fill('black')
@@ -154,10 +160,12 @@ def draw():
 
 	pg.display.update()
 
+
 def toggle_maze_mode():
 	global maze_mode
 	maze_mode = not maze_mode
 	generate_and_draw_graph()
+
 
 if __name__ == '__main__':
 	pg.init()

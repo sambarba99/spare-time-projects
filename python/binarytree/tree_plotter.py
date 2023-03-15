@@ -7,12 +7,15 @@ Created 19/10/2022
 
 from graphviz import Graph
 
+
 def plot_tree(tree, title):
 	# 1. Set up global attributes
 
-	g = Graph(name='binary tree',
+	g = Graph(
+		name='binary tree',
 		graph_attr={'splines': 'line'},
-		node_attr={'style': 'filled,setlinewidth(0)', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'})
+		node_attr={'style': 'filled,setlinewidth(0)', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'}
+	)
 
 	# 2. Create nodes and edges
 
@@ -26,8 +29,8 @@ def plot_tree(tree, title):
 
 	# 3. Render graph
 
-	g.format = 'png'
-	g.render(f'binary_tree_{title}', view=True, cleanup=True)
+	g.render(f'binary_tree_{title}', view=True, cleanup=True, format='png')
+
 
 def generate_graph(tree, nodes=None, edges=None):
 	if nodes is None: nodes = []

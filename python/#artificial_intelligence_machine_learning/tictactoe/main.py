@@ -10,6 +10,7 @@ from time import sleep
 
 import pygame as pg
 
+
 AI = 'x'
 HUMAN = 'o'
 TIE = 't'
@@ -20,6 +21,7 @@ FOREGROUND = (220, 220, 220)
 
 board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
 status_text = "Your turn (or 'A' to make AI go first)"
+
 
 def handle_mouse_click(i, j):
 	global status_text
@@ -46,6 +48,7 @@ def handle_mouse_click(i, j):
 		make_best_ai_move()
 		draw_grid()
 
+
 def find_winner():
 	# Check rows and columns
 	for i in range(BOARD_SIZE):
@@ -67,6 +70,7 @@ def find_winner():
 	free_spots = any(token is None for row in board for token in row)
 
 	return None if free_spots else TIE
+
 
 def make_best_ai_move():
 	def minimax(is_maximising, depth, alpha, beta):
@@ -94,6 +98,7 @@ def make_best_ai_move():
 		# Prefer shallower results over deeper results
 		return best_score / depth
 
+
 	global status_text
 
 	best_score = -2
@@ -116,6 +121,7 @@ def make_best_ai_move():
 	if result == AI: status_text = 'AI wins! Click to reset'
 	if result == TIE: status_text = "It's a tie! Click to reset"
 	if not result: status_text = 'Your turn (o)'
+
 
 def draw_grid():
 	scene.fill((20, 20, 20))
@@ -143,6 +149,7 @@ def draw_grid():
 		pg.draw.line(scene, FOREGROUND, (GRID_OFFSET, i), (BOARD_SIZE * CELL_SIZE + GRID_OFFSET, i))
 
 	pg.display.update()
+
 
 if __name__ == '__main__':
 	pg.init()

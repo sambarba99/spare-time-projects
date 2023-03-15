@@ -8,6 +8,7 @@ Created 01/10/2022
 import numpy as np
 from sklearn.metrics import f1_score
 
+
 class DecisionTree:
 	def __init__(self, x, y, max_depth):
 		self.left = None
@@ -16,6 +17,7 @@ class DecisionTree:
 		self.class_idx = None
 		self.feature_idx = None
 		self.split_threshold = None
+
 
 		def find_best_split(x, y):
 			"""
@@ -27,9 +29,10 @@ class DecisionTree:
 			# 	if len(y) <= 1: return 0
 			#
 			# 	counts = y.bincount()
-			# 	probs = counts[counts.nonzero()] / len(y)  # .nonzero ensures that we're not doing log(0) after
+			# 	probs = counts[counts.nonzero()] / len(y)  # nonzero() ensures that we're not doing log(0) after
 			#
 			# 	return -(probs * np.log2(probs)).sum()
+
 
 			def calculate_gini(y):
 				if len(y) <= 1: return 0
@@ -37,6 +40,7 @@ class DecisionTree:
 				probs = np.bincount(y) / len(y)
 
 				return 1 - (probs ** 2).sum()
+
 
 			# parent_entropy = calculate_entropy(y)
 			# best = {'info_gain': -1}
@@ -84,6 +88,7 @@ class DecisionTree:
 			self.feature_idx = split['feature_idx']
 			self.split_threshold = split['split_threshold']
 
+
 	def predict(self, sample):
 		if self.is_leaf:
 			return self.class_idx
@@ -92,13 +97,16 @@ class DecisionTree:
 		else:
 			return self.right.predict(sample)
 
+
 	def evaluate(self, x, y):
 		predictions = np.array([self.predict(sample) for sample in x])
 		n_classes = len(np.unique(y))
 
 		return f1_score(y, predictions, average='binary' if n_classes == 2 else 'weighted')
 
-	def get_depth(self):
+
+	@property
+	def depth(self):
 		if self.is_leaf:
 			return 0
-		return max(self.left.get_depth(), self.right.get_depth()) + 1
+		return max(self.left.depth, self.right.depth) + 1

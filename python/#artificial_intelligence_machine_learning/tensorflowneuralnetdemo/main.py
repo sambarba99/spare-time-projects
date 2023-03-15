@@ -1,5 +1,5 @@
 """
-(TensorFlow) Neural network demo for binary classification, multiclass classification, or regression
+TensorFlow neural network demo for binary classification, multiclass classification, or regression
 
 Author: Sam Barba
 Created 09/10/2022
@@ -19,14 +19,16 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.random import set_seed
+import tensorflow as tf
 
 from neural_net_plotter import plot_model
+
 
 plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
+np.random.seed(1)
+tf.random.set_seed(1)
 
 def load_classification_data(path):
 	df = pd.read_csv(path)
@@ -66,6 +68,7 @@ def load_classification_data(path):
 
 	return x_train, y_train, x_val, y_val, x_test, y_test, labels
 
+
 def load_regression_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -96,6 +99,7 @@ def load_regression_data(path):
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
+
 def plot_confusion_matrix(actual, predictions, labels, is_training):
 	cm = confusion_matrix(actual, predictions)
 	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
@@ -105,41 +109,44 @@ def plot_confusion_matrix(actual, predictions, labels, is_training):
 	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-if __name__ == '__main__':
-	np.random.seed(1)
-	set_seed(1)
 
-	task_choice = input('\nEnter B for binary classification,'
-		+ '\nM for multiclass classification,'
-		+ '\nor R for regression\n>>> ').upper()
+if __name__ == '__main__':
+	task_choice = input(
+		'\nEnter B for binary classification,'
+		'\nM for multiclass classification,'
+		'\nor R for regression\n>>> '
+	).upper()
 	print()
 
 	match task_choice:
 		case 'B':
-			dataset_choice = input('Enter 1 for banknote dataset,'
-				+ '\n2 for breast tumour dataset,'
-				+ '\n3 for pulsar dataset,'
-				+ '\nor 4 for Titanic dataset\n>>> ')
+			dataset_choice = input(
+				'Enter 1 for banknote dataset,'
+				'\n2 for breast tumour dataset,'
+				'\n3 for pulsar dataset,'
+				'\nor 4 for Titanic dataset\n>>> '
+			)
 		case 'M':
-			dataset_choice = input('Enter I for iris dataset,'
-				+ '\nor W for wine dataset\n>>> ').upper()
+			dataset_choice = input('Enter I for iris dataset or W for wine dataset\n>>> ').upper()
 		case 'R':
-			dataset_choice = input('Enter B for Boston housing dataset,'
-				+ '\nC for car value dataset,'
-				+ '\nor M for medical insurance dataset\n>>> ').upper()
+			dataset_choice = input(
+				'Enter B for Boston housing dataset,'
+				'\nC for car value dataset,'
+				'\nor M for medical insurance dataset\n>>> '
+			).upper()
 		case _:
 			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
-		case 'B1': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\banknoteData.csv'
-		case 'B2': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\breastTumourData.csv'
-		case 'B3': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\pulsarData.csv'
-		case 'B4': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\titanicData.csv'
-		case 'MI': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\irisData.csv'
-		case 'MW': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\wineData.csv'
-		case 'RB': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv'
-		case 'RC': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.csv'
-		case 'RM': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.csv'
+		case 'B1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
+		case 'B2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
+		case 'B3': path = r'C:\Users\Sam\Desktop\Projects\datasets\pulsarData.csv'
+		case 'B4': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
+		case 'MI': path = r'C:\Users\Sam\Desktop\Projects\datasets\irisData.csv'
+		case 'MW': path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
+		case 'RB': path = r'C:\Users\Sam\Desktop\Projects\datasets\bostonData.csv'
+		case 'RC': path = r'C:\Users\Sam\Desktop\Projects\datasets\carValueData.csv'
+		case 'RM': path = r'C:\Users\Sam\Desktop\Projects\datasets\medicalInsuranceData.csv'
 		case _:
 			raise ValueError('Bad choice')
 
@@ -217,7 +224,7 @@ if __name__ == '__main__':
 
 	print('\n----- TRAINING -----\n')
 
-	early_stopping = EarlyStopping(monitor='val_loss',
+	early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
 		min_delta=0,
 		patience=5,
 		restore_best_weights=True)
@@ -255,12 +262,12 @@ if __name__ == '__main__':
 	print('----- EVALUATION -----\n')
 
 	if task_choice in 'BM':
-		test_loss, test_accuracy = model.evaluate(x_test, y_test)
-		print('\nTest loss:', test_loss)
+		test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
+		print('Test loss:', test_loss)
 		print('Test accuracy:', test_accuracy)
 	else:
-		test_mse, test_mae = model.evaluate(x_test, y_test)
-		print('\nTest MSE:', test_mse)
+		test_mse, test_mae = model.evaluate(x_test, y_test, verbose=0)
+		print('Test MSE:', test_mse)
 		print('Test MAE:', test_mae)
 
 	# 4. Testing

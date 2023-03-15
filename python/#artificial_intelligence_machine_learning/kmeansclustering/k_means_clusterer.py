@@ -8,7 +8,9 @@ Created 21/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 plt.rcParams['figure.figsize'] = (7, 7)
+
 
 class KMeans:
 	def __init__(self, k):
@@ -19,9 +21,11 @@ class KMeans:
 		self.clusters = None
 		self.centroids = None
 
+
 	def predict(self, x):
 		def euclidean_dist(p1, p2):
 			return np.linalg.norm(p1 - p2)
+
 
 		def create_clusters():
 			"""Assign the samples to the closest centroids to create clusters"""
@@ -34,6 +38,7 @@ class KMeans:
 
 			return clusters
 
+
 		def get_centroids():
 			"""Mean value of clusters"""
 			centroids = np.zeros((self.k, self.n_features))
@@ -44,6 +49,7 @@ class KMeans:
 
 			return centroids
 
+
 		def get_cluster_labels():
 			"""For each sample, get the label of the cluster to which it was assigned"""
 			labels = np.zeros(self.n_samples).astype(int)
@@ -52,6 +58,7 @@ class KMeans:
 				labels[cluster] = cluster_idx
 
 			return labels
+
 
 		def plot(title):
 			plt.cla()
@@ -67,9 +74,13 @@ class KMeans:
 			plt.axis('scaled')
 			plt.legend()
 			plt.title(title)
-			
-			plt.show(block=(title == 'Converged'))
-			if title != 'Converged': plt.pause(0.8)
+
+			if title == 'Converged':
+				plt.show()
+			else:
+				plt.draw()
+				plt.pause(0.8)
+
 
 		self.x = x
 		self.n_samples = x.shape[0]

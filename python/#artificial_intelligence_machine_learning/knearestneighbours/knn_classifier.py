@@ -7,19 +7,23 @@ Created 22/10/2021
 
 import numpy as np
 
+
 class KNN:
 	def __init__(self, k):
 		self.x_train = None
 		self.y_train = None
 		self.k = k
 
+
 	def fit(self, x_train, y_train):
 		self.x_train = x_train
 		self.y_train = y_train
 
+
 	def predict(self, inputs):
 		def euclidean_dist(a, b):
 			return np.linalg.norm(np.array(a) - np.array(b))
+
 
 		# Compute distance between input and all training exemplars
 		distances = [euclidean_dist(inputs, i) for i in self.x_train]

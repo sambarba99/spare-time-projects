@@ -1,7 +1,7 @@
 # Ignore all files...
 *.*
 
-# ...Except these...
+# ...Except these
 !.gitignore
 !*.gif
 !*.cpp

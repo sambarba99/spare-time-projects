@@ -7,6 +7,7 @@ Created 03/03/2022
 
 import numpy as np
 
+
 class DataGenerator:
 	"""Generate data for prediction modelling (a sine wave with a blank region)"""
 
@@ -15,11 +16,13 @@ class DataGenerator:
 		self.x_max = 2 * np.pi
 		self.noise = noise
 
+
 	def get_data(self, data_name, n):
 		if data_name in ('TRAIN', 'VALIDATION'):
 			return self.__make_data(n)
 		if data_name == 'TEST':
 			return self.__make_test_data(n)
+
 
 	def __make_data(self, n):
 		"""Make 2 sine wave portions"""
@@ -41,11 +44,13 @@ class DataGenerator:
 
 		return x, y
 
+
 	def __make_test_data(self, n):
 		# Full sin wave
 		x = np.linspace(self.x_min, self.x_max, n).reshape((n, 1))
 		y = np.sin(x) + np.sin(2 * x)
 		return x, y
+
 
 class RBFGenerator:
 	"""Generate Gaussian RBF matrix"""
@@ -55,6 +60,7 @@ class RBFGenerator:
 		self.centres = centres.reshape((self.m, 1))
 		self.r = radius
 		self.bias = bias
+
 
 	def evaluate(self, x):
 		n = len(x)
@@ -66,6 +72,7 @@ class RBFGenerator:
 			phi = np.hstack((np.ones((n, 1)), phi))
 
 		return phi
+
 
 def mae(pred, actual):
 	"""Mean absolute error"""

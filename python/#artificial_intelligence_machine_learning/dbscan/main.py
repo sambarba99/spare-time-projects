@@ -11,10 +11,12 @@ from sklearn.datasets import make_circles, make_moons
 
 from dbscan_clusterer import DBSCANclusterer
 
+
+plt.rcParams['figure.figsize'] = (8, 5)
+
 UNDEFINED = -1
 NOISE = 0
 
-plt.rcParams['figure.figsize'] = (8, 5)
 
 if __name__ == '__main__':
 	# 1. Load data

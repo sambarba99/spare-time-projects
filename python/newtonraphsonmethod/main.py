@@ -13,9 +13,11 @@ import numpy as np
 
 from polynomial import Polynomial
 
+
 plt.rcParams['figure.figsize'] = (10, 6)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
+
 
 def handle_button_click(*, coefficients, find_root):
 	# If find_root = True, find a root of f(x). Else, find a stationary point of f(x)
@@ -70,6 +72,7 @@ def handle_button_click(*, coefficients, find_root):
 			f'\nStationary point: {root:.4g}, {stationary_y:.4g}'
 			f'\nFound after {iters} iterations (initial guess = {initial_guess:.4g})')
 	plt.show()
+
 
 if __name__ == '__main__':
 	root = tk.Tk()

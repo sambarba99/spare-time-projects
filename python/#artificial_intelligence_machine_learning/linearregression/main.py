@@ -12,14 +12,16 @@ from sklearn.model_selection import train_test_split
 
 from linear_regressor import LinearRegressor
 
+
 plt.rcParams['figure.figsize'] = (8, 5)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
+
 def load_data(train_test_ratio=0.8):
-	df = pd.read_csv(r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv')
+	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\bostonData.csv')
 	print(f'\nRaw data:\n{df}')
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
@@ -70,12 +72,14 @@ def load_data(train_test_ratio=0.8):
 
 	return feature, y_name, x_train, y_train, x_test, y_test
 
+
 def analytic_solution(x, y):
 	# Adding dummy x0 = 1 makes the first weight w0 equal the bias
 	x = np.hstack((np.ones((x.shape[0], 1)), x))
 	solution = ((np.linalg.inv(x.T.dot(x))).dot(x.T)).dot(y)
 	bias, weights = solution[0], solution[1:]
 	return bias, weights
+
 
 if __name__ == '__main__':
 	feature, y_name, x_train, y_train, x_test, y_test = load_data()

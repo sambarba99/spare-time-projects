@@ -7,6 +7,7 @@ Created 19/10/2022
 
 import numpy as np
 
+
 class DecisionTree:
 	def __init__(self, x, y, max_depth):
 		self.left = None
@@ -15,6 +16,7 @@ class DecisionTree:
 		self.value = None
 		self.feature_idx = None
 		self.split_threshold = None
+
 
 		def find_best_split(x, y):
 			"""
@@ -28,6 +30,7 @@ class DecisionTree:
 				pred = y.mean()  # Use mean as the prediction
 				mse = ((y - pred) ** 2).sum() / len(y)
 				return mse
+
 
 			best = {'mse': np.inf}
 
@@ -62,6 +65,7 @@ class DecisionTree:
 			self.feature_idx = split['feature_idx']
 			self.split_threshold = split['split_threshold']
 
+
 	def predict(self, sample):
 		if self.is_leaf:
 			return self.value
@@ -70,13 +74,16 @@ class DecisionTree:
 		else:
 			return self.right.predict(sample)
 
+
 	def evaluate(self, x, y):
 		predictions = np.array([self.predict(sample) for sample in x])
 		y, predictions = y.squeeze(), predictions.squeeze()
 		mse = ((y - predictions) ** 2).sum() / len(y)
 		return mse
 
-	def get_depth(self):
+
+	@property
+	def depth(self):
 		if self.is_leaf:
 			return 0
-		return max(self.left.get_depth(), self.right.get_depth()) + 1
+		return max(self.left.depth, self.right.depth) + 1

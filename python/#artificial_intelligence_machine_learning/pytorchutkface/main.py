@@ -1,5 +1,5 @@
 """
-(PyTorch) VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
+PyTorch VGG16-based CNN for age prediction and gender/race classification of UTKFace dataset
 
 Author: Sam Barba
 Created 30/10/2022
@@ -7,6 +7,7 @@ Created 30/10/2022
 
 import os
 
+import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,18 +20,22 @@ from tqdm import tqdm
 from conv_net import CNN
 from early_stopping import EarlyStopping
 
-DATA_PATH = r'C:\Users\Sam Barba\Desktop\Programs\datasets\UTKFace'  # Available from Kaggle
+
+plt.rcParams['figure.figsize'] = (9, 6)
+pd.set_option('display.width', None)
+pd.set_option('max_colwidth', None)
+np.random.seed(1)
+torch.manual_seed(1)
+
+DATA_PATH = r'C:\Users\Sam\Desktop\Projects\datasets\UTKFace'  # Available from Kaggle
 DATASET_DICT = {
 	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
 	'gender_id': {'0': 'male', '1': 'female'}
 }
 BATCH_SIZE = 32
 
-plt.rcParams['figure.figsize'] = (9, 6)
-pd.set_option('display.width', None)
-pd.set_option('max_colwidth', None)
 
-def clean_data(df):
+def process_data(df):
 	gender, race = df.pop('gender'), df.pop('race')
 
 	gender = pd.get_dummies(gender, prefix='gender', drop_first=True)
@@ -39,13 +44,16 @@ def clean_data(df):
 	df = pd.concat([df, gender, race_one_hot], axis=1)
 	return df
 
+
 def preprocess_img(path):
-	img = Image.open(path)
-	img = img.resize((128, 128))
-	img = np.array(img) / 255  # Scale from 0-1
-	img = img.reshape(3, 128, 128)  # In PyTorch, colour channels come first
+	img = cv.imread(path)
+	img = cv.resize(img, (128, 128))       # Make img smaller
+	img[:, :, [0, 2]] = img[:, :, [2, 0]]  # Change OpenCV's BGR to RGB
+	img = img.astype(np.float64) / 255     # Scale from 0-1
+	img = img.reshape(3, 128, 128)         # In PyTorch, colour channels come first
 
 	return img
+
 
 def create_splits(df_shape):
 	train_prop, val_prop = 0.8, 0.1  # Test proportion = 0.1
@@ -59,7 +67,8 @@ def create_splits(df_shape):
 
 	return train_idx, val_idx, test_idx
 
-def data_generator(*, preprocessed_images, df, idx, device):
+
+def data_generator(*, preprocessed_images, df, idx):
 	batches = [idx[i:i + BATCH_SIZE] for i in range(0, len(idx), BATCH_SIZE)]
 
 	for batch in batches:
@@ -68,17 +77,17 @@ def data_generator(*, preprocessed_images, df, idx, device):
 		genders = [df.iloc[i, 2] for i in batch]
 		races = [df.iloc[i, 3:] for i in batch]
 
-		batch_x = torch.from_numpy(np.array(images)).float().to(device)
-		batch_y = [torch.from_numpy(np.array(ages)).float().to(device),
-			torch.from_numpy(np.array(genders)).float().to(device),
-			torch.from_numpy(np.array(races).astype(float)).float().to(device)]
+		batch_x = torch.from_numpy(np.array(images)).float().cpu()
+		batch_y = [
+			torch.from_numpy(np.array(ages)).float().cpu(),
+			torch.from_numpy(np.array(genders)).float().cpu(),
+			torch.from_numpy(np.array(races).astype(float)).float().cpu()
+		]
 
 		yield batch_x, batch_y
 
-if __name__ == '__main__':
-	np.random.seed(1)
-	torch.manual_seed(1)
 
+if __name__ == '__main__':
 	# 1. Convert data to dataframe
 
 	data = []
@@ -98,7 +107,8 @@ if __name__ == '__main__':
 	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0.3, wspace=0)
 	for idx, ax in enumerate(axes.flatten()):
 		r = rand_idx[idx]
-		sample = Image.open(df['img_path'][r])
+		sample = cv.imread(df['img_path'][r])
+		sample[:, :, [0, 2]] = sample[:, :, [2, 0]]  # Change OpenCV's BGR to RGB
 		ax.imshow(sample)
 		ax.set_xticks([])
 		ax.set_yticks([])
@@ -121,15 +131,14 @@ if __name__ == '__main__':
 	# 4. Clean up data and create splits for data generators
 
 	print(f'\nRaw data:\n{df}')
-	df = clean_data(df)
-	print(f'\nCleaned data:\n{df}\n')
+	df = process_data(df)
+	print(f'\nProcessed data:\n{df}\n')
 
 	processed = [
 		preprocess_img(p) for p in
 		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
 	]
 
-	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 	loss_func_age = nn.MSELoss()
 	loss_func_gender = nn.BCELoss()
 	loss_func_race = nn.CrossEntropyLoss()
@@ -142,7 +151,7 @@ if __name__ == '__main__':
 	if choice == 'T':
 		# 5. Build model
 
-		model = CNN().to(device)
+		model = CNN().cpu()
 		optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
 		print(f'\nModel:\n{model}')
 
@@ -157,7 +166,7 @@ if __name__ == '__main__':
 
 		for epoch in range(20):
 			model.train()
-			train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx, device=device)
+			train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx)
 
 			for train_batch in tqdm(train_gen, desc=f'Epoch: {epoch} | batch', total=n_train_batches, ascii=True):
 				x, y = train_batch
@@ -174,7 +183,7 @@ if __name__ == '__main__':
 				optimiser.step()
 
 			model.eval()
-			val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx, device=device)
+			val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx)
 			mean_age_val_mae = mean_gender_val_f1 = mean_race_val_f1 = 0
 			mean_val_loss = 0
 
@@ -215,7 +224,7 @@ if __name__ == '__main__':
 	print('\n----- TESTING/EVALUATION -----\n')
 
 	model.eval()
-	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, device=device)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx)
 	n_test_batches = int(np.ceil(len(test_idx) / BATCH_SIZE))
 	mean_age_test_loss = mean_gender_test_loss = mean_race_test_loss = 0
 	mean_age_test_mae = mean_gender_test_f1 = mean_race_test_f1 = 0
@@ -247,7 +256,7 @@ if __name__ == '__main__':
 	print('Test race F1 score:', mean_race_test_f1)
 
 	# Plot predictions of first 9 images of first test batch
-	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx, device=device)
+	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx)
 	first_batch = next(test_gen)
 	images, (ages, genders, races) = first_batch
 

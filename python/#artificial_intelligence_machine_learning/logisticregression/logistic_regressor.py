@@ -8,6 +8,7 @@ Created 10/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class LogisticRegressor:
 	def __init__(self, labels):
 		self.x_train = None
@@ -16,6 +17,7 @@ class LogisticRegressor:
 		self.bias = 0
 		self.cost_history = []
 		self.labels = labels
+
 
 	def fit(self, x_train, y_train, learning_rate=1e-4, converge_threshold=1e-4):
 		"""Gradient descent"""
@@ -26,6 +28,7 @@ class LogisticRegressor:
 			probs = self.__sigmoid(linear_model)
 			return -(y * np.log(probs + epsilon) + (1 - y) * np.log(1 - probs + epsilon)).sum() / len(x)
 
+
 		def calculate_gradients(weights, bias):
 			linear_model = self.x_train.dot(weights) + bias
 			probs = self.__sigmoid(linear_model)
@@ -33,12 +36,8 @@ class LogisticRegressor:
 			bias_deriv = (probs - self.y_train).sum()
 			return weight_deriv, bias_deriv
 
-		def plot_decision_boundary(weights, bias, converged, first_time):
-			"""
-			See https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/
-			for calculation of m and c
-			"""
 
+		def plot_decision_boundary(weights, bias, converged, first_time):
 			w1, w2 = weights
 			m = -w1 / w2 if not first_time else None
 			c = -bias / w2 if not first_time else None
@@ -60,14 +59,18 @@ class LogisticRegressor:
 			plt.ylim(y_min, y_max)
 			plt.xlabel(r'$x_1$ (Principal component 1)')
 			plt.ylabel(r'$x_2$ (Principal component 2)')
-			if first_time:
-				plt.title('Start')
-			else:
-				plt.title(fr'Gradient descent solution: $m$ = {m:.3f}  |  $c$ = {c:.3f}' + f'\n(converged: {converged})')
+			plt.title(
+				'Start' if first_time else
+				fr'Gradient descent solution: $m$ = {m:.3f}  |  $c$ = {c:.3f}' + f'\n(converged: {converged})'
+			)
 			plt.legend()
 
-			plt.show(block=converged)
-			if not converged: plt.pause(2 if first_time else 1e-6)
+			if converged:
+				plt.show()
+			else:
+				plt.draw()
+				plt.pause(2 if first_time else 1e-6)
+
 
 		self.x_train = x_train
 		self.y_train = y_train
@@ -107,11 +110,13 @@ class LogisticRegressor:
 		self.weights = weights_current
 		self.bias = bias_current
 
+
 	def predict(self, inputs):
 		linear_model = inputs.dot(self.weights) + self.bias
 		probs = self.__sigmoid(linear_model)
 		class_predictions = probs.round().astype(int)
 		return class_predictions
+
 
 	def __sigmoid(self, x):
 		return 1 / (1 + np.exp(-x))

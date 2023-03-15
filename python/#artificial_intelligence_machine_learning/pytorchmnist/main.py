@@ -1,5 +1,5 @@
 """
-(PyTorch) MNIST convolutional neural network
+PyTorch MNIST convolutional neural network
 
 Author: Sam Barba
 Created 30/10/2022
@@ -25,14 +25,17 @@ from conv_net import CNN
 from early_stopping import EarlyStopping
 from mnist_dataset import MNISTDataset
 
+
+plt.rcParams['figure.figsize'] = (10, 5)
+torch.manual_seed(1)
+
 N_CLASSES = 10  # Class for each digit 0-9
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, W, H
 DRAWING_SIZE = 500
 
-plt.rcParams['figure.figsize'] = (10, 5)
 
-def load_data(device):
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+def load_data():
+	(x_train, y_train), (x_test, y_test) = mnist.load_data()  # Faster to use TF than torchvision
 
 	# Normalise images to 0-1 range and correct shape
 	x = np.concatenate([x_train, x_test], axis=0).astype(float) / 255
@@ -48,7 +51,7 @@ def load_data(device):
 
 	# Convert to tensors
 	x_val, y_val, x_test, y_test = map(
-		lambda arr: torch.from_numpy(arr).float().to(device),
+		lambda arr: torch.from_numpy(arr).float().cpu(),
 		[x_val, y_val, x_test, y_test]
 	)
 
@@ -57,6 +60,7 @@ def load_data(device):
 	train_loader = DataLoader(train_set, batch_size=256, shuffle=False, num_workers=8)
 
 	return train_loader, x_val, y_val, x_test, y_test
+
 
 def plot_confusion_matrix(actual, predictions, labels):
 	cm = confusion_matrix(actual, predictions)
@@ -67,11 +71,9 @@ def plot_confusion_matrix(actual, predictions, labels):
 	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
 	plt.show()
 
-if __name__ == '__main__':
-	torch.manual_seed(1)
 
-	device = 'cuda' if torch.cuda.is_available() else 'cpu'
-	train_loader, x_val, y_val, x_test, y_test = load_data(device)
+if __name__ == '__main__':
+	train_loader, x_val, y_val, x_test, y_test = load_data()
 	loss_func = nn.CrossEntropyLoss()
 
 	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
@@ -93,7 +95,7 @@ if __name__ == '__main__':
 
 			# Build model
 
-			model = CNN(n_classes=N_CLASSES).to(device)
+			model = CNN(n_classes=N_CLASSES).cpu()
 			optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
 			print(f'\nModel:\n{model}')
 
@@ -213,7 +215,7 @@ if __name__ == '__main__':
 	user_drawing_coords = np.unique(user_drawing_coords, axis=0)  # Keep unique pairs only
 	drawn_digit_grid = torch.zeros((28, 28))
 	drawn_digit_grid[user_drawing_coords[:, 1], user_drawing_coords[:, 0]] = 1
-	drawn_digit_input = drawn_digit_grid.reshape((1, *INPUT_SHAPE)).to(device)
+	drawn_digit_input = drawn_digit_grid.reshape((1, *INPUT_SHAPE)).cpu()
 	model.eval()
 	with torch.inference_mode():
 		pred_vector = model(drawn_digit_input).squeeze()

@@ -9,6 +9,7 @@ import numpy as np
 
 from grid_environment import GridEnv
 
+
 class Agent:
 	def __init__(self, gamma=0.9, alpha=0.2, epsilon=0.1):
 		"""
@@ -25,6 +26,7 @@ class Agent:
 		self.q_table = None
 		self.__reset_q_table()
 
+
 	def __choose_action_epsilon_greedy(self, state):
 		if np.random.random() < self.epsilon:
 			# Random action (exploration)
@@ -35,9 +37,11 @@ class Agent:
 				np.where(self.q_table[state] == max(self.q_table[state]))[0]
 			)
 
+
 	def __discounted_reward(self, new_state, v):
 		"""Discounted reward of a new state"""
 		return self.gamma * v[new_state]
+
 
 	def policy_iteration(self, theta=1e-9):
 		self.__reset_q_table()
@@ -107,6 +111,7 @@ class Agent:
 
 		self.__render_q_table(print_table=False)
 
+
 	def value_iteration(self, theta=1e-9):
 		self.__reset_q_table()
 
@@ -147,12 +152,13 @@ class Agent:
 
 		self.__render_q_table(print_table=False)
 
-	def on_policy_first_visit_mc_control(self, n_training_episodes=3000):
+
+	def on_policy_first_visit_mc_control(self, n_training_epochs=3000):
 		self.__reset_q_table()
 
 		rewards = {}
 
-		for _ in range(n_training_episodes):
+		for _ in range(n_training_epochs):
 			# Generate trajectory by following epsilon-greedy policy
 			state = self.env.start
 			terminal = False
@@ -187,10 +193,11 @@ class Agent:
 
 		self.__render_q_table(print_table=True)
 
-	def sarsa(self, n_training_episodes=5000):
+
+	def sarsa(self, n_training_epochs=5000):
 		self.__reset_q_table()
 
-		for _ in range(n_training_episodes):
+		for _ in range(n_training_epochs):
 			state = self.env.start
 			terminal = False
 			if state not in self.q_table:  # Update with start state
@@ -213,10 +220,11 @@ class Agent:
 
 		self.__render_q_table(print_table=True)
 
-	def q_learning(self, n_training_episodes=5000):
+
+	def q_learning(self, n_training_epochs=5000):
 		self.__reset_q_table()
 
-		for _ in range(n_training_episodes):
+		for _ in range(n_training_epochs):
 			state = self.env.start
 			terminal = False
 			if state not in self.q_table:  # Update with start state
@@ -237,6 +245,7 @@ class Agent:
 
 		self.__render_q_table(print_table=True)
 
+
 	def __render_q_table(self, print_table):
 		if print_table:
 			print("\n# --- Final Q-table ('state: NESW values') --- #\n")
@@ -245,6 +254,7 @@ class Agent:
 
 		# Draw environment grid depicting optimal policy and v(s) for each state
 		self.env.render(self.q_table)
+
 
 	def __reset_q_table(self):
 		"""

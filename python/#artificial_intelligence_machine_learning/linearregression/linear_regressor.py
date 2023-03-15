@@ -8,6 +8,7 @@ Created 10/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class LinearRegressor:
 	def __init__(self, feature, y_name):
 		self.x_train = None
@@ -18,6 +19,7 @@ class LinearRegressor:
 		self.feature = feature
 		self.y_name = y_name
 
+
 	def fit(self, x_train, y_train, learning_rate=1e-5, converge_threshold=1e-5):
 		"""Gradient descent"""
 
@@ -26,6 +28,7 @@ class LinearRegressor:
 			weights_deriv = 2 * self.x_train.T.dot(y_predictions - self.y_train)
 			bias_deriv = 2 * (y_predictions - self.y_train).sum()
 			return weights_deriv, bias_deriv
+
 
 		def plot_regression_line(weights, bias, converged, first_time):
 			padding = 2
@@ -43,14 +46,17 @@ class LinearRegressor:
 			plt.ylim(self.y_train.min() - padding, self.y_train.max() + padding)
 			plt.xlabel(fr'$x$ ({self.feature}) (standardised)')
 			plt.ylabel(fr'$y$ ({self.y_name})')
-			if first_time:
-				plt.title('Start')
-			else:
-				plt.title(fr'Gradient descent solution: $m$ = {weights[0][0]:.3f}  |  $c$ = {bias:.3f}'
-					+ f'\n(converged: {converged})')
+			plt.title(
+				'Start' if first_time else
+				fr'Gradient descent solution: $m$ = {weights[0][0]:.3f}  |  $c$ = {bias:.3f}\n(converged: {converged})'
+			)
 
-			plt.show(block=converged)
-			if not converged: plt.pause(2 if first_time else 1e-6)
+			if converged:
+				plt.show()
+			else:
+				plt.draw()
+				plt.pause(2 if first_time else 1e-6)
+
 
 		self.x_train = x_train
 		self.y_train = y_train
@@ -90,11 +96,13 @@ class LinearRegressor:
 		self.weights = weights_current
 		self.bias = bias_current
 
+
 	def cost(self, x, y, weights, bias):
 		"""Mean absolute error"""
 
 		y_predictions = x.dot(weights) + bias
 		return np.abs(y_predictions - y).sum() / len(y)
+
 
 	def predict(self, inputs):
 		return inputs.dot(self.weights) + self.bias

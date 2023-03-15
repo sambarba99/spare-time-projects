@@ -13,9 +13,11 @@ from sklearn.model_selection import train_test_split
 from decision_tree import DecisionTree
 from tree_plotter import plot_tree
 
+
 plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
+
 
 def load_data(path, train_test_ratio=0.8):
 	if path == 'sine':
@@ -45,22 +47,22 @@ def load_data(path, train_test_ratio=0.8):
 
 	return features, x_train, y_train, x_test, y_test
 
+
 def make_best_tree(x_train, y_train, x_test, y_test):
 	"""Test different max_depth values, and return tree with the best one"""
 
 	best_tree = None
-	best_mean_mse = np.inf
+	best_test_mse = np.inf
 
 	# 0 max_depth means predicting all data points as the same value
 	for max_depth in range(6):
 		tree = DecisionTree(x_train, y_train, max_depth)
 		train_mse = tree.evaluate(x_train, y_train)
 		test_mse = tree.evaluate(x_test, y_test)
-		mean_mse = (train_mse + test_mse) / 2
-		print(f'max_depth {max_depth}: training MSE = {train_mse} | test MSE = {test_mse} | mean = {mean_mse}')
+		print(f'max_depth {max_depth}: training MSE = {train_mse} | test MSE = {test_mse}')
 
-		if mean_mse < best_mean_mse:
-			best_tree, best_mean_mse = tree, mean_mse
+		if test_mse < best_test_mse:
+			best_tree, best_test_mse = tree, test_mse
 		else:
 			break  # No improvement, so stop
 
@@ -68,16 +70,19 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 
 	return best_tree
 
+
 if __name__ == '__main__':
-	choice = input('\nEnter B to use Boston housing dataset,'
-		+ '\nC for car value dataset,'
-		+ '\nM for medical insurance dataset,'
-		+ '\nor S for sine wave\n>>> ').upper()
+	choice = input(
+		'\nEnter B to use Boston housing dataset,'
+		'\nC for car value dataset,'
+		'\nM for medical insurance dataset,'
+		'\nor S for sine wave\n>>> '
+	).upper()
 
 	match choice:
-		case 'B': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\bostonData.csv'
-		case 'C': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\carValueData.csv'
-		case 'M': path = r'C:\Users\Sam Barba\Desktop\Programs\datasets\medicalInsuranceData.csv'
+		case 'B': path = r'C:\Users\Sam\Desktop\Projects\datasets\bostonData.csv'
+		case 'C': path = r'C:\Users\Sam\Desktop\Projects\datasets\carValueData.csv'
+		case 'M': path = r'C:\Users\Sam\Desktop\Projects\datasets\medicalInsuranceData.csv'
 		case _: path = 'sine'
 
 	features, x_train, y_train, x_test, y_test = load_data(path)
@@ -90,12 +95,12 @@ if __name__ == '__main__':
 		for max_depth in [0, 1, 6]:
 			tree = DecisionTree(x_train, y_train, max_depth)
 			pred = [tree.predict([xi]) for xi in x]
-			plt.plot(x, pred, label=f'Tree depth {tree.get_depth()}')
+			plt.plot(x, pred, label=f'Tree depth {tree.depth}')
 		plt.title('Sine wave prediction with different tree depths')
 		plt.legend()
 		plt.show()
 	else:
 		tree = make_best_tree(x_train, y_train, x_test, y_test)
-		print(f'\nOptimal tree depth: {tree.get_depth()}')
+		print(f'\nOptimal tree depth: {tree.depth}')
 
 	plot_tree(tree, features)

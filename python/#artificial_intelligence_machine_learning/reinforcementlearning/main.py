@@ -23,6 +23,7 @@ import tkinter as tk
 
 from agent import Agent
 
+
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Reinforcement learning demo')

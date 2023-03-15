@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
 
+
 plt.rcParams['figure.figsize'] = (7, 5)
 
 N = 12
@@ -22,6 +23,7 @@ GRID_OFFSET = 60
 
 board = np.zeros((N, N)).astype(int)
 backtrack_grid = np.zeros((N, N)).astype(int)  # For visualising backtracks
+
 
 def solve(row=0):
 	if row == N:  # If all queens placed
@@ -45,6 +47,7 @@ def solve(row=0):
 
 	return False
 
+
 def valid(row, col):
 	# Check row and column
 	if QUEEN in board[row] or QUEEN in board[:, col]: return False
@@ -60,6 +63,7 @@ def valid(row, col):
 			return False
 
 	return True
+
 
 def draw_grid(solve_status):
 	scene.fill('black')
@@ -84,6 +88,7 @@ def draw_grid(solve_status):
 
 	pg.display.update()
 
+
 def plot_backtracks():
 	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
 	# (line plt.gca().invert_yaxis() below)
@@ -98,6 +103,7 @@ def plot_backtracks():
 	plt.gca().invert_yaxis()
 	plt.colorbar(mat, ax=ax)
 	plt.show()
+
 
 if __name__ == '__main__':
 	pg.init()

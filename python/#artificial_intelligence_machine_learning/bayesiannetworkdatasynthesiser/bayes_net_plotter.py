@@ -8,19 +8,24 @@ Created 02/12/2022
 from graphviz import Digraph
 import numpy as np
 
+
 def plot_bayes_net(adj_mat):
 	# 1. Set up global attributes and key
 
-	g = Digraph(name='bayesian network',
+	g = Digraph(
+		name='bayesian network',
 		graph_attr={'fontname': 'consolas', 'labelloc': 't', 'label': 'Bayesian Network'},
-		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'shape': 'circle'})
+		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'shape': 'circle'}
+	)
 
-	g.node('key',
+	g.node(
+		'key',
 		label='<<table border="0" cellborder="1" cellspacing="0" cellpadding="5">'
 			'<tr><td bgcolor="#30e090">Parent</td></tr>'
 			'<tr><td bgcolor="#80c0ff">Child</td></tr></table>>',
 		shape='rect',
-		fillcolor='white')
+		fillcolor='white'
+	)
 
 	# 2. Create nodes
 
@@ -37,5 +42,4 @@ def plot_bayes_net(adj_mat):
 		for c in children:
 			g.edge(str(i), str(c))
 
-	g.format = 'png'
-	g.render('bayes_net', view=True, cleanup=True)
+	g.render('bayes_net', view=True, cleanup=True, format='png')

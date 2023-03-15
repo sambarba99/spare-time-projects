@@ -10,8 +10,10 @@ from time import sleep
 
 import pygame as pg
 
+
 IMG_SIZE = 369
 CELL_SIZE = 2
+
 
 def get_ruleset(n):
 	if n not in range(1, 256):
@@ -25,6 +27,7 @@ def get_ruleset(n):
 		i -= 1
 
 	return ruleset
+
 
 def generate_plot(ruleset):
 	gen = [0] * IMG_SIZE
@@ -56,6 +59,7 @@ def generate_plot(ruleset):
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				sys.exit()
+
 
 if __name__ == '__main__':
 	pg.init()

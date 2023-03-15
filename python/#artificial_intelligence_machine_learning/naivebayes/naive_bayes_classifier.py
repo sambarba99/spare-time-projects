@@ -7,6 +7,7 @@ Created 21/22/2021
 
 import numpy as np
 
+
 class NaiveBayesClassifier:
 	def __init__(self):
 		self.x_train = None
@@ -15,6 +16,7 @@ class NaiveBayesClassifier:
 		self.means = None
 		self.variances = None
 		self.priors = None
+
 
 	def fit(self, x_train, y_train):
 		self.x_train = x_train
@@ -36,6 +38,7 @@ class NaiveBayesClassifier:
 			self.variances[idx, :] = xc.var(axis=0)
 			self.priors[idx] = len(xc) / n_samples
 
+
 	def predict(self, inputs):
 		def pdf(class_idx, sample):
 			mean = self.means[class_idx]
@@ -43,6 +46,7 @@ class NaiveBayesClassifier:
 			num = np.exp(-((sample - mean) ** 2) / (2 * var))
 			denom = (2 * np.pi * var) ** 0.5
 			return num / denom
+
 
 		posteriors = []
 		epsilon = 1e-6  # To avoid log errors

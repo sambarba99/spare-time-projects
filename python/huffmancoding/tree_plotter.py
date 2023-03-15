@@ -7,13 +7,16 @@ Created 22/11/2022
 
 from graphviz import Graph
 
+
 def plot_tree(tree):
 	# 1. Set up global attributes
 
-	g = Graph(name='Huffman tree',
+	g = Graph(
+		name='Huffman tree',
 		graph_attr={'splines': 'line'},
 		node_attr={'style': 'filled,setlinewidth(0)', 'shape': 'rect', 'fontname': 'consolas'},
-		edge_attr={'fontname': 'consolas'})
+		edge_attr={'fontname': 'consolas'}
+	)
 
 	# 2. Create nodes and edges
 
@@ -31,12 +34,13 @@ def plot_tree(tree):
 
 	# 3. Render graph
 
-	g.format = 'png'
-	g.render('tree', view=True, cleanup=True)
+	g.render('tree', view=True, cleanup=True, format='png')
+
 
 def generate_graph(tree, nodes=None, edges=None):
 	def make_str(tree):
 		return f'{tree.symbol}_{tree.weight:.2g}'
+
 
 	if nodes is None: nodes = []
 	if edges is None: edges = []

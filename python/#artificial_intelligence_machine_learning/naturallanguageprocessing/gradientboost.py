@@ -8,6 +8,7 @@ Created 29/09/2022
 from numpy import exp, log, where
 from sklearn.tree import DecisionTreeRegressor
 
+
 class GradientBoost:
 	def __init__(self, *, learning_rate, n_trees, max_depth):
 		self.initial_log_odd = 0
@@ -16,6 +17,7 @@ class GradientBoost:
 		self.n_trees = n_trees
 		self.learning_rate = learning_rate
 		self.max_depth = max_depth
+
 
 	def fit(self, x_train, y_train):
 		y_train = where(y_train == -1, 0, 1)
@@ -89,6 +91,7 @@ class GradientBoost:
 
 				# Update the data point residual
 				residuals[entry_idx] = entry_residual
+
 
 	def predict(self, x):
 		# Set all probabilities to the initial log odds

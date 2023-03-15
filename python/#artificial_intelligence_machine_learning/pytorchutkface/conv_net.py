@@ -7,27 +7,28 @@ Created 30/10/2022
 
 from torch import nn
 
+
 class CNN(nn.Module):
 	def __init__(self):
 		super(CNN, self).__init__()
 		self.conv_block = nn.Sequential(
-			nn.Conv2d(in_channels=3, out_channels=64, kernel_size=(3, 3)),
+			nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3),
 			nn.ReLU(),
-			nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3)),
+			nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3),
 			nn.ReLU(),
-			nn.MaxPool2d(kernel_size=(2, 2)),
-			nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(3, 3)),
+			nn.MaxPool2d(kernel_size=2),
+			nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3),
 			nn.ReLU(),
-			nn.Conv2d(in_channels=128, out_channels=128, kernel_size=(3, 3)),
+			nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3),
 			nn.ReLU(),
-			nn.MaxPool2d(kernel_size=(2, 2)),
-			nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3, 3)),
+			nn.MaxPool2d(kernel_size=2),
+			nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3),
 			nn.ReLU(),
-			nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3)),
+			nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3),
 			nn.ReLU(),
-			nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3)),
+			nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3),
 			nn.ReLU(),
-			nn.MaxPool2d(kernel_size=(2, 2))
+			nn.MaxPool2d(kernel_size=2)
 		)
 		self.age_branch = nn.Sequential(
 			nn.Flatten(),
@@ -64,6 +65,7 @@ class CNN(nn.Module):
 			nn.Linear(512, 5),  # 5 races
 			nn.Softmax(dim=1)
 		)
+
 
 	def forward(self, x):
 		conv_out = self.conv_block(x)

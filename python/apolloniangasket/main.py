@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 
 from generation import ApollonianGasketGenerator
 
+
 plt.rcParams['figure.figsize'] = (7, 7)
+
 
 def generate():
 	r1 = slider_r1.get()
@@ -27,6 +29,7 @@ def generate():
 	plt.axis('scaled')
 	plt.title(f'{len(circles)} circles')
 	plt.show()
+
 
 if __name__ == '__main__':
 	root = tk.Tk()

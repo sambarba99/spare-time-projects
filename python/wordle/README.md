@@ -1,4 +1,4 @@
-Wordle game with optional AI (information theory) assistant
+Wordle game with optional Information Theory assistant
 
-![](wordle_ai1.png)
-![](wordle_ai2.png)
+![](wordle1.png)
+![](wordle2.png)

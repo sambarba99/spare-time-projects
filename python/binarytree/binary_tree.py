@@ -11,6 +11,7 @@ class Tree:
 		self.left_child = None
 		self.right_child = None
 
+
 	def insert(self, new_data):
 		if self.data == new_data:
 			return  # No duplicates allowed
@@ -25,6 +26,7 @@ class Tree:
 			else:
 				self.right_child = Tree(new_data)
 
+
 	def to_tuple(self):
 		if not self:
 			return None
@@ -33,15 +35,18 @@ class Tree:
 		else:
 			return Tree.to_tuple(self.left_child), self.data, Tree.to_tuple(self.right_child)
 
+
 	def list_data(self):
 		if not self:
 			return []
 		return Tree.list_data(self.left_child) + [self.data] + Tree.list_data(self.right_child)
 
+
 	def get_height(self):
 		if not self:
 			return 0
 		return max(Tree.get_height(self.left_child), Tree.get_height(self.right_child)) + 1
+
 
 	def in_order_traversal(self):
 		if not self: return []
@@ -50,6 +55,7 @@ class Tree:
 			+ [self.data] \
 			+ Tree.in_order_traversal(self.right_child)
 
+
 	def pre_order_traversal(self):
 		if not self: return []
 
@@ -57,12 +63,14 @@ class Tree:
 			+ Tree.pre_order_traversal(self.left_child) \
 			+ Tree.pre_order_traversal(self.right_child)
 
+
 	def post_order_traversal(self):
 		if not self: return []
 
 		return Tree.post_order_traversal(self.left_child) \
 			+ Tree.post_order_traversal(self.right_child) \
 			+ [self.data]
+
 
 	def breadth_first_traversal(self):
 		traversal = []
@@ -79,6 +87,7 @@ class Tree:
 
 		return traversal
 
+
 	def is_bst(self, prev='0'):
 		"""Is Binary Search Tree"""
 
@@ -93,6 +102,7 @@ class Tree:
 			return Tree.is_bst(self.right_child)
 
 		return True
+
 
 	def is_balanced(self):
 		if not self: return True

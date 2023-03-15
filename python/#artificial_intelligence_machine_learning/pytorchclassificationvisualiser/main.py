@@ -5,17 +5,19 @@ Author: Sam Barba
 Created 04/11/2022
 """
 
+import tkinter as tk
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import make_blobs, make_circles, make_moons
-import tkinter as tk
 import torch
 from torch import nn
 
-plt.rcParams['figure.figsize'] = (6, 6)
 
+plt.rcParams['figure.figsize'] = (6, 6)
 x = y = n_classes = lr = None
 model = nn.Sequential()
+
 
 def make_spiral_classes():
 	clockwise_class, anticlockwise_class = [], []
@@ -29,6 +31,7 @@ def make_spiral_classes():
 		anticlockwise_class.append([-x1, -x2])
 
 	return np.array(clockwise_class), np.array(anticlockwise_class)
+
 
 def gen_data(mode):
 	global x, y, n_classes, lr
@@ -65,14 +68,14 @@ def gen_data(mode):
 	if n_classes > 2:
 		y = np.eye(n_classes)[y]  # One-hot encode
 
-	# Put data and model to CPU (works better with numpy and matplotlib)
-	x = torch.from_numpy(x).float().to('cpu')
-	y = torch.from_numpy(y).float().to('cpu')
+	x = torch.from_numpy(x).float().cpu()
+	y = torch.from_numpy(y).float().cpu()
 
 	build_model()
 	plot_decision_boundary()
 	plt.title('Start (random weights)')
 	plt.show()
+
 
 def build_model():
 	global model
@@ -84,15 +87,14 @@ def build_model():
 		nn.ReLU(),
 		nn.Linear(64, 1 if n_classes == 2 else n_classes),
 		nn.Sigmoid() if n_classes == 2 else nn.Softmax(dim=1)
-	)
-	model.to('cpu')
+	).cpu()
+
 
 def train_model():
 	loss_func = nn.BCELoss() if n_classes == 2 else nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters(), lr=lr)
 
 	for epoch in range(1000):
-		model.train()
 		y_probs = model(x).squeeze()
 		loss = loss_func(y_probs, y)
 
@@ -103,12 +105,13 @@ def train_model():
 		if epoch % 20 == 0:
 			plot_decision_boundary()
 			plt.title(f'Epoch {epoch}/1000')
-			plt.show(block=False)
+			plt.draw()
 			plt.pause(0.01)
 
 	plot_decision_boundary()
 	plt.title('Epoch 1000/1000')
 	plt.show()
+
 
 def plot_decision_boundary():
 	# Set up prediction boundaries and grid
@@ -123,9 +126,8 @@ def plot_decision_boundary():
 	x_to_pred = torch.from_numpy(np.stack((xx.ravel(), yy.ravel()), axis=1)).float()
 
 	# Make predictions
-	model.eval()
-	with torch.inference_mode():
-		y_probs = model(x_to_pred).squeeze()
+    # (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
+	y_probs = model(x_to_pred).squeeze()
 
 	if n_classes == 2:  # Binary
 		y_pred = y_probs.round()
@@ -141,6 +143,7 @@ def plot_decision_boundary():
 	plt.xlim(x_min, x_max)
 	plt.ylim(y_min, y_max)
 	plt.axis('scaled')
+
 
 if __name__ == '__main__':
 	root = tk.Tk()

@@ -7,7 +7,8 @@ Created 20/09/2021
 
 import random
 
-from node_maze import MazeNode
+from maze_node import MazeNode
+
 
 def make_maze(rows, cols):
 	def remove_walls(maze, a, b):
@@ -16,6 +17,7 @@ def make_maze(rows, cols):
 		maze[mid_y][mid_x].is_wall = False
 		maze[a.i][a.j].is_wall = False
 		maze[b.i][b.j].is_wall = False
+
 
 	assert (rows % 2) and (cols % 2), 'Rows and cols must be odd'
 

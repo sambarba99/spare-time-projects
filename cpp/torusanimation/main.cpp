@@ -29,7 +29,7 @@ which is at x = R1 + R2, z = 0. We want that to be displaced 3/8ths of the width
 */
 const double K2 = 100.0;  // Arbitrary distance from torus to viewer
 const double K1 = GRID_SIZE * K2 * 3 / (8 * (R1 + R2));
-const string CHARS = ".,-~:;!*=#$@";  // 'Dimmest' to 'brighest' chars
+const string CHARS = "@$#=*!;:~-,.";  // 'Brightest' to 'dimmest' chars
 
 char outputGrid[GRID_SIZE][GRID_SIZE];
 sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Revolving torus", sf::Style::Close);

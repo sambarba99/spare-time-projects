@@ -1,9 +1,9 @@
 PCA demo
 
-Iris dataset example with 2 components:
+E.g. Iris dataset 2 components:
 
-![](iris_pca_2d.png)
+![](iris_pca_2_components.png)
 
 With 3 components:
 
-![](iris_pca_3d.png)
+![](iris_pca_3_components.png)

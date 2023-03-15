@@ -7,19 +7,22 @@ Created 18/08/2019
 
 import mysql.connector
 
-DATABASE_NAME = 'company_database'
 
+DATABASE_NAME = 'company_database'
 con = curs = None
 
+
 def get_pwd():
-	with open(r'C:\Users\Sam Barba\Desktop\Programs\sql_password.txt', 'r') as file:
+	with open(r'C:\Users\Sam\Desktop\Projects\sql_password.txt', 'r') as file:
 		pwd = file.read()
 	return pwd
+
 
 def drop_database():
 	con = mysql.connector.connect(host='localhost', user='user1', passwd=get_pwd())
 	curs = con.cursor()
 	curs.execute(f'DROP DATABASE IF EXISTS {DATABASE_NAME};')
+
 
 def create_database():
 	global con, curs
@@ -29,6 +32,7 @@ def create_database():
 	curs.execute(f'CREATE DATABASE {DATABASE_NAME};')
 	con = mysql.connector.connect(host='localhost', user='user1', passwd=get_pwd(), database=DATABASE_NAME)
 	curs = con.cursor()
+
 
 def create_tables():
 	create_table_employee = 'CREATE TABLE employee (' \
@@ -82,6 +86,7 @@ def create_tables():
 	curs.execute(create_table_branch_supplier)
 	curs.execute(create_table_client)
 	curs.execute(create_table_works_with)
+
 
 def populate_tables():
 	# 1. Tables 'employee' and 'branch'
@@ -140,6 +145,7 @@ def populate_tables():
 	curs.execute('INSERT INTO works_with VALUES(102, 406, 15000);')
 	curs.execute('INSERT INTO works_with VALUES(105, 406, 130000);')
 	con.commit()
+
 
 if __name__ == '__main__':
 	drop_database()

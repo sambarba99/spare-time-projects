@@ -9,21 +9,26 @@ from graphviz import Digraph, Graph
 
 FILL_COLOURS = {'D': '#bbbbff', 'F': '#ffbbbb', 'M': '#bbbbbb'}
 
+
 def plot_graphical_model(rvs):
 	# 1. Set up global attributes and key
 
-	g = Digraph(name='graphical model',
+	g = Digraph(
+		name='graphical model',
 		graph_attr={'overlap': 'compress', 'splines': 'line', 'fontname': 'consolas', 'labelloc': 't', 'label': 'Graphical Model'},
-		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'})
-	g.engine = 'neato'
+		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'},
+		engine='neato'
+	)
 
-	g.node('key',
+	g.node(
+		'key',
 		label='<<table border="0" cellborder="1" cellspacing="0" cellpadding="5">'
 			f'<tr><td bgcolor="{FILL_COLOURS["D"]}">Diagnostic (observable)</td></tr>'
 			f'<tr><td bgcolor="{FILL_COLOURS["F"]}">Failures (observable)</td></tr>'
 			f'<tr><td bgcolor="{FILL_COLOURS["M"]}">Mechanism (unobservable)</td></tr></table>>',
 		shape='rect',
-		fillcolor='white')
+		fillcolor='white'
+	)
 
 	# 2. Create nodes and edges
 
@@ -46,25 +51,29 @@ def plot_graphical_model(rvs):
 
 	# 3. Render graph
 
-	g.format = 'png'
-	g.render('coffee_machine_graphical_model', view=True, cleanup=True)
+	g.render('coffee_machine_graphical_model', view=True, cleanup=True, format='png')
+
 
 def plot_factor_graph(edges, itn, rvs):
 	# 1. Set up global attributes and key
 
-	g = Graph(name='factor graph',
+	g = Graph(
+		name='factor graph',
 		graph_attr={'overlap': 'compress', 'sep': '0', 'splines': 'line', 'fontname': 'consolas', 'labelloc': 't', 'label': 'Factor Graph'},
-		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'})
-	g.engine = 'neato'
+		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'}
+		engine='neato'
+	)
 
-	g.node('key',
+	g.node(
+		'key',
 		label='<<table border="0" cellborder="1" cellspacing="0" cellpadding="5">'
 			f'<tr><td bgcolor="{FILL_COLOURS["D"]}">Diagnostic (observable)</td></tr>'
 			f'<tr><td bgcolor="{FILL_COLOURS["F"]}">Failures (observable)</td></tr>'
 			f'<tr><td bgcolor="{FILL_COLOURS["M"]}">Mechanism (unobservable)</td></tr>'
 			'<tr><td bgcolor="white">Factor</td></tr></table>>',
 		shape='rect',
-		fillcolor='white')
+		fillcolor='white'
+	)
 
 	# 2. Create nodes and edges
 
@@ -84,5 +93,4 @@ def plot_factor_graph(edges, itn, rvs):
 
 	# 3. Render graph
 
-	g.format = 'png'
-	g.render('coffee_machine_factor_graph', view=True, cleanup=True)
+	g.render('coffee_machine_factor_graph', view=True, cleanup=True, format='png')
