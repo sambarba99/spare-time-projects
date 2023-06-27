@@ -5,24 +5,22 @@ Author: Sam Barba
 Created 08/09/2021
 """
 
-import numpy as np
+import random
 
 from binary_tree import Tree
 from tree_plotter import plot_tree
 
 
-N_NODES = 31  # No. people names (max 113)
-
-
-def make_random_binary_tree():
+def make_random_binary_tree(tree_size=31):
 	with open(r'C:\Users\Sam\Desktop\Projects\datasets\peopleNames.txt', 'r') as file:
 		names = file.read().splitlines()
 
-	rand_names = np.random.choice(names, size=N_NODES, replace=False)
+	assert tree_size <= len(names)
 
-	bin_tree = Tree(rand_names[0])
+	random.shuffle(names)
+	bin_tree = Tree(names[0])
 
-	for name in rand_names[1:]:
+	for name in names[1:tree_size]:
 		bin_tree.insert(name)
 
 	return bin_tree

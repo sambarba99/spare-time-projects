@@ -90,14 +90,14 @@ class ActorCritic(nn.Module):
 		action_log_prob = distribution.log_prob(action)
 
 		# Get critic's value of state (just for storing in buffer.state_values for training)
-		state_val = self.critic(state).squeeze()
+		state_value = self.critic(state).squeeze()
 
-		return action, action_log_prob, state_val
+		return action, action_log_prob, state_value
 
 
 	def evaluate(self, states, actions):
 		# Get critic's value of states
-		state_vals = self.critic(states).squeeze()
+		state_values = self.critic(states).squeeze()
 
 		# Generate action distribution given states
 		action_probs = self.actor(states)
@@ -109,7 +109,7 @@ class ActorCritic(nn.Module):
 		# Get distribution's entropy
 		dist_entropy = distribution.entropy()
 
-		return state_vals, action_log_probs, dist_entropy
+		return state_values, action_log_probs, dist_entropy
 
 
 class PPOAgent:
@@ -219,12 +219,12 @@ class PPOAgent:
 	def choose_action(self, state):
 		state = torch.tensor(state, dtype=torch.float32).cpu()
 		with torch.inference_mode():
-			action, action_log_prob, state_val = self.policy.act(state)
+			action, action_log_prob, state_value = self.policy.act(state)
 
 		if self.training_mode:
 			# Store data for rollout
 			self.buffer.states.append(state)
-			self.buffer.state_values.append(state_val)
+			self.buffer.state_values.append(state_value)
 			self.buffer.actions.append(action)
 			self.buffer.action_log_probs.append(action_log_prob)
 
