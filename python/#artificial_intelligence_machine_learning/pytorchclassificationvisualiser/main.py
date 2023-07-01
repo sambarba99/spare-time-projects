@@ -1,5 +1,5 @@
 """
-PyTorch classification neural net visualiser
+Visualising the decision boundary of a PyTorch classification neural net
 
 Author: Sam Barba
 Created 04/11/2022
@@ -15,16 +15,21 @@ from torch import nn
 
 
 plt.rcParams['figure.figsize'] = (6, 6)
-x = y = n_classes = lr = None
+
+N_EPOCHS = 1000
+N_SAMPLES = 1000
+LAYER_SIZE = 32
+
+x = y = n_classes = None
 model = nn.Sequential()
 
 
 def make_spiral_classes():
 	clockwise_class, anticlockwise_class = [], []
 
-	for i in range(250):
-		theta = i / 88 * np.pi
-		r = i / 250
+	for i in range(N_SAMPLES // 2):
+		theta = i / 180 * np.pi
+		r = i / 500
 		x1 = r * np.cos(theta)
 		x2 = r * np.sin(theta)
 		clockwise_class.append([x1, x2])
@@ -34,33 +39,23 @@ def make_spiral_classes():
 
 
 def gen_data(mode):
-	global x, y, n_classes, lr
+	global x, y, n_classes
 
 	match mode:
-		case '3 blobs':
-			x, y = make_blobs(n_samples=500, centers=3, cluster_std=2)
-			lr = 3e-4
-		case '4 blobs':
-			x, y = make_blobs(n_samples=500, centers=4, cluster_std=2)
-			lr = 4e-4
-		case '5 blobs':
-			x, y = make_blobs(n_samples=500, centers=5, cluster_std=2)
-			lr = 5e-4
+		case 'clusters':
+			x, y = make_blobs(n_samples=N_SAMPLES, centers=5, cluster_std=2)
 		case 'circles':
-			x, y = make_circles(n_samples=500, noise=0.15, factor=0.5)
-			lr = 8e-5
+			x, y = make_circles(n_samples=N_SAMPLES, noise=0.15, factor=0.5)
 		case 'moons':
-			x, y = make_moons(n_samples=500, noise=0.15)
+			x, y = make_moons(n_samples=N_SAMPLES, noise=0.15)
 			x[:, 1] *= 1.7  # Stretch a bit in the geometric y direction
-			lr = 3e-4
 		case 'spirals':
 			class1, class2 = make_spiral_classes()
 			x = np.vstack((class1, class2))
-			x += np.random.normal(scale=0.05, size=x.shape)
-			y1 = np.zeros(class1.shape[0])
-			y2 = np.ones(class2.shape[0])
+			x += np.random.normal(scale=0.06, size=x.shape)
+			y1 = np.zeros(N_SAMPLES // 2)
+			y2 = np.ones(N_SAMPLES // 2)
 			y = np.concatenate((y1, y2))
-			lr = 6e-4
 		case _:
 			raise ValueError(f'Bad data gen mode: {mode}')
 
@@ -81,20 +76,21 @@ def build_model():
 	global model
 
 	model = nn.Sequential(
-		nn.Linear(in_features=2, out_features=64),
-		nn.ReLU(),
-		nn.Linear(64, 64),
-		nn.ReLU(),
-		nn.Linear(64, 1 if n_classes == 2 else n_classes),
+		nn.Linear(in_features=2, out_features=LAYER_SIZE),
+		nn.Tanh(),
+		nn.Linear(LAYER_SIZE, LAYER_SIZE),
+		nn.Tanh(),
+		nn.Linear(LAYER_SIZE, 1 if n_classes == 2 else n_classes),
 		nn.Sigmoid() if n_classes == 2 else nn.Softmax(dim=1)
 	).cpu()
 
 
 def train_model():
+	build_model()
 	loss_func = nn.BCELoss() if n_classes == 2 else nn.CrossEntropyLoss()
-	optimiser = torch.optim.Adam(model.parameters(), lr=lr)
+	optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-	for epoch in range(1000):
+	for epoch in range(1, N_EPOCHS + 1):
 		y_probs = model(x).squeeze()
 		loss = loss_func(y_probs, y)
 
@@ -102,14 +98,14 @@ def train_model():
 		loss.backward()
 		optimiser.step()
 
-		if epoch % 20 == 0:
+		if epoch % 10 == 0:
 			plot_decision_boundary()
-			plt.title(f'Epoch {epoch}/1000')
+			plt.title(f'Epoch {epoch}/{N_EPOCHS}')
 			plt.draw()
 			plt.pause(0.01)
 
 	plot_decision_boundary()
-	plt.title('Epoch 1000/1000')
+	plt.title(f'Epoch {N_EPOCHS}/{N_EPOCHS}')
 	plt.show()
 
 
@@ -121,9 +117,10 @@ def plot_decision_boundary():
 		np.linspace(x_min, x_max, 250),
 		np.linspace(y_min, y_max, 250)
 	)
+	mesh_coords = np.column_stack((xx.flatten(), yy.flatten()))
 
 	# Make features
-	x_to_pred = torch.from_numpy(np.stack((xx.ravel(), yy.ravel()), axis=1)).float()
+	x_to_pred = torch.from_numpy(mesh_coords).float()
 
 	# Make predictions
     # (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
@@ -139,7 +136,7 @@ def plot_decision_boundary():
 	y_flat = y if y.dim() == 1 else y.argmax(dim=1)
 	plt.cla()
 	plt.contourf(xx, yy, y_pred, alpha=0.4, cmap=plt.cm.jet)
-	plt.scatter(x[:, 0], x[:, 1], c=y_flat, cmap=plt.cm.jet)
+	plt.scatter(x[:, 0], x[:, 1], s=10, c=y_flat, cmap=plt.cm.jet)
 	plt.xlim(x_min, x_max)
 	plt.ylim(y_min, y_max)
 	plt.axis('scaled')
@@ -147,8 +144,8 @@ def plot_decision_boundary():
 
 if __name__ == '__main__':
 	root = tk.Tk()
-	root.title('PyTorch classification neural net visualiser')
-	root.config(width=400, height=240, bg='#000024')
+	root.title('Neural net boundary visualiser')
+	root.config(width=350, height=240, bg='#000024')
 	root.resizable(False, False)
 
 	gen_data_lbl = tk.Label(root, text='1. Generate data',
@@ -156,9 +153,7 @@ if __name__ == '__main__':
 	train_model_lbl = tk.Label(root, text='2. Train model',
 		font='consolas', bg='#000024', fg='white')
 
-	btn_3_blobs = tk.Button(root, text='3 blobs', font='consolas', command=lambda: gen_data('3 blobs'))
-	btn_4_blobs = tk.Button(root, text='4 blobs', font='consolas', command=lambda: gen_data('4 blobs'))
-	btn_5_blobs = tk.Button(root, text='5 blobs', font='consolas', command=lambda: gen_data('5 blobs'))
+	btn_clusters = tk.Button(root, text='Clusters', font='consolas', command=lambda: gen_data('clusters'))
 	btn_circles = tk.Button(root, text='Circles', font='consolas', command=lambda: gen_data('circles'))
 	btn_moons = tk.Button(root, text='Moons', font='consolas', command=lambda: gen_data('moons'))
 	btn_spirals = tk.Button(root, text='Spirals', font='consolas', command=lambda: gen_data('spirals'))
@@ -166,14 +161,12 @@ if __name__ == '__main__':
 
 	gen_data_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.15, anchor='center')
 	train_model_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.65, anchor='center')
-	btn_3_blobs.place(relwidth=0.25, relheight=0.15, relx=0.24, rely=0.3, anchor='center')
-	btn_4_blobs.place(relwidth=0.25, relheight=0.15, relx=0.5, rely=0.3, anchor='center')
-	btn_5_blobs.place(relwidth=0.25, relheight=0.15, relx=0.76, rely=0.3, anchor='center')
-	btn_circles.place(relwidth=0.25, relheight=0.15, relx=0.24, rely=0.47, anchor='center')
-	btn_moons.place(relwidth=0.25, relheight=0.15, relx=0.5, rely=0.47, anchor='center')
-	btn_spirals.place(relwidth=0.25, relheight=0.15, relx=0.76, rely=0.47, anchor='center')
-	btn_train.place(relwidth=0.5, relheight=0.15, relx=0.5, rely=0.79, anchor='center')
+	btn_clusters.place(relwidth=0.3, relheight=0.15, relx=0.344, rely=0.3, anchor='center')
+	btn_circles.place(relwidth=0.3, relheight=0.15, relx=0.656, rely=0.3, anchor='center')
+	btn_moons.place(relwidth=0.3, relheight=0.15, relx=0.344, rely=0.47, anchor='center')
+	btn_spirals.place(relwidth=0.3, relheight=0.15, relx=0.656, rely=0.47, anchor='center')
+	btn_train.place(relwidth=0.3, relheight=0.15, relx=0.5, rely=0.79, anchor='center')
 
-	gen_data('3 blobs')
+	gen_data('clusters')
 
 	root.mainloop()

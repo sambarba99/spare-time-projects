@@ -33,6 +33,12 @@ DATASET_DICT = {
 	'gender_id': {'0': 'male', '1': 'female'}
 }
 BATCH_SIZE = 32
+N_EPOCHS = 20
+
+# Weights of each loss value
+AGE_LOSS_WEIGHT = 0.1
+GENDER_LOSS_WEIGHT = 10
+RACE_LOSS_WEIGHT = 4
 
 
 def process_data(df):
@@ -142,20 +148,19 @@ if __name__ == '__main__':
 	loss_func_age = nn.MSELoss()
 	loss_func_gender = nn.BCELoss()
 	loss_func_race = nn.CrossEntropyLoss()
-	metric_age = nn.L1Loss()
+	metric_age = nn.L1Loss()  # MAE
 
 	train_idx, val_idx, test_idx = create_splits(df.shape[0])
 
-	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
+	model = CNN().cpu()
 
-	if choice == 'T':
-		# 5. Build model
-
-		model = CNN().cpu()
+	if os.path.exists('model.pth'):
+		model.load_state_dict(torch.load('model.pth'))
+	else:
 		optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
 		print(f'\nModel:\n{model}')
 
-		# 6. Train model
+		# 5. Train model
 
 		print('\n----- TRAINING -----\n')
 
@@ -164,11 +169,11 @@ if __name__ == '__main__':
 
 		early_stopping = EarlyStopping(patience=2, min_delta=0)
 
-		for epoch in range(20):
+		for epoch in range(1, N_EPOCHS + 1):
 			model.train()
 			train_gen = data_generator(preprocessed_images=processed, df=df, idx=train_idx)
 
-			for train_batch in tqdm(train_gen, desc=f'Epoch: {epoch} | batch', total=n_train_batches, ascii=True):
+			for train_batch in tqdm(train_gen, desc=f'Epoch {epoch}/{N_EPOCHS}  |  batch', total=n_train_batches, ascii=True):
 				x, y = train_batch
 				y_pred = model(x)
 				age_pred, gender_probs, race_probs = map(torch.squeeze, y_pred)
@@ -176,7 +181,9 @@ if __name__ == '__main__':
 				age_loss = loss_func_age(age_pred, y[0])
 				gender_loss = loss_func_gender(gender_probs, y[1])
 				race_loss = loss_func_race(race_probs, y[2])
-				loss = age_loss * 0.1 + gender_loss * 10 + race_loss * 4  # Apply loss weights
+
+				# Apply loss weights
+				loss = age_loss * AGE_LOSS_WEIGHT + gender_loss * GENDER_LOSS_WEIGHT + race_loss * RACE_LOSS_WEIGHT
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -205,7 +212,10 @@ if __name__ == '__main__':
 					mean_gender_val_f1 += gender_val_f1 / n_val_batches
 					mean_race_val_f1 += race_val_f1 / n_val_batches
 
-			print(f'Epoch: {epoch} | Age val MAE: {mean_age_val_mae} | Gender val F1: {mean_gender_val_f1} | Race val F1: {mean_race_val_f1}')
+			print(f'Epoch {epoch}/{N_EPOCHS}  |  '
+				f'Age val MAE: {mean_age_val_mae}  |  '
+				f'Gender val F1: {mean_gender_val_f1}  |  '
+				f'Race val F1: {mean_race_val_f1}')
 
 			if early_stopping.check_stop(mean_val_loss, model.state_dict()):
 				print('Early stopping at epoch', epoch)
@@ -213,13 +223,9 @@ if __name__ == '__main__':
 
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 
-		torch.save(model, 'model.pth')
-	elif choice == 'L':
-		model = torch.load('model.pth')
-	else:
-		raise ValueError('Bad choice')
+		torch.save(model.state_dict(), 'model.pth')
 
-	# 7. Testing/evaluation
+	# 6. Testing/evaluation
 
 	print('\n----- TESTING/EVALUATION -----\n')
 

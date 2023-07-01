@@ -1,3 +1,3 @@
-PyTorch classification neural net visualiser
+Visualisation of the decision boundary of a classification neural net
 
-![](spiral.gif)
+![](spiral_classes.gif)

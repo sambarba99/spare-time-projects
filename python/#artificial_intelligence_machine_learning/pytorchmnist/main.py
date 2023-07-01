@@ -29,6 +29,8 @@ from mnist_dataset import MNISTDataset
 plt.rcParams['figure.figsize'] = (10, 5)
 torch.manual_seed(1)
 
+N_EPOCHS = 50
+BATCH_SIZE = 256
 N_CLASSES = 10  # Class for each digit 0-9
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, W, H
 DRAWING_SIZE = 500
@@ -57,7 +59,7 @@ def load_data():
 
 	# Val and test sets don't need batching as they're small
 	train_set = MNISTDataset(x_train, y_train)
-	train_loader = DataLoader(train_set, batch_size=256, shuffle=False, num_workers=8)
+	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
 
 	return train_loader, x_val, y_val, x_test, y_test
 
@@ -76,94 +78,91 @@ if __name__ == '__main__':
 	train_loader, x_val, y_val, x_test, y_test = load_data()
 	loss_func = nn.CrossEntropyLoss()
 
-	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
+	model = CNN(n_classes=N_CLASSES).cpu()
 
-	match choice:
-		case 'T':
-			# Plot some training examples
+	if os.path.exists('model.pth'):
+		model.load_state_dict(torch.load('model.pth'))
+	else:
+		# Plot some training examples
 
-			_, axes = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True)
-			plt.subplots_adjust(hspace=0.01, wspace=0.1)
-			for idx, ax in enumerate(axes.flatten()):
-				where = np.where(y_val.argmax(axis=1) == idx)[0][0]
-				sample = x_val[where].squeeze()
-				ax.imshow(sample, cmap='gray')
-				ax.set_xticks([])
-				ax.set_yticks([])
-			plt.suptitle('Data samples', x=0.51, y=0.92)
-			plt.show()
+		_, axes = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True)
+		plt.subplots_adjust(hspace=0.01, wspace=0.1)
+		for idx, ax in enumerate(axes.flatten()):
+			where = np.where(y_val.argmax(axis=1) == idx)[0][0]
+			sample = x_val[where].squeeze()
+			ax.imshow(sample, cmap='gray')
+			ax.set_xticks([])
+			ax.set_yticks([])
+		plt.suptitle('Data samples', x=0.51, y=0.92)
+		plt.show()
 
-			# Build model
+		# Train model
 
-			model = CNN(n_classes=N_CLASSES).cpu()
-			optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
-			print(f'\nModel:\n{model}')
+		optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
+		print(f'\nModel:\n{model}')
 
-			# Train model
+		print('\n----- TRAINING -----\n')
 
-			print('\n----- TRAINING -----\n')
+		early_stopping = EarlyStopping(patience=5, min_delta=0)
+		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
-			early_stopping = EarlyStopping(patience=5, min_delta=0)
-			history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
+		for epoch in range(1, N_EPOCHS + 1):
+			total_loss = total_f1 = 0
+			model.train()
 
-			for epoch in range(50):
-				mean_loss = mean_f1 = 0
-				model.train()
+			for x, y in train_loader:
+				y_probs = model(x).squeeze()
+				y_pred = y_probs.argmax(dim=1)
 
-				for x, y in train_loader:
-					y_probs = model(x).squeeze()
-					y_pred = y_probs.argmax(dim=1)
+				loss = loss_func(y_probs, y)
+				f1 = f1_score(y.argmax(dim=1), y_pred, average='weighted')
+				total_loss += loss.item()
+				total_f1 += f1
 
-					loss = loss_func(y_probs, y)
-					f1 = f1_score(y.argmax(dim=1), y_pred, average='weighted')
-					mean_loss += loss.item() / len(train_loader)
-					mean_f1 += f1 / len(train_loader)
+				optimiser.zero_grad()
+				loss.backward()
+				optimiser.step()
 
-					optimiser.zero_grad()
-					loss.backward()
-					optimiser.step()
+			model.eval()
+			with torch.inference_mode():
+				y_val_probs = model(x_val).squeeze()
+				y_val_pred = y_val_probs.argmax(dim=1)
 
-				model.eval()
-				with torch.inference_mode():
-					y_val_probs = model(x_val).squeeze()
-					y_val_pred = y_val_probs.argmax(dim=1)
+				val_loss = loss_func(y_val_probs, y_val)
+				val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
-					val_loss = loss_func(y_val_probs, y_val)
-					val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			history['loss'].append(total_loss / BATCH_SIZE)
+			history['F1'].append(total_f1 / BATCH_SIZE)
+			history['val_loss'].append(val_loss.item())
+			history['val_F1'].append(val_f1)
 
-				history['loss'].append(mean_loss)
-				history['F1'].append(mean_f1)
-				history['val_loss'].append(val_loss.item())
-				history['val_F1'].append(val_f1)
+			print(f'Epoch {epoch}/{N_EPOCHS} | '
+				f'Loss: {total_loss / BATCH_SIZE} | '
+				f'F1: {total_f1 / BATCH_SIZE} | '
+				f'Val loss: {val_loss} | '
+				f'Val F1: {val_f1}')
 
-				if epoch % 5 == 0:
-					print(f'Epoch: {epoch} | Loss: {mean_loss} | F1: {mean_f1} | Val loss: {val_loss} | Val F1: {val_f1}')
+			if early_stopping.check_stop(val_loss, model.state_dict()):
+				print('Early stopping at epoch', epoch)
+				break
 
-				if early_stopping.check_stop(val_loss, model.state_dict()):
-					print('Early stopping at epoch', epoch)
-					break
+		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 
-			model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		# Plot loss and F1 throughout training
+		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True)
+		ax_loss.plot(history['loss'], label='Training loss')
+		ax_loss.plot(history['val_loss'], label='Validation loss')
+		ax_f1.plot(history['F1'], label='Training F1')
+		ax_f1.plot(history['val_F1'], label='Validation F1')
+		ax_loss.set_ylabel('Categorical\ncross-entropy')
+		ax_f1.set_ylabel('F1')
+		ax_f1.set_xlabel('Epoch')
+		ax_loss.legend()
+		ax_f1.legend()
+		plt.title('Model loss and F1 score during training', y=2.24)
+		plt.show()
 
-			# Plot loss and F1 throughout training
-			_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True)
-			ax_loss.plot(history['loss'], label='Training loss')
-			ax_loss.plot(history['val_loss'], label='Validation loss')
-			ax_f1.plot(history['F1'], label='Training F1')
-			ax_f1.plot(history['val_F1'], label='Validation F1')
-			ax_loss.set_ylabel('Categorical\ncross-entropy')
-			ax_f1.set_ylabel('F1')
-			ax_f1.set_xlabel('Epoch')
-			ax_loss.legend()
-			ax_f1.legend()
-			plt.title('Model loss and F1 score during training', y=2.24)
-			plt.show()
-
-			torch.save(model, 'model.pth')
-		case 'L':
-			model = torch.load('model.pth')
-		case _:
-			raise ValueError('Bad choice')
+		torch.save(model.state_dict(), 'model.pth')
 
 	# Testing/evaluation
 

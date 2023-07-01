@@ -92,13 +92,12 @@ if __name__ == '__main__':
 	scatter = ax.scatter(*x_transform.T, c=y, alpha=0.5, cmap=plt.cm.brg) \
 		if n_components == 2 else \
 		ax.scatter3D(*x_transform.T, c=y, alpha=0.5, cmap=plt.cm.brg)
-	ax.set_facecolor('black' if n_components == 2 else '#404040')
 	ax.set_xlabel('Principal component 1')
 	ax.set_ylabel('Principal component 2')
 	if n_components == 3:
 		x_plt, y_plt, z_plt = x_transform.T
 		ax.plot(y_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='x', zs=x_plt.min() - 0.1)
-		ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.min() - 0.1)
+		ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.max() + 0.1)
 		ax.plot(x_plt, y_plt, 'k.', markersize=2, alpha=0.4, zdir='z', zs=z_plt.min() - 0.1)
 		ax.set_zlabel('Principal component 3')
 	ax.set_title(fr'Shape of $x$: {x.shape}'

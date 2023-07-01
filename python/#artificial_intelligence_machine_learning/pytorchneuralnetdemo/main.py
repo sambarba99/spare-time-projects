@@ -25,6 +25,8 @@ pd.set_option('display.width', None)
 np.random.seed(1)
 torch.manual_seed(1)
 
+N_EPOCHS = 100
+
 
 def load_classification_data(path):
 	df = pd.read_csv(path)
@@ -255,7 +257,7 @@ if __name__ == '__main__':
 	early_stopping = EarlyStopping(patience=5, min_delta=0)
 	history = {'loss': [], 'metric': [], 'val_loss': [], 'val_metric': []}
 
-	for epoch in range(100):
+	for epoch in range(N_EPOCHS):
 		model.train()  # Set to training mode (required for layers such as dropout or batch norm)
 
 		# Loss = cross-entropy for classification, MSE for regression
@@ -326,9 +328,9 @@ if __name__ == '__main__':
 
 		if epoch % 10 == 0:
 			if task_choice in 'BM':
-				print(f'Epoch: {epoch} | Loss: {loss} | F1: {metric} | Val loss: {val_loss} | Val F1: {val_metric}')
+				print(f'Epoch: {epoch}  |  Loss: {loss}  |  F1: {metric}  |  Val loss: {val_loss}  |  Val F1: {val_metric}')
 			else:
-				print(f'Epoch: {epoch} | Loss: {loss} | MAE: {metric} | Val loss: {val_loss} | Val MAE: {val_metric}')
+				print(f'Epoch: {epoch}  |  Loss: {loss}  |  MAE: {metric}  |  Val loss: {val_loss}  |  Val MAE: {val_metric}')
 
 		if early_stopping.check_stop(val_loss, model.state_dict()):
 			print('Early stopping at epoch', epoch)
@@ -385,5 +387,5 @@ if __name__ == '__main__':
 			print('Test MAE:', test_metric.item())
 
 	# To save/load a model:
-	# torch.save(model, 'model.pth')
-	# model = torch.load('model.pth')
+	# torch.save(model.state_dict(), 'model.pth')
+	# model.load_state_dict(torch.load('model.pth'))

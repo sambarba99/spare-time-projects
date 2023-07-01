@@ -11,6 +11,7 @@ from torch import nn
 class CNN(nn.Module):
 	def __init__(self, n_classes):
 		super(CNN, self).__init__()
+
 		self.conv_block = nn.Sequential(
 			nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3),
 			nn.ReLU(),
@@ -19,6 +20,7 @@ class CNN(nn.Module):
 			nn.ReLU(),
 			nn.MaxPool2d(kernel_size=2)
 		)
+
 		self.fc_block = nn.Sequential(
 			nn.Flatten(),
 			nn.Dropout(),  # 0.5
@@ -29,6 +31,6 @@ class CNN(nn.Module):
 
 	def forward(self, x):
 		conv_out = self.conv_block(x)
-		# print(conv_out.shape)  # To determine in_features of self.fc_block
+		# print(conv_out.shape)  # To get in_features of self.fc_block
 		fc_out = self.fc_block(conv_out)
 		return fc_out

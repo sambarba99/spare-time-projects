@@ -25,6 +25,7 @@ import tensorflow as tf
 plt.rcParams['figure.figsize'] = (10, 5)
 tf.random.set_seed(1)
 
+N_EPOCHS = 50
 N_CLASSES = 10  # Class for each digit 0-9
 INPUT_SHAPE = (28, 28, 1)  # W, H, colour channels
 DRAWING_SIZE = 500
@@ -109,19 +110,11 @@ if __name__ == '__main__':
 
 			print('\n----- TRAINING -----\n')
 
-			# Define early stopping:
-			# - min_delta = min. change in monitored quality to qualify as an improvement
-			# - patience = no. epochs with no improvement after which training will stop
-			# - restore_best_weights = whether to restore model weights from the epoch with
-			# 	the best value of the monitored quantity (validation loss in this case)
-
-			early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
-				min_delta=0,
-				patience=5,
-				restore_best_weights=True)
+			# Monitor val loss with min_delta = 0, patience = 5
+			early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
 
 			history = model.fit(x_train, y_train,
-				epochs=50,
+				epochs=N_EPOCHS,
 				validation_data=(x_val, y_val),
 				callbacks=[early_stopping],
 				verbose=1)

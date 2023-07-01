@@ -30,6 +30,9 @@ pd.set_option('display.width', None)
 np.random.seed(1)
 tf.random.set_seed(1)
 
+N_EPOCHS = 100
+
+
 def load_classification_data(path):
 	df = pd.read_csv(path)
 	print(f'\nRaw data:\n{df}')
@@ -230,7 +233,7 @@ if __name__ == '__main__':
 		restore_best_weights=True)
 
 	history = model.fit(x_train, y_train,
-		epochs=100,
+		epochs=N_EPOCHS,
 		validation_data=(x_val, y_val),
 		callbacks=[early_stopping],
 		verbose=0)

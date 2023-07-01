@@ -18,7 +18,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PIL import Image
-from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tqdm import tqdm
 
@@ -34,6 +33,13 @@ DATASET_DICT = {
 	'gender_id': {'0': 'male', '1': 'female'}
 }
 BATCH_SIZE = 32
+N_EPOCHS = 50
+
+# Weights of each loss value
+AGE_LOSS_WEIGHT = 0.1
+GENDER_LOSS_WEIGHT = 10
+RACE_LOSS_WEIGHT = 4
+
 
 def process_data(df):
 	gender, race = df.pop('gender'), df.pop('race')
@@ -176,9 +182,9 @@ if __name__ == '__main__':
 	val_gen = data_generator(preprocessed_images=processed, df=df, idx=val_idx)
 	test_gen = data_generator(preprocessed_images=processed, df=df, idx=test_idx)
 
-	choice = input('\nEnter T to train a new model or L to load existing one\n>>> ').upper()
-
-	if choice == 'T':
+	if os.path.exists('model.h5'):
+		model = load_model('model.h5')
+	else:
 		# 5. Build model
 
 		model = build_model()
@@ -192,9 +198,9 @@ if __name__ == '__main__':
 				'output_race': 'categorical_crossentropy'
 			},
 			loss_weights={
-				'output_age': 0.1,
-				'output_gender': 10,
-				'output_race': 4
+				'output_age': AGE_LOSS_WEIGHT,
+				'output_gender': GENDER_LOSS_WEIGHT,
+				'output_race': RACE_LOSS_WEIGHT
 			},
 			optimizer=Adam(learning_rate=1e-5),
 			metrics={
@@ -208,13 +214,11 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		early_stopping = EarlyStopping(monitor='val_loss',
-			min_delta=0,
-			patience=10,
-			restore_best_weights=True)
+		# Monitor val loss with min_delta = 0, patience = 10
+		early_stopping = tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
 
 		history = model.fit(train_gen,
-			epochs=50,
+			epochs=N_EPOCHS,
 			steps_per_epoch=int(np.ceil(len(train_idx) / BATCH_SIZE)),
 			validation_data=val_gen,
 			validation_steps=int(np.ceil(len(val_idx) / BATCH_SIZE)),
@@ -258,10 +262,6 @@ if __name__ == '__main__':
 		plt.savefig('metrics.png')
 
 		model.save('model.h5')
-	elif choice == 'L':
-		model = load_model('model.h5')
-	else:
-		raise ValueError('Bad choice')
 
 	# 7. Testing/evaluation
 
