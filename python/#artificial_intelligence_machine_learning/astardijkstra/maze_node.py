@@ -48,6 +48,6 @@ class MazeNode:
 
 
 	def get_f_cost(self):
-		"""FOr A* (F-cost = G-cost + H-cost)"""
+		"""For A* (F-cost = G-cost + H-cost)"""
 
 		return self.g_cost + self.h_cost

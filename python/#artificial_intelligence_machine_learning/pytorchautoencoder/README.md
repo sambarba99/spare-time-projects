@@ -7,4 +7,4 @@ In the case of the MNIST autoencoder, the data dimensionality is reduced from `(
 Example of tabular data compression (iris dataset, 2 latent variables and 3 latent variables):
 
 ![](plots/iris_model_2_latent_variables.png)
-![](plots/iris_model_3_latent_variables.png)
+![](plots/iris_model_3_latent_variables.gif)

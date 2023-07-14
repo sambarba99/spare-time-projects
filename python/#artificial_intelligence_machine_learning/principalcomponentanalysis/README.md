@@ -6,4 +6,4 @@ E.g. Iris dataset 2 components:
 
 With 3 components:
 
-![](iris_pca_3_components.png)
+![](iris_pca_3_components.gif)

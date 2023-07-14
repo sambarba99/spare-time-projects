@@ -1,3 +1,3 @@
-A*/Dijkstra algorithm demo
+Demo of A* and Dijkstra algorithms
 
-![](maze.gif)
+![](output.gif)

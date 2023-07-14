@@ -21,6 +21,7 @@ def calc_distance(candidate):
 	def euclidean_dist(a, b):
 		return np.linalg.norm(a - b)
 
+
 	sequence_zip = zip(candidate[:-1], candidate[1:])
 	total_dist = sum(euclidean_dist(point, next_point) for point, next_point in sequence_zip)
 	total_dist += euclidean_dist(candidate[0], candidate[-1])  # Loop back to start
