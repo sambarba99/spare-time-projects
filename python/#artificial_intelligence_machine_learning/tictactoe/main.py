@@ -125,8 +125,6 @@ def make_best_ai_move():
 
 def draw_grid():
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont('consolas', 16)
-	token_font = pg.font.SysFont('consolas', 140)
 
 	status_lbl = status_font.render(status_text, True, FOREGROUND)
 	lbl_rect = status_lbl.get_rect(center=(BOARD_SIZE * CELL_SIZE / 2 + GRID_OFFSET, 40))
@@ -155,6 +153,8 @@ if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption('Tic Tac Toe')
 	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET, BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
+	status_font = pg.font.SysFont('consolas', 16)
+	token_font = pg.font.SysFont('consolas', 140)
 
 	draw_grid()
 

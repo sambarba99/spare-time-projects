@@ -67,8 +67,6 @@ def valid(row, col):
 
 def draw_grid(solve_status):
 	scene.fill('black')
-	status_font = pg.font.SysFont('consolas', 16)
-	cell_font = pg.font.SysFont('consolas', 24)
 
 	status_lbl = status_font.render(f'{solve_status}', True, (220, 220, 220))
 	scene.blit(status_lbl, (GRID_OFFSET, 25))
@@ -109,6 +107,8 @@ if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption('N Queens Solver')
 	scene = pg.display.set_mode((N * CELL_SIZE + 2 * GRID_OFFSET, N * CELL_SIZE + 2 * GRID_OFFSET))
+	status_font = pg.font.SysFont('consolas', 16)
+	cell_font = pg.font.SysFont('consolas', 24)
 
 	start = perf_counter()
 	solved = solve()

@@ -83,8 +83,6 @@ def solve():
 
 def draw_grid(status):
 	scene.fill((20, 20, 20))
-	status_font = pg.font.SysFont('consolas', 14)
-	cell_font = pg.font.SysFont('consolas', 24)
 
 	status_lbl = status_font.render(status, True, FOREGROUND)
 	scene.blit(status_lbl, (GRID_OFFSET, 32))
@@ -144,6 +142,8 @@ if __name__ == '__main__':
 	pg.display.set_caption('Sudoku Solver')
 	scene = pg.display.set_mode((BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET,
 		BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET))
+	status_font = pg.font.SysFont('consolas', 14)
+	cell_font = pg.font.SysFont('consolas', 24)
 
 	while True:
 		for difficulty_lvl, config in PRESET_PUZZLES.items():

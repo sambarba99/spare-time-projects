@@ -85,7 +85,6 @@ def draw():
 
 	# Draw controls
 	pg.draw.rect(scene, (0, 0, 60), pg.Rect(0, 0, 400, 145))
-	font = pg.font.SysFont('consolas', 16)
 	controls_lbl = font.render('Controls (1-3, Q/W, A/S, R)', True, (220, 220, 220))
 	percep_radius_ctrl_lbl = font.render('Perecption radius:', True, (220, 220, 220))
 	max_force_ctrl_lbl = font.render('Max force:', True, (220, 220, 220))
@@ -128,6 +127,7 @@ if __name__ == '__main__':
 	pg.display.set_caption('Flocking Simulator')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 	clock = pg.time.Clock()
+	font = pg.font.SysFont('consolas', 16)
 
 	generate_boids()
 

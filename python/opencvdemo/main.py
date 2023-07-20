@@ -10,7 +10,9 @@ import tkinter as tk
 import cv2 as cv
 import numpy as np
 
+
 PATH = 'parrot.png'
+
 
 def change_hsv():
 	img = cv.imread(PATH)
