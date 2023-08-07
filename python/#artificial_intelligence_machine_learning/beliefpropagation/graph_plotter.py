@@ -60,7 +60,7 @@ def plot_factor_graph(edges, itn, rvs):
 	g = Graph(
 		name='factor graph',
 		graph_attr={'overlap': 'compress', 'sep': '0', 'splines': 'line', 'fontname': 'consolas', 'labelloc': 't', 'label': 'Factor Graph'},
-		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'}
+		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'},
 		engine='neato'
 	)
 
