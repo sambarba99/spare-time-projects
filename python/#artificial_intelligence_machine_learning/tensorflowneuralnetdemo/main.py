@@ -18,6 +18,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
@@ -101,16 +102,6 @@ def load_regression_data(path):
 	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
-
-
-def plot_confusion_matrix(actual, predictions, labels, is_training):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
-	plt.show()
 
 
 if __name__ == '__main__':
@@ -220,8 +211,8 @@ if __name__ == '__main__':
 
 	model.build(input_shape=(n_features,))
 	model.summary()
-	plot_model(model)
-	vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
+	# plot_model(model)
+	# vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
 	# 2. Training
 
@@ -274,24 +265,38 @@ if __name__ == '__main__':
 		print('Test MAE:', test_mae)
 
 	# 4. Testing
-	if task_choice in 'BM':
 
+	if task_choice in 'BM':
 		print('\n----- TESTING -----')
 
-		train_pred = np.squeeze(model.predict(x_train))
-		test_pred = np.squeeze(model.predict(x_test))
+		test_pred_probs = model.predict(x_test).squeeze()
 
 		if task_choice == 'B':  # Binary
-			train_pred = train_pred.round().astype(int)
-			test_pred = test_pred.round().astype(int)
-		else:  # Multiclass
-			y_train = y_train.argmax(axis=1)
-			y_test = y_test.argmax(axis=1)
-			train_pred = train_pred.argmax(axis=1)
-			test_pred = test_pred.argmax(axis=1)
+			test_pred_labels = test_pred_probs.round()
 
-		plot_confusion_matrix(y_train, train_pred, labels, True)
-		plot_confusion_matrix(y_test, test_pred, labels, False)
+			# ROC curve
+
+			fpr, tpr, _ = roc_curve(y_test, test_pred_probs)
+			plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+			plt.plot(fpr, tpr)
+			plt.axis('scaled')
+			plt.xlabel('False Positive Rate')
+			plt.ylabel('True Positive Rate')
+			plt.title('ROC curve')
+			plt.show()
+		else:  # Multiclass
+			y_test = y_test.argmax(axis=1)
+			test_pred_labels = test_pred_probs.argmax(axis=1)
+
+		# Confusion matrix
+
+		cm = confusion_matrix(y_test, test_pred_labels)
+		disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+		f1 = f1_score(y_test, test_pred_labels, average='binary' if len(labels) == 2 else 'weighted')
+
+		disp.plot(cmap=plt.cm.plasma)
+		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+		plt.show()
 
 	# To save/load a model:
 	# model.save('model.h5')

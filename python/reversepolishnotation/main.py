@@ -169,12 +169,12 @@ if __name__ == '__main__':
 	output_num = tk.Text(root, bg='white', font='consolas', state='disabled')
 	output_num.tag_configure('center', justify='center')
 
-	enter_exp_lbl.place(relwidth=0.8, relheight=0.04, relx=0.5, rely=0.07, anchor='center')
-	entry_box.place(relwidth=0.9, relheight=0.05, relx=0.5, rely=0.12, anchor='center')
-	rpn_result_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.19, anchor='center')
-	output_rpn.place(relwidth=0.9, relheight=0.05, relx=0.5, rely=0.24, anchor='center')
-	evaluation_lbl.place(relwidth=0.9, relheight=0.04, relx=0.5, rely=0.31, anchor='center')
-	output_num.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.64, anchor='center')
+	enter_exp_lbl.place(width=400, height=24, relx=0.5, y=42, anchor='center')
+	entry_box.place(width=450, height=30, relx=0.5, y=72, anchor='center')
+	rpn_result_lbl.place(width=450, height=24, relx=0.5, y=114, anchor='center')
+	output_rpn.place(width=450, height=30, relx=0.5, y=144, anchor='center')
+	evaluation_lbl.place(width=450, height=24, relx=0.5, y=186, anchor='center')
+	output_num.place(width=450, height=360, relx=0.5, y=384, anchor='center')
 
 	convert_and_solve()
 

@@ -91,9 +91,9 @@ if __name__ == '__main__':
 	btn_find_stat_point = tk.Button(root, text='Find stationary point', font='consolas',
 		command=lambda: handle_button_click(coefficients=entry_box.get(), find_root=False))
 
-	enter_coeffs_lbl.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.17, anchor='center')
-	entry_box.place(relwidth=0.8, relheight=0.15, relx=0.5, rely=0.4, anchor='center')
-	btn_find_root.place(relwidth=0.58, relheight=0.17, relx=0.5, rely=0.64, anchor='center')
-	btn_find_stat_point.place(relwidth=0.58, relheight=0.17, relx=0.5, rely=0.83, anchor='center')
+	enter_coeffs_lbl.place(width=360, height=40, relx=0.5, y=34, anchor='center')
+	entry_box.place(width=320, height=30, relx=0.5, y=80, anchor='center')
+	btn_find_root.place(width=232, height=34, relx=0.5, y=128, anchor='center')
+	btn_find_stat_point.place(width=232, height=34, relx=0.5, y=166, anchor='center')
 
 	root.mainloop()

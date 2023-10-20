@@ -14,6 +14,7 @@ class DecisionTree:
 		self.left = None
 		self.right = None
 		self.is_leaf = None
+		self.class_probs = None
 		self.class_idx = None
 		self.feature_idx = None
 		self.split_threshold = None
@@ -22,7 +23,7 @@ class DecisionTree:
 		def find_best_split(x, y):
 			"""
 			Given a dataset and its target values, find the optimal combination of feature
-			and split point that yields minimum gini impurity (or max info gain if using commented code)
+			and split point that yields minimum Gini impurity (or max info gain if using commented code)
 			"""
 
 			# def calculate_entropy(y):
@@ -49,8 +50,8 @@ class DecisionTree:
 			# Loop every possible split of every dimension
 			for i in range(x.shape[1]):
 				for split_threshold in np.unique(x[:, i]):
-					left_indices = np.where(x[:, i] <= split_threshold)
-					right_indices = np.where(x[:, i] > split_threshold)
+					left_indices = x[:, i] <= split_threshold
+					right_indices = ~left_indices
 					left = y[left_indices]
 					right = y[right_indices]
 
@@ -64,8 +65,10 @@ class DecisionTree:
 					# 		'left_indices': left_indices,
 					# 		'right_indices': right_indices}
 
-					gini_impurity = calculate_gini(left) * len(left) / len(y) \
-						+ calculate_gini(right) * len(right) / len(y)
+					left_gini_impurity = calculate_gini(left) * len(left) / len(y)
+					right_gini_impurity = calculate_gini(right) * len(right) / len(y)
+					gini_impurity = left_gini_impurity + right_gini_impurity
+
 					if gini_impurity < best['gini_impurity']:
 						best = {'feature_idx': i,
 							'split_threshold': split_threshold,
@@ -76,10 +79,16 @@ class DecisionTree:
 			return best
 
 		# If depth is 0, or all remaining class labels are the same, this is a leaf node
-		if max_depth == 0 or (y == y[0]).all():
+		one_class_left = (y == y[0]).all()
+		if max_depth == 0 or one_class_left:
 			labels, counts = np.unique(y, return_counts=True)
-			self.is_leaf = True
+			if one_class_left:
+				# Make class_probs[:, 1] the probability of the positive class (1)
+				self.class_probs = [1, 0] if y[0] == 0 else [0, 1]
+			else:
+				self.class_probs = counts / len(y)
 			self.class_idx = labels[counts.argmax()]
+			self.is_leaf = True
 		else:
 			split = find_best_split(x, y)
 			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1)
@@ -89,20 +98,19 @@ class DecisionTree:
 			self.split_threshold = split['split_threshold']
 
 
-	def predict(self, sample):
+	def predict(self, x):
 		if self.is_leaf:
-			return self.class_idx
-		if sample[self.feature_idx] <= self.split_threshold:
-			return self.left.predict(sample)
+			return {'class': self.class_idx, 'class_probs': self.class_probs}
+		if x[self.feature_idx] <= self.split_threshold:
+			return self.left.predict(x)
 		else:
-			return self.right.predict(sample)
+			return self.right.predict(x)
 
 
 	def evaluate(self, x, y):
-		predictions = np.array([self.predict(sample) for sample in x])
-		n_classes = len(np.unique(y))
+		pred_classes = [self.predict(i)['class'] for i in x]
 
-		return f1_score(y, predictions, average='binary' if n_classes == 2 else 'weighted')
+		return f1_score(y, pred_classes, average='binary' if len(np.unique(y)) == 2 else 'weighted')
 
 
 	@property

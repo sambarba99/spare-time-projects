@@ -23,7 +23,7 @@ def load_data(path, train_test_ratio=0.8):
 	if path == 'sine':
 		x = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
 		y = np.sin(x) + np.random.uniform(-0.1, 0.1, 100).reshape(-1, 1)
-		x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
+		x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, random_state=1)
 		return ['x'], x_train, y_train, x_test, y_test
 
 	df = pd.read_csv(path)
@@ -43,7 +43,7 @@ def load_data(path, train_test_ratio=0.8):
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
 	x, y = x.to_numpy().astype(float), y.to_numpy().astype(float)
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, random_state=1)
 
 	return features, x_train, y_train, x_test, y_test
 
@@ -65,8 +65,6 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 			best_tree, best_test_mse = tree, test_mse
 		else:
 			break  # No improvement, so stop
-
-		max_depth += 1
 
 	return best_tree
 

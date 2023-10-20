@@ -1,5 +1,5 @@
 """
-PyTorch autoencoder demo for the MNIST dataset or for tabular data such as the iris dataset
+PyTorch autoencoder demo for the MNIST dataset or for tabular data e.g. iris dataset
 
 Author: Sam Barba
 Created 17/06/2023

@@ -15,18 +15,18 @@ class KNN:
 		self.k = k
 
 
-	def fit(self, x_train, y_train):
-		self.x_train = x_train
-		self.y_train = y_train
+	def fit(self, x, y):
+		self.x_train = x
+		self.y_train = y
 
 
-	def predict(self, inputs):
+	def predict(self, x):
 		def euclidean_dist(a, b):
 			return np.linalg.norm(np.array(a) - np.array(b))
 
 
 		# Compute distance between input and all training exemplars
-		distances = [euclidean_dist(inputs, i) for i in self.x_train]
+		distances = [euclidean_dist(x, i) for i in self.x_train]
 
 		# Index each calculated distance, i.e.: [(0, 1.24914), (1, 0.4812)...]
 		idx_and_distances = list(enumerate(distances))

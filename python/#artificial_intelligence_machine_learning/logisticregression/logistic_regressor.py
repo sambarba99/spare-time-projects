@@ -11,16 +11,14 @@ import numpy as np
 
 class LogisticRegressor:
 	def __init__(self, labels):
-		self.x_train = None
-		self.y_train = None
 		self.weights = None
 		self.bias = 0
 		self.cost_history = []
 		self.labels = labels
 
 
-	def fit(self, x_train, y_train, learning_rate=1e-4, converge_threshold=1e-4):
-		"""Gradient descent"""
+	def fit(self, x, y, learning_rate=1e-4, converge_threshold=1e-4):
+		"""Gradient descent solution (as opposed to OLS)"""
 
 		def cost(x, y, weights, bias):
 			epsilon = 1e-6  # To avoid log errors
@@ -30,10 +28,10 @@ class LogisticRegressor:
 
 
 		def calculate_gradients(weights, bias):
-			linear_model = self.x_train.dot(weights) + bias
+			linear_model = x.dot(weights) + bias
 			probs = self.__sigmoid(linear_model)
-			weight_deriv = self.x_train.T.dot(probs - self.y_train)
-			bias_deriv = (probs - self.y_train).sum()
+			weight_deriv = x.T.dot(probs - y)
+			bias_deriv = (probs - y).sum()
 			return weight_deriv, bias_deriv
 
 
@@ -43,12 +41,12 @@ class LogisticRegressor:
 			c = -bias / w2 if not first_time else None
 
 			# Set up boundaries
-			x_min, x_max = self.x_train[:, 0].min() - 0.5, self.x_train[:, 0].max() + 0.5
-			y_min, y_max = self.x_train[:, 1].min() - 0.5, self.x_train[:, 1].max() + 0.5
+			x_min, x_max = x[:, 0].min() - 0.5, x[:, 0].max() + 0.5
+			y_min, y_max = x[:, 1].min() - 0.5, x[:, 1].max() + 0.5
 
 			plt.cla()
 			for idx, label in enumerate(self.labels):
-				plt.scatter(*self.x_train[self.y_train == idx].T, alpha=0.7, label=label)
+				plt.scatter(*x[y == idx].T, alpha=0.7, label=label)
 			if not first_time:
 				line_x = np.array([x_min, x_max])
 				line_y = m * line_x + c
@@ -72,13 +70,10 @@ class LogisticRegressor:
 				plt.pause(2 if first_time else 1e-6)
 
 
-		self.x_train = x_train
-		self.y_train = y_train
-
 		# Initial guesses and error (arbitrary)
 		weights_current = np.array([1, 0])
 		bias_current = 0
-		e_current = cost(self.x_train, self.y_train, weights_current, bias_current)
+		e_current = cost(x, y, weights_current, bias_current)
 		self.cost_history.append(e_current)
 		plot_decision_boundary(weights_current, bias_current, converged=False, first_time=True)
 
@@ -90,7 +85,7 @@ class LogisticRegressor:
 
 			weights_new = weights_current - weight_deriv * learning_rate
 			bias_new = bias_current - bias_deriv * learning_rate
-			e_new = cost(self.x_train, self.y_train, weights_new, bias_new)
+			e_new = cost(x, y, weights_new, bias_new)
 			self.cost_history.append(e_new)
 
 			# Stop if converged
@@ -111,11 +106,11 @@ class LogisticRegressor:
 		self.bias = bias_current
 
 
-	def predict(self, inputs):
-		linear_model = inputs.dot(self.weights) + self.bias
+	def predict(self, x):
+		linear_model = x.dot(self.weights) + self.bias
 		probs = self.__sigmoid(linear_model)
-		class_predictions = probs.round().astype(int)
-		return class_predictions
+
+		return probs
 
 
 	def __sigmoid(self, x):

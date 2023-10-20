@@ -11,6 +11,7 @@ Created 29/09/2022
 import re
 
 import nltk
+# nltk.download('punkt')
 from nltk.stem import LancasterStemmer
 from nltk.tokenize import word_tokenize
 import numpy as np
@@ -44,7 +45,7 @@ def extract_bag_of_words(raw_data, train_test_ratio=0.8):
 	# Convert positive/negative to 1/-1 respectively
 	y = np.where(y == 'positive', 1, -1)
 
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y, random_state=1)
 
 	vectorizer = TfidfVectorizer()
 	x_train = vectorizer.fit_transform(x_train).toarray()

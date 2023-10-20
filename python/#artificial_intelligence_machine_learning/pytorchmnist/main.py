@@ -64,16 +64,6 @@ def load_data():
 	return train_loader, x_val, y_val, x_test, y_test
 
 
-def plot_confusion_matrix(actual, predictions, labels):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='weighted')
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
-	plt.show()
-
-
 if __name__ == '__main__':
 	train_loader, x_val, y_val, x_test, y_test = load_data()
 	loss_func = nn.CrossEntropyLoss()
@@ -176,7 +166,15 @@ if __name__ == '__main__':
 		test_loss = loss_func(y_test_probs, y_test)
 		print('Test loss:', test_loss.item())
 
-		plot_confusion_matrix(y_test.argmax(dim=1), test_pred, range(10))
+		# Confusion matrix
+
+		cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
+		disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+		f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
+
+		disp.plot(cmap=plt.cm.plasma)
+		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+		plt.show()
 
 	# User draws a digit to predict
 

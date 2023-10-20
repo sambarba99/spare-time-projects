@@ -6,6 +6,7 @@ Created 19/10/2022
 """
 
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 
 class DecisionTree:
@@ -25,11 +26,10 @@ class DecisionTree:
 			"""
 
 			def calculate_mse(y):
-				if len(y) <= 1: return 0
+				if y.shape[0] <= 1: return 0
 
-				pred = y.mean()  # Use mean as the prediction
-				mse = ((y - pred) ** 2).sum() / len(y)
-				return mse
+				pred = np.full(y.shape[0], y.mean())  # Use mean as the prediction
+				return mean_squared_error(y, pred)
 
 
 			best = {'mse': np.inf}
@@ -37,13 +37,15 @@ class DecisionTree:
 			# Loop every possible split of every dimension
 			for i in range(x.shape[1]):
 				for split_threshold in np.unique(x[:, i]):
-					left_indices = np.where(x[:, i] <= split_threshold)
-					right_indices = np.where(x[:, i] > split_threshold)
+					left_indices = x[:, i] <= split_threshold
+					right_indices = ~left_indices
 					left = y[left_indices]
 					right = y[right_indices]
 
-					mse = calculate_mse(left) * len(left) / len(y) \
-						+ calculate_mse(right) * len(right) / len(y)
+					left_mse = calculate_mse(left) * len(left) / len(y)
+					right_mse = calculate_mse(right) * len(right) / len(y)
+					mse = left_mse + right_mse
+
 					if mse < best['mse']:
 						best = {'feature_idx': i,
 							'split_threshold': split_threshold,
@@ -77,9 +79,7 @@ class DecisionTree:
 
 	def evaluate(self, x, y):
 		predictions = np.array([self.predict(sample) for sample in x])
-		y, predictions = y.squeeze(), predictions.squeeze()
-		mse = ((y - predictions) ** 2).sum() / len(y)
-		return mse
+		return mean_squared_error(y.squeeze(), predictions.squeeze())
 
 
 	@property

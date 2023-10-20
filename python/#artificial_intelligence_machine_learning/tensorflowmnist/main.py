@@ -70,16 +70,6 @@ def build_model():
 	return model
 
 
-def plot_confusion_matrix(actual, predictions, labels, is_training):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='weighted')
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
-	plt.show()
-
-
 if __name__ == '__main__':
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
 
@@ -146,12 +136,16 @@ if __name__ == '__main__':
 	print('Test loss:', test_loss)
 	print('Test accuracy:', test_accuracy)
 
-	# Plot confusion matrices
+	# Confusion matrix
 
-	train_pred = model.predict(x_train)
-	test_pred = model.predict(x_test)
-	plot_confusion_matrix(y_train.argmax(axis=1), train_pred.argmax(axis=1), range(10), True)
-	plot_confusion_matrix(y_test.argmax(axis=1), test_pred.argmax(axis=1), range(10), False)
+	test_pred = model.predict(x_test).argmax(axis=1)
+	cm = confusion_matrix(y_test.argmax(axis=1), test_pred)
+	disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+	f1 = f1_score(y_test.argmax(axis=1), test_pred, average='weighted')
+
+	disp.plot(cmap=plt.cm.plasma)
+	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+	plt.show()
 
 	# User draws a digit to predict
 

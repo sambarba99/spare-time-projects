@@ -12,8 +12,6 @@ from sklearn.metrics.pairwise import euclidean_distances
 
 class SVMClassifier:
 	def __init__(self):
-		self.x_train = None
-		self.y_train = None
 		self.r = -1
 		self.C = 100
 		self.gamma = 1
@@ -21,10 +19,8 @@ class SVMClassifier:
 		self.sc = svm.SVC(C=self.C, kernel=self.gaussian, gamma=self.gamma, degree=self.degree)
 
 
-	def fit(self, x_train, y_train):
-		self.x_train = x_train
-		self.y_train = y_train
-		self.sc.fit(self.x_train, self.y_train)
+	def fit(self, x, y):
+		self.sc.fit(x, y)
 
 
 	def linear(self, x, y):

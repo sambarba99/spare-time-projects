@@ -32,14 +32,14 @@ def load_data(path):
 		else:  # Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
-	# Label encode y
+	# Label encode y (for plotting with later)
 	y = y.astype('category').cat.codes.to_frame()
 	y.columns = ['classification']
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
 	x, y = x.to_numpy().astype(float), y.squeeze().to_numpy().astype(int)
-	x = (x - x.min(axis=0)) / (x.max(axis=0) - x.min(axis=0))  # Normalise
+	x = (x - x.min(axis=0)) / (x.max(axis=0) - x.min(axis=0))  # Normalise (PCA sensitive to feature scaling)
 
 	return x, y, labels
 
@@ -48,19 +48,19 @@ def transform(x, n_components):
 	x -= x.mean(axis=0)
 
 	covariance = np.cov(x.T)
-	variability = covariance.trace()
-
 	eigenvalues, eigenvectors = np.linalg.eig(covariance)
-	eigenvectors = eigenvectors.T
+
 	indices = eigenvalues.argsort()[::-1]
 	eigenvalues = eigenvalues[indices]
-	eigenvectors = eigenvectors[indices]
+	eigenvectors = eigenvectors.T[indices]
 
 	components = eigenvectors[:n_components]
+	x_transform = x.dot(components.T)
 
-	pca_variability = (eigenvalues / variability)[:n_components].sum()
+	variability = covariance.trace()
+	total_explained_variance = (eigenvalues / variability)[:n_components].sum()
 
-	return x.dot(components.T), pca_variability
+	return x_transform, total_explained_variance
 
 
 if __name__ == '__main__':
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 	if n_components not in (2, 3): n_components = 3
 
 	x, y, labels = load_data(path)
-	x_transform, new_variability = transform(x, n_components)
+	x_transform, explained_variance_ratio = transform(x, n_components)
 
 	ax = plt.axes() if n_components == 2 else plt.axes(projection='3d')
 	scatter = ax.scatter(*x_transform.T, c=y, alpha=0.5, cmap=plt.cm.brg) \
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 		ax.set_zlabel('Principal component 3')
 	ax.set_title(fr'Shape of $x$: {x.shape}'
 		f'\nShape of PCA transform: {x_transform.shape}'
-		f'\nCaptured variability: {new_variability:.4f}')
+		f'\nExplained variance ratio: {explained_variance_ratio:.4f}')
 	handles, _ = scatter.legend_elements()
 	for h in handles:
 		h.set_alpha(1)

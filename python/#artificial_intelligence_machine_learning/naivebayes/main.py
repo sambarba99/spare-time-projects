@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve
 
 from naive_bayes_classifier import NaiveBayesClassifier
 
@@ -43,19 +44,9 @@ def load_data(path, train_test_ratio=0.8):
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
 	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y, random_state=1)
 
 	return x_train, y_train, x_test, y_test, labels
-
-
-def plot_confusion_matrix(actual, predictions, labels, is_training):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
-	plt.show()
 
 
 if __name__ == '__main__':
@@ -81,7 +72,27 @@ if __name__ == '__main__':
 	clf = NaiveBayesClassifier()
 	clf.fit(x_train, y_train)
 
-	train_pred = np.array([clf.predict(i) for i in x_train])
-	test_pred = np.array([clf.predict(i) for i in x_test])
-	plot_confusion_matrix(y_train, train_pred, labels, True)
-	plot_confusion_matrix(y_test, test_pred, labels, False)
+	test_pred_probs = clf.predict(x_test)
+	test_pred_labels = test_pred_probs.argmax(axis=1)
+
+	# Confusion matrix
+
+	cm = confusion_matrix(y_test, test_pred_labels)
+	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+	f1 = f1_score(y_test, test_pred_labels, average='binary' if len(labels) == 2 else 'weighted')
+
+	disp.plot(cmap=plt.cm.plasma)
+	plt.title(f'Test onfusion matrix\n(F1 score: {f1})')
+	plt.show()
+
+	# ROC curve
+
+	if len(labels) == 2:  # Binary classification
+		fpr, tpr, _ = roc_curve(y_test, test_pred_probs[:, 1])  # Assuming 1 is the positive class
+		plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+		plt.plot(fpr, tpr)
+		plt.axis('scaled')
+		plt.xlabel('False Positive Rate')
+		plt.ylabel('True Positive Rate')
+		plt.title('ROC curve')
+		plt.show()

@@ -57,7 +57,7 @@ def load_data(train_test_ratio=0.8):
 	print(f"\nHighest (abs) correlation with y ({df.columns[-1]}): {max_corr}  (feature '{feature}')")
 
 	# Standardise x if numeric
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, random_state=1)
 
 	if feature not in x_to_encode:
 		training_mean = x_train.mean()
@@ -73,7 +73,7 @@ def load_data(train_test_ratio=0.8):
 	return feature, y_name, x_train, y_train, x_test, y_test
 
 
-def analytic_solution(x, y):
+def ordinary_least_squares(x, y):
 	# Adding dummy x0 = 1 makes the first weight w0 equal the bias
 	x = np.hstack((np.ones((x.shape[0], 1)), x))
 	solution = ((np.linalg.inv(x.T.dot(x))).dot(x.T)).dot(y)
@@ -84,8 +84,8 @@ def analytic_solution(x, y):
 if __name__ == '__main__':
 	feature, y_name, x_train, y_train, x_test, y_test = load_data()
 
-	bias, weight = analytic_solution(x_train, y_train)
-	print(f'\nAnalytic solution:\nweight = {weight[0][0]}\nbias = {bias[0]:.3f}')
+	bias, weight = ordinary_least_squares(x_train, y_train)
+	print(f'\nOLS solution: weight = {weight[0][0]:.3f}, bias = {bias[0]:.3f}')
 
 	regressor = LinearRegressor(feature, y_name)
 	regressor.fit(x_train, y_train)

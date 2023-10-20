@@ -10,20 +10,15 @@ import numpy as np
 
 class NaiveBayesClassifier:
 	def __init__(self):
-		self.x_train = None
-		self.y_train = None
 		self.labels = None
 		self.means = None
 		self.variances = None
 		self.priors = None
 
 
-	def fit(self, x_train, y_train):
-		self.x_train = x_train
-		self.y_train = y_train
-
-		n_samples, n_features = self.x_train.shape
-		labels, counts = np.unique(self.y_train, return_counts=True)
+	def fit(self, x, y):
+		n_samples, n_features = x.shape
+		labels, counts = np.unique(y, return_counts=True)
 		self.labels = labels
 		n_classes = sum(counts)
 
@@ -33,29 +28,24 @@ class NaiveBayesClassifier:
 		self.priors = np.zeros(n_classes)
 
 		for idx, c in enumerate(self.labels):
-			xc = self.x_train[self.y_train == c]
+			xc = x[y == c]
 			self.means[idx, :] = xc.mean(axis=0)
 			self.variances[idx, :] = xc.var(axis=0)
 			self.priors[idx] = len(xc) / n_samples
 
 
-	def predict(self, inputs):
-		def pdf(class_idx, sample):
-			mean = self.means[class_idx]
-			var = self.variances[class_idx]
-			num = np.exp(-((sample - mean) ** 2) / (2 * var))
-			denom = (2 * np.pi * var) ** 0.5
-			return num / denom
+	def predict(self, x):
+		probs = []
 
+		for class_idx in self.labels:
+			class_mean = self.means[class_idx]
+			class_var = self.variances[class_idx]
+			class_prior = self.priors[class_idx]
+			class_likelihood = np.exp(-(x - class_mean) ** 2 / (2 * class_var))
+			class_probs = np.prod(class_likelihood, axis=1)
+			probs.append(class_prior * class_probs)
 
-		posteriors = []
-		epsilon = 1e-6  # To avoid log errors
+		probs = np.array(probs).T
+		probs /= probs.sum(axis=1, keepdims=True)
 
-		# Calculate posterior probability for each class
-		for class_idx, c in enumerate(self.labels):
-			prior = np.log(self.priors[class_idx])
-			posterior = np.log(pdf(class_idx, inputs) + epsilon).sum() + prior
-			posteriors.append(posterior)
-
-		# Return class with the highest posterior probability
-		return self.labels[np.argmax(posteriors)]
+		return probs

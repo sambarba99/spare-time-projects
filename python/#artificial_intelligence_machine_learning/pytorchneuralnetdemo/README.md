@@ -7,4 +7,5 @@ Example performance of iris dataset classification:
 Corresponding topology of iris classifier:
 
 ![](iris_topology.png)
+
 ![](iris_model.png)

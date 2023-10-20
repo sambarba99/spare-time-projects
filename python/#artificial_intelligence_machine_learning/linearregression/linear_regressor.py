@@ -11,8 +11,6 @@ import numpy as np
 
 class LinearRegressor:
 	def __init__(self, feature, y_name):
-		self.x_train = None
-		self.y_train = None
 		self.weights = None
 		self.bias = 0
 		self.cost_history = []
@@ -20,35 +18,35 @@ class LinearRegressor:
 		self.y_name = y_name
 
 
-	def fit(self, x_train, y_train, learning_rate=1e-5, converge_threshold=1e-5):
-		"""Gradient descent"""
+	def fit(self, x, y, learning_rate=1e-5, converge_threshold=1e-5):
+		"""Gradient descent solution (as opposed to OLS)"""
 
 		def calculate_gradients(weights, bias):
-			y_predictions = self.x_train.dot(weights) + bias
-			weights_deriv = 2 * self.x_train.T.dot(y_predictions - self.y_train)
-			bias_deriv = 2 * (y_predictions - self.y_train).sum()
+			y_predictions = x.dot(weights) + bias
+			weights_deriv = 2 * x.T.dot(y_predictions - y)
+			bias_deriv = 2 * (y_predictions - y).sum()
 			return weights_deriv, bias_deriv
 
 
 		def plot_regression_line(weights, bias, converged, first_time):
 			padding = 2
-			line_x = np.array([self.x_train.min() - padding, self.x_train.max() + padding]) \
+			line_x = np.array([x.min() - padding, x.max() + padding]) \
 				if not first_time else None
 			line_y = weights[0][0] * line_x + bias \
 				if not first_time else None
 
 			plt.cla()
-			plt.scatter(self.x_train, self.y_train, alpha=0.7)
+			plt.scatter(x, y, alpha=0.7)
 			if not first_time:
 				plt.plot(line_x, line_y, color='black', linewidth=1)
 			padding = 0.5
-			plt.xlim(self.x_train.min() - padding, self.x_train.max() + padding)
-			plt.ylim(self.y_train.min() - padding, self.y_train.max() + padding)
+			plt.xlim(x.min() - padding, x.max() + padding)
+			plt.ylim(y.min() - padding, y.max() + padding)
 			plt.xlabel(fr'$x$ ({self.feature}) (standardised)')
 			plt.ylabel(fr'$y$ ({self.y_name})')
 			plt.title(
 				'Start' if first_time else
-				fr'Gradient descent solution: $m$ = {weights[0][0]:.3f}  |  $c$ = {bias:.3f}\n(converged: {converged})'
+				f'Gradient descent solution: $m$ = {weights[0][0]:.3f}  |  $c$ = {bias:.3f}\n(converged: {converged})'
 			)
 
 			if converged:
@@ -58,13 +56,10 @@ class LinearRegressor:
 				plt.pause(2 if first_time else 1e-6)
 
 
-		self.x_train = x_train
-		self.y_train = y_train
-
 		# Initial guesses and error
-		weights_current = np.zeros(self.x_train.shape[1])
+		weights_current = np.zeros(x.shape[1])
 		bias_current = 0
-		e_current = self.cost(self.x_train, self.y_train, weights_current, bias_current)
+		e_current = self.cost(x, y, weights_current, bias_current)
 		self.cost_history.append(e_current)
 		plot_regression_line(weights_current, bias_current, converged=False, first_time=True)
 
@@ -76,7 +71,7 @@ class LinearRegressor:
 
 			weights_new = weights_current - weight_deriv * learning_rate
 			bias_new = bias_current - bias_deriv * learning_rate
-			e_new = self.cost(self.x_train, self.y_train, weights_new, bias_new)
+			e_new = self.cost(x, y, weights_new, bias_new)
 			self.cost_history.append(e_new)
 
 			# Stop if converged

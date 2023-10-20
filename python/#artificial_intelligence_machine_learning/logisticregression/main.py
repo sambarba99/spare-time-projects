@@ -12,6 +12,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
 
 from logistic_regressor import LogisticRegressor
@@ -50,23 +51,13 @@ def load_data(path, train_test_ratio=0.8):
 	x = pca.fit_transform(x)
 
 	# Standardise x
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y, random_state=1)
 	training_mean = x_train.mean(axis=0)
 	training_std = x_train.std(axis=0)
 	x_train = (x_train - training_mean) / training_std
 	x_test = (x_test - training_mean) / training_std
 
 	return labels, x_train, y_train, x_test, y_test
-
-
-def plot_confusion_matrix(actual, predictions, labels, is_training):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions)
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
-	plt.show()
 
 
 if __name__ == '__main__':
@@ -81,14 +72,31 @@ if __name__ == '__main__':
 	regressor = LogisticRegressor(labels)
 	regressor.fit(x_train, y_train)
 
-	# Plot confusion matrices
+	test_pred_probs = regressor.predict(x_test)
+	test_pred_labels = test_pred_probs.round()
 
-	train_pred = regressor.predict(x_train)
-	test_pred = regressor.predict(x_test)
-	plot_confusion_matrix(y_train, train_pred, labels, True)
-	plot_confusion_matrix(y_test, test_pred, labels, False)
+	# Confusion matrix
 
-	# Plot cost history
+	cm = confusion_matrix(y_test, test_pred_labels)
+	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+	f1 = f1_score(y_test, test_pred_labels)
+
+	disp.plot(cmap=plt.cm.plasma)
+	plt.title(f'Test onfusion matrix\n(F1 score: {f1})')
+	plt.show()
+
+	# ROC curve
+
+	fpr, tpr, _ = roc_curve(y_test, test_pred_probs)
+	plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+	plt.plot(fpr, tpr)
+	plt.axis('scaled')
+	plt.xlabel('False Positive Rate')
+	plt.ylabel('True Positive Rate')
+	plt.title('ROC curve')
+	plt.show()
+
+	# Cost history
 
 	plt.plot(regressor.cost_history)
 	plt.xlabel('Training iteration')

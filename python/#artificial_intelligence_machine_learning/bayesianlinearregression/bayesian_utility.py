@@ -72,9 +72,3 @@ class RBFGenerator:
 			phi = np.hstack((np.ones((n, 1)), phi))
 
 		return phi
-
-
-def mae(pred, actual):
-	"""Mean absolute error"""
-
-	return np.abs(pred - actual).sum() / len(actual)

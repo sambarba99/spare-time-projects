@@ -7,6 +7,7 @@ Created 03/03/2022
 
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import mean_absolute_error
 
 import bayesian_utility
 
@@ -27,8 +28,10 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	plt.plot(x_test, approx_data, zorder=3, label='Prediction')
 
 	if lower_bounds is not None and upper_bounds is not None:
-		plt.fill_between(x_test.flatten(), lower_bounds, upper_bounds, color='tab:blue', alpha=0.2,
-			zorder=0, label='Error')
+		plt.fill_between(
+			x_test.flatten(), lower_bounds, upper_bounds,
+			color='tab:blue', alpha=0.2, zorder=0, label='Error'
+		)
 		plot_lim1 = lower_bounds.min() - 0.2
 		plot_lim2 = upper_bounds.max() + 0.2
 	else:
@@ -38,15 +41,18 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 	plt.ylim(plot_lim1, plot_lim2)
 	plt.xlabel('x')
 	plt.ylabel('y')
-	plt.title(fr'Regression with $\lambda$ = {lam:.4f}'
+	plt.title(
+		fr'Regression with $\lambda$ = {lam:.4f}'
 		'\n'
-		fr'($\alpha$ = {(lam / SIGMA ** 2):.4f})')
+		fr'($\alpha$ = {(lam / SIGMA ** 2):.4f})'
+	)
 	plt.legend()
 	plt.show()
 
 
 def fit_pls(phi, y, lam):
 	"""Partial least squares"""
+
 	return np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1])).dot(phi.T).dot(y)
 
 
@@ -55,6 +61,7 @@ def compute_posterior(phi, y, alpha, s2):
 	Compute posterior mean (mu) and variance (sigma) for a Bayesian linear regression model with basis matrix
 	phi and hyperparameters alpha and sigma^2, where lambda = alpha * sgima^2 (lambda = regularisation parameter)
 	"""
+
 	lam = alpha * s2
 	mu = np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1])).dot(phi.T).dot(y)
 	sigma = s2 * np.linalg.inv(phi.T.dot(phi) + lam * np.eye(phi.shape[1]))
@@ -66,6 +73,7 @@ def compute_log_marginal(phi, y, alpha, s2):
 	Compute the logarithm of the marginal likelihood for a Bayesian linear regression model
 	with basis matrix phi and hyperparameters alpha and sigma^2
 	"""
+
 	y = y.flatten()
 	n = phi.shape[0]
 	lml1 = (2 * np.pi) ** (-n / 2) * np.linalg.det(s2 * np.eye(n) + phi.dot(phi.T) / alpha) ** -0.5
@@ -122,11 +130,13 @@ if __name__ == '__main__':
 		train_pred = phi_train.dot(w)
 		test_pred = phi_test.dot(w)
 		val_pred = phi_val.dot(w)
-		err_train = np.append(err_train, bayesian_utility.mae(train_pred, y_train))
-		err_test = np.append(err_test, bayesian_utility.mae(test_pred, y_test))
-		err_val = np.append(err_val, bayesian_utility.mae(val_pred, y_val))
-		neg_log_evidence = np.append(neg_log_evidence,
-			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2))
+		err_train = np.append(err_train, mean_absolute_error(y_train, train_pred))
+		err_test = np.append(err_test, mean_absolute_error(y_test, test_pred))
+		err_val = np.append(err_val, mean_absolute_error(y_val, val_pred))
+		neg_log_evidence = np.append(
+			neg_log_evidence,
+			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2)
+		)
 
 	ax1 = plt.subplot()
 	ax2 = ax1.twinx()

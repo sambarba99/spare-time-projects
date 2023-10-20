@@ -49,12 +49,12 @@ if __name__ == '__main__':
 	slider_r3 = tk.Scale(root, from_=1, to=5, resolution=0.1, orient='horizontal', font='consolas',
 		command=lambda _: generate())
 
-	select_iters_lbl.place(relwidth=0.8, relheight=0.11, relx=0.5, rely=0.09, anchor='center')
-	slider_steps.place(relwidth=0.6, relheight=0.14, relx=0.5, rely=0.22, anchor='center')
-	select_radii_lbl.place(relwidth=0.8, relheight=0.11, relx=0.5, rely=0.37, anchor='center')
-	slider_r1.place(relwidth=0.6, relheight=0.15, relx=0.5, rely=0.52, anchor='center')
-	slider_r2.place(relwidth=0.6, relheight=0.15, relx=0.5, rely=0.69, anchor='center')
-	slider_r3.place(relwidth=0.6, relheight=0.15, relx=0.5, rely=0.86, anchor='center')
+	select_iters_lbl.place(width=320, height=36, relx=0.5, y=30, anchor='center')
+	slider_steps.place(width=240, height=46, relx=0.5, y=73, anchor='center')
+	select_radii_lbl.place(width=320, height=36, relx=0.5, y=122, anchor='center')
+	slider_r1.place(width=240, height=50, relx=0.5, y=172, anchor='center')
+	slider_r2.place(width=240, height=50, relx=0.5, y=228, anchor='center')
+	slider_r3.place(width=240, height=50, relx=0.5, y=284, anchor='center')
 
 	generate()
 

@@ -15,6 +15,8 @@ class PolynomialRegressor:
 
 
 	def fit(self, x, y):
+		"""Ordinary Least Squares (OLS) solution (as opposed to gradient descent)"""
+
 		x_poly = np.ones((x.shape[0], 1))
 
 		for d in range(1, self.degree + 1):

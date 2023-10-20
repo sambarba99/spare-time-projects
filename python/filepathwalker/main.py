@@ -32,12 +32,12 @@ def file_walk(path):
 		return
 
 	discovered_files = []
-	n = path_size = 0
+	n_files = path_size = 0
 
 	start = perf_counter()
 
 	if os.path.isfile(path):
-		n, path_size = 1, os.path.getsize(path)
+		n_files, path_size = 1, os.path.getsize(path)
 
 	for folder_name, subfolders, filenames in os.walk(path):
 		discovered_files.append(f'Looking in: {folder_name}')
@@ -50,13 +50,14 @@ def file_walk(path):
 			file_size, suffix = get_suffix(file_size)
 			discovered_files.append(f'Found file: {fname} ({file_size:.2f} {suffix})')
 		discovered_files.append('')
-		n += len(filenames)
+		n_files += len(filenames)
 
-	interval = round(1000 * (perf_counter() - start))
+	end = perf_counter()
+	interval = round(1000 * (end - start))
 
 	path_size, suffix = get_suffix(path_size)
 
-	path_size_output = f'{n} files in path ({path_size:.2f} {suffix})' \
+	path_size_output = f'{n_files:,} files in path ({path_size:.2f} {suffix})' \
 		f'\nWalked in {interval} ms'
 
 	discovered_files_output_txt.config(state='normal')
@@ -87,11 +88,11 @@ if __name__ == '__main__':
 	discovered_files_output_txt.tag_configure('center', justify='center')
 	path_size_output_lbl = tk.Label(root, font='consolas', bg='white')
 
-	enter_path_lbl.place(width=200, height=25, relx=0.5, rely=0.06, anchor='center')
-	entry_box.place(width=540, height=35, relx=0.5, rely=0.11, anchor='center')
-	button.place(width=120, height=40, relx=0.5, rely=0.19, anchor='center')
-	discovered_files_lbl.place(width=200, height=25, relx=0.5, rely=0.26, anchor='center')
-	discovered_files_output_txt.place(width=540, height=330, relx=0.5, rely=0.53, anchor='center')
-	path_size_output_lbl.place(width=540, height=100, relx=0.5, rely=0.87, anchor='center')
+	enter_path_lbl.place(width=200, height=25, relx=0.5, y=41, anchor='center')
+	entry_box.place(width=540, height=32, relx=0.5, y=75, anchor='center')
+	button.place(width=120, height=40, relx=0.5, y=129, anchor='center')
+	discovered_files_lbl.place(width=200, height=25, relx=0.5, y=177, anchor='center')
+	discovered_files_output_txt.place(width=540, height=330, relx=0.5, y=360, anchor='center')
+	path_size_output_lbl.place(width=540, height=100, relx=0.5, y=592, anchor='center')
 
 	root.mainloop()

@@ -49,15 +49,15 @@ if __name__ == '__main__':
 	btn_q_learning = tk.Button(root, text='Do Q-learning', font='consolas',
 		command=lambda: agent.q_learning())
 
-	dp_methods_lbl.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.29, anchor='center')
-	mc_methods_lbl.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.51, anchor='center')
-	td_methods_lbl.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.73, anchor='center')
-	btn_generate_env.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.16, anchor='center')
-	btn_policy_iteration.place(relwidth=0.42, relheight=0.1, relx=0.28, rely=0.39, anchor='center')
-	btn_value_iteration.place(relwidth=0.42, relheight=0.1, relx=0.72, rely=0.39, anchor='center')
-	btn_on_policy_mc.place(relwidth=0.85, relheight=0.1, relx=0.5, rely=0.61, anchor='center')
-	btn_sarsa.place(relwidth=0.42, relheight=0.1, relx=0.28, rely=0.84, anchor='center')
-	btn_q_learning.place(relwidth=0.42, relheight=0.1, relx=0.72, rely=0.84, anchor='center')
+	dp_methods_lbl.place(width=468, height=35, relx=0.5, y=102, anchor='center')
+	mc_methods_lbl.place(width=468, height=35, relx=0.5, y=178, anchor='center')
+	td_methods_lbl.place(width=468, height=35, relx=0.5, y=256, anchor='center')
+	btn_generate_env.place(width=468, height=35, relx=0.5, y=56, anchor='center')
+	btn_policy_iteration.place(width=231, height=35, relx=0.28, y=136, anchor='center')
+	btn_value_iteration.place(width=231, height=35, relx=0.72, y=136, anchor='center')
+	btn_on_policy_mc.place(width=468, height=35, relx=0.5, y=214, anchor='center')
+	btn_sarsa.place(width=231, height=35, relx=0.28, y=294, anchor='center')
+	btn_q_learning.place(width=231, height=35, relx=0.72, y=294, anchor='center')
 
 	agent = Agent()
 

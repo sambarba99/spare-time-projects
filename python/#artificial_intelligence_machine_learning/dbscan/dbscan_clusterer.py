@@ -8,48 +8,58 @@ Created 27/12/2021
 import numpy as np
 
 
-UNDEFINED = -1
-NOISE = 0
+NOISE = -1
 
-class DBSCANclusterer:
-	def __init__(self, *, epsilon, min_points):
+
+class DBSCAN:
+	def __init__(self, *, epsilon, min_samples):
 		"""
 		Parameters:
 			epsilon: radius of local expanding clusters
-			min_points: required points within radius epsilon for it to be considered a cluster
+			min_samples: required points within radius epsilon for it to be considered a cluster
 		"""
 
 		self.epsilon = epsilon
-		self.min_points = min_points
+		self.min_samples = min_samples
+		self.x = None
+		self.labels = None
+		self.cluster_id = 1
 
 
-	def predict(self, points):
-		def euclidean_dist(a, b):
-			coords_a = np.array([a['x'], a['y']])
-			coords_b = np.array([b['x'], b['y']])
-			return np.linalg.norm(coords_a - coords_b)
+	def fit_predict(self, x):
+		self.x = x
+		self.labels = np.full(x.shape[0], NOISE)  # Initialise all points as noise
+
+		for point_id in range(x.shape[0]):
+			if self.labels[point_id] != NOISE: continue  # Skip processed points
+
+			neighbour_ids = self.__get_neighbours(point_id)
+			if len(neighbour_ids) >= self.min_samples:
+				self.__expand_cluster(point_id, neighbour_ids)
+				self.cluster_id += 1
+
+		return self.labels
 
 
-		c = 1  # Cluster counter
+	def __get_neighbours(self, point_id):
+		neighbour_ids = []
+		for i in range(self.x.shape[0]):
+			dist = np.linalg.norm(self.x[point_id] - self.x[i])
+			if dist < self.epsilon:
+				neighbour_ids.append(i)
 
-		for point in points:
-			if point['label'] != UNDEFINED: continue  # Skip defined labels
+		return neighbour_ids
 
-			neighbours = [p for p in points if euclidean_dist(p, point) <= self.epsilon]
-			if len(neighbours) < self.min_points:
-				point['label'] = NOISE
-				continue
 
-			point['label'] = c
-			neighbours_to_expand = [n for n in neighbours if n != point]
+	def __expand_cluster(self, point_id, neighbour_ids):
+		self.labels[point_id] = self.cluster_id
+		i = 0
 
-			for n in neighbours_to_expand:
-				if n['label'] == NOISE: n['label'] = c
-				if n['label'] != UNDEFINED: continue
-
-				n['label'] = c
-				neighbours = [p for p in points if euclidean_dist(p, n) <= self.epsilon]
-				if len(neighbours) >= self.min_points:
-					neighbours_to_expand.extend(n for n in neighbours if n not in neighbours_to_expand)
-
-			c += 1  # Next cluster label
+		while i < len(neighbour_ids):
+			neighbour_id = neighbour_ids[i]
+			if self.labels[neighbour_id] == NOISE:
+				self.labels[neighbour_id] = self.cluster_id
+				new_neighbours = self.__get_neighbours(neighbour_id)
+				if len(new_neighbours) >= self.min_samples:
+					neighbour_ids.extend(new_neighbours)
+			i += 1

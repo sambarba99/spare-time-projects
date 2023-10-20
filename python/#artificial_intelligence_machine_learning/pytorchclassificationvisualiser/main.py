@@ -159,13 +159,13 @@ if __name__ == '__main__':
 	btn_spirals = tk.Button(root, text='Spirals', font='consolas', command=lambda: gen_data('spirals'))
 	btn_train = tk.Button(root, text='Train', font='consolas', command=train_model)
 
-	gen_data_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.15, anchor='center')
-	train_model_lbl.place(relwidth=0.85, relheight=0.15, relx=0.5, rely=0.65, anchor='center')
-	btn_clusters.place(relwidth=0.3, relheight=0.15, relx=0.344, rely=0.3, anchor='center')
-	btn_circles.place(relwidth=0.3, relheight=0.15, relx=0.656, rely=0.3, anchor='center')
-	btn_moons.place(relwidth=0.3, relheight=0.15, relx=0.344, rely=0.47, anchor='center')
-	btn_spirals.place(relwidth=0.3, relheight=0.15, relx=0.656, rely=0.47, anchor='center')
-	btn_train.place(relwidth=0.3, relheight=0.15, relx=0.5, rely=0.79, anchor='center')
+	gen_data_lbl.place(width=298, height=36, relx=0.5, y=36, anchor='center')
+	train_model_lbl.place(width=298, height=36, relx=0.5, y=156, anchor='center')
+	btn_clusters.place(width=105, height=36, relx=0.344, y=72, anchor='center')
+	btn_circles.place(width=105, height=36, relx=0.656, y=72, anchor='center')
+	btn_moons.place(width=105, height=36, relx=0.344, y=113, anchor='center')
+	btn_spirals.place(width=105, height=36, relx=0.656, y=113, anchor='center')
+	btn_train.place(width=105, height=36, relx=0.5, y=190, anchor='center')
 
 	gen_data('clusters')
 

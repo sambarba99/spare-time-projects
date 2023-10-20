@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
@@ -240,7 +241,7 @@ if __name__ == '__main__':
 
 	# print(model.state_dict())  # Model weights
 	print(f'Model:\n{model}')
-	plot_model(model)
+	# plot_model(model)
 
 	# 2. Training
 
@@ -362,26 +363,37 @@ if __name__ == '__main__':
 	model.eval()
 	with torch.inference_mode():
 		if task_choice == 'B':
-			y_test_probs = model(x_test).squeeze()
-			test_pred = y_test_probs.round()
+			test_pred_probs = model(x_test).squeeze()
+			test_pred_labels = test_pred_probs.round()
 
-			test_loss = loss_func(y_test_probs, y_test)
+			test_loss = loss_func(test_pred_probs, y_test)
 			print('Test loss:', test_loss.item())
-			plot_confusion_matrix(y_test, test_pred, labels)
+			plot_confusion_matrix(y_test, test_pred_labels, labels)
+
+			# ROC curve
+
+			fpr, tpr, _ = roc_curve(y_test, test_pred_probs)
+			plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+			plt.plot(fpr, tpr)
+			plt.axis('scaled')
+			plt.xlabel('False Positive Rate')
+			plt.ylabel('True Positive Rate')
+			plt.title('ROC curve')
+			plt.show()
 
 		elif task_choice == 'M':
-			y_test_probs = model(x_test).squeeze()
-			test_pred = y_test_probs.argmax(dim=1)
+			test_pred_probs = model(x_test).squeeze()
+			test_pred_labels = test_pred_probs.argmax(dim=1)
 
-			test_loss = loss_func(y_test_probs, y_test)
+			test_loss = loss_func(test_pred_probs, y_test)
 			print('Test loss:', test_loss.item())
-			plot_confusion_matrix(y_test.argmax(dim=1), test_pred, labels)
+			plot_confusion_matrix(y_test.argmax(dim=1), test_pred_labels, labels)
 
 		else:
-			test_pred = model(x_test).squeeze()
+			test_pred_labels = model(x_test).squeeze()
 
-			test_loss = loss_func(test_pred, y_test)
-			test_metric = mae_loss(test_pred, y_test)
+			test_loss = loss_func(test_pred_labels, y_test)
+			test_metric = mae_loss(test_pred_labels, y_test)
 
 			print('Test loss:', test_loss.item())
 			print('Test MAE:', test_metric.item())

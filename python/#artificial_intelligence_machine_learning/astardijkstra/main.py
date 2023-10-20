@@ -188,9 +188,9 @@ if __name__ == '__main__':
 	btn_toggle_maze_mode = tk.Button(root, text='Toggle maze/graph mode', font='consolas',
 		command=lambda: toggle_maze_mode())
 
-	btn_generate_graph.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.2, anchor='center')
-	btn_solve_a_star.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.4, anchor='center')
-	btn_solve_dijkstra.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.6, anchor='center')
-	btn_toggle_maze_mode.place(relwidth=0.8, relheight=0.16, relx=0.5, rely=0.8, anchor='center')
+	btn_generate_graph.place(width=280, height=32, relx=0.5, y=46, anchor='center')
+	btn_solve_a_star.place(width=280, height=32, relx=0.5, y=92, anchor='center')
+	btn_solve_dijkstra.place(width=280, height=32, relx=0.5, y=138, anchor='center')
+	btn_toggle_maze_mode.place(width=280, height=32, relx=0.5, y=184, anchor='center')
 
 	root.mainloop()

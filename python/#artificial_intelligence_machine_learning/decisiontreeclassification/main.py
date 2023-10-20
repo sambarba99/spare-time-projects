@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
 
 from decision_tree import DecisionTree
@@ -45,21 +46,19 @@ def load_data(path, train_test_ratio=0.8):
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
 	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y)
+	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y, random_state=1)
 
-	return features, labels, x_train, y_train, x_test, y_test
+	return x_train, y_train, x_test, y_test, features, labels
 
 
 def make_best_tree(x_train, y_train, x_test, y_test):
 	"""Test different max_depth values, and return tree with the best one"""
 
-	# 0 max_depth means classifying all data points as the same
-	# e.g. for iris dataset, classifying them all as 0 (setosa) = 33% accuracy
-	max_depth = 0
 	best_tree = None
 	best_test_f1 = -1
 
-	while True:
+	# 0 max_depth means predicting all data points as the same value
+	for max_depth in range(6):
 		tree = DecisionTree(x_train, y_train, max_depth)
 		train_f1 = tree.evaluate(x_train, y_train)
 		test_f1 = tree.evaluate(x_test, y_test)
@@ -67,22 +66,11 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 
 		if test_f1 > best_test_f1:
 			best_tree, best_test_f1 = tree, test_f1
+			if test_f1 == 1: break
 		else:
 			break  # No improvement, so stop
 
-		max_depth += 1
-
 	return best_tree
-
-
-def plot_confusion_matrix(actual, predictions, labels, is_training):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap=plt.cm.plasma)
-	plt.title(f'{"Training" if is_training else "Test"} confusion matrix\n(F1 score: {f1})')
-	plt.show()
 
 
 if __name__ == '__main__':
@@ -103,15 +91,34 @@ if __name__ == '__main__':
 		case '5': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
 		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
 
-	features, labels, x_train, y_train, x_test, y_test = load_data(path)
+	x_train, y_train, x_test, y_test, features, labels = load_data(path)
 
 	tree = make_best_tree(x_train, y_train, x_test, y_test)
-
 	print(f'\nOptimal tree depth: {tree.depth}')
 
 	plot_tree(tree, features, labels)
 
-	train_pred = np.array([tree.predict(i) for i in x_train])
-	test_pred = np.array([tree.predict(i) for i in x_test])
-	plot_confusion_matrix(y_train, train_pred, labels, True)
-	plot_confusion_matrix(y_test, test_pred, labels, False)
+	# Confusion matrix
+
+	test_pred = [tree.predict(i) for i in x_test]
+	test_pred_classes = [p['class'] for p in test_pred]
+	cm = confusion_matrix(y_test, test_pred_classes)
+	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+	f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
+
+	disp.plot(cmap=plt.cm.plasma)
+	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+	plt.show()
+
+	# ROC curve
+
+	if len(labels) == 2:  # Binary classification
+		test_pred_probs = np.array([p['class_probs'] for p in test_pred])
+		fpr, tpr, _ = roc_curve(y_test, test_pred_probs[:, 1])  # Assuming 1 is the positive class
+		plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+		plt.plot(fpr, tpr)
+		plt.axis('scaled')
+		plt.xlabel('False Positive Rate')
+		plt.ylabel('True Positive Rate')
+		plt.title('ROC curve')
+		plt.show()
