@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 from linear_regressor import LinearRegressor
 
@@ -21,7 +22,7 @@ pd.set_option('display.width', None)
 
 
 def load_data(train_test_ratio=0.8):
-	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\bostonData.csv')
+	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\boston_housing.csv')
 	print(f'\nRaw data:\n{df}')
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]
@@ -29,16 +30,22 @@ def load_data(train_test_ratio=0.8):
 	y_name = df.columns[-1]
 
 	for col in x_to_encode:
-		if len(x[col].unique()) > 2:
+		n_unique = x[col].nunique()
+		if n_unique == 1:
+			# No information from this feature
+			x = x.drop(col, axis=1)
+		elif n_unique > 2:
+			# Multivariate feature
 			one_hot = pd.get_dummies(x[col], prefix=col)
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
-		else:  # Binary feature
+		else:
+			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 	features = x.columns
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
-	data = pd.concat([x, y], axis=1).to_numpy().astype(float)
+	data = pd.concat([x, y], axis=1).to_numpy()
 	x, y = data[:, :-1], data[:, -1]
 
 	# Keep only most correlated feature to y
@@ -56,21 +63,20 @@ def load_data(train_test_ratio=0.8):
 
 	print(f"\nHighest (abs) correlation with y ({df.columns[-1]}): {max_corr}  (feature '{feature}')")
 
-	# Standardise x if numeric
+	# Standardise x if numeric, to aid gradient descent
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, random_state=1)
-
-	if feature not in x_to_encode:
-		training_mean = x_train.mean()
-		training_std = x_train.std()
-		x_train = (x_train - training_mean) / training_std
-		x_test = (x_test - training_mean) / training_std
 
 	x_train = np.expand_dims(x_train, -1)
 	y_train = np.expand_dims(y_train, -1)
 	x_test = np.expand_dims(x_test, -1)
 	y_test = np.expand_dims(y_test, -1)
 
-	return feature, y_name, x_train, y_train, x_test, y_test
+	if feature not in x_to_encode:
+		scaler = StandardScaler()
+		x_train = scaler.fit_transform(x_train)
+		x_test = scaler.transform(x_test)
+
+	return x_train, y_train, x_test, y_test, feature, y_name
 
 
 def ordinary_least_squares(x, y):
@@ -82,7 +88,7 @@ def ordinary_least_squares(x, y):
 
 
 if __name__ == '__main__':
-	feature, y_name, x_train, y_train, x_test, y_test = load_data()
+	x_train, y_train, x_test, y_test, feature, y_name = load_data()
 
 	bias, weight = ordinary_least_squares(x_train, y_train)
 	print(f'\nOLS solution: weight = {weight[0][0]:.3f}, bias = {bias[0]:.3f}')

@@ -29,7 +29,7 @@ def plot_regression(approx_data, x_train, y_train, x_test, y_test, lam, lower_bo
 
 	if lower_bounds is not None and upper_bounds is not None:
 		plt.fill_between(
-			x_test.flatten(), lower_bounds, upper_bounds,
+			x_test.squeeze(), lower_bounds, upper_bounds,
 			color='tab:blue', alpha=0.2, zorder=0, label='Error'
 		)
 		plot_lim1 = lower_bounds.min() - 0.2
@@ -74,7 +74,7 @@ def compute_log_marginal(phi, y, alpha, s2):
 	with basis matrix phi and hyperparameters alpha and sigma^2
 	"""
 
-	y = y.flatten()
+	y = y.squeeze()
 	n = phi.shape[0]
 	lml1 = (2 * np.pi) ** (-n / 2) * np.linalg.det(s2 * np.eye(n) + phi.dot(phi.T) / alpha) ** -0.5
 	lml2 = np.exp(-0.5 * y.T.dot(np.linalg.inv(s2 * np.eye(n) + phi.dot(phi.T) / alpha)).dot(y))
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 	print('Optimal alpha =', best_alpha)
 
 	mu, sigma = compute_posterior(phi_train, y_train, alpha=best_alpha, s2=SIGMA ** 2)
-	y_posterior = phi_test.dot(mu).flatten()
+	y_posterior = phi_test.dot(mu).squeeze()
 	var_matrix = SIGMA ** 2 + phi_test.dot(sigma).dot(phi_test.T)
 	var_matrix = var_matrix.diagonal()
 	sd = var_matrix ** 0.5

@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 20/09/2021
 """
 
+
 class MazeNode:
 	def __init__(self, i, j):
 		self.i = i

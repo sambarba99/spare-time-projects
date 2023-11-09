@@ -8,6 +8,9 @@ Created 21/22/2021
 import numpy as np
 
 
+EPSILON = 1e-9
+
+
 class NaiveBayesClassifier:
 	def __init__(self):
 		self.labels = None
@@ -39,13 +42,13 @@ class NaiveBayesClassifier:
 
 		for class_idx in self.labels:
 			class_mean = self.means[class_idx]
-			class_var = self.variances[class_idx]
+			class_var = self.variances[class_idx] + EPSILON
 			class_prior = self.priors[class_idx]
 			class_likelihood = np.exp(-(x - class_mean) ** 2 / (2 * class_var))
 			class_probs = np.prod(class_likelihood, axis=1)
 			probs.append(class_prior * class_probs)
 
 		probs = np.array(probs).T
-		probs /= probs.sum(axis=1, keepdims=True)
+		probs /= (probs.sum(axis=1, keepdims=True) + EPSILON)
 
 		return probs

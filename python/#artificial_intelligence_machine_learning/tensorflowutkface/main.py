@@ -7,7 +7,6 @@ Created 22/10/2022
 
 # Reduce TensorFlow logger spam
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import cv2 as cv
 from keras.applications.vgg16 import VGG16
@@ -22,6 +21,7 @@ from tensorflow.keras.optimizers import Adam
 from tqdm import tqdm
 
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 plt.rcParams['figure.figsize'] = (9, 6)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
@@ -267,7 +267,8 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING/EVALUATION -----\n')
 
-	_, test_loss_age, test_loss_gender, test_loss_race, test_mae_age, test_acc_gender, test_acc_race = model.evaluate(test_gen, verbose=0)
+	_, test_loss_age, test_loss_gender, test_loss_race, \
+		test_mae_age, test_acc_gender, test_acc_race = model.evaluate(test_gen, verbose=0)
 	print('Test age loss (MSE):', test_loss_age)
 	print('Test gender loss (binary crossentropy):', test_loss_gender)
 	print('Test race loss (categorical crossentropy):', test_loss_race)

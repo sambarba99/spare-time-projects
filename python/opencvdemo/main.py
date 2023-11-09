@@ -62,19 +62,40 @@ if __name__ == '__main__':
 	root.resizable(False, False)
 
 	set_target_rgb_lbl = tk.Label(root, text='Set target RGB:', font='consolas', bg='#000024', fg='white')
-	slider_target_r = tk.Scale(root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
-	slider_target_g = tk.Scale(root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
-	slider_target_b = tk.Scale(root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
+	slider_target_r = tk.Scale(
+		root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
+	slider_target_g = tk.Scale(
+		root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
+	slider_target_b = tk.Scale(
+		root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
 	slider_target_b.set(255)
 
 	set_delta_lbl = tk.Label(root, text='Set delta:', font='consolas', bg='#000024', fg='white')
-	slider_delta = tk.Scale(root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
+	slider_delta = tk.Scale(
+		root, from_=0, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
 	slider_delta.set(128)
 
 	set_hsv_change = tk.Label(root, text='Set HSV change:', font='consolas', bg='#000024', fg='white')
-	slider_hue = tk.Scale(root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
-	slider_sat = tk.Scale(root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
-	slider_val = tk.Scale(root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas', command=lambda _: change_hsv())
+	slider_hue = tk.Scale(
+		root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
+	slider_sat = tk.Scale(
+		root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
+	slider_val = tk.Scale(
+		root, from_=-255, to=255, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: change_hsv()
+	)
 	slider_hue.set(128)
 	slider_val.set(-64)
 

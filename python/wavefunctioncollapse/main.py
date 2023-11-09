@@ -9,7 +9,7 @@ All tile images in .\tile_imgs are named as:
 
 <name>-<north left/middle/right colors>-<east left/middle/right colors>-<etc>-<no. times to rotate>.png.
 
-E.g. .\tile_imgs\plain\bar-AAA-ABA-AAA-ABA-1.png.
+E.g. ./tile_imgs/plain/bar-AAA-ABA-AAA-ABA-1.png.
 
 Colours of their sides are read clockwise going around the edge of the tile. The number at the end is
 how many times the tile needs to be rotated to generate all possible orientations (2 in total in the

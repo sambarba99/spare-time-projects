@@ -45,7 +45,7 @@ class RolloutBuffer:
 
 class ActorCritic(nn.Module):
 	def __init__(self, training_mode):                                                                  # ALGORITHM STEP 1
-		super().__init__()
+		super(ActorCritic, self).__init__()
 		self.training_mode = training_mode
 
 		# Policy (actor) function:

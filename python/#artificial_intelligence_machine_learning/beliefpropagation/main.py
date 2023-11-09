@@ -69,10 +69,12 @@ itn = ['ne', 'fp', 'fc', 'wr', 'gh', 'dp', 'fh', 'pw', 'cw', 'gw', 'rl', 'vp', '
 # Name to index
 nti = {name: idx for idx, name in enumerate(itn)}
 
-# This list describes the above in a computer readable form, as the tuple (numpy array, human-readable name, list of RV indices, kind).
+# This list describes the above in a computer readable form, as the tuple
+# (numpy array, human-readable name, list of RV indices, kind).
 # The list of RV indices is aligned with the dimensions of the numpy array.
 # Kind is F for failure, M for mechanism, D for diagnostic.
-rvs = [(p_ne, 'P(ne)', [nti['ne']], 'F'),
+rvs = [
+	(p_ne, 'P(ne)', [nti['ne']], 'F'),
 	(p_fp, 'P(fp)', [nti['fp']], 'F'),
 	(p_fc, 'P(fc)', [nti['fc']], 'F'),
 	(p_wr, 'P(wr)', [nti['wr']], 'F'),
@@ -88,7 +90,8 @@ rvs = [(p_ne, 'P(ne)', [nti['ne']], 'F'),
 	(p_wv_wr, 'P(wv|wr)', [nti['wv'], nti['wr']], 'D'),
 	(p_pa_dp, 'P(pa|dp)', [nti['pa'], nti['dp']], 'D'),
 	(p_me_gw_gh, 'P(me|gw,gh)', [nti['me'], nti['gw'], nti['gh']], 'D'),
-	(p_he_me_fh, 'P(he|me,fh)', [nti['he'], nti['me'], nti['fh']], 'D')]
+	(p_he_me_fh, 'P(he|me,fh)', [nti['he'], nti['me'], nti['fh']], 'D')
+]
 
 data = None
 
@@ -217,7 +220,7 @@ def calculate_marginals(known, msg_order):
 
 	# Calculate and return marginal distributions ('beliefs')
 	marginals = np.zeros((17, 2))
-	for idx, m in enumerate(marginals):
+	for idx, _ in enumerate(marginals):
 		if idx in known:
 			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
 		else:
@@ -230,7 +233,7 @@ def calculate_marginals(known, msg_order):
 if __name__ == '__main__':
 	# 1. Get coffee machine data
 
-	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\coffeeMachines.csv')
+	df = pd.read_csv(r'C:\Users\Sam\Desktop\Projects\datasets\coffee_machines.csv')
 	print(f'\nRaw data:\n{df}\n')
 	data = df.to_numpy()
 

@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import MinMaxScaler
 
 from knn_classifier import KNN
 
@@ -29,10 +30,16 @@ def load_data(path):
 	labels = sorted(y.unique())
 
 	for col in x_to_encode:
-		if len(x[col].unique()) > 2:
+		n_unique = x[col].nunique()
+		if n_unique == 1:
+			# No information from this feature
+			x = x.drop(col, axis=1)
+		elif n_unique > 2:
+			# Multivariate feature
 			one_hot = pd.get_dummies(x[col], prefix=col)
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
-		else:  # Binary feature
+		else:
+			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
 	# Label encode y
@@ -41,8 +48,9 @@ def load_data(path):
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
-	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
-	x = (x - x.min(axis=0)) / (x.max(axis=0) - x.min(axis=0))  # Normalise
+	x, y = x.to_numpy(), y.to_numpy().squeeze()
+	scaler = MinMaxScaler()
+	x = scaler.fit_transform(x)
 
 	return x, y, labels
 
@@ -63,17 +71,19 @@ if __name__ == '__main__':
 	choice = input(
 		'\nEnter 1 to use banknote dataset,'
 		'\n2 for breast tumour dataset,'
-		'\n3 for iris dataset,'
-		'\n4 for Titanic dataset,'
-		'\nor 5 for wine dataset\n>>> '
+		'\n3 for glass dataset,'
+		'\n4 for iris dataset,'
+		'\n5 for Titanic dataset,'
+		'\nor 6 for wine dataset\n>>> '
 	)
 
 	match choice:
-		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
-		case '2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
-		case '3': path = r'C:\Users\Sam\Desktop\Projects\datasets\irisData.csv'
-		case '4': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
-		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
+		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknote_authentication.csv'
+		case '2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breast_tumour_pathology.csv'
+		case '3': path = r'C:\Users\Sam\Desktop\Projects\datasets\glass_classification.csv'
+		case '4': path = r'C:\Users\Sam\Desktop\Projects\datasets\iris_classification.csv'
+		case '5': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanic_survivals.csv'
+		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\wine_classification.csv'
 
 	x, y, labels = load_data(path)
 	best_f1 = best_k = -1

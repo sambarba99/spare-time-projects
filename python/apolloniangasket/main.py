@@ -39,7 +39,10 @@ if __name__ == '__main__':
 	root.resizable(False, False)
 
 	select_iters_lbl = tk.Label(root, text='Select no. steps:', font='consolas', bg='#000024', fg='white')
-	slider_steps = tk.Scale(root, from_=0, to=6, resolution=1, orient='horizontal', font='consolas', command=lambda _: generate())
+	slider_steps = tk.Scale(root,
+		from_=0, to=6, resolution=1, orient='horizontal', font='consolas',
+		command=lambda _: generate()
+	)
 
 	select_radii_lbl = tk.Label(root, text="Select 3 starting circles' radii:", font='consolas', bg='#000024', fg='white')
 	slider_r1 = tk.Scale(root, from_=1, to=5, resolution=0.1, orient='horizontal', font='consolas',

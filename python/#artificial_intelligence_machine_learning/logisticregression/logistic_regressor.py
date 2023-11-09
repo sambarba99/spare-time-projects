@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+EPSILON = 1e-9
+
+
 class LogisticRegressor:
 	def __init__(self, labels):
 		self.weights = None
@@ -17,14 +20,14 @@ class LogisticRegressor:
 		self.labels = labels
 
 
-	def fit(self, x, y, learning_rate=1e-4, converge_threshold=1e-4):
-		"""Gradient descent solution (as opposed to OLS)"""
+	def fit(self, x, y, learning_rate=1e-4, converge_threshold=2e-4):
+		"""Gradient descent solution"""
 
 		def cost(x, y, weights, bias):
-			epsilon = 1e-6  # To avoid log errors
 			linear_model = x.dot(weights) + bias
 			probs = self.__sigmoid(linear_model)
-			return -(y * np.log(probs + epsilon) + (1 - y) * np.log(1 - probs + epsilon)).sum() / len(x)
+
+			return -(y * np.log(probs + EPSILON) + (1 - y) * np.log(1 - probs + EPSILON)).sum() / len(x)
 
 
 		def calculate_gradients(weights, bias):
@@ -32,6 +35,7 @@ class LogisticRegressor:
 			probs = self.__sigmoid(linear_model)
 			weight_deriv = x.T.dot(probs - y)
 			bias_deriv = (probs - y).sum()
+
 			return weight_deriv, bias_deriv
 
 
@@ -46,13 +50,13 @@ class LogisticRegressor:
 
 			plt.cla()
 			for idx, label in enumerate(self.labels):
-				plt.scatter(*x[y == idx].T, alpha=0.7, label=label)
+				plt.scatter(*x[y == idx].T, alpha=0.5, label=label)
 			if not first_time:
 				line_x = np.array([x_min, x_max])
 				line_y = m * line_x + c
 				# plt.plot(line_x, line_y, color='black', linewidth=1, ls='--')
-				plt.fill_between(line_x, line_y, -100, color='tab:orange', alpha=0.4)
-				plt.fill_between(line_x, line_y, 100, color='tab:blue', alpha=0.4)
+				plt.fill_between(line_x, line_y, -100, color='tab:orange', alpha=0.2)
+				plt.fill_between(line_x, line_y, 100, color='tab:blue', alpha=0.2)
 			plt.xlim(x_min, x_max)
 			plt.ylim(y_min, y_max)
 			plt.xlabel(r'$x_1$ (Principal component 1)')
@@ -61,7 +65,9 @@ class LogisticRegressor:
 				'Start' if first_time else
 				fr'Gradient descent solution: $m$ = {m:.3f}  |  $c$ = {c:.3f}' + f'\n(converged: {converged})'
 			)
-			plt.legend()
+			legend = plt.legend()
+			for handle in legend.legend_handles:
+				handle.set_alpha(1)
 
 			if converged:
 				plt.show()

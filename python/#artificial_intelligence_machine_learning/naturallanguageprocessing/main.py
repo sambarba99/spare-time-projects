@@ -63,7 +63,7 @@ if __name__ == '__main__':
 	# Uncomment and run this if not done already (just needs to run once)
 	# nltk.download('punkt')
 
-	with open(r'C:\Users\Sam\Desktop\Projects\datasets\movieReviews.csv', 'r', encoding='UTF-8') as file:
+	with open(r'C:\Users\Sam\Desktop\Projects\datasets\movie_reviews.csv', 'r', encoding='UTF-8') as file:
 		data = file.read().splitlines()[1:]
 
 	x_train, y_train, x_test, y_test = extract_bag_of_words(data)

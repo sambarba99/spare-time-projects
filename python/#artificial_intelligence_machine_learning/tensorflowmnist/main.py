@@ -7,7 +7,6 @@ Created 20/10/2021
 
 # Reduce TensorFlow logger spam
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
 from keras.models import load_model, Model, Sequential
@@ -22,6 +21,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 plt.rcParams['figure.figsize'] = (10, 5)
 tf.random.set_seed(1)
 
@@ -192,7 +192,10 @@ if __name__ == '__main__':
 
 	# Plot filters and conv layer feature maps for user-drawn digit
 
-	conv_layer_indices = [idx for idx, layer_name in enumerate([layer.name for layer in model.layers]) if 'conv' in layer_name]
+	conv_layer_indices = [
+		idx for idx, layer_name in
+		enumerate([layer.name for layer in model.layers]) if 'conv' in layer_name
+	]
 
 	for idx in conv_layer_indices:
 		layer = model.layers[idx]
@@ -224,24 +227,24 @@ if __name__ == '__main__':
 	Calculating their shape:
 
 	1. Conv layers accept a volume of size W1 x H1 x D1.
-	   They require 4 hyperparameters:
-	      - No. filters K (32 and 64 here)
-	      - Filter/kernel size F (both 3 here)
-	      - Stride S (default 1)
-	      - Amount of zero padding P (default 0)
-	   A volume W2 x H2 x D2 is produced, where:
-	      W2 = (W1 - F + 2P) / S + 1
-	      H2 = (H1 - F + 2P) / S + 1
-	      D2 = K
+		They require 4 hyperparameters:
+			- No. filters K (32 and 64 here)
+			- Filter/kernel size F (both 3 here)
+			- Stride S (default 1)
+			- Amount of zero padding P (default 0)
+		A volume W2 x H2 x D2 is produced, where:
+			W2 = (W1 - F + 2P) / S + 1
+			H2 = (H1 - F + 2P) / S + 1
+			D2 = K
 
 	2. Pooling layers accept a volume of size W1 x H1 x D1.
-	   They require 2 hyperparameters:
-	      - Filter/kernel size F (both 2 here)
-	      - Stride S (defaults to F if not specified, so 2)
-	   A volume W2 x H2 x D2 is produced, where:
-	      W2 = (W1 - F) / S + 1
-	      H2 = (H1 - F) / S + 1
-	      D2 = D1
+		They require 2 hyperparameters:
+			- Filter/kernel size F (both 2 here)
+			- Stride S (defaults to F if not specified, so 2)
+		A volume W2 x H2 x D2 is produced, where:
+			W2 = (W1 - F) / S + 1
+			H2 = (H1 - F) / S + 1
+			D2 = D1
 
 	So shape of 1st conv layer output: W2 = H2 = (28 - 3 + 2(0)) / 1 + 1 = 26
 	1st pooling layer output: W2 = H2 = (26 - 2) / 2 + 1 = 13

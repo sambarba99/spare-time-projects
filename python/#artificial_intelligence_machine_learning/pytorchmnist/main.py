@@ -7,7 +7,6 @@ Created 30/10/2022
 
 # Reduce TensorFlow logger spam
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,6 +25,7 @@ from early_stopping import EarlyStopping
 from mnist_dataset import MNISTDataset
 
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 plt.rcParams['figure.figsize'] = (10, 5)
 torch.manual_seed(1)
 

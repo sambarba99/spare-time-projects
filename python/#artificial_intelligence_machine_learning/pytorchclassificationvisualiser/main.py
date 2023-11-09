@@ -88,7 +88,7 @@ def build_model():
 def train_model():
 	build_model()
 	loss_func = nn.BCELoss() if n_classes == 2 else nn.CrossEntropyLoss()
-	optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
+	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
 	for epoch in range(1, N_EPOCHS + 1):
 		y_probs = model(x).squeeze()
@@ -123,7 +123,7 @@ def plot_decision_boundary():
 	x_to_pred = torch.from_numpy(mesh_coords).float()
 
 	# Make predictions
-    # (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
+	# (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
 	y_probs = model(x_to_pred).squeeze()
 
 	if n_classes == 2:  # Binary

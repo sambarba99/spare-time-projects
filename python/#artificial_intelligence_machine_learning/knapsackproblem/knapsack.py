@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 17/09/2021
 """
 
+
 class Knapsack:
 	def __init__(self, item_config):
 		# E.g. [False, True, True, False] means include 2nd and 3rd items

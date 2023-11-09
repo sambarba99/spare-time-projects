@@ -28,10 +28,15 @@ from critical_path_diagram_plotter import plot_critical_path_diagram
 
 pd.set_option('display.width', None)
 
-DATA = {'DESC': ['Analysis', 'Design', 'Layout', 'Request material', 'Request parts', 'Receive material', 'Receive parts', 'Fabrication', 'Assembly', 'Testing'],
+DATA = {
+	'DESC': [
+		'Analysis', 'Design', 'Layout', 'Request material', 'Request parts',
+		'Receive material', 'Receive parts', 'Fabrication', 'Assembly', 'Testing'
+	],
 	'CODE': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 	'DURATION': [120, 60, 15, 3, 3, 7, 7, 25, 60, 90],
-	'PREDECESSORS': [None, [0], [0], [1, 2], [1, 2], [3], [4], [2, 5], [2, 6, 7], [8]]}
+	'PREDECESSORS': [None, [0], [0], [1, 2], [1, 2], [3], [4], [2, 5], [2, 6, 7], [8]]
+}
 
 
 def forward_pass(df):

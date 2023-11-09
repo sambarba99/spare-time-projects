@@ -14,6 +14,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
 from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 from logistic_regressor import LogisticRegressor
 
@@ -34,40 +35,46 @@ def load_data(path, train_test_ratio=0.8):
 	labels = sorted(y.unique())
 
 	for col in x_to_encode:
-		if len(x[col].unique()) > 2:
+		n_unique = x[col].nunique()
+		if n_unique == 1:
+			# No information from this feature
+			x = x.drop(col, axis=1)
+		elif n_unique > 2:
+			# Multivariate feature
 			one_hot = pd.get_dummies(x[col], prefix=col)
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
-		else:  # Binary feature
+		else:
+			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
 	y = pd.get_dummies(y, prefix='class', drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}')
 
-	data = pd.concat([x, y], axis=1).to_numpy().astype(float)
-	x, y = data[:, :-1], data[:, -1].astype(int)
+	x, y = x.to_numpy(), y.to_numpy().squeeze()
 
 	pca = PCA(n_components=2)
-	x = pca.fit_transform(x)
+	scaler = MinMaxScaler()
+	x = pca.fit_transform(scaler.fit_transform(x))
 
-	# Standardise x
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, stratify=y, random_state=1)
-	training_mean = x_train.mean(axis=0)
-	training_std = x_train.std(axis=0)
-	x_train = (x_train - training_mean) / training_std
-	x_test = (x_test - training_mean) / training_std
 
-	return labels, x_train, y_train, x_test, y_test
+	return x_train, y_train, x_test, y_test, labels
 
 
 if __name__ == '__main__':
-	choice = input('\nEnter 1 to use banknote dataset or 2 for breast tumour dataset\n>>> ')
+	choice = input(
+		'\nEnter 1 to use banknote dataset,'
+		'\n2 for breast tumour dataset,'
+		'\nor 3 for mushroom dataset\n>>> '
+	)
 
 	match choice:
-		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
-		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
+		case '1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknote_authentication.csv'
+		case '2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breast_tumour_pathology.csv'
+		case _: path = r'C:\Users\Sam\Desktop\Projects\datasets\mushroom_edibility_classification.csv'
 
-	labels, x_train, y_train, x_test, y_test = load_data(path)
+	x_train, y_train, x_test, y_test, labels = load_data(path)
 
 	regressor = LogisticRegressor(labels)
 	regressor.fit(x_train, y_train)

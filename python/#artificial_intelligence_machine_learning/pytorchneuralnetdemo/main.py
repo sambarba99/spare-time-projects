@@ -13,6 +13,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import f1_score
 from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import torch
 from torch import nn
 
@@ -38,10 +39,16 @@ def load_classification_data(path):
 	labels = sorted(y.unique())
 
 	for col in x_to_encode:
-		if len(x[col].unique()) > 2:
+		n_unique = x[col].nunique()
+		if n_unique == 1:
+			# No information from this feature
+			x = x.drop(col, axis=1)
+		elif n_unique > 2:
+			# Multivariate feature
 			one_hot = pd.get_dummies(x[col], prefix=col)
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
-		else:  # Binary feature
+		else:
+			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
 	if len(labels) > 2:
@@ -53,17 +60,15 @@ def load_classification_data(path):
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
-	# Standardise x (numeric features only)
-	numeric_feature_indices = [idx for idx, f in enumerate(x.columns) if f not in x_to_encode]
-	x, y = x.to_numpy().astype(float), y.to_numpy().squeeze().astype(int)
+	# Standardise x
+	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	# Train:validation:test ratio of 0.7:0.2:0.1
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, stratify=y_train, random_state=1)
-	training_mean = x_train[:, numeric_feature_indices].mean(axis=0)
-	training_std = x_train[:, numeric_feature_indices].std(axis=0)
-	x_train[:, numeric_feature_indices] = (x_train[:, numeric_feature_indices] - training_mean) / training_std
-	x_val[:, numeric_feature_indices] = (x_val[:, numeric_feature_indices] - training_mean) / training_std
-	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
+	scaler = StandardScaler()
+	x_train = scaler.fit_transform(x_train)
+	x_test = scaler.transform(x_test)
+	x_val = scaler.transform(x_val)
 
 	# Convert to tensors
 	x_train, y_train, x_val, y_val, x_test, y_test = map(
@@ -82,25 +87,29 @@ def load_regression_data(path):
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
 
 	for col in x_to_encode:
-		if len(x[col].unique()) > 2:
+		n_unique = x[col].nunique()
+		if n_unique == 1:
+			# No information from this feature
+			x = x.drop(col, axis=1)
+		elif n_unique > 2:
+			# Multivariate feature
 			one_hot = pd.get_dummies(x[col], prefix=col)
 			x = pd.concat([x, one_hot], axis=1).drop(col, axis=1)
-		else:  # Binary feature
+		else:
+			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True)
 
 	print(f'\nCleaned data:\n{pd.concat([x, y], axis=1)}\n')
 
-	# Standardise x (numeric features only)
-	numeric_feature_indices = [idx for idx, f in enumerate(x.columns) if f not in x_to_encode]
-	x, y = x.to_numpy().astype(float), y.to_numpy().astype(float)
+	# Standardise x
+	x, y = x.to_numpy(), y.to_numpy()
 	# Train:validation:test ratio of 0.7:0.2:0.1
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, random_state=1)
-	training_mean = x_train[:, numeric_feature_indices].mean(axis=0)
-	training_std = x_train[:, numeric_feature_indices].std(axis=0)
-	x_train[:, numeric_feature_indices] = (x_train[:, numeric_feature_indices] - training_mean) / training_std
-	x_val[:, numeric_feature_indices] = (x_val[:, numeric_feature_indices] - training_mean) / training_std
-	x_test[:, numeric_feature_indices] = (x_test[:, numeric_feature_indices] - training_mean) / training_std
+	scaler = StandardScaler()
+	x_train = scaler.fit_transform(x_train)
+	x_test = scaler.transform(x_test)
+	x_val = scaler.transform(x_val)
 
 	# Convert to tensors
 	x_train, y_train, x_val, y_val, x_test, y_test = map(
@@ -134,30 +143,39 @@ if __name__ == '__main__':
 			dataset_choice = input(
 				'Enter 1 for banknote dataset,'
 				'\n2 for breast tumour dataset,'
-				'\n3 for pulsar dataset,'
-				'\nor 4 for Titanic dataset\n>>> '
+				'\n3 for mushroom dataset,'
+				'\n4 for pulsar dataset,'
+				'\nor 5 for Titanic dataset\n>>> '
 			)
 		case 'M':
-			dataset_choice = input('Enter I for iris dataset or W for wine dataset\n>>> ').upper()
+			dataset_choice = input(
+				'Enter G for glass dataset,'
+				'\nI for iris dataset,'
+				'\nor W for wine dataset\n>>> '
+			).upper()
 		case 'R':
 			dataset_choice = input(
 				'Enter B for Boston housing dataset,'
 				'\nC for car value dataset,'
-				'\nor M for medical insurance dataset\n>>> '
+				'\nM for medical insurance dataset,'
+				'\nor P for Parkinson\'s dataset\n>>> '
 			).upper()
 		case _:
 			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
-		case 'B1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknoteData.csv'
-		case 'B2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breastTumourData.csv'
-		case 'B3': path = r'C:\Users\Sam\Desktop\Projects\datasets\pulsarData.csv'
-		case 'B4': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanicData.csv'
-		case 'MI': path = r'C:\Users\Sam\Desktop\Projects\datasets\irisData.csv'
-		case 'MW': path = r'C:\Users\Sam\Desktop\Projects\datasets\wineData.csv'
-		case 'RB': path = r'C:\Users\Sam\Desktop\Projects\datasets\bostonData.csv'
-		case 'RC': path = r'C:\Users\Sam\Desktop\Projects\datasets\carValueData.csv'
-		case 'RM': path = r'C:\Users\Sam\Desktop\Projects\datasets\medicalInsuranceData.csv'
+		case 'B1': path = r'C:\Users\Sam\Desktop\Projects\datasets\banknote_authentication.csv'
+		case 'B2': path = r'C:\Users\Sam\Desktop\Projects\datasets\breast_tumour_pathology.csv'
+		case 'B3': path = r'C:\Users\Sam\Desktop\Projects\datasets\mushroom_edibility_classification.csv'
+		case 'B4': path = r'C:\Users\Sam\Desktop\Projects\datasets\pulsar_identification.csv'
+		case 'B5': path = r'C:\Users\Sam\Desktop\Projects\datasets\titanic_survivals.csv'
+		case 'MG': path = r'C:\Users\Sam\Desktop\Projects\datasets\glass_classification.csv'
+		case 'MI': path = r'C:\Users\Sam\Desktop\Projects\datasets\iris_classification.csv'
+		case 'MW': path = r'C:\Users\Sam\Desktop\Projects\datasets\wine_classification.csv'
+		case 'RB': path = r'C:\Users\Sam\Desktop\Projects\datasets\boston_housing.csv'
+		case 'RC': path = r'C:\Users\Sam\Desktop\Projects\datasets\car_valuation.csv'
+		case 'RM': path = r'C:\Users\Sam\Desktop\Projects\datasets\medical_costs.csv'
+		case 'RP': path = r'C:\Users\Sam\Desktop\Projects\datasets\parkinsons_scale.csv'
 		case _:
 			raise ValueError('Bad choice')
 
@@ -173,7 +191,7 @@ if __name__ == '__main__':
 	n_targets = 1 if task_choice in 'BR' else len(y_train.unique(dim=0))
 
 	match task_choice + dataset_choice:
-		case 'B1' | 'B2' | 'B3':  # Banknote, breast tumour, or pulsar dataset
+		case 'B1' | 'B2' | 'B3' | 'B4':  # Banknote, breast tumour, mushroom, or pulsar dataset
 			model = nn.Sequential(
 				nn.Linear(in_features=n_features, out_features=8),
 				nn.ReLU(),
@@ -182,7 +200,7 @@ if __name__ == '__main__':
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
-		case 'B4':  # Titanic dataset
+		case 'B5':  # Titanic dataset
 			model = nn.Sequential(
 				nn.Linear(n_features, 8),
 				nn.ReLU(),
@@ -192,7 +210,7 @@ if __name__ == '__main__':
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
-		case 'MI':  # Iris dataset
+		case 'MG' | 'MI':  # Glass or iris dataset
 			model = nn.Sequential(
 				nn.Linear(n_features, 64),
 				nn.ReLU(),
@@ -201,7 +219,7 @@ if __name__ == '__main__':
 				nn.Linear(64, n_targets),
 				nn.Softmax(dim=1)
 			)
-			optimiser = torch.optim.Adam(model.parameters(), lr=0.001)
+			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
 		case 'MW':  # Wine dataset
 			model = nn.Sequential(
@@ -219,7 +237,7 @@ if __name__ == '__main__':
 				nn.Dropout(0.1),
 				nn.Linear(256, n_targets)  # Adding no activation function afterwards means linear activation
 			)
-			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.0015)
+			optimiser = torch.optim.RMSprop(model.parameters(), lr=1.5e-3)
 
 		case 'RC':  # Car value dataset
 			model = nn.Sequential(
@@ -231,7 +249,7 @@ if __name__ == '__main__':
 			)
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.004)
 
-		case _:  # Medical insurance dataset
+		case _:  # Medical insurance or Parkinson's dataset
 			model = nn.Sequential(
 				nn.Linear(n_features, 4096),
 				nn.ReLU(),
@@ -271,7 +289,7 @@ if __name__ == '__main__':
 			y_train_pred = y_train_probs.round().detach().numpy()  # Class predictions
 
 			# Calculate loss and F1
-			loss = loss_func(y_train_probs, y_train)  # If using BCEWithLogitsLoss, this can take the raw logits instead of y_train_probs
+			loss = loss_func(y_train_probs, y_train)  # If using BCEWithLogitsLoss, take raw logits instead of y_train_probs
 			metric = f1_score(y_train, y_train_pred)  # Equivalent to a TensorFlow metric
 
 			optimiser.zero_grad()  # Reset gradients from last step

@@ -23,59 +23,58 @@ def calculator_test():
 	pag.hotkey('win')
 	write_msg('notepad')
 	pag.hotkey('ctrl', 'n')
-	write_msg('calculator answer = ', press_enter_after=False)
+	write_msg(f'calculator answer: {a} {op} {b} = ', press_enter_after=False)
 	pag.hotkey('ctrl', 'v')
+	pag.hotkey('alt', 'f4')
+	pag.hotkey('right')
+	pag.hotkey('enter')
 
 
 def facebook_messenger_test():
 	pag.hotkey('win')
-	write_msg('google chrome')
-	pag.click(300, 50, duration=0.5)
-	write_msg('facebook.com')
-	pag.click(120, 300, duration=1.5)
-	pag.click(120, 235, duration=1.5)
-	write_msg('person or group name here', press_enter_after=False)
-	pag.click(120, 330, duration=0.5)
-	pag.click(640, 1010, duration=0.5)
+	write_msg('firefox')
+	pag.click(450, 60, duration=1)
+	write_msg('facebook.com/messages')
+	pag.click(120, 330, duration=4)
+	pag.click(640, 1010, duration=2)
 
-	pag.PAUSE = 0.1
-	for i in range(1, 6):
-		write_msg(f'{i}^{i} = {i**i}')
+	for i in range(1, 11):
+		msg = 'hi ' * i
+		write_msg(msg)
 
 
-def whatsapp_web_test():  # Ensure whatsapp web is active via phone
+def whatsapp_web_test():
+	"""First, ensure whatsapp web is active via phone"""
+
 	pag.hotkey('win')
-	write_msg('google chrome')
-	pag.click(300, 50, duration=0.5)
+	write_msg('firefox')
+	pag.click(450, 60, duration=1)
 	write_msg('web.whatsapp.com')
-	pag.click(400, 205, duration=2)
+	pag.click(400, 210, duration=4)
 	write_msg('person or group name here', press_enter_after=False)
-	pag.click(400, 330, duration=0.5)
+	pag.click(400, 330, duration=1)
 
-	pag.PAUSE = 0.1
 	for i in range(1, 6):
 		write_msg(f'hello{i}')
 
 
 def wolfram_alpha_test():
 	pag.hotkey('win')
-	write_msg('google chrome')
-	pag.click(300, 50, duration=0.5)
+	write_msg('firefox')
+	pag.click(450, 60, duration=1)
 	write_msg('wolframalpha.com')
-	pag.click(910, 315, duration=0.5)
-	pag.moveRel(0, -50, duration=0.5)
+	pag.click(700, 320, duration=4)
 	write_msg('tell me a joke')
 
 
-def write_msg(msg, total_duration=0.5, press_enter_after=True):
-	gap_between_chars = total_duration / len(msg)
-	pag.write(msg, interval=gap_between_chars)
+def write_msg(msg, total_duration=1, press_enter_after=True):
+	pag.write(msg, interval=total_duration / len(msg))
 	if press_enter_after:
 		pag.hotkey('enter')
 
 
 if __name__ == '__main__':
 	calculator_test()
-	#facebook_messenger_test()
-	#whatsapp_web_test()
+	# facebook_messenger_test()
+	# whatsapp_web_test()
 	wolfram_alpha_test()

@@ -10,7 +10,7 @@ from torch import nn
 
 class MNISTAutoencoder(nn.Module):
 	def __init__(self):
-		super().__init__()
+		super(MNISTAutoencoder, self).__init__()
 		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, width, height)
 		self.encoder = nn.Sequential(
 			nn.Conv2d(1, 16, 3, 2, 1),   # -> (N, 16, 14, 14)
@@ -24,7 +24,7 @@ class MNISTAutoencoder(nn.Module):
 			nn.Tanh(),
 			nn.Linear(16, 8),
 			nn.Tanh(),
-			nn.Linear(8, 2), # Latent space shape = (N, 2) (plottable on xy axes)
+			nn.Linear(8, 2)  # Latent space shape = (N, 2) (plottable on xy axes)
 		)
 
 		# Input shape (N, 2) (392x compression!)

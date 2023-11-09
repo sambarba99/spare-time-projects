@@ -65,14 +65,16 @@ class KMeans:
 
 			# Plot cluster points
 			for idx, c in enumerate(self.clusters, start=1):
-				plt.scatter(*self.x[c].T, alpha=0.7, label=f'Class {idx} ({len(x[c])} samples)')
+				plt.scatter(*self.x[c].T, alpha=0.5, label=f'Class {idx} ({len(x[c])} samples)')
 
 			# Plot cluster centres
 			for point in self.centroids:
 				plt.scatter(*point, color='black', linewidth=3, marker='x', s=100)
 
 			plt.axis('scaled')
-			plt.legend()
+			legend = plt.legend()
+			for handle in legend.legend_handles:
+				handle.set_alpha(1)
 			plt.title(title)
 
 			if title == 'Converged':

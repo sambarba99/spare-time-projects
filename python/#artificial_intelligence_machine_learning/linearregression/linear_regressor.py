@@ -36,12 +36,11 @@ class LinearRegressor:
 				if not first_time else None
 
 			plt.cla()
-			plt.scatter(x, y, alpha=0.7)
+			plt.scatter(x, y, alpha=0.5)
 			if not first_time:
 				plt.plot(line_x, line_y, color='black', linewidth=1)
-			padding = 0.5
-			plt.xlim(x.min() - padding, x.max() + padding)
-			plt.ylim(y.min() - padding, y.max() + padding)
+			plt.xlim(x.min() - 0.5, x.max() + 0.5)
+			plt.ylim(y.min() - 3, y.max() + 3)
 			plt.xlabel(fr'$x$ ({self.feature}) (standardised)')
 			plt.ylabel(fr'$y$ ({self.y_name})')
 			plt.title(

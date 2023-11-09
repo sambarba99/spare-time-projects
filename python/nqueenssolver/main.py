@@ -74,9 +74,15 @@ def draw_grid(solve_status):
 	for i in range(N):
 		for j in range(N):
 			if (i + j) % 2:
-				pg.draw.rect(scene, (20, 20, 20), pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+				pg.draw.rect(
+					scene, (20, 20, 20),
+					pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE)
+				)
 			else:
-				pg.draw.rect(scene, (60, 60, 60), pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE))
+				pg.draw.rect(
+					scene, (60, 60, 60),
+					pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE)
+				)
 
 			if board[i][j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))

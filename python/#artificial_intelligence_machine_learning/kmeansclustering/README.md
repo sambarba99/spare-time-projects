@@ -1,3 +1,3 @@
 K-means clustering demo
 
-![](clustering.gif)
+![](k_means.gif)

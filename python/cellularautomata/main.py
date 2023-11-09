@@ -32,7 +32,7 @@ def get_ruleset(n):
 def generate_plot(ruleset):
 	gen = [0] * IMG_SIZE
 	gen[IMG_SIZE // 2] = 1  # Turn on centre pixel of first generation
-	plot = [None] * IMG_SIZE
+	plot = [[None] * IMG_SIZE] * IMG_SIZE
 
 	for i in range(IMG_SIZE):
 		plot[i] = gen[:]

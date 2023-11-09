@@ -10,7 +10,7 @@ from torch import nn
 
 class TabularAutoencoder(nn.Module):
 	def __init__(self, n_features_in, n_features_out):
-		super().__init__()
+		super(TabularAutoencoder, self).__init__()
 		self.encoder = nn.Sequential(
 			nn.Linear(n_features_in, 32),
 			nn.Tanh(),

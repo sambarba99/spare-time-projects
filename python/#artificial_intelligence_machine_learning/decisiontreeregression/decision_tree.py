@@ -26,9 +26,10 @@ class DecisionTree:
 			"""
 
 			def calculate_mse(y):
-				if y.shape[0] <= 1: return 0
-
+				if y.shape[0] <= 1:
+					return 0
 				pred = np.full(y.shape[0], y.mean())  # Use mean as the prediction
+
 				return mean_squared_error(y, pred)
 
 
@@ -78,8 +79,9 @@ class DecisionTree:
 
 
 	def evaluate(self, x, y):
-		predictions = np.array([self.predict(sample) for sample in x])
-		return mean_squared_error(y.squeeze(), predictions.squeeze())
+		y_pred = np.array([self.predict(sample) for sample in x])
+
+		return mean_squared_error(y, y_pred) ** 0.5  # RMSE
 
 
 	@property

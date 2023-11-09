@@ -30,11 +30,13 @@ SEPARATION_REG = r'(op)(num|op)' \
 	.replace('num', NUMBER_REG)
 
 # Nested dictionary of precedence and left-associativity of elementary operations, together with equivalent lambdas
-OPS = {'^': {'prec': 3, 'left-assoc': False, 'calc': lambda op1, op2: op1 ** op2},
+OPS = {
+	'^': {'prec': 3, 'left-assoc': False, 'calc': lambda op1, op2: op1 ** op2},
 	'*': {'prec': 2, 'left-assoc': True, 'calc': lambda op1, op2: op1 * op2},
 	'/': {'prec': 2, 'left-assoc': True, 'calc': lambda op1, op2: op1 / op2},
 	'+': {'prec': 1, 'left-assoc': True, 'calc': lambda op1, op2: op1 + op2},
-	'-': {'prec': 1, 'left-assoc': True, 'calc': lambda op1, op2: op1 - op2}}
+	'-': {'prec': 1, 'left-assoc': True, 'calc': lambda op1, op2: op1 - op2}
+}
 
 
 def convert_and_solve(*_):
