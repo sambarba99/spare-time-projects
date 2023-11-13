@@ -175,7 +175,7 @@ if __name__ == '__main__':
 		print('Result:')
 		curs.execute(statement)
 		for i in curs:
-			print(f'    {i}')
+			print(f'\t{i}')
 		print()
 
 	# ----- Nested select statements -----
@@ -189,7 +189,7 @@ if __name__ == '__main__':
 	print('Result:')
 	curs.execute(statement)
 	for i in curs:
-		print(f'    {i}')
+		print(f'\t{i}')
 
 	# ----- Join statements -----
 
@@ -201,4 +201,4 @@ if __name__ == '__main__':
 	print('Result:')
 	curs.execute(statement)
 	for i in curs:
-		print(f'    {i}')
+		print(f'\t{i}')

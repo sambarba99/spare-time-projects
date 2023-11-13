@@ -52,7 +52,7 @@ class KMeans:
 
 		def get_cluster_labels():
 			"""For each sample, get the label of the cluster to which it was assigned"""
-			labels = np.zeros(self.n_samples).astype(int)
+			labels = np.zeros(self.n_samples, dtype=int)
 
 			for cluster_idx, cluster in enumerate(self.clusters):
 				labels[cluster] = cluster_idx

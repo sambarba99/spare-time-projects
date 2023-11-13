@@ -20,7 +20,7 @@ def change_hsv():
 	target_r = slider_target_r.get()
 	target_g = slider_target_g.get()
 	target_b = slider_target_b.get()
-	target_bgr = (target_b, target_g, target_r)
+	target_bgr = np.array([target_b, target_g, target_r])
 
 	delta = slider_delta.get()
 	h_change = slider_hue.get()
@@ -28,8 +28,8 @@ def change_hsv():
 	v_change = slider_val.get()
 
 	# Create upper/lower ranges for mask using target_bgr and delta
-	lo_range = np.clip(np.array(target_bgr) - delta, 0, 255)
-	hi_range = np.clip(np.array(target_bgr) + delta, 0, 255)
+	lo_range = np.clip(target_bgr - delta, 0, 255)
+	hi_range = np.clip(target_bgr + delta, 0, 255)
 
 	# Create mask
 	mask = cv.inRange(img, lo_range, hi_range)
@@ -38,7 +38,7 @@ def change_hsv():
 	# Change HSV values
 	hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 	h, s, v = cv.split(hsv)
-	h, s, v = (i.astype(np.int32) for i in (h, s, v))
+	h, s, v = (i.astype(np.float32) for i in (h, s, v))  # To support addition
 	h[bool_mask] = np.clip(h[bool_mask] + h_change, 0, 255)
 	s[bool_mask] = np.clip(s[bool_mask] + s_change, 0, 255)
 	v[bool_mask] = np.clip(v[bool_mask] + v_change, 0, 255)
@@ -48,7 +48,7 @@ def change_hsv():
 	result_img = cv.cvtColor(result_hsv, cv.COLOR_HSV2BGR)
 
 	cv.imshow('Original', img)
-	cv.imshow('Target BGR mask', cv.bitwise_and(img, img, mask=mask))
+	cv.imshow('Target BGR mask', mask)
 	cv.imshow('Result', result_img)
 	# cv.imwrite('mask.png', mask)
 	# cv.imwrite('result.png', result_img)

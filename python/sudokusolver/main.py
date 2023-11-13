@@ -29,7 +29,7 @@ PRESET_PUZZLES = {
 	'insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'
 }
 
-board = np.zeros((BOARD_SIZE, BOARD_SIZE)).astype(int)
+board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 given_ij = None  # Store coords of numbers that are already given
 backtrack_grid = None  # For visualising backtracks
 n_backtracks = 0
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 	while True:
 		for difficulty_lvl, config in PRESET_PUZZLES.items():
 			given_ij = []
-			backtrack_grid = np.zeros((BOARD_SIZE, BOARD_SIZE)).astype(int)
+			backtrack_grid = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 			n_backtracks = 0
 
 			for idx, n in enumerate(config):

@@ -42,7 +42,7 @@ pd.set_option('display.width', None)
 
 RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
 
-# These variables will ultimately represent conditional probability distributions.
+# These variables will ultimately represent marginal and conditional probability distributions.
 # The naming convention is that p_ne contains P(ne), p_he_me_fh contains P(he|me,fh) etc.
 # Indexing is in the same order as given in the variables' names.
 
@@ -69,7 +69,7 @@ itn = ['ne', 'fp', 'fc', 'wr', 'gh', 'dp', 'fh', 'pw', 'cw', 'gw', 'rl', 'vp', '
 # Name to index
 nti = {name: idx for idx, name in enumerate(itn)}
 
-# This list describes the above in a computer readable form, as the tuple
+# This list describes the above in a computer-readable form, as the tuple
 # (numpy array, human-readable name, list of RV indices, kind).
 # The list of RV indices is aligned with the dimensions of the numpy array.
 # Kind is F for failure, M for mechanism, D for diagnostic.
@@ -141,10 +141,10 @@ def calculate_message_order(edges):
 	to node B once A has received all of its messages, except for the message from B)
 	"""
 
-	flags = {}  # Nested dict
+	flags = dict()  # Nested dict
 	for a, b in edges:
-		if a not in flags: flags[a] = {}
-		if b not in flags: flags[b] = {}
+		if a not in flags: flags[a] = dict()
+		if b not in flags: flags[b] = dict()
 		flags[a][b] = flags[b][a] = False
 
 	msg_order = []
@@ -207,7 +207,7 @@ def calculate_marginals(known, msg_order):
 
 
 	# Nested dict, accessed via [dest][src] = msg
-	msgs = {dest: {} for _, dest in msg_order}
+	msgs = {dest: dict() for _, dest in msg_order}
 
 	for src, dest in msg_order:
 		if src < RV_TO_FACTOR:  # src is a RV
@@ -225,7 +225,7 @@ def calculate_marginals(known, msg_order):
 			marginals[idx, :] = np.array([0, 1] if known[idx] else [1, 0])
 		else:
 			marginals[idx, :] = rv_to_factor_msg(idx, None, msgs)
-			marginals[idx, :] /= marginals[idx, :].sum()  # Needed for numerical stability
+			marginals[idx, :] /= marginals[idx, :].sum()  # Normalise to ensure probs sum to 1
 
 	return marginals
 
@@ -258,9 +258,9 @@ if __name__ == '__main__':
 			# Conditional
 			print(f'{rv[1]}:')
 			for bit_permutation in generate_bit_permutations(len(indices) - 1):
-				bits = ','.join(map(str, bit_permutation[1:]))
+				bits = ','.join(str(b) for b in bit_permutation[1:])
 				conditionals = rv[0][bit_permutation]
-				print(f'    P({event_name}|{bits}) = {conditionals}')
+				print(f'\tP({event_name}|{bits}) = {conditionals}')
 
 	# 3. Display factor graph
 
@@ -280,8 +280,7 @@ if __name__ == '__main__':
 	# 5. Display marginals ('beliefs')
 
 	print('\nMarginals with no observations:\n')
-	known = {}
-	marginals = calculate_marginals(known, msg_order)
+	marginals = calculate_marginals(known=dict(), msg_order=msg_order)
 	for idx, m in enumerate(marginals):
 		print(f'P({itn[idx]}) = {m}')
 
@@ -294,15 +293,17 @@ if __name__ == '__main__':
 
 	# 6. Test on some example machines
 
-	machines = {'Machine A': {nti['me']: True},
+	machines = {
+		'Machine A': {nti['me']: True},
 		'Machine B': {nti['wv']: False, nti['pl']: True},
 		'Machine C': {nti['pa']: False, nti['he']: False},
-		'Machine D': {nti['pa']: True, nti['wv']: True, nti['vp']: True}}
+		'Machine D': {nti['pa']: True, nti['wv']: True, nti['vp']: True}
+	}
 
 	for machine_name, observations in machines.items():
 		print(machine_name + ':')
 		for k, v in observations.items():
-			print(f'    {itn[k]}: {v}')
+			print(f'\t{itn[k]}: {v}')
 		marginals = calculate_marginals(observations, msg_order)
 		idx = marginals[:7, 1].argmax()  # Consider only the failure marginals (first 7 rows)
-		print(f'    Most likely issue = {itn[idx]}')
+		print(f'\tMost likely issue = {itn[idx]}')

@@ -29,7 +29,7 @@ class HuffmanTree:
 
 	def encode(self, string, huffman_dict=None):
 		if not huffman_dict:
-			huffman_dict = {}
+			huffman_dict = dict()
 			self.create_huffman_dict(huffman_dict)
 
 		return ''.join(huffman_dict[c] for c in string)

@@ -51,7 +51,7 @@ class GradientBoost:
 			predictions = self.trees[tree_idx].predict(x_train)
 
 			# Assign each datapoint to leaf
-			leaves, leaf_vals = {}, {}
+			leaves, leaf_vals = dict(), dict()
 			for idx, pred in enumerate(predictions):
 				leaf_list = leaves.get(pred, [])
 				leaf_list.append(idx)

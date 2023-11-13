@@ -176,5 +176,5 @@ if __name__ == '__main__':
 	print('Bias for show 1:', show_1_bias)
 
 	print('\nUser 0 rating for show 1:')
-	print('    user_0_embed.dot(show_1_embed) + user_0_bias + show_1_bias')
-	print('    =', result.item())
+	print('\tuser_0_embed.dot(show_1_embed) + user_0_bias + show_1_bias')
+	print('\t=', result.item())

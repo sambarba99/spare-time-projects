@@ -25,7 +25,7 @@ def make_graph(x_max, y_max, n_nodes=1000, n_neighbours=4):
 	x = np.random.uniform(10, x_max - 10, size=n_nodes)
 	y = np.random.uniform(10, y_max - 10, size=n_nodes)
 	coords = np.vstack((x, y)).T
-	adjacency_list = {}
+	adjacency_list = dict()
 
 	# Link each node to its closest 'n_neighbours' neighbours
 	for idx, c in enumerate(coords):

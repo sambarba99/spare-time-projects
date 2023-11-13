@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
 	tree = nodes[0]
 
-	huffman_dict = {}
+	huffman_dict = dict()
 	tree.create_huffman_dict(huffman_dict)
 	huffman_dict = {c: huffman_dict[c] for c in symbols_weights}
 	print(f'\nHuffman codes:\n{huffman_dict}')

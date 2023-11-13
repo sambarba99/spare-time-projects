@@ -376,7 +376,7 @@ skip = 2 # Number of gradient steps to skip in the visualization
 
 feature_names = ["5oClockShadow", "ArchedEyebrows", "Attractive", "BagsUnderEyes", "Bald", "Bangs",
 "BigLips", "BigNose", "BlackHair", "BlondHair", "Blurry", "BrownHair", "BushyEyebrows", "Chubby",
-"DoubleChin", "Eyeglasses", "Goatee", "GrayHair", "HeavyMakeup", "HighCheekbones", "Male", 
+"DoubleChin", "Eyeglasses", "Goatee", "GreyHair", "HeavyMakeup", "HighCheekbones", "Male",
 "MouthSlightlyOpen", "Mustache", "NarrowEyes", "NoBeard", "OvalFace", "PaleSkin", "PointyNose", 
 "RecedingHairline", "RosyCheeks", "Sideburn", "Smiling", "StraightHair", "WavyHair", "WearingEarrings", 
 "WearingHat", "WearingLipstick", "WearingNecklace", "WearingNecktie", "Young"]

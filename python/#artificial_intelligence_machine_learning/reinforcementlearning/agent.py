@@ -119,7 +119,7 @@ class Agent:
 		# Initial arbitrary value function (v(s) = 0 for each state)
 		v = {self.env.start: 0}
 		non_terminal_states = [self.env.start]
-		policy = {}  # To keep track of best policy
+		policy = dict()  # To keep track of best policy
 
 		convergence = 1
 		while convergence > theta:
@@ -156,7 +156,7 @@ class Agent:
 	def on_policy_first_visit_mc_control(self, n_training_epochs=3000):
 		self.__reset_q_table()
 
-		rewards = {}
+		rewards = dict()
 
 		for _ in range(n_training_epochs):
 			# Generate trajectory by following epsilon-greedy policy
@@ -184,7 +184,7 @@ class Agent:
 				if (state_s, action_s) not in check_list:
 					# Update with any new states/actions
 					if state_s not in rewards:
-						rewards[state_s] = {}
+						rewards[state_s] = dict()
 					if action_s not in rewards[state_s]:
 						rewards[state_s][action_s] = []
 
@@ -263,4 +263,4 @@ class Agent:
 			- A specific value of a state-action is accessed via q_table[state][action]
 		Initialised empty; new states are added as they're discovered
 		"""
-		self.q_table = {}
+		self.q_table = dict()

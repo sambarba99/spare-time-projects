@@ -21,8 +21,8 @@ QUEEN = 1
 CELL_SIZE = 30
 GRID_OFFSET = 60
 
-board = np.zeros((N, N)).astype(int)
-backtrack_grid = np.zeros((N, N)).astype(int)  # For visualising backtracks
+board = np.zeros((N, N), dtype=int)
+backtrack_grid = np.zeros((N, N), dtype=int)  # For visualising backtracks
 
 
 def solve(row=0):

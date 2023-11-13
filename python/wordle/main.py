@@ -75,7 +75,7 @@ def calculate_word_entropies(words_left, pattern_dict, all_patterns):
 		return -(probs * np.log2(probs)).sum()
 
 
-	entropies = {}
+	entropies = dict()
 
 	for word in words_left:
 		counts = []

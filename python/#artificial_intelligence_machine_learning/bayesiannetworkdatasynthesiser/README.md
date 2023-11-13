@@ -1,13 +1,13 @@
-Data synthesiser from a Bayesian network
+Demo of data synthesis from a Bayesian network
 
-E.g. Given this adjacency matrix:
+E.g. Given this graphical model (Bayes net):
 
-![](example_adjacency_matrix.png)
+![](bayes_net.png)
 
-Graphical model (Bayes net):
+and its distributions (marginal and conditional):
 
-![](example_net.png)
+![](distributions.png)
 
-Output data point:
+we can sample from these distributions to synthesise data:
 
-![](example_data_point.png)
+![](synthesised_data.png)

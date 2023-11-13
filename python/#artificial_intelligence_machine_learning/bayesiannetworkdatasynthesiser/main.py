@@ -1,62 +1,101 @@
 """
-Data synthesiser from a Bayesian network
+Demo of data synthesis from a Bayesian network
 
 Author: Sam Barba
 Created 02/12/2022
 """
 
+from graphviz import Digraph
 import numpy as np
-
-from bayes_net_plotter import plot_bayes_net
-
-
-# Network as an adjacency matrix (A[i][j] = 1 means edge from node i to node j)
-A = [
-	[0, 0, 1, 0, 0, 0, 0, 0],
-	[0, 0, 1, 1, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 1, 0, 0],
-	[0, 0, 0, 0, 0, 1, 0, 0],
-	[0, 0, 0, 0, 0, 1, 0, 0],
-	[0, 0, 0, 0, 0, 0, 1, 1],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0]
-]
+import pandas as pd
 
 
-def generate_data_point(adj_mat):
-	dim = adj_mat.shape[0]
-	x = np.zeros((dim, dim))
+# Bayes net structure dictionary format: {node: [parents]}
+BAYES_STRUCTURE_DICT = {
+	'A': [],
+	'B': [],
+	'C': ['A', 'B'],
+	'D': ['B'],
+	'E': [],
+	'F': ['C', 'D', 'E']
+}
 
-	# Get the source nodes
-	sampled_nodes = list(np.where(adj_mat.sum(axis=0) == 0)[0])
+# Marginal distributions (parent nodes)
+MARG_A = np.array([0.6, 0.4])  # P(A=0), P(A=1)
+MARG_B = np.array([0.3, 0.7])  # P(B=0), P(B=1)
+MARG_E = np.array([0.5, 0.5])  # P(E=0), P(E=1)
 
-	# Generate data for source nodes
-	x[sampled_nodes] = np.random.multivariate_normal(np.zeros(dim), np.eye(dim), size=len(sampled_nodes))
+# Conditional distributions
+COND_D_GIVEN_B = np.array([
+	[0.7, 0.3],  # P(D=0|B=0), P(D=1|B=0)
+	[0.4, 0.6]  # P(D=0|B=1), P(D=1|B=1)
+])
+COND_C_GIVEN_AB = np.array([
+	[[0.9, 0.1],  # P(C=0|A=0,B=0), P(C=1|A=0,B=0)
+	[0.3, 0.7]],  # P(C=0|A=0,B=1), P(C=1|A=0,B=1)
+	[[0.2, 0.8],  # P(C=0|A=1,B=0), P(C=1|A=1,B=0)
+	[0.1, 0.9]]  # P(C=0|A=1,B=1), P(C=1|A=1,B=1)
+])
+COND_F_GIVEN_CDE = np.array([
+	[[[0.88, 0.12],  # P(F=0|C=0,D=0,E=0), P(F=1|C=0,D=0,E=0)
+	[0.01, 0.99]],  # P(F=0|C=0,D=0,E=1), P(F=1|C=0,D=0,E=1)
+	[[0.64, 0.36],  # P(F=0|C=0,D=1,E=0), P(F=1|C=0,D=1,E=0)
+	[0.75, 0.25]]],  # P(F=0|C=0,D=1,E=1), P(F=1|C=0,D=1,E=1)
+	[[[0.33, 0.67],  # P(F=0|C=1,D=0,E=0), P(F=1|C=1,D=0,E=0)
+	[0.07, 0.93]],  # P(F=0|C=1,D=0,E=1), P(F=1|C=1,D=0,E=1)
+	[[0.48, 0.52],  # P(F=0|C=1,D=1,E=0), P(F=1|C=1,D=1,E=0)
+	[0.59, 0.41]]]  # P(F=0|C=1,D=1,E=1), P(F=1|C=1,D=1,E=1)
+])
 
-	next_gen_nodes = []
-	while adj_mat.sum() != 0:
-		# Identify the next generation of nodes
-		with_only_parents = adj_mat[sampled_nodes].sum(axis=0)
-		with_all = adj_mat.sum(axis=0)
-		next_gen_nodes.extend(list(np.where(with_only_parents == with_all)[0]))
 
-		# Remove already sampled nodes
-		for n in sampled_nodes:
-			if n in next_gen_nodes:
-				next_gen_nodes.remove(n)
+def plot_bayes_net():
+	# 1. Set up global attributes
 
-		submatrix_idx = np.ix_(sampled_nodes, next_gen_nodes)
-		submatrix = adj_mat[submatrix_idx]
-		# Generate data for the next generation nodes
-		x[next_gen_nodes] = np.matmul(submatrix.T, x[sampled_nodes])
+	g = Digraph(
+		name='bayesian network',
+		graph_attr={'fontname': 'consolas', 'labelloc': 't', 'label': 'Bayesian Network'},
+		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'shape': 'circle'}
+	)
 
-		sampled_nodes.extend(next_gen_nodes)
-		next_gen_nodes = []
-		adj_mat[:, sampled_nodes] = 0
+	# 2. Create nodes
 
-	return x
+	for node in BAYES_STRUCTURE_DICT:
+		g.node(node, label=node, color='#80c0ff')
+
+	# 3. Create edges
+
+	for node, parents in BAYES_STRUCTURE_DICT.items():
+		for p in parents:
+			g.edge(p, node)
+
+	g.render('bayes_net', view=True, cleanup=True, format='png')
+
+
+def generate_data(n_samples=1000):
+	states = [0, 1]
+	samples = []
+
+	for _ in range(n_samples):
+		# Sample parent nodes (A,B,E)
+		sample_a = np.random.choice(states, p=MARG_A)
+		sample_b = np.random.choice(states, p=MARG_B)
+		sample_e = np.random.choice(states, p=MARG_E)
+
+		# Sample D given B
+		sample_d = np.random.choice(states, p=COND_D_GIVEN_B[sample_b])
+
+		# Sample C given A,B
+		sample_c = np.random.choice(states, p=COND_C_GIVEN_AB[sample_a, sample_b])
+
+		# Sample F given C,D,E
+		sample_f = np.random.choice(states, p=COND_F_GIVEN_CDE[sample_c, sample_d, sample_e])
+
+		samples.append([sample_a, sample_b, sample_c, sample_d, sample_e, sample_f])
+
+	return pd.DataFrame(data=samples, columns=list(BAYES_STRUCTURE_DICT))
 
 
 if __name__ == '__main__':
-	plot_bayes_net(np.array(A))
-	print(generate_data_point(np.array(A)))
+	print()
+	plot_bayes_net()
+	print(generate_data())

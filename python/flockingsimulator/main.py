@@ -22,7 +22,7 @@ from boid import Boid
 # Simulation constants
 WIDTH, HEIGHT = 1500, 900
 FPS = 120
-NORTH_ARROW = np.array([[0, 33], [9, 0], [18, 33]]).astype(float)  # Coords describing an arrow
+NORTH_ARROW = np.array([[0, 33], [9, 0], [18, 33]], dtype=float)  # Coords describing an arrow
 
 # Boid constant extremes
 MIN_PERCEP_RADIUS = 0
