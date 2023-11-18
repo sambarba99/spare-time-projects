@@ -1,1 +1,0 @@
-Digits of pi calculator

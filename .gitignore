@@ -3,11 +3,12 @@
 
 # ...Except these
 !.gitignore
-!*.gif
 !*.cpp
 !*.csv
+!*.gif
 !*.h
 !*.h5
+!*.jpeg
 !*.jpg
 !*.json
 !*.md
@@ -19,10 +20,13 @@
 # Ignore PyCharm .idea folders
 python/*/.idea/
 
-# Ignore large UTKFace dataset and models
+# Ignore large datasets and models
+datasets/alzheimers/
+datasets/parkinsons/
 datasets/UTKFace/
-python/\#artificial_intelligence_machine_learning/pytorchutkface/model.pth
-python/\#artificial_intelligence_machine_learning/tensorflowutkface/model.h5
+python/\#artificial_intelligence_machine_learning/pytorch_alzheimers_classification/model.pth
+python/\#artificial_intelligence_machine_learning/pytorch_parkinsons_classification/model.pth
+python/\#artificial_intelligence_machine_learning/pytorch_utkface/model.pth
 
 # Ignore MySQL password
 sql_password.txt

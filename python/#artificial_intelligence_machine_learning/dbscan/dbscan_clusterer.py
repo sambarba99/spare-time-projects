@@ -25,7 +25,6 @@ class DBSCAN:
 		self.labels = None
 		self.cluster_id = 1
 
-
 	def fit_predict(self, x):
 		self.x = x
 		self.labels = np.full(x.shape[0], NOISE)  # Initialise all points as noise
@@ -40,7 +39,6 @@ class DBSCAN:
 
 		return self.labels
 
-
 	def __get_neighbours(self, point_id):
 		neighbour_ids = []
 		for i in range(self.x.shape[0]):
@@ -49,7 +47,6 @@ class DBSCAN:
 				neighbour_ids.append(i)
 
 		return neighbour_ids
-
 
 	def __expand_cluster(self, point_id, neighbour_ids):
 		self.labels[point_id] = self.cluster_id

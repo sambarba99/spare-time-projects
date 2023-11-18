@@ -12,7 +12,6 @@ Space: reset when game over
 """
 
 import sys
-from time import sleep
 
 import numpy as np
 import pygame as pg
@@ -303,7 +302,7 @@ if __name__ == '__main__':
 
 							if user_word not in all_words:
 								draw_grid(colour_current_row=False, status=f"'{user_word}' not in word list!")
-								sleep(1.5)
+								pg.time.delay(1500)
 								attempts[attempt_num] = [''] * WORD_LEN
 								col_num = 0
 								draw_grid(colour_current_row=False)
@@ -332,5 +331,5 @@ if __name__ == '__main__':
 							attempt_word = max(entropies, key=entropies.get)
 
 							draw_grid(colour_current_row=False, status=f"Try '{attempt_word}'...")
-							sleep(1)
+							pg.time.delay(1000)
 							draw_grid(colour_current_row=False)
