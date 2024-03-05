@@ -51,11 +51,9 @@ def do_mnist():
 		model.load_state_dict(torch.load('./models/mnist_model.pth'))
 	else:
 		# Don't need labels (y) as we're autoencoding
-		x_train, x_val, _, _ = train_test_split(x, y, stratify=y, train_size=0.9, random_state=1)
-		x_train, x_val = map(
-			lambda arr: torch.from_numpy(arr).float(),
-			(x_train, x_val)
-		)
+		x_train, x_val = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
+		x_train = torch.from_numpy(x_train).float()
+		x_val = torch.from_numpy(x_val).float()
 		batch_size = 500
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		loss_func = torch.nn.MSELoss()
@@ -200,7 +198,6 @@ if __name__ == '__main__':
 	else:
 		# 1. Prepare data
 
-		batch_size = 64
 		x, y, labels = load_tabular_data(path)
 		n_features_in = x.shape[1]
 
@@ -220,12 +217,10 @@ if __name__ == '__main__':
 			model.load_state_dict(torch.load(model_path))
 		else:
 			# Don't need labels (y) as we're autoencoding
-			x_train, x_val, _, _ = train_test_split(x, y, stratify=y, train_size=0.9, random_state=1)
-			x_train, x_val = map(
-				lambda arr: torch.from_numpy(arr).float(),
-				(x_train, x_val)
-			)
-
+			x_train, x_val, = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
+			x_train = torch.from_numpy(x_train).float()
+			x_val = torch.from_numpy(x_val).float()
+			batch_size = 64
 			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 			loss_func = torch.nn.MSELoss()
 			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')

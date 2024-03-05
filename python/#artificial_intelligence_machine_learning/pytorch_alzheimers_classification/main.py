@@ -18,8 +18,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from conv_net import CNN
+from custom_dataset import CustomDataset
 from early_stopping import EarlyStopping
-from my_dataset import MyDataset
 
 
 plt.rcParams['figure.figsize'] = (9, 6)
@@ -66,7 +66,7 @@ def load_data(df):
 		[x_val, y_val, x_test, y_test]
 	)
 
-	train_set = MyDataset(x_train, y_train)
+	train_set = CustomDataset(x_train, y_train)
 	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
 
 	return train_loader, x_val, y_val, x_test, y_test

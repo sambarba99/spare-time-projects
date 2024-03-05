@@ -7,15 +7,18 @@ Created 30/10/2022
 
 import os
 
-import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from PIL import Image
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score, roc_curve
 import torch
+from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import tqdm
 
 from conv_net import CNN
+from custom_dataset import CustomDataset
 from early_stopping import EarlyStopping
 
 
@@ -42,73 +45,58 @@ GENDER_LOSS_WEIGHT = 4
 RACE_LOSS_WEIGHT = 10
 
 
-def load_data(df):
-	def preprocess_img(path):
-		img = cv.imread(path)
-		img = cv.resize(img, (INPUT_SIZE, INPUT_SIZE))
-		img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-		img = img.astype(np.float32) / 255  # Normalise to [0,1]
-		img = img.reshape(3, INPUT_SIZE, INPUT_SIZE)  # Colour channels, H, W
-
-		return img
-
-
-	x = np.array([
-		preprocess_img(p) for p in
-		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
-	])
-
+def create_data_loaders(df):
+	x_path = df['img_path'].to_numpy()
 	y_age = df['age'].to_numpy()
 	y_gender = pd.get_dummies(df['gender'], prefix='gender', drop_first=True).to_numpy().squeeze()
 	y_race = pd.get_dummies(df['race'], prefix='race').to_numpy()
 
+	# Shuffle
+	idx_permutation = np.random.permutation(df.shape[0])
+	x_path = x_path[idx_permutation]
+	y_age = y_age[idx_permutation]
+	y_gender = y_gender[idx_permutation]
+	y_race = y_race[idx_permutation]
+
+	# Pre-process images now instead of during training (faster pipeline overall)
+
+	transform = transforms.Compose([
+		transforms.Resize(INPUT_SIZE),
+		# transforms.CenterCrop(INPUT_SIZE),
+		transforms.ToTensor()  # Automatically normalises to [0,1]
+	])
+
+	x = [
+		transform(Image.open(fp)) for fp in
+		tqdm(x_path, desc='Preprocessing images', ascii=True)
+	]
+
 	# Split into train, validation, test sets (ratio 0.96:0.02:0.02)
-	# (manually, as sklearn.model_selection.train_test_split runs out of memory)
 
-	idx_permutation = np.random.permutation(x.shape[0])
-	train_size = round(x.shape[0] * 0.96)
-	val_size = round(x.shape[0] * 0.02)
-	train_idx = idx_permutation[:train_size]
-	val_idx = idx_permutation[train_size:train_size + val_size]
-	test_idx = idx_permutation[train_size + val_size:]
+	train_size = round(df.shape[0] * 0.96)
+	val_size = round(df.shape[0] * 0.02)
 
-	x_val = x[val_idx]
-	y_val_age = y_age[val_idx]
-	y_val_gender = y_gender[val_idx]
-	y_val_race = y_race[val_idx]
-	x_test = x[test_idx]
-	y_test_age = y_age[test_idx]
-	y_test_gender = y_gender[test_idx]
-	y_test_race = y_race[test_idx]
+	x_train = x[:train_size]
+	x_val = x[train_size:train_size + val_size]
+	x_test = x[train_size + val_size:]
+	y_train_age = y_age[:train_size]
+	y_val_age = y_age[train_size:train_size + val_size]
+	y_test_age = y_age[train_size + val_size:]
+	y_train_gender = y_gender[:train_size]
+	y_val_gender = y_gender[train_size:train_size + val_size]
+	y_test_gender = y_gender[train_size + val_size:]
+	y_train_race = y_race[:train_size]
+	y_val_race = y_race[train_size:train_size + val_size]
+	y_test_race = y_race[train_size + val_size:]
 
-	# Will be used to create a training batch generator at the start of each epoch
-	train_data = (x, y_age, y_gender, y_race, train_idx)
+	train_dataset = CustomDataset(x_train, y_train_age, y_train_gender, y_train_race)
+	val_dataset = CustomDataset(x_val, y_val_age, y_val_gender, y_val_race)
+	test_dataset = CustomDataset(x_test, y_test_age, y_test_gender, y_test_race)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
+	val_loader = DataLoader(val_dataset, batch_size=len(x_val), shuffle=False)
+	test_loader = DataLoader(test_dataset, batch_size=len(x_test), shuffle=False)
 
-	# Convert rest to tensors
-	x_val, y_val_age, y_val_gender, y_val_race, x_test, y_test_age, y_test_gender, y_test_race = map(
-		lambda arr: torch.from_numpy(arr).float(),
-		[x_val, y_val_age, y_val_gender, y_val_race, x_test, y_test_age, y_test_gender, y_test_race]
-	)
-
-	return train_data, x_val, y_val_age, y_val_gender, y_val_race, x_test, y_test_age, y_test_gender, y_test_race
-
-
-def training_batch_generator(x, y_age, y_gender, y_race, train_indices):
-	np.random.shuffle(train_indices)
-	batches = [train_indices[i:i + BATCH_SIZE] for i in range(0, len(train_indices), BATCH_SIZE)]
-
-	for batch in batches:
-		images = np.array([x[i] for i in batch])
-		ages = np.array([y_age[i] for i in batch])
-		genders = np.array([y_gender[i] for i in batch])
-		races = np.array([y_race[i] for i in batch])
-
-		batch_x = torch.from_numpy(images).float()
-		batch_y_age = torch.from_numpy(ages).float()
-		batch_y_gender = torch.from_numpy(genders).float()
-		batch_y_race = torch.from_numpy(races).float()
-
-		yield batch_x, batch_y_age, batch_y_gender, batch_y_race
+	return train_loader, val_loader, test_loader
 
 
 def plot_confusion_matrix(y_name, actual, predictions, labels):
@@ -135,6 +123,7 @@ if __name__ == '__main__':
 		))
 
 	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender', 'race'])
+	print(f'\nRaw data:\n{df}\n')
 
 	# 2. Plot some examples
 
@@ -142,8 +131,7 @@ if __name__ == '__main__':
 	_, axes = plt.subplots(nrows=3, ncols=3)
 	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0.3, wspace=0)
 	for idx, ax in zip(rand_indices, axes.flatten()):
-		sample = cv.imread(df['img_path'][idx])
-		sample = cv.cvtColor(sample, cv.COLOR_BGR2RGB)
+		sample = Image.open(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
 		ax.set_title(f"{df['age'][idx]}, {df['gender'][idx]}, {df['race'][idx]}")
@@ -167,15 +155,12 @@ if __name__ == '__main__':
 	plt.suptitle('Output feature distributions', y=0.94)
 	plt.show()
 
-	# 4. Preprocess data for loading
+	# 4. Define data loaders and model
 
-	print(f'\nRaw data:\n{df}\n')
-
-	train_data, x_val, y_val_age, y_val_gender, y_val_race, x_test, y_test_age, y_test_gender, y_test_race \
-		= load_data(df)
+	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	print(f'\nModel:\n{model}')
+	print(f'Model:\n{model}')
 
 	loss_func_age = torch.nn.MSELoss()
 	loss_func_gender = torch.nn.BCELoss()
@@ -194,10 +179,8 @@ if __name__ == '__main__':
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, N_EPOCHS + 1):
-			train_gen = training_batch_generator(*train_data)
-
 			model.train()
-			for x_train, y_train_age, y_train_gender, y_train_race in train_gen:
+			for x_train, y_train_age, y_train_gender, y_train_race in train_loader:
 				y_train_pred = model(x_train)
 				age_pred, gender_pred_probs, race_pred_probs = map(torch.squeeze, y_train_pred)
 
@@ -212,14 +195,15 @@ if __name__ == '__main__':
 				weighted_loss.backward()
 				optimiser.step()
 
+			x_val, y_val_age, y_val_gender, y_val_race = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
 				y_val_pred = model(x_val)
-				age_val_pred, gender_val_pred_probs, race_val_pred_probs = map(torch.squeeze, y_val_pred)
+			age_val_pred, gender_val_pred_probs, race_val_pred_probs = map(torch.squeeze, y_val_pred)
 
-				age_val_mae = metric_age(age_val_pred, y_val_age)
-				gender_val_f1 = f1_score(y_val_gender, gender_val_pred_probs.detach().numpy().round())
-				race_val_f1 = f1_score(y_val_race.argmax(dim=1), race_val_pred_probs.argmax(dim=1), average='weighted')
+			age_val_mae = metric_age(age_val_pred, y_val_age).item()
+			gender_val_f1 = f1_score(y_val_gender, gender_val_pred_probs.detach().numpy().round())
+			race_val_f1 = f1_score(y_val_race.argmax(dim=1), race_val_pred_probs.argmax(dim=1), average='weighted')
 
 			model_path = f'./model_{age_val_mae:.2f}_{gender_val_f1:.2f}_{race_val_f1:.2f}.pth'
 			torch.save(model.state_dict(), model_path)
@@ -257,10 +241,10 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
+	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
 	model.eval()
 	with torch.inference_mode():
 		y_test_pred = model(x_test)
-
 	age_test_pred, gender_test_pred_probs, race_test_pred_probs = map(torch.squeeze, y_test_pred)
 
 	print('Test age MAE:', metric_age(age_test_pred, y_test_age).item())
@@ -304,8 +288,7 @@ if __name__ == '__main__':
 		race_pred = race_test_pred_probs[idx].argmax().item()
 		race_pred_label = DATASET_DICT['race_id'][str(race_pred)]
 
-		img = (img * 255).type(torch.uint8).reshape(INPUT_SIZE, INPUT_SIZE, 3)
-		# img = (img * 255).type(torch.uint8).permute(1, 2, 0)  <-- Doesn't work???
+		img = (img * 255).type(torch.uint8).permute(1, 2, 0)
 		ax.imshow(img)
 		ax.axis('off')
 		ax.set_title(

@@ -12,8 +12,8 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
+from custom_dataset import CustomDataset
 from models import Discriminator, Generator
-from my_dataset import MyDataset
 
 
 plt.rcParams['figure.figsize'] = (6, 6)
@@ -36,14 +36,14 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	dataset = MyDataset('C:/Users/Sam/Desktop/Projects/datasets/UTKFace', transform)
+	dataset = CustomDataset('C:/Users/Sam/Desktop/Projects/datasets/UTKFace', transform)
 	train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
 
 	return train_loader
 
 
 def plot_gen_output(gen_images, title, save_path=None):
-	_, axes = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True)
+	_, axes = plt.subplots(nrows=5, ncols=5)
 	plt.gcf().set_facecolor('black')
 	plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 	for idx, ax in enumerate(axes.flatten()):
@@ -64,8 +64,6 @@ if __name__ == '__main__':
 	gen_model = Generator(latent_dim=GEN_LATENT_DIM)
 	print(f'\nModels:\n\n{disc_model}\n{gen_model}')
 
-	fixed_noise = torch.randn(25, GEN_LATENT_DIM, 1, 1)
-
 	if os.path.exists('./gen_model.pth'):
 		gen_model.load_state_dict(torch.load('./gen_model.pth'))
 	else:
@@ -75,6 +73,7 @@ if __name__ == '__main__':
 		loss_func = torch.nn.BCELoss()
 		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
+		fixed_noise = torch.randn(25, GEN_LATENT_DIM, 1, 1)
 
 		gen_model.eval()
 		with torch.inference_mode():
@@ -125,7 +124,19 @@ if __name__ == '__main__':
 
 		torch.save(gen_model.state_dict(), './gen_model.pth')
 
+	# Test generator on a random noise vector
+
+	noise = torch.randn(25, GEN_LATENT_DIM, 1, 1)
 	gen_model.eval()
 	with torch.inference_mode():
-		fake_images_test = gen_model(fixed_noise)
-	plot_gen_output(fake_images_test, 'Generator test')
+		fake_images_test = gen_model(noise)
+	plot_gen_output(fake_images_test, 'Generator test on random noise')
+
+	# Visualise some of the latent space by linearly interpolating between 2 random noise vectors
+
+	# noise2 = torch.randn_like(noise)
+	# for t in torch.linspace(0, 1, 101):
+	# 	noise_iterp = noise * t + noise2 * (1 - t)
+	# 	with torch.inference_mode():
+	# 		latent_space_test = gen_model(noise_iterp)
+	# 	plot_gen_output(latent_space_test, f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)', f'./images/{t:.2f}.png')

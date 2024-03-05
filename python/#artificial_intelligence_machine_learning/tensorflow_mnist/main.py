@@ -75,7 +75,7 @@ if __name__ == '__main__':
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True)
+		_, axes = plt.subplots(nrows=5, ncols=5)
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 		for idx, ax in enumerate(axes.flatten()):
 			sample = x_train[idx].squeeze()
