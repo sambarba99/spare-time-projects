@@ -111,12 +111,10 @@ if __name__ == '__main__':
 
 	test_pred = [tree.predict(i) for i in x_test]
 	test_pred_classes = [p['class'] for p in test_pred]
-	cm = confusion_matrix(y_test, test_pred_classes)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 	f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+	cm = confusion_matrix(y_test, test_pred_classes)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 	# ROC curve

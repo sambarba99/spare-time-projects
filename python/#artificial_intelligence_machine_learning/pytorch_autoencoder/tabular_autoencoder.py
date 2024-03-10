@@ -11,7 +11,7 @@ from torch import nn
 class TabularAutoencoder(nn.Module):
 	def __init__(self, n_features_in, n_features_out):
 		super().__init__()
-		self.encoder = nn.Sequential(
+		self.encoder_block = nn.Sequential(
 			nn.Linear(n_features_in, 32),
 			nn.Tanh(),
 			nn.Linear(32, 16),
@@ -22,8 +22,7 @@ class TabularAutoencoder(nn.Module):
 			nn.Tanh(),
 			nn.Linear(4, n_features_out)
 		)
-
-		self.decoder = nn.Sequential(
+		self.decoder_block = nn.Sequential(
 			nn.Linear(n_features_out, 4),
 			nn.Tanh(),
 			nn.Linear(4, 8),
@@ -36,6 +35,6 @@ class TabularAutoencoder(nn.Module):
 		)
 
 	def forward(self, x):
-		encoded = self.encoder(x)
-		decoded = self.decoder(encoded)
+		encoded = self.encoder_block(x)
+		decoded = self.decoder_block(encoded)
 		return decoded

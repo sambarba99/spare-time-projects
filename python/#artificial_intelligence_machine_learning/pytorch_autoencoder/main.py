@@ -73,8 +73,8 @@ def do_mnist():
 
 			with torch.inference_mode():
 				reconstructed = model(x_val)
-				val_loss = loss_func(reconstructed, x_val).item()
-				val_loss_history.append(val_loss)
+			val_loss = loss_func(reconstructed, x_val).item()
+			val_loss_history.append(val_loss)
 
 			if epoch % 10 == 0:
 				print(f'Epoch {epoch}/{N_EPOCHS}: val MSE = {val_loss}')
@@ -95,7 +95,7 @@ def do_mnist():
 
 	# 3. Visualise the latent space, controlled by the mouse
 
-	encodings = model.encoder(
+	encodings = model.encoder_block(
 		torch.from_numpy(x).float()
 	).detach().numpy()
 
@@ -115,7 +115,7 @@ def do_mnist():
 		mouse_scatter = ax_latent.scatter(mx, my, marker='x', color='black', linewidth=2, s=100)
 
 		latent_vector = torch.tensor([mx, my], dtype=torch.float32).unsqueeze(dim=0)
-		decoded_img = model.decoder(latent_vector).detach().numpy().squeeze()
+		decoded_img = model.decoder_block(latent_vector).detach().numpy().squeeze()
 		img_plot = ax_decoded.imshow(decoded_img, cmap='gray')
 
 		return mouse_scatter, img_plot
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 			model.load_state_dict(torch.load(model_path))
 		else:
 			# Don't need labels (y) as we're autoencoding
-			x_train, x_val, = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
+			x_train, x_val = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
 			x_train = torch.from_numpy(x_train).float()
 			x_val = torch.from_numpy(x_val).float()
 			batch_size = 64
@@ -239,8 +239,8 @@ if __name__ == '__main__':
 
 				with torch.inference_mode():
 					reconstructed = model(x_val)
-					val_loss = loss_func(reconstructed, x_val).item()
-					val_loss_history.append(val_loss)
+				val_loss = loss_func(reconstructed, x_val).item()
+				val_loss_history.append(val_loss)
 
 				if epoch % 10 == 0:
 					print(f'Epoch {epoch}/{N_EPOCHS}: val MSE = {val_loss}')
@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
 		# 3. Visualise the latent space
 
-		encodings = model.encoder(
+		encodings = model.encoder_block(
 			torch.from_numpy(x).float()
 		).detach().numpy()
 

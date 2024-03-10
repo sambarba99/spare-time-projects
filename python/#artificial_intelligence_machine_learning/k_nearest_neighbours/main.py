@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from knn_classifier import KNN
 
 
-plt.rcParams['figure.figsize'] = (8, 5)
+plt.rcParams['figure.figsize'] = (6, 4)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
@@ -52,18 +52,6 @@ def load_data(path):
 	return x, y, labels
 
 
-def plot_confusion_matrix(k, actual, predictions, labels):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Confusion matrix for k = {k}\n(F1 score: {f1})')
-	plt.show()
-
-	return f1
-
-
 if __name__ == '__main__':
 	choice = input(
 		'\nEnter 1 to use banknote dataset,'
@@ -90,7 +78,9 @@ if __name__ == '__main__':
 		clf.fit(x, y)
 
 		predictions = np.array([clf.predict(i) for i in x])
-		f1 = plot_confusion_matrix(k, y, predictions, labels)
+		f1 = f1_score(y, predictions, average='binary' if len(labels) == 2 else 'weighted')
+
+		print(f'F1 score for k = {k}: {f1}')
 
 		if f1 > best_f1:
 			best_f1, best_k = f1, k
@@ -98,4 +88,13 @@ if __name__ == '__main__':
 		else:
 			break  # No improvement, so stop
 
-	print('Best k found:', best_k)
+	print('\nBest k found:', best_k)
+
+	clf = KNN(best_k)
+	clf.fit(x, y)
+	predictions = np.array([clf.predict(i) for i in x])
+
+	cm = confusion_matrix(y, predictions)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Confusion matrix for k = {best_k}\n(F1 score: {best_f1:.3f})')
+	plt.show()

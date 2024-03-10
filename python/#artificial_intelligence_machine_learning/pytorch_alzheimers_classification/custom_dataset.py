@@ -10,9 +10,9 @@ import torch
 
 class CustomDataset(torch.utils.data.Dataset):
 	def __init__(self, x, y):
-		self.x = torch.from_numpy(x).float()
+		self.x = x
 		self.y = torch.from_numpy(y).float()
-		self.n_samples = x.shape[0]
+		self.n_samples = len(x)
 
 	def __getitem__(self, index):
 		return self.x[index], self.y[index]

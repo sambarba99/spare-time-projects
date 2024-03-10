@@ -15,7 +15,6 @@ import torch
 from torch import nn
 
 from early_stopping import EarlyStopping
-from neural_net_plotter import plot_model
 
 
 plt.rcParams['figure.figsize'] = (8, 5)
@@ -59,8 +58,8 @@ def load_classification_data(path):
 	# Standardise x
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	# Train:validation:test ratio of 0.7:0.2:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1)
 	scaler = StandardScaler()
 	x_train = scaler.fit_transform(x_train)
 	x_test = scaler.transform(x_test)
@@ -100,8 +99,8 @@ def load_regression_data(path):
 	# Standardise x
 	x, y = x.to_numpy(), y.to_numpy()
 	# Train:validation:test ratio of 0.7:0.2:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, random_state=1)
 	scaler = StandardScaler()
 	x_train = scaler.fit_transform(x_train)
 	x_test = scaler.transform(x_test)
@@ -117,12 +116,10 @@ def load_regression_data(path):
 
 
 def plot_confusion_matrix(actual, predictions, labels):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+	cm = confusion_matrix(actual, predictions)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 
@@ -255,7 +252,6 @@ if __name__ == '__main__':
 
 	# print(model.state_dict())  # Model weights
 	print(f'Model:\n{model}')
-	# plot_model(model)
 
 	# 2. Training
 
@@ -295,10 +291,9 @@ if __name__ == '__main__':
 			model.eval()  # Set to testing mode
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
-				y_val_pred = y_val_probs.round()
-
-				val_loss = loss_func(y_val_probs, y_val)
-				val_metric = f1_score(y_val, y_val_pred)
+			y_val_pred = y_val_probs.round()
+			val_loss = loss_func(y_val_probs, y_val)
+			val_metric = f1_score(y_val, y_val_pred)
 
 		elif task_choice == 'M':
 			y_train_probs = model(x_train).squeeze()
@@ -314,10 +309,9 @@ if __name__ == '__main__':
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
-				y_val_pred = y_val_probs.argmax(dim=1)
-
-				val_loss = loss_func(y_val_probs, y_val)
-				val_metric = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			y_val_pred = y_val_probs.argmax(dim=1)
+			val_loss = loss_func(y_val_probs, y_val)
+			val_metric = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
 		elif task_choice == 'R':
 			y_train_pred = model(x_train).squeeze()
@@ -332,9 +326,8 @@ if __name__ == '__main__':
 			model.eval()
 			with torch.inference_mode():
 				y_val_pred = model(x_val).squeeze()
-
-				val_loss = loss_func(y_val_pred, y_val).item()
-				val_metric = mae_loss(y_val_pred, y_val)
+			val_loss = loss_func(y_val_pred, y_val).item()
+			val_metric = mae_loss(y_val_pred, y_val)
 
 		history['loss'].append(loss.item())
 		history['metric'].append(metric if task_choice in 'BM' else metric.item())

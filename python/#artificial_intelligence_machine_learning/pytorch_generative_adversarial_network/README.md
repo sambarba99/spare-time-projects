@@ -8,6 +8,10 @@ Visualising some of the latent space by linearly interpolating between 2 random 
 
 ![](latent_space_interpolation.gif)
 
-Model architectures:
+Generator architecture:
 
-![](model_architectures.png)
+![](generator_architecture.png)
+
+Discriminator architecture:
+
+![](discriminator_architecture.png)

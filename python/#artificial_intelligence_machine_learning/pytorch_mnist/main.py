@@ -22,7 +22,6 @@ from mnist_dataset import MNISTDataset
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
-plt.rcParams['figure.figsize'] = (8, 8)
 torch.manual_seed(1)
 
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
@@ -44,8 +43,8 @@ def load_data():
 	y = np.eye(10)[y]  # 10 classes (0-9)
 
 	# Train:validation:test ratio of 0.8:0.1:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.89, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
 
 	# Convert to tensors
 	x_val, y_val, x_test, y_test = map(
@@ -61,16 +60,18 @@ def load_data():
 
 if __name__ == '__main__':
 	train_loader, x_val, y_val, x_test, y_test = load_data()
-	loss_func = torch.nn.CrossEntropyLoss()
+
 	model = CNN()
 	print(f'\nModel:\n{model}')
+
+	loss_func = torch.nn.CrossEntropyLoss()
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5)
+		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 		for idx, ax in enumerate(axes.flatten()):
 			sample = x_val[idx].squeeze()
@@ -107,10 +108,9 @@ if __name__ == '__main__':
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
-				y_val_pred = y_val_probs.argmax(dim=1)
-
-				val_loss = loss_func(y_val_probs, y_val).item()
-				val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			y_val_pred = y_val_probs.argmax(dim=1)
+			val_loss = loss_func(y_val_probs, y_val).item()
+			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './model.pth')
 
 		# Plot loss and F1 throughout training
-		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True)
+		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True, figsize=(8, 5))
 		ax_loss.plot(history['loss'], label='Training loss')
 		ax_loss.plot(history['val_loss'], label='Validation loss')
 		ax_f1.plot(history['F1'], label='Training F1')
@@ -151,20 +151,17 @@ if __name__ == '__main__':
 	model.eval()
 	with torch.inference_mode():
 		y_test_probs = model(x_test).squeeze()
-		test_pred = y_test_probs.argmax(dim=1)
+	test_pred = y_test_probs.argmax(dim=1)
+	test_loss = loss_func(y_test_probs, y_test)
+	print('Test loss:', test_loss.item())
 
-		test_loss = loss_func(y_test_probs, y_test)
-		print('Test loss:', test_loss.item())
+	# Confusion matrix
 
-		# Confusion matrix
-
-		cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
-		disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-		f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
-
-		disp.plot(cmap='plasma')
-		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
-		plt.show()
+	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
+	cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
+	ConfusionMatrixDisplay(confusion_matrix=cm).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	plt.show()
 
 	# User draws a digit to predict
 

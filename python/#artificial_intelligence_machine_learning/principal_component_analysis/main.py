@@ -1,5 +1,5 @@
 """
-PCA demo
+Principal Component Analysis demo
 
 Author: Sam Barba
 Created 10/11/2021
@@ -94,9 +94,10 @@ if __name__ == '__main__':
 		case '7': path = 'C:/Users/Sam/Desktop/Projects/datasets/titanic_survivals.csv'
 		case _: path = 'C:/Users/Sam/Desktop/Projects/datasets/wine_classification.csv'
 
-	choice = input('\nEnter no. components (2 or 3)\n>>> ')
-	n_components = int(choice)
-	if n_components not in (2, 3): n_components = 3
+	n_components = None
+	while n_components not in ('2', '3'):
+		n_components = input('\nEnter no. components (2 or 3)\n>>> ')
+	n_components = int(n_components)
 
 	x, y, labels = load_data(path)
 	x_transform, explained_variance_ratio = transform(x, n_components)
@@ -113,9 +114,11 @@ if __name__ == '__main__':
 		ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.max() + 0.1)
 		ax.plot(x_plt, y_plt, 'k.', markersize=2, alpha=0.4, zdir='z', zs=z_plt.min() - 0.1)
 		ax.set_zlabel('Principal component 3')
-	ax.set_title(fr'Shape of $x$: {x.shape}'
+	ax.set_title(
+		fr'Shape of $x$: {x.shape}'
 		f'\nShape of PCA transform: {x_transform.shape}'
-		f'\nExplained variance ratio: {explained_variance_ratio:.4f}')
+		f'\nExplained variance ratio: {explained_variance_ratio:.4f}'
+	)
 	handles, _ = scatter.legend_elements()
 	for h in handles:
 		h.set_alpha(1)

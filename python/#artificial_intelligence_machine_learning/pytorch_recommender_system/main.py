@@ -9,9 +9,9 @@ import os
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
 
 from early_stopping import EarlyStopping
 
@@ -63,8 +63,8 @@ if __name__ == '__main__':
 
 	# 2. Create train, validation, and test sets (0.7:0.2:0.1)
 
-	train_df, test_df = train_test_split(df, train_size=0.9, random_state=1)
-	train_df, val_df = train_test_split(train_df, train_size=0.78, random_state=1)
+	train_val_df, test_df = train_test_split(df, train_size=0.9, random_state=1)
+	train_df, val_df = train_test_split(train_val_df, train_size=0.78, random_state=1)
 
 	# Encode training DF with continuous user and show IDs, as we need continuous
 	# IDs to index into the embedding matrix and access each user/item embedding
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
 			with torch.inference_mode():
 				val_pred = model(x_val[:, 0], x_val[:, 1])
-				val_loss = mae_loss(val_pred, y_val).item()
+			val_loss = mae_loss(val_pred, y_val).item()
 
 			if epoch % 10 == 0:
 				print(f'Epoch {epoch}/{N_EPOCHS}: val MAE = {val_loss}')
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
 	with torch.inference_mode():
 		train_pred = model(x_train[:, 0], x_train[:, 1])
-		train_loss = mae_loss(train_pred, y_train)
+	train_loss = mae_loss(train_pred, y_train)
 
 	train_df['rating_prediction'] = train_pred
 	print(f'\nTrain MAE: {train_loss.item()}')
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
 	with torch.inference_mode():
 		test_pred = model(x_test[:, 0], x_test[:, 1])
-		test_loss = mae_loss(test_pred, y_test)
+	test_loss = mae_loss(test_pred, y_test)
 
 	test_df['rating_prediction'] = test_pred
 	print(f'\nTest MAE: {test_loss.item()}')

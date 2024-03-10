@@ -19,7 +19,6 @@ import tensorflow as tf
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
-plt.rcParams['figure.figsize'] = (8, 8)
 tf.random.set_seed(1)
 
 N_EPOCHS = 50
@@ -40,8 +39,8 @@ def load_data():
 	y = np.eye(N_CLASSES)[y]
 
 	# Train:validation:test ratio of 0.8:0.1:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.89, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5)
+		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 		for idx, ax in enumerate(axes.flatten()):
 			sample = x_train[idx].squeeze()
@@ -106,7 +105,7 @@ if __name__ == '__main__':
 		)
 
 		# Plot loss and accuracy throughout training
-		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True)
+		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True, figsize=(7, 5))
 		ax_loss.plot(history.history['loss'], label='Training loss')
 		ax_loss.plot(history.history['val_loss'], label='Validation loss')
 		ax_accuracy.plot(history.history['accuracy'], label='Training accuracy')
@@ -131,12 +130,10 @@ if __name__ == '__main__':
 	# Confusion matrix
 
 	test_pred = model.predict(x_test).argmax(axis=1)
-	cm = confusion_matrix(y_test.argmax(axis=1), test_pred)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 	f1 = f1_score(y_test.argmax(axis=1), test_pred, average='weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+	cm = confusion_matrix(y_test.argmax(axis=1), test_pred)
+	ConfusionMatrixDisplay(confusion_matrix=cm).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 	# User draws a digit to predict
@@ -199,7 +196,7 @@ if __name__ == '__main__':
 
 		print(f'\nLayer name: {layer.name} | Filters shape: {filters.shape} | Biases shape: {biases.shape}', end='')
 
-		_, axes = plt.subplots(nrows=rows, ncols=cols)
+		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
 		for ax_idx, ax in enumerate(axes.flatten()):
 			filt = filters[..., ax_idx]
 			ax.imshow(filt[..., 0], cmap='gray')  # Plot only 0th (red) channel
@@ -250,7 +247,7 @@ if __name__ == '__main__':
 		rows = map_depth // 8
 		cols = map_depth // rows
 
-		_, axes = plt.subplots(nrows=rows, ncols=cols)
+		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
 		for ax_idx, ax in enumerate(axes.flatten()):
 			ax.imshow(feature_map[0, ..., ax_idx], cmap='gray')  # Plot feature_map of depth 'ax_idx'
 			ax.axis('off')

@@ -4,6 +4,10 @@ In the case of the MNIST autoencoder, the data dimensionality is reduced from `(
 
 ![](plots/mnist_2_latent_variables.png)
 
+MNIST autoencoder architecture:
+
+![](plots/mnist_autoencoder_architecture.png)
+
 Example of tabular data compression (iris dataset, 2 latent variables and 3 latent variables):
 
 ![](plots/iris_2_latent_variables.png)

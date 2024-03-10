@@ -16,7 +16,6 @@ from sklearn.preprocessing import MinMaxScaler
 from logistic_regressor import LogisticRegressor
 
 
-plt.rcParams['figure.figsize'] = (8, 5)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 pd.set_option('display.max_columns', 12)
@@ -81,12 +80,10 @@ if __name__ == '__main__':
 
 	# Confusion matrix
 
-	cm = confusion_matrix(y_test, test_pred_labels)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 	f1 = f1_score(y_test, test_pred_labels)
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test onfusion matrix\n(F1 score: {f1})')
+	cm = confusion_matrix(y_test, test_pred_labels)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 	# ROC curve

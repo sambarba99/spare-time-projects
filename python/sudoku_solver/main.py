@@ -13,8 +13,6 @@ import numpy as np
 import pygame as pg
 
 
-plt.rcParams['figure.figsize'] = (7, 5)
-
 BOARD_SIZE = 9
 CELL_SIZE = 50
 GRID_OFFSET = 75
@@ -26,7 +24,7 @@ PRESET_PUZZLES = {
 	'easy': '000000000010020030000000000000000000040050060000000000000000000070080090000000000',
 	'medium': '100000000020000000003000000000400000000050000000006000000000700000000080000000009',
 	'hard': '120000034500000006000000000000070000000891000000020000000000000300000005670000089',
-	'insane': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'
+	'world hardest': '800000000003600000070090200050007000000045700000100030001000068008500010090000400'
 }
 
 board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
@@ -121,17 +119,13 @@ def wait_for_click():
 
 
 def plot_backtracks(difficulty_lvl):
-	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
-	# (line 'plt.gca().invert_yaxis()' below)
-	grid_flipped = np.flipud(backtrack_grid)
-
-	ax = plt.subplot()
-	mat = ax.matshow(grid_flipped, cmap='plasma')
-	ax.xaxis.set_ticks_position('bottom')
-	for (y, x), val in np.ndenumerate(grid_flipped):
-		ax.text(x=x, y=y, s=val, ha='center', va='center')
+	threshold = (backtrack_grid.min() + backtrack_grid.max()) / 2
+	_, ax = plt.subplots(figsize=(7, 5))
+	mat = ax.matshow(backtrack_grid, cmap='Blues')
+	for (j, i), val in np.ndenumerate(backtrack_grid):
+		ax.text(x=i, y=j, s=val, ha='center', va='center', color='black' if val < threshold else 'white')
 	ax.set_title(f'Heatmap of backtracks for difficulty level: {difficulty_lvl}')
-	plt.gca().invert_yaxis()
+	plt.axis('off')
 	plt.colorbar(mat, ax=ax)
 	plt.show()
 

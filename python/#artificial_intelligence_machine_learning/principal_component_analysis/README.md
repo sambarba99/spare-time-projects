@@ -1,4 +1,4 @@
-PCA demo
+Principal Component Analysis demo
 
 E.g. Iris dataset 2 components:
 

@@ -18,8 +18,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 
-from neural_net_plotter import plot_model
-
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 plt.rcParams['figure.figsize'] = (8, 5)
@@ -63,8 +61,8 @@ def load_classification_data(path):
 	# Standardise x
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	# Train:validation:test ratio of 0.7:0.2:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1)
 	scaler = StandardScaler()
 	x_train = scaler.fit_transform(x_train)
 	x_test = scaler.transform(x_test)
@@ -224,7 +222,6 @@ if __name__ == '__main__':
 
 	model.build(input_shape=(n_features,))
 	model.summary()
-	# plot_model(model)
 	# vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
 	# 2. Training
@@ -303,12 +300,10 @@ if __name__ == '__main__':
 
 		# Confusion matrix
 
-		cm = confusion_matrix(y_test, test_pred_labels)
-		disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 		f1 = f1_score(y_test, test_pred_labels, average='binary' if len(labels) == 2 else 'weighted')
-
-		disp.plot(cmap='plasma')
-		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
+		cm = confusion_matrix(y_test, test_pred_labels)
+		ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+		plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 		plt.show()
 
 	# To save/load a model:

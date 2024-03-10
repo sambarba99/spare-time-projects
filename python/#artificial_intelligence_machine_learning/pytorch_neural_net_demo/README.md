@@ -1,11 +1,9 @@
 (PyTorch) Neural network demo for binary classification, multiclass classification, or regression
 
-Example performance of iris dataset classification:
+Example performance of iris dataset test classification:
 
-![](iris_confusion_matrix.png)
+![](iris_test_confusion_matrix.png)
 
-Corresponding topology of iris classifier:
-
-![](iris_topology.png)
+Corresponding architecture of iris classifier:
 
 ![](iris_model_architecture.png)

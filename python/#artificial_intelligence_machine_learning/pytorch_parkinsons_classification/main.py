@@ -22,7 +22,6 @@ from custom_dataset import CustomDataset
 from early_stopping import EarlyStopping
 
 
-plt.rcParams['figure.figsize'] = (9, 6)
 np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
@@ -91,8 +90,8 @@ def load_data(df):
 	x = np.array(x)
 
 	# Train:validation:test ratio of 0.7:0.2:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.78, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1)
 
 	# Convert to tensors
 	x_val, y_val, x_test, y_test = map(
@@ -121,7 +120,7 @@ if __name__ == '__main__':
 	# 2. Plot some examples
 
 	example_indices = [0, 52, 102, 154]
-	_, axes = plt.subplots(nrows=2, ncols=2)
+	_, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 5))
 	plt.subplots_adjust(top=0.85, bottom=0, hspace=0.1, wspace=0.1)
 	for idx, ax in zip(example_indices, axes.flatten()):
 		sample = cv.imread(df['img_path'][idx])
@@ -145,9 +144,11 @@ if __name__ == '__main__':
 	print(f'\nRaw data:\n{df}\n')
 
 	train_loader, x_val, y_val, x_test, y_test = load_data(df)
-	loss_func = torch.nn.BCELoss()
+
 	model = CNN()
 	print(f'\nModel:\n{model}')
+
+	loss_func = torch.nn.BCELoss()
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
@@ -180,10 +181,9 @@ if __name__ == '__main__':
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
-				y_val_pred = y_val_probs.round()
-
-				val_loss = loss_func(y_val_probs, y_val).item()
-				val_f1 = f1_score(y_val, y_val_pred)
+			y_val_pred = y_val_probs.round()
+			val_loss = loss_func(y_val_probs, y_val).item()
+			val_f1 = f1_score(y_val, y_val_pred)
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './model.pth')
 
 		# Plot loss and F1 throughout training
-		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True)
+		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True, figsize=(8, 5))
 		ax_loss.plot(history['loss'], label='Training loss')
 		ax_loss.plot(history['val_loss'], label='Validation loss')
 		ax_f1.plot(history['F1'], label='Training F1')
@@ -224,20 +224,17 @@ if __name__ == '__main__':
 	model.eval()
 	with torch.inference_mode():
 		test_pred_probs = model(x_test).squeeze()
-		test_pred = test_pred_probs.round()
+	test_pred = test_pred_probs.round()
+	test_loss = loss_func(test_pred_probs, y_test)
+	print('Test loss:', test_loss.item())
 
-		test_loss = loss_func(test_pred_probs, y_test)
-		print('Test loss:', test_loss.item())
+	# Confusion matrix
 
-		# Confusion matrix
-
-		cm = confusion_matrix(y_test, test_pred)
-		disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['healthy', 'parkinsons'])
-		f1 = f1_score(y_test, test_pred)
-
-		disp.plot(cmap='plasma')
-		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
-		plt.show()
+	f1 = f1_score(y_test, test_pred)
+	cm = confusion_matrix(y_test, test_pred)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['healthy', 'parkinsons']).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	plt.show()
 
 	# ROC curve
 

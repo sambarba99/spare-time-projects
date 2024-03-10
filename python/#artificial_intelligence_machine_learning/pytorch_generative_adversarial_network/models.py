@@ -12,7 +12,7 @@ class Discriminator(nn.Module):
 	def __init__(self, *, noise_strength):
 		super().__init__()
 		self.noise_strength = noise_strength
-		self.main = nn.Sequential(
+		self.main_block = nn.Sequential(
 			nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1, bias=False),
 			nn.LeakyReLU(0.2, inplace=True),
 			nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1, bias=False),
@@ -32,13 +32,13 @@ class Discriminator(nn.Module):
 		# Gaussian noise injection for regularisation
 		noise = randn_like(x) * self.noise_strength
 
-		return self.main(x + noise)
+		return self.main_block(x + noise)
 
 
 class Generator(nn.Module):
 	def __init__(self, *, latent_dim):
 		super().__init__()
-		self.main = nn.Sequential(
+		self.main_block = nn.Sequential(
 			nn.ConvTranspose2d(latent_dim, 512, kernel_size=4, bias=False),
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
@@ -56,4 +56,4 @@ class Generator(nn.Module):
 		)
 
 	def forward(self, x):
-		return self.main(x)
+		return self.main_block(x)

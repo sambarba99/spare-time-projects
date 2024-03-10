@@ -16,11 +16,12 @@ class CustomDataset(torch.utils.data.Dataset):
 		self.root_dir = root_dir
 		self.transform = transform
 		self.img_paths = [f'{root_dir}/{f}' for f in os.listdir(root_dir) if f.endswith('.jpg')]
-
-	def __len__(self):
-		return len(self.img_paths)
+		self.n_samples = len(self.img_paths)
 
 	def __getitem__(self, idx):
 		image = Image.open(self.img_paths[idx])
 		image = self.transform(image)
 		return image
+
+	def __len__(self):
+		return self.n_samples

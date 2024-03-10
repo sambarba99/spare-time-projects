@@ -14,9 +14,10 @@ class CustomDataset(torch.utils.data.Dataset):
 		self.y_age = torch.from_numpy(y_age).float()
 		self.y_gender = torch.from_numpy(y_gender).float()
 		self.y_race = torch.from_numpy(y_race).float()
-
-	def __len__(self):
-		return len(self.x)
+		self.n_samples = len(x)
 
 	def __getitem__(self, idx):
 		return self.x[idx], self.y_age[idx], self.y_gender[idx], self.y_race[idx]
+
+	def __len__(self):
+		return self.n_samples

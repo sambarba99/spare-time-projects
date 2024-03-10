@@ -12,7 +12,7 @@ class MNISTAutoencoder(nn.Module):
 	def __init__(self):
 		super().__init__()
 		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, width, height)
-		self.encoder = nn.Sequential(
+		self.encoder_block = nn.Sequential(
 			nn.Conv2d(1, 16, 3, 2, 1),   # -> (N, 16, 14, 14)
 			nn.Tanh(),
 			nn.Conv2d(16, 32, 3, 2, 1),  # -> (N, 32, 7, 7)
@@ -26,9 +26,8 @@ class MNISTAutoencoder(nn.Module):
 			nn.Tanh(),
 			nn.Linear(8, 2)  # Latent space shape = (N, 2) (plottable on xy axes)
 		)
-
 		# Input shape (N, 2) (392x compression!)
-		self.decoder = nn.Sequential(
+		self.decoder_block = nn.Sequential(
 			nn.Linear(2, 8),
 			nn.Tanh(),
 			nn.Linear(8, 16),
@@ -45,6 +44,6 @@ class MNISTAutoencoder(nn.Module):
 		)
 
 	def forward(self, x):
-		encoded = self.encoder(x)
-		decoded = self.decoder(encoded)
+		encoded = self.encoder_block(x)
+		decoded = self.decoder_block(encoded)
 		return decoded

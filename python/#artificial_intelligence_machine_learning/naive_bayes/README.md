@@ -1,5 +1,5 @@
 Naive Bayes classifier demo
 
-Iris dataset example:
+Iris dataset test example:
 
-![](iris_naive_bayes_test.png)
+![](iris_test_confusion_matrix.png)

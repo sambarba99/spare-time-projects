@@ -11,10 +11,12 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from PIL import Image
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import tqdm
 
 from conv_net import CNN
@@ -22,7 +24,6 @@ from custom_dataset import CustomDataset
 from early_stopping import EarlyStopping
 
 
-plt.rcParams['figure.figsize'] = (9, 6)
 np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
@@ -39,37 +40,34 @@ BATCH_SIZE = 128
 N_EPOCHS = 100
 
 
-def load_data(df):
-	def preprocess_img(path):
-		img = cv.imread(path)
-		img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-		img = cv.resize(img, (INPUT_W, INPUT_H))
-		img = img.astype(np.float64) / 255  # Normalise to [0,1]
-		img = img.reshape(1, INPUT_H, INPUT_W)  # Colour channels, H, W
+def create_data_loaders(df):
+	# Preprocess images now instead of during training (faster pipeline overall)
 
-		return img
-
-
-	x = np.array([
-		preprocess_img(p) for p in
-		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
+	transform = transforms.Compose([
+		transforms.Resize((INPUT_H, INPUT_W)),
+		transforms.Grayscale(),
+		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
+
+	x = [
+		transform(Image.open(fp)) for fp in
+		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
+	]
+
 	y = pd.get_dummies(df['class'], prefix='class').astype(int).to_numpy()
 
 	# Train:validation:test ratio of 0.8:0.1:0.1
-	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.89, stratify=y_train, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
 
-	# Convert to tensors
-	x_val, y_val, x_test, y_test = map(
-		lambda arr: torch.from_numpy(arr).float(),
-		[x_val, y_val, x_test, y_test]
-	)
+	train_dataset = CustomDataset(x_train, y_train)
+	val_dataset = CustomDataset(x_val, y_val)
+	test_dataset = CustomDataset(x_test, y_test)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
+	val_loader = DataLoader(val_dataset, batch_size=len(x_val), shuffle=False)
+	test_loader = DataLoader(test_dataset, batch_size=len(x_test), shuffle=False)
 
-	train_set = CustomDataset(x_train, y_train)
-	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
-
-	return train_loader, x_val, y_val, x_test, y_test
+	return train_loader, val_loader, test_loader
 
 
 if __name__ == '__main__':
@@ -82,11 +80,12 @@ if __name__ == '__main__':
 			data.append((f'{directory}/{img_path}', subfolder))  # subfolder = class name
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
+	print(f'\nRaw data:\n{df}\n')
 
 	# 2. Plot some examples
 
 	example_indices = [0, 1, 3200, 3201, 5440, 5441, 6336, 6337]
-	_, axes = plt.subplots(nrows=2, ncols=4)
+	_, axes = plt.subplots(nrows=2, ncols=4, figsize=(8, 6))
 	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0, wspace=0.05)
 	for idx, ax in zip(example_indices, axes.flatten()):
 		sample = cv.imread(df['img_path'][idx])
@@ -112,14 +111,14 @@ if __name__ == '__main__':
 	df = pd.concat([df] + [class_2_rows], ignore_index=True)
 	df = pd.concat([df] + [class_3_rows] * 27, ignore_index=True)
 
-	# 4. Preprocess data for loading
+	# 4. Define data loaders and model
 
-	print(f'\nRaw data:\n{df}\n')
+	train_loader, val_loader, test_loader = create_data_loaders(df)
 
-	train_loader, x_val, y_val, x_test, y_test = load_data(df)
-	loss_func = torch.nn.CrossEntropyLoss()
 	model = CNN()
 	print(f'\nModel:\n{model}')
+
+	loss_func = torch.nn.CrossEntropyLoss()
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
@@ -136,12 +135,12 @@ if __name__ == '__main__':
 			total_loss = total_f1 = 0
 			model.train()
 
-			for x, y in train_loader:
-				y_probs = model(x).squeeze()
-				y_pred = y_probs.argmax(dim=1)
+			for x_train, y_train in train_loader:
+				y_train_probs = model(x_train).squeeze()
+				y_train_pred = y_train_probs.argmax(dim=1)
 
-				loss = loss_func(y_probs, y)
-				f1 = f1_score(y.argmax(dim=1), y_pred, average='weighted')
+				loss = loss_func(y_train_probs, y_train)
+				f1 = f1_score(y_train.argmax(dim=1), y_train_pred, average='weighted')
 				total_loss += loss.item()
 				total_f1 += f1
 
@@ -149,13 +148,13 @@ if __name__ == '__main__':
 				loss.backward()
 				optimiser.step()
 
+			x_val, y_val = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
-				y_val_pred = y_val_probs.argmax(dim=1)
-
-				val_loss = loss_func(y_val_probs, y_val).item()
-				val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			y_val_pred = y_val_probs.argmax(dim=1)
+			val_loss = loss_func(y_val_probs, y_val).item()
+			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
@@ -176,7 +175,7 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './model.pth')
 
 		# Plot loss and F1 throughout training
-		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True)
+		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True, figsize=(8, 5))
 		ax_loss.plot(history['loss'], label='Training loss')
 		ax_loss.plot(history['val_loss'], label='Validation loss')
 		ax_f1.plot(history['F1'], label='Training F1')
@@ -193,20 +192,19 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
+	x_test, y_test = next(iter(test_loader))
 	model.eval()
 	with torch.inference_mode():
 		y_test_probs = model(x_test).squeeze()
-		test_pred = y_test_probs.argmax(dim=1)
+	test_pred = y_test_probs.argmax(dim=1)
 
-		test_loss = loss_func(y_test_probs, y_test)
-		print('Test loss:', test_loss.item())
+	test_loss = loss_func(y_test_probs, y_test)
+	print('Test loss:', test_loss.item())
 
-		# Confusion matrix
+	# Confusion matrix
 
-		cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
-		disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=DATA_SUBFOLDERS)
-		f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
-
-		disp.plot(cmap='plasma')
-		plt.title(f'Test confusion matrix\n(F1 score: {f1})')
-		plt.show()
+	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
+	cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=DATA_SUBFOLDERS).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	plt.show()

@@ -2,14 +2,14 @@
 
 ![](data_samples.png)
 
-Model architecture:
+Testing on a user-drawn digit:
 
-![](model_architecture.png)
+![](drawn_digit_classification.png)
 
 Test confusion matrix:
 
 ![](test_confusion_matrix.png)
 
-Testing on a user-drawn digit:
+Model architecture:
 
-![](drawn_digit_classification.png)
+![](model_architecture.png)

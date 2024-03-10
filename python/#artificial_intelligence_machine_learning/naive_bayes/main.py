@@ -15,7 +15,6 @@ from sklearn.preprocessing import LabelEncoder
 from naive_bayes_classifier import NaiveBayesClassifier
 
 
-plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
@@ -85,12 +84,10 @@ if __name__ == '__main__':
 
 	# Confusion matrix
 
-	cm = confusion_matrix(y_test, test_pred_labels)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 	f1 = f1_score(y_test, test_pred_labels, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test onfusion matrix\n(F1 score: {f1})')
+	cm = confusion_matrix(y_test, test_pred_labels)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 	# ROC curve

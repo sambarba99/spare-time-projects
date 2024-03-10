@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score, roc_curve
+from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -22,7 +23,6 @@ from custom_dataset import CustomDataset
 from early_stopping import EarlyStopping
 
 
-plt.rcParams['figure.figsize'] = (9, 6)
 np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
@@ -51,18 +51,10 @@ def create_data_loaders(df):
 	y_gender = pd.get_dummies(df['gender'], prefix='gender', drop_first=True).to_numpy().squeeze()
 	y_race = pd.get_dummies(df['race'], prefix='race').to_numpy()
 
-	# Shuffle
-	idx_permutation = np.random.permutation(df.shape[0])
-	x_path = x_path[idx_permutation]
-	y_age = y_age[idx_permutation]
-	y_gender = y_gender[idx_permutation]
-	y_race = y_race[idx_permutation]
-
-	# Pre-process images now instead of during training (faster pipeline overall)
+	# Preprocess images now instead of during training (faster pipeline overall)
 
 	transform = transforms.Compose([
 		transforms.Resize(INPUT_SIZE),
-		# transforms.CenterCrop(INPUT_SIZE),
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
@@ -72,22 +64,30 @@ def create_data_loaders(df):
 	]
 
 	# Split into train, validation, test sets (ratio 0.96:0.02:0.02)
+	# Stratify based on binned age + gender + race
 
-	train_size = round(df.shape[0] * 0.96)
-	val_size = round(df.shape[0] * 0.02)
+	indices = np.arange(len(x))
+	age_bins = np.linspace(0, 100, 9)
+	age_bin_indices = np.digitize(y_age, age_bins)
+	stratify_labels = np.array([
+		f'{age_bin_idx}_{gender}_{race}' for age_bin_idx, gender, race
+		in zip(age_bin_indices, df['gender'], df['race'])
+	])
+	train_val_idx, test_idx = train_test_split(indices, train_size=0.98, stratify=stratify_labels, random_state=1)
+	train_idx, val_idx = train_test_split(train_val_idx, train_size=0.98, stratify=stratify_labels[train_val_idx], random_state=1)
 
-	x_train = x[:train_size]
-	x_val = x[train_size:train_size + val_size]
-	x_test = x[train_size + val_size:]
-	y_train_age = y_age[:train_size]
-	y_val_age = y_age[train_size:train_size + val_size]
-	y_test_age = y_age[train_size + val_size:]
-	y_train_gender = y_gender[:train_size]
-	y_val_gender = y_gender[train_size:train_size + val_size]
-	y_test_gender = y_gender[train_size + val_size:]
-	y_train_race = y_race[:train_size]
-	y_val_race = y_race[train_size:train_size + val_size]
-	y_test_race = y_race[train_size + val_size:]
+	x_train = [x[i] for i in train_idx]
+	x_val = [x[i] for i in val_idx]
+	x_test = [x[i] for i in test_idx]
+	y_train_age = y_age[train_idx]
+	y_val_age = y_age[val_idx]
+	y_test_age = y_age[test_idx]
+	y_train_gender = y_gender[train_idx]
+	y_val_gender = y_gender[val_idx]
+	y_test_gender = y_gender[test_idx]
+	y_train_race = y_race[train_idx]
+	y_val_race = y_race[val_idx]
+	y_test_race = y_race[test_idx]
 
 	train_dataset = CustomDataset(x_train, y_train_age, y_train_gender, y_train_race)
 	val_dataset = CustomDataset(x_val, y_val_age, y_val_gender, y_val_race)
@@ -100,12 +100,10 @@ def create_data_loaders(df):
 
 
 def plot_confusion_matrix(y_name, actual, predictions, labels):
-	cm = confusion_matrix(actual, predictions)
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 	f1 = f1_score(actual, predictions, average='binary' if len(labels) == 2 else 'weighted')
-
-	disp.plot(cmap='plasma')
-	plt.title(f'Test confusion matrix for {y_name} classification\n(F1 score: {f1})')
+	cm = confusion_matrix(actual, predictions)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.title(f'Test confusion matrix for {y_name} classification\n(F1 score: {f1:.3f})')
 	plt.show()
 
 
@@ -127,20 +125,20 @@ if __name__ == '__main__':
 
 	# 2. Plot some examples
 
-	rand_indices = np.random.choice(range(df.shape[0]), size=9, replace=False)
-	_, axes = plt.subplots(nrows=3, ncols=3)
-	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0.3, wspace=0)
+	rand_indices = np.random.choice(range(df.shape[0]), size=16, replace=False)
+	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(7, 7))
+	plt.subplots_adjust(left=0.05, right=0.95, bottom=0.05, hspace=0.3)
 	for idx, ax in zip(rand_indices, axes.flatten()):
 		sample = Image.open(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
 		ax.set_title(f"{df['age'][idx]}, {df['gender'][idx]}, {df['race'][idx]}")
-	plt.suptitle('Data samples (age, gender, race)', x=0.508, y=0.95)
+	plt.suptitle('Data samples (age, gender, race)', y=0.96)
 	plt.show()
 
 	# 3. Plot output feature distributions
 
-	fig, axes = plt.subplots(nrows=3)
+	fig, axes = plt.subplots(nrows=3, figsize=(8, 6))
 	plt.subplots_adjust(hspace=0.4)
 	for ax, col in zip(axes, ['age', 'gender', 'race']):
 		if col == 'age':
@@ -175,7 +173,7 @@ if __name__ == '__main__':
 		print('\n----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
+		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, N_EPOCHS + 1):
@@ -206,7 +204,7 @@ if __name__ == '__main__':
 			race_val_f1 = f1_score(y_val_race.argmax(dim=1), race_val_pred_probs.argmax(dim=1), average='weighted')
 
 			model_path = f'./model_{age_val_mae:.2f}_{gender_val_f1:.2f}_{race_val_f1:.2f}.pth'
-			torch.save(model.state_dict(), model_path)
+			torch.save(model.state_dict(), model_path)  # Best: model_5.72_0.90_0.78.pth
 
 			history['age_val_MAE'].append(age_val_mae)
 			history['gender_val_F1'].append(gender_val_f1)
@@ -223,7 +221,7 @@ if __name__ == '__main__':
 				break
 
 		# Plot training metrics
-		_, (ax_age_val_mae, ax_gender_f1, ax_race_f1) = plt.subplots(nrows=3, sharex=True)
+		_, (ax_age_val_mae, ax_gender_f1, ax_race_f1) = plt.subplots(nrows=3, sharex=True, figsize=(8, 5))
 		ax_age_val_mae.plot(history['age_val_MAE'])
 		ax_gender_f1.plot(history['gender_val_F1'])
 		ax_race_f1.plot(history['race_val_F1'])
@@ -267,10 +265,10 @@ if __name__ == '__main__':
 	plot_confusion_matrix('gender', y_test_gender, gender_test_pred_labels, sorted(DATASET_DICT['gender_id'].values()))
 	plot_confusion_matrix('race', y_test_race.argmax(dim=1), race_test_pred_labels, sorted(DATASET_DICT['race_id'].values()))
 
-	# Plot first 9 test set images with outputs
+	# Plot first 16 test set images with outputs
 
-	_, axes = plt.subplots(nrows=3, ncols=3)
-	plt.subplots_adjust(top=0.8, bottom=0.05, hspace=0.5, wspace=0.4)
+	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 8))
+	plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.05, hspace=0.45)
 
 	for idx, ax in enumerate(axes.flatten()):
 		img, y_age, y_gender, y_race = x_test[idx], y_test_age[idx], y_test_gender[idx], y_test_race[idx]
@@ -292,8 +290,9 @@ if __name__ == '__main__':
 		ax.imshow(img)
 		ax.axis('off')
 		ax.set_title(
-			f'Predicted: {age_pred}, {gender_pred_label}, {race_pred_label}'
-			+ f'\nActual: {int(y_age)}, {y_gender_label}, {y_race_label}'
+			f'Pred: {age_pred}, {gender_pred_label}, {race_pred_label}'
+			+ f'\nActual: {int(y_age)}, {y_gender_label}, {y_race_label}',
+			fontsize=11
 		)
-	plt.suptitle('Test output examples', x=0.508, y=0.95)
+	plt.suptitle('Test output examples', y=0.96)
 	plt.show()

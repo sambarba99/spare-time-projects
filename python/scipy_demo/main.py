@@ -10,7 +10,7 @@ import numpy as np
 import scipy
 
 
-plt.rcParams['figure.figsize'] = (9, 6)
+plt.rcParams['figure.figsize'] = (6, 4)
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 
@@ -73,7 +73,7 @@ def integration():
 
 	res = scipy.integrate.quad(f, 0, 2 * np.pi)
 	plt.plot(x, y)
-	plt.title(f'Integration\nArea = {res[0]}, error = {res[1]}')
+	plt.title(f'Integration\nArea = {res[0]:.3f}, error = {res[1]:.3f}')
 	plt.fill_between(x, y, color='tab:blue', alpha=0.2)
 	plt.show()
 
@@ -120,8 +120,8 @@ def curve_fitting():
 	plt.xlabel(r'$t$')
 	plt.ylabel(r'$y$')
 	plt.title(f'Fitted curve\n'
-		fr'$A, \omega, \phi$ = {A_opt:.4f}, {w_opt:.4f}, {phi_opt:.4f}'
-		f'\nErrors = {A_error:.4f}, {w_error:.4f}, {phi_error:.4f}')
+		fr'$A, \omega, \phi$ = {A_opt:.3f}, {w_opt:.3f}, {phi_opt:.3f}'
+		f'\nErrors = {A_error:.3f}, {w_error:.3f}, {phi_error:.3f}')
 	plt.show()
 
 

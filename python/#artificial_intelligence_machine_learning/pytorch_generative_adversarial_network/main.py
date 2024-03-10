@@ -16,7 +16,6 @@ from custom_dataset import CustomDataset
 from models import Discriminator, Generator
 
 
-plt.rcParams['figure.figsize'] = (6, 6)
 torch.manual_seed(1)
 
 IMG_SIZE = 64
@@ -31,7 +30,6 @@ OPTIM_BETAS = (0.5, 0.999)
 def create_train_loader():
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
-		# transforms.CenterCrop(IMG_SIZE),
 		transforms.ToTensor(),
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
@@ -43,7 +41,7 @@ def create_train_loader():
 
 
 def plot_gen_output(gen_images, title, save_path=None):
-	_, axes = plt.subplots(nrows=5, ncols=5)
+	_, axes = plt.subplots(nrows=5, ncols=5, figsize=(6, 6))
 	plt.gcf().set_facecolor('black')
 	plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 	for idx, ax in enumerate(axes.flatten()):

@@ -13,8 +13,6 @@ import numpy as np
 import pygame as pg
 
 
-plt.rcParams['figure.figsize'] = (7, 5)
-
 N = 12
 BLANK = 0
 QUEEN = 1
@@ -94,17 +92,13 @@ def draw_grid(solve_status):
 
 
 def plot_backtracks():
-	# Flip, as we want matplotlib to enumerate the y-axis from 0 to 8 going upwards
-	# (line plt.gca().invert_yaxis() below)
-	grid_flipped = np.flipud(backtrack_grid)
-
-	ax = plt.subplot()
-	mat = ax.matshow(grid_flipped, cmap='plasma')
-	ax.xaxis.set_ticks_position('bottom')
-	for (j, i), val in np.ndenumerate(grid_flipped):
-		ax.text(x=i, y=j, s=val, ha='center', va='center')
+	threshold = (backtrack_grid.min() + backtrack_grid.max()) / 2
+	_, ax = plt.subplots(figsize=(7, 5))
+	mat = ax.matshow(backtrack_grid, cmap='Blues')
+	for (j, i), val in np.ndenumerate(backtrack_grid):
+		ax.text(x=i, y=j, s=val, ha='center', va='center', color='black' if val < threshold else 'white')
 	ax.set_title(f'Heatmap of backtracks (total: {backtrack_grid.sum()})')
-	plt.gca().invert_yaxis()
+	plt.axis('off')
 	plt.colorbar(mat, ax=ax)
 	plt.show()
 
