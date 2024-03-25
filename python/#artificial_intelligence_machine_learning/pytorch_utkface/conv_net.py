@@ -76,4 +76,4 @@ class CNN(nn.Module):
 		gender_out = self.gender_branch(fc_out)
 		race_out = self.race_branch(fc_out)
 
-		return age_out, gender_out, race_out
+		return age_out.squeeze(), gender_out.squeeze(), race_out

@@ -166,11 +166,11 @@ if __name__ == '__main__':
 			model.train()
 
 			for x, y in train_loader:
-				y_probs = model(x).squeeze()
-				y_pred = y_probs.round().detach().numpy()
+				y_train_probs = model(x)
+				y_train_pred = y_train_probs.round().detach().numpy()
 
-				loss = loss_func(y_probs, y)
-				f1 = f1_score(y, y_pred)
+				loss = loss_func(y_train_probs, y)
+				f1 = f1_score(y, y_train_pred)
 				total_loss += loss.item()
 				total_f1 += f1
 
@@ -180,7 +180,7 @@ if __name__ == '__main__':
 
 			model.eval()
 			with torch.inference_mode():
-				y_val_probs = model(x_val).squeeze()
+				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.round()
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val, y_val_pred)
@@ -223,22 +223,22 @@ if __name__ == '__main__':
 
 	model.eval()
 	with torch.inference_mode():
-		test_pred_probs = model(x_test).squeeze()
-	test_pred = test_pred_probs.round()
-	test_loss = loss_func(test_pred_probs, y_test)
+		y_test_probs = model(x_test)
+	y_test_pred = y_test_probs.round()
+	test_loss = loss_func(y_test_probs, y_test)
 	print('Test loss:', test_loss.item())
 
 	# Confusion matrix
 
-	f1 = f1_score(y_test, test_pred)
-	cm = confusion_matrix(y_test, test_pred)
+	f1 = f1_score(y_test, y_test_pred)
+	cm = confusion_matrix(y_test, y_test_pred)
 	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['healthy', 'parkinsons']).plot(cmap='Blues')
 	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()
 
 	# ROC curve
 
-	fpr, tpr, _ = roc_curve(y_test, test_pred_probs)
+	fpr, tpr, _ = roc_curve(y_test, y_test_probs)
 	plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
 	plt.plot(fpr, tpr)
 	plt.axis('scaled')

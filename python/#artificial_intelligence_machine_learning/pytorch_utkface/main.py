@@ -179,8 +179,7 @@ if __name__ == '__main__':
 		for epoch in range(1, N_EPOCHS + 1):
 			model.train()
 			for x_train, y_train_age, y_train_gender, y_train_race in train_loader:
-				y_train_pred = model(x_train)
-				age_pred, gender_pred_probs, race_pred_probs = map(torch.squeeze, y_train_pred)
+				age_pred, gender_pred_probs, race_pred_probs = model(x_train)
 
 				age_loss = loss_func_age(age_pred, y_train_age)
 				gender_loss = loss_func_gender(gender_pred_probs, y_train_gender)
@@ -196,8 +195,7 @@ if __name__ == '__main__':
 			x_val, y_val_age, y_val_gender, y_val_race = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
-				y_val_pred = model(x_val)
-			age_val_pred, gender_val_pred_probs, race_val_pred_probs = map(torch.squeeze, y_val_pred)
+				age_val_pred, gender_val_pred_probs, race_val_pred_probs = model(x_val)
 
 			age_val_mae = metric_age(age_val_pred, y_val_age).item()
 			gender_val_f1 = f1_score(y_val_gender, gender_val_pred_probs.detach().numpy().round())
@@ -242,8 +240,7 @@ if __name__ == '__main__':
 	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
 	model.eval()
 	with torch.inference_mode():
-		y_test_pred = model(x_test)
-	age_test_pred, gender_test_pred_probs, race_test_pred_probs = map(torch.squeeze, y_test_pred)
+		age_test_pred, gender_test_pred_probs, race_test_pred_probs = model(x_test)
 
 	print('Test age MAE:', metric_age(age_test_pred, y_test_age).item())
 

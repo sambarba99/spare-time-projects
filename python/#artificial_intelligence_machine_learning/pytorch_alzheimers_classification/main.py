@@ -136,7 +136,7 @@ if __name__ == '__main__':
 			model.train()
 
 			for x_train, y_train in train_loader:
-				y_train_probs = model(x_train).squeeze()
+				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 
 				loss = loss_func(y_train_probs, y_train)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 			x_val, y_val = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
-				y_val_probs = model(x_val).squeeze()
+				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.argmax(dim=1)
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
@@ -195,16 +195,16 @@ if __name__ == '__main__':
 	x_test, y_test = next(iter(test_loader))
 	model.eval()
 	with torch.inference_mode():
-		y_test_probs = model(x_test).squeeze()
-	test_pred = y_test_probs.argmax(dim=1)
+		y_test_probs = model(x_test)
+	y_test_pred = y_test_probs.argmax(dim=1)
 
 	test_loss = loss_func(y_test_probs, y_test)
 	print('Test loss:', test_loss.item())
 
 	# Confusion matrix
 
-	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
-	cm = confusion_matrix(y_test.argmax(dim=1), test_pred)
+	f1 = f1_score(y_test.argmax(dim=1), y_test_pred, average='weighted')
+	cm = confusion_matrix(y_test.argmax(dim=1), y_test_pred)
 	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=DATA_SUBFOLDERS).plot(cmap='Blues')
 	plt.title(f'Test confusion matrix\n(F1 score: {f1:.3f})')
 	plt.show()

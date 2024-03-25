@@ -32,4 +32,4 @@ class CNN(nn.Module):
 		conv_out = self.conv_block(x)
 		# print(conv_out.shape)  # To get in_features of self.fc_block (e.g. [N, 64, 17, 14] -> 64x17x14 = 15232)
 		fc_out = self.fc_block(conv_out)
-		return fc_out
+		return fc_out.squeeze()

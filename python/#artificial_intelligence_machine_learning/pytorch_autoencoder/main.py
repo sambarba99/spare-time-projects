@@ -72,8 +72,8 @@ def do_mnist():
 				optimiser.step()
 
 			with torch.inference_mode():
-				reconstructed = model(x_val)
-			val_loss = loss_func(reconstructed, x_val).item()
+				val_reconstructed = model(x_val)
+			val_loss = loss_func(val_reconstructed, x_val).item()
 			val_loss_history.append(val_loss)
 
 			if epoch % 10 == 0:
@@ -99,16 +99,18 @@ def do_mnist():
 		torch.from_numpy(x).float()
 	).detach().numpy()
 
-	plt.rcParams['figure.figsize'] = (12, 6)
-	fig, (ax_latent, ax_decoded) = plt.subplots(ncols=2)
+	fig, (ax_latent, ax_decoded) = plt.subplots(ncols=2, figsize=(9, 5))
+	plt.subplots_adjust(wspace=0.1)
 	encodings_scatter = ax_latent.scatter(*encodings.T, c=y, s=2, alpha=0.2, cmap='jet')
 	handles, _ = encodings_scatter.legend_elements()
 	for h in handles:
 		h.set_alpha(1)
 	ax_latent.legend(handles=handles, labels=range(10))
+	ax_latent.axis('scaled')
 	ax_latent.set_xlabel('Latent variable 1')
 	ax_latent.set_ylabel('Latent variable 2')
 	ax_latent.set_title('Latent space')
+	ax_decoded.axis('off')
 	ax_decoded.set_title('Decoded image')
 
 	def update_plots(_):
@@ -238,8 +240,8 @@ if __name__ == '__main__':
 					optimiser.step()
 
 				with torch.inference_mode():
-					reconstructed = model(x_val)
-				val_loss = loss_func(reconstructed, x_val).item()
+					val_reconstructed = model(x_val)
+				val_loss = loss_func(val_reconstructed, x_val).item()
 				val_loss_history.append(val_loss)
 
 				if epoch % 10 == 0:

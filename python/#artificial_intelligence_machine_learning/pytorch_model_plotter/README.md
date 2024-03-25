@@ -1,4 +1,4 @@
-Script to plot a PyTorch model as a Graphviz graph
+Script for plotting PyTorch models as Graphviz graphs
 
 Example uses:
 

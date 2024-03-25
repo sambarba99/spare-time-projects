@@ -93,7 +93,7 @@ if __name__ == '__main__':
 			model.train()
 
 			for x, y in train_loader:
-				y_probs = model(x).squeeze()
+				y_probs = model(x)
 				y_pred = y_probs.argmax(dim=1)
 
 				loss = loss_func(y_probs, y)
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
 			model.eval()
 			with torch.inference_mode():
-				y_val_probs = model(x_val).squeeze()
+				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.argmax(dim=1)
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
 	model.eval()
 	with torch.inference_mode():
-		y_test_probs = model(x_test).squeeze()
+		y_test_probs = model(x_test)
 	test_pred = y_test_probs.argmax(dim=1)
 	test_loss = loss_func(y_test_probs, y_test)
 	print('Test loss:', test_loss.item())
@@ -201,7 +201,7 @@ if __name__ == '__main__':
 	drawn_digit_grid[user_drawing_coords[:, 1], user_drawing_coords[:, 0]] = 1
 	drawn_digit_input = drawn_digit_grid.reshape((1, *INPUT_SHAPE))
 	with torch.inference_mode():
-		pred_vector = model(drawn_digit_input).squeeze()
+		pred_vector = model(drawn_digit_input)
 
 	plt.imshow(drawn_digit_grid, cmap='gray')
 	plt.title(f'Drawn digit is {pred_vector.argmax()} ({(100 * pred_vector.max()):.1f}% sure)')
