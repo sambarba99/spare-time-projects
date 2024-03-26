@@ -7,9 +7,9 @@ superposition is 'collapsed'), meaning its image can be visualised.
 
 All tile images in ./tile_imgs are named as:
 
-<name>-<north left/middle/right colors>-<east left/middle/right colors>-<etc>-<no. times to rotate>.png.
+<name>_<north left/middle/right colors>_<east left/middle/right colors>_<etc>_<no. times to rotate>.png.
 
-E.g. ./tile_imgs/plain/bar-AAA-ABA-AAA-ABA-1.png.
+E.g. ./tile_imgs/plain/bar_aaa_aba_aaa_aba_1.png.
 
 Colours of their sides are read clockwise going around the edge of the tile. The number at the end is
 how many times the tile needs to be rotated to generate all possible orientations (2 in total in the
@@ -40,9 +40,9 @@ tiles = grid = scene = font = None
 
 
 def setup():
-	global tiles, scene, font
-
 	assert COLLAGE_TYPE in ('plain', 'circuit')
+
+	global tiles, scene, font
 
 	pg.init()
 	pg.display.set_caption('Visualisation of Wave Function Collapse')
@@ -54,7 +54,7 @@ def setup():
 	tiles = []
 	for img_file in os.listdir(f'./tile_imgs/{COLLAGE_TYPE}'):
 		img = pg.image.load(f'./tile_imgs/{COLLAGE_TYPE}/{img_file}').convert()
-		split = img_file.split('-')
+		split = img_file.split('_')
 		edge_colour_codes = split[1:-1]
 		n_rotations = split[-1].removesuffix('.png')
 		tiles.append(Tile(img, edge_colour_codes, int(n_rotations)))

@@ -13,7 +13,7 @@ con = curs = None
 
 
 def get_pwd():
-	with open('C:/Users/Sam/Desktop/Projects/sql_password.txt', 'r') as file:
+	with open('C:/Users/Sam/Desktop/projects/sql_password.txt', 'r') as file:
 		pwd = file.read()
 	return pwd
 
