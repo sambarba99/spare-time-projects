@@ -24,10 +24,10 @@ python/*/.idea/
 datasets/alzheimers/
 datasets/parkinsons/
 datasets/UTKFace/
-python/\#artificial_intelligence_machine_learning/pytorch_alzheimers_classification/model.pth
-python/\#artificial_intelligence_machine_learning/pytorch_embedding_movie_review_analysis/model.pth
-python/\#artificial_intelligence_machine_learning/pytorch_parkinsons_classification/model.pth
-python/\#artificial_intelligence_machine_learning/pytorch_utkface/model.pth
+python/_artificial_intelligence_machine_learning/pytorch_alzheimers_classification/model.pth
+python/_artificial_intelligence_machine_learning/pytorch_embedding_movie_review_analysis/model.pth
+python/_artificial_intelligence_machine_learning/pytorch_parkinsons_classification/model.pth
+python/_artificial_intelligence_machine_learning/pytorch_utkface/model.pth
 
 # Ignore MySQL password
 sql_password.txt
