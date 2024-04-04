@@ -53,21 +53,22 @@ def create_data_loaders(df):
 
 	x = [
 		transform(Image.open(fp)) for fp in
-		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
+		tqdm(df['img_path'], desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
 	y = pd.get_dummies(df['class'], prefix='class', dtype=int).to_numpy()
+	y = torch.tensor(y).float()
 
-	# Train:validation:test ratio of 0.8:0.1:0.1
+	# Create train/validation/test sets (ratio 0.8:0.1:0.1)
 	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
 
 	train_dataset = CustomDataset(x_train, y_train)
 	val_dataset = CustomDataset(x_val, y_val)
 	test_dataset = CustomDataset(x_test, y_test)
-	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
-	val_loader = DataLoader(val_dataset, batch_size=len(x_val), shuffle=False)
-	test_loader = DataLoader(test_dataset, batch_size=len(x_test), shuffle=False)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+	val_loader = DataLoader(val_dataset, batch_size=len(x_val))
+	test_loader = DataLoader(test_dataset, batch_size=len(x_test))
 
 	return train_loader, val_loader, test_loader
 
@@ -136,9 +137,12 @@ if __name__ == '__main__':
 
 		for epoch in range(1, N_EPOCHS + 1):
 			total_loss = total_f1 = 0
+			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
 			for x_train, y_train in train_loader:
+				progress_bar.update()
+				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 
@@ -151,6 +155,8 @@ if __name__ == '__main__':
 				loss.backward()
 				optimiser.step()
 
+				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
+
 			x_val, y_val = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
@@ -158,17 +164,13 @@ if __name__ == '__main__':
 			y_val_pred = y_val_probs.argmax(dim=1)
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			progress_bar.close()
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
 			history['val_loss'].append(val_loss)
 			history['val_F1'].append(val_f1)
-
-			print(f'Epoch {epoch}/{N_EPOCHS} | '
-				f'Loss: {total_loss / len(train_loader)} | '
-				f'F1: {total_f1 / len(train_loader)} | '
-				f'Val loss: {val_loss} | '
-				f'Val F1: {val_f1}')
 
 			if early_stopping(val_f1, model.state_dict()):
 				print('Early stopping at epoch', epoch)

@@ -205,7 +205,7 @@ def draw_grid(colour_current_row, status=None):
 	status_font = pg.font.SysFont('consolas', 18)
 
 	if not status:
-		status_lbl = status_font.render(f'Attempt {attempt_num + 1}/{MAX_ATTEMPTS}', True, (220, 220, 220))
+		status_lbl = status_font.render(f'Attempt {attempt_num + 1}/{MAX_ATTEMPTS}', True, (224, 224, 224))
 	else:
 		status_lbl = status_font.render(status, True, (255, 255, 255))
 

@@ -9,68 +9,75 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-plt.rcParams['figure.figsize'] = (7, 7)
-
-
 class KMeans:
 	def __init__(self, k):
-		self.x = None
 		self.k = k
-		self.n_samples = 0
-		self.n_features = 0
 		self.clusters = None
 		self.centroids = None
+		self.distance_metric = []
 
-	def predict(self, x):
-		def euclidean_dist(p1, p2):
-			return np.linalg.norm(p1 - p2)
+		_, (ax_clusters, ax_distance_metric) = plt.subplots(ncols=2, figsize=(9, 5))
+		self.ax_clusters = ax_clusters
+		self.ax_distance_metric = ax_distance_metric
 
-		def create_clusters():
-			"""Assign the samples to the closest centroids to create clusters"""
-			clusters = [[] for _ in range(self.k)]
-
-			for sample_idx, sample in enumerate(self.x):
-				distances = [euclidean_dist(sample, point) for point in self.centroids]
-				centroid_idx = np.argmin(distances)
-				clusters[centroid_idx].append(sample_idx)
-
-			return clusters
-
-		def get_centroids():
-			"""Mean value of clusters"""
-			centroids = np.zeros((self.k, self.n_features))
-
-			for cluster_idx, cluster in enumerate(self.clusters):
-				cluster_mean = self.x[cluster].mean(axis=0)
-				centroids[cluster_idx] = cluster_mean
-
-			return centroids
-
+	def fit(self, x):
 		def get_cluster_labels():
-			"""For each sample, get the label of the cluster to which it was assigned"""
-			labels = np.zeros(self.n_samples, dtype=int)
+			"""For each sample, get the cluster label to which it was last assigned"""
 
+			x_cluster_labels = np.zeros(len(x), dtype=int)
 			for cluster_idx, cluster in enumerate(self.clusters):
-				labels[cluster] = cluster_idx
+				x_cluster_labels[cluster] = cluster_idx
 
-			return labels
+			return x_cluster_labels
+
+		def get_sum_of_squares():
+			"""Get the total inter-cluster sum of squares"""
+
+			x_cluster_labels = get_cluster_labels()
+			total_sum_squares = 0
+			for i in range(self.k):
+				cluster_points_i = x[x_cluster_labels == i]
+				distances = np.linalg.norm(cluster_points_i - self.centroids[i], axis=1)
+				sum_squares = (distances ** 2).sum()
+				total_sum_squares += sum_squares
+
+			return total_sum_squares
 
 		def plot(title):
-			plt.cla()
+			self.ax_clusters.clear()
+			self.ax_distance_metric.clear()
 
-			# Plot cluster points
-			for idx, c in enumerate(self.clusters, start=1):
-				plt.scatter(*self.x[c].T, alpha=0.5, label=f'Class {idx} ({len(x[c])} samples)')
+			# Plot clusters (points and centroids)
 
-			# Plot cluster centres
-			for point in self.centroids:
-				plt.scatter(*point, color='black', linewidth=3, marker='x', s=100)
+			y_cols = get_cluster_labels()
+			self.ax_clusters.scatter(*x.T, c=y_cols, cmap='jet', alpha=0.7)
+			self.ax_clusters.scatter(*self.centroids.T, color='black', linewidth=3, marker='x', s=100)
 
-			plt.axis('scaled')
-			legend = plt.legend()
-			for handle in legend.legend_handles:
-				handle.set_alpha(1)
-			plt.title(title)
+			# Plot mesh and mesh point classifications
+
+			x_min, x_max = x[:, 0].min(), x[:, 0].max()
+			y_min, y_max = x[:, 1].min(), x[:, 1].max()
+			xx, yy = np.meshgrid(
+				np.linspace(x_min - 0.05, x_max + 0.05, 500),
+				np.linspace(y_min - 0.05, y_max + 0.05, 500)
+			)
+			mesh_coords = np.column_stack((xx.flatten(), yy.flatten()))
+			mesh_y = self.predict(mesh_coords)
+			mesh_y = mesh_y.reshape(xx.shape)
+			self.ax_clusters.imshow(
+				mesh_y, interpolation='nearest', cmap='jet', alpha=0.2, aspect='auto', origin='lower',
+				extent=(xx.min(), xx.max(), yy.min(), yy.max())
+			)
+
+			# Plot distance metric
+
+			self.distance_metric.append(get_sum_of_squares())
+			self.ax_distance_metric.plot(self.distance_metric)
+
+			self.ax_clusters.axis('scaled')
+			self.ax_clusters.set_title(title)
+			self.ax_distance_metric.set_xlabel('Step no.')
+			self.ax_distance_metric.set_title('Total inter-cluster sum of squares')
 
 			if title == 'Converged':
 				plt.show()
@@ -79,31 +86,37 @@ class KMeans:
 				plt.pause(0.8)
 
 
-		self.x = x
-		self.n_samples = x.shape[0]
-		self.n_features = x.shape[1]
+		# 1. Initially choose centroids randomly from x
+		self.centroids = x[np.random.choice(len(x), size=self.k, replace=False)]
 
-		# Initially choose centroids randomly from x
-		self.centroids = self.x[np.random.choice(self.n_samples, size=self.k, replace=False)]
-
-		# Optimise clusters
+		# 2. Optimise clusters
 		while True:
-			# Create clusters by assigning samples to the closest centroids
-			self.clusters = create_clusters()
+			# 2a. Create clusters by assigning sample indices to their closest centroid
+			self.clusters = [[] for _ in range(self.k)]
+			y = self.predict(x)
+			for idx, yi in enumerate(y):
+				self.clusters[yi].append(idx)
 
 			plot('Classified samples')
 
-			# Calculate new centroids from the clusters
-			centroids_prev = self.centroids
-			self.centroids = get_centroids()
+			# 2b. Calculate new centroids from the clusters
+			centroids_prev = self.centroids.copy()
 
-			# Stop if converged (no distance change since last time)
-			distances = [euclidean_dist(cp, c) for cp, c in zip(centroids_prev, self.centroids)]
+			for i in range(self.k):
+				cluster_mean = x[y == i].mean(axis=0)
+				self.centroids[i] = cluster_mean
+
+			# 2c. Check for convergence (no distance change since last time)
+			distances = np.linalg.norm(centroids_prev - self.centroids, axis=1)
 			if sum(distances) == 0:
 				plot('Converged')
 				break
 
 			plot('Updated centroids')
 
-		# Classify samples as the index of their clusters
-		return get_cluster_labels(), self.centroids
+	def predict(self, x):
+		"""Classify samples as the index of their clusters (nearest centroids)"""
+
+		distances = np.linalg.norm(x[:, np.newaxis] - self.centroids, axis=2)
+		y = np.argmin(distances, axis=1)
+		return y

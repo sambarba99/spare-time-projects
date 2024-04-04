@@ -41,11 +41,11 @@ def create_train_loader():
 	img_paths = [f'{root_dir}/{f}' for f in os.listdir(root_dir) if f.endswith('.jpg')]
 	x = [
 		transform(Image.open(fp)) for fp in
-		tqdm(img_paths, desc='Preprocessing images', ascii=True)
+		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
 	dataset = CustomDataset(x)
-	train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
+	train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 	return train_loader
 
@@ -91,7 +91,11 @@ if __name__ == '__main__':
 		plot_gen_output(fake_images_test, 'Start', './images/0_start.png')
 
 		for epoch in range(1, N_EPOCHS + 1):
+			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
+
 			for batch_idx, img_batch in enumerate(train_loader, start=1):
+				progress_bar.update()
+				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
 				gen_model.train()
 				noise = torch.randn(len(img_batch), GEN_LATENT_DIM, 1, 1)
 				fake = gen_model(noise)
@@ -117,6 +121,12 @@ if __name__ == '__main__':
 				gen_loss.backward()
 				gen_optimiser.step()
 
+				progress_bar.set_postfix_str(
+					f'disc_real_loss={disc_real_loss.item():.4f}, '
+					f'disc_fake_loss={disc_fake_loss.item():.4f}, '
+					f'gen_loss={gen_loss.item():.4f}'
+				)
+
 				# Plot generation progress
 
 				gen_model.eval()
@@ -126,11 +136,7 @@ if __name__ == '__main__':
 				save_path = f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png'
 				plot_gen_output(fake_images_test, title, save_path)
 
-				if batch_idx % 10 == 0:
-					print(f'{title.replace("iteration", "batch")}  |  '
-						f'Disc real loss: {disc_real_loss.item():.4f}  |  '
-						f'Disc fake loss: {disc_fake_loss.item():.4f}  |  '
-						f'Gen loss: {gen_loss.item():.4f}')
+			progress_bar.close()
 
 		torch.save(gen_model.state_dict(), './gen_model.pth')
 

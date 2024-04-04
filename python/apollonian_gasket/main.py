@@ -34,17 +34,17 @@ def generate():
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Apollonian Gasket Drawing')
-	root.config(width=400, height=310, background='#202029')
+	root.config(width=400, height=310, background='#101010')
 	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
-	select_iters_lbl = tk.Label(root, text='Select no. steps:', font='consolas', background='#202029', foreground='white')
+	select_iters_lbl = tk.Label(root, text='Select no. steps:', font='consolas', background='#101010', foreground='white')
 	slider_steps = tk.Scale(root,
 		from_=0, to=6, resolution=1, orient='horizontal', font='consolas',
 		command=lambda _: generate()
 	)
 
-	select_radii_lbl = tk.Label(root, text="Select 3 starting circles' radii:", font='consolas', background='#202029', foreground='white')
+	select_radii_lbl = tk.Label(root, text="Select 3 starting circles' radii:", font='consolas', background='#101010', foreground='white')
 	slider_r1 = tk.Scale(root, from_=1, to=5, resolution=0.1, orient='horizontal', font='consolas',
 		command=lambda _: generate())
 	slider_r2 = tk.Scale(root, from_=1, to=5, resolution=0.1, orient='horizontal', font='consolas',

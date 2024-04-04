@@ -12,16 +12,13 @@ import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = (9, 6)
 
 
-def do_collatz(num, print_trajectory):
+def get_collatz_trajectory(num):
 	trajectory = [num]
 	while num > 1:
-		if print_trajectory: print(num, end='')
 		if num % 2 == 0:
 			num //= 2
-			if print_trajectory: print(f' / 2 = {num}')
 		else:
 			num = 3 * num + 1
-			if print_trajectory: print(f' * 3 + 1 = {num}')
 		trajectory.append(num)
 	return trajectory
 
@@ -30,7 +27,7 @@ if __name__ == '__main__':
 	# 1. Plot trajectory for a single number
 
 	num = 27
-	trajectory = do_collatz(num, print_trajectory=True)
+	trajectory = get_collatz_trajectory(num)
 	plt.plot(trajectory, color='red', linewidth=1)
 	plt.xlabel('Iteration')
 	plt.ylabel('Value')
@@ -42,7 +39,7 @@ if __name__ == '__main__':
 	nums_and_iters = dict()
 
 	for i in range(1, 10001):
-		trajectory = do_collatz(i, print_trajectory=False)
+		trajectory = get_collatz_trajectory(i)
 		nums_and_iters[i] = len(trajectory) - 1
 
 	plt.scatter(nums_and_iters.keys(), nums_and_iters.values(), color='red', s=1)
@@ -74,7 +71,8 @@ if __name__ == '__main__':
 
 	g = Digraph(
 		graph_attr={'nodesep': '0.1', 'ranksep': '0.3'},
-		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'}
+		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'},
+		edge_attr={'arrowsize': '0.7'}
 	)
 
 	for n in nodes:

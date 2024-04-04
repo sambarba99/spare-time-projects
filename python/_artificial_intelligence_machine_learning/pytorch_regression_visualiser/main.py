@@ -52,17 +52,13 @@ if __name__ == '__main__':
 	noise = 0.5
 	y += np.random.uniform(-noise, noise, len(x))
 
+	x, y = torch.tensor(x).float(), torch.tensor(y).float()
+
 	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, random_state=1)
 
 	test_idx = np.argsort(x_test)  # Sort test data in order of x so it's plottable
 	x_test = x_test[test_idx]
 	y_test = y_test[test_idx]
-
-	# Convert to tensors
-	x_train_val, y_train_val, x_test, y_test = map(
-		lambda arr: torch.FloatTensor(arr),
-		[x_train_val, y_train_val, x_test, y_test]
-	)
 
 	# 2. Define model
 

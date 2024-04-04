@@ -209,7 +209,7 @@ class PPOAgent:
 		return total_return_per_episode
 
 	def choose_action(self, state):
-		state = torch.FloatTensor(state)
+		state = torch.tensor(state).float()
 		with torch.inference_mode():
 			action, action_log_prob, state_value = self.policy.act(state)
 
@@ -234,7 +234,7 @@ class PPOAgent:
 			returns_to_go.insert(0, discounted_return)
 
 		# Standardise for more stable training
-		returns_to_go = torch.FloatTensor(returns_to_go)
+		returns_to_go = torch.tensor(returns_to_go).float()
 		returns_to_go = (returns_to_go - returns_to_go.mean()) / (returns_to_go.std() + 1e-7)
 
 		return returns_to_go

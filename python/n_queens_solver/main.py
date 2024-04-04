@@ -66,19 +66,19 @@ def valid(row, col):
 def draw_grid(solve_status):
 	scene.fill('black')
 
-	status_lbl = status_font.render(f'{solve_status}', True, (220, 220, 220))
+	status_lbl = status_font.render(f'{solve_status}', True, (224, 224, 224))
 	scene.blit(status_lbl, (GRID_OFFSET, 25))
 
 	for i in range(N):
 		for j in range(N):
 			if (i + j) % 2:
 				pg.draw.rect(
-					scene, (20, 20, 20),
+					scene, (16, 16, 16),
 					pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE)
 				)
 			else:
 				pg.draw.rect(
-					scene, (60, 60, 60),
+					scene, (64, 64, 64),
 					pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE)
 				)
 

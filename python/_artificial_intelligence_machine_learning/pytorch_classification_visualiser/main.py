@@ -63,7 +63,7 @@ def gen_data(mode):
 	if n_classes > 2:
 		y = np.eye(n_classes)[y]  # One-hot encode
 
-	x, y = torch.FloatTensor(x), torch.FloatTensor(y)
+	x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
 	build_model()
 	plot_decision_boundary()
@@ -110,16 +110,16 @@ def train_model():
 
 def plot_decision_boundary():
 	# Set up prediction boundaries and grid
-	x_min, x_max = x[:, 0].min() - 0.1, x[:, 0].max() + 0.1
-	y_min, y_max = x[:, 1].min() - 0.1, x[:, 1].max() + 0.1
+	x_min, x_max = x[:, 0].min(), x[:, 0].max()
+	y_min, y_max = x[:, 1].min(), x[:, 1].max()
 	xx, yy = np.meshgrid(
-		np.linspace(x_min, x_max, 250),
-		np.linspace(y_min, y_max, 250)
+		np.linspace(x_min - 0.1, x_max + 0.1, 250),
+		np.linspace(y_min - 0.1, y_max + 0.1, 250)
 	)
 	mesh_coords = np.column_stack((xx.flatten(), yy.flatten()))
 
 	# Make features
-	x_to_pred = torch.FloatTensor(mesh_coords)
+	x_to_pred = torch.tensor(mesh_coords).float()
 
 	# Make predictions
 	# (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
@@ -131,26 +131,26 @@ def plot_decision_boundary():
 		y_pred = y_probs.argmax(dim=1)
 
 	# Reshape and plot
-	y_pred = y_pred.reshape(xx.shape).detach().numpy()
-	y_flat = y if y.dim() == 1 else y.argmax(dim=1)
 	plt.cla()
-	plt.contourf(xx, yy, y_pred, alpha=0.4, cmap='jet')
-	plt.scatter(x[:, 0], x[:, 1], s=10, c=y_flat, cmap='jet')
-	plt.xlim(x_min, x_max)
-	plt.ylim(y_min, y_max)
-	plt.axis('scaled')
+	y_flat = y if y.dim() == 1 else y.argmax(dim=1)
+	plt.scatter(x[:, 0], x[:, 1], c=y_flat, cmap='jet', alpha=0.7)
+	y_pred = y_pred.reshape(xx.shape).detach().numpy()
+	plt.imshow(
+		y_pred, interpolation='nearest', cmap='jet', alpha=0.5, aspect='auto', origin='lower',
+		extent=(xx.min(), xx.max(), yy.min(), yy.max())
+	)
 
 
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Neural net boundary visualiser')
-	root.config(width=350, height=240, background='#202029')
+	root.config(width=350, height=240, background='#101010')
 	root.resizable(False, False)
 
 	gen_data_lbl = tk.Label(root, text='1. Generate data',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 	train_model_lbl = tk.Label(root, text='2. Train model',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 
 	btn_clusters = tk.Button(root, text='Clusters', font='consolas', command=lambda: gen_data('clusters'))
 	btn_circles = tk.Button(root, text='Circles', font='consolas', command=lambda: gen_data('circles'))

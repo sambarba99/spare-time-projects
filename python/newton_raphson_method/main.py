@@ -77,12 +77,12 @@ def handle_button_click(*, coefficients, find_root):
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Root/Stationary Point Finder')
-	root.config(width=400, height=200, background='#202029')
+	root.config(width=400, height=200, background='#101010')
 	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
 	enter_coeffs_lbl = tk.Label(root, text='Enter polynomial coefficients\n(e.g. for 3x^2 - 5 enter: 3 0 -5):',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 
 	entry_box = tk.Entry(root, font='consolas', justify='center')
 

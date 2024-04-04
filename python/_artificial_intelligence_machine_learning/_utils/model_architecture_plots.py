@@ -125,12 +125,16 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 	g.render(out_file, view=True, cleanup=True, format='png')
 
 
-def plot_model_manual(nodes, edges, input_shape, out_file='./model_architecture'):
+def plot_model_manual(*, nodes, edges=None, out_file='./model_architecture'):
 	def format_shape(shape_tuple):
 		shape_tuple = tuple([1] + list(shape_tuple))
 		shape_repr = str(shape_tuple).replace('(1', '(N')
 		return shape_repr
 
+
+	if edges is None:
+		# Sequential model
+		edges = [(i, i + 1) for i in range(len(nodes) - 1)]
 
 	g = Digraph(
 		edge_attr={'arrowsize': '0.7', 'color': 'white'},
@@ -138,7 +142,7 @@ def plot_model_manual(nodes, edges, input_shape, out_file='./model_architecture'
 		node_attr={'fontname': 'arial', 'fontsize': '10.5', 'shape': 'plain'}
 	)
 
-	nodes[0]['input_shape'] = format_shape(input_shape)
+	nodes[0]['input_shape'] = format_shape(nodes[0]['input_shape'])
 	for node in nodes:
 		node['output_shape'] = format_shape(node['output_shape'])
 	for src, dest in edges:

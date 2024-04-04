@@ -62,10 +62,13 @@ def create_data_loaders(df):
 
 	x = [
 		transform(Image.open(fp)) for fp in
-		tqdm(x_path, desc='Preprocessing images', ascii=True)
+		tqdm(x_path, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
+	y_age = torch.tensor(y_age).float()
+	y_gender = torch.tensor(y_gender).float()
+	y_race = torch.tensor(y_race).float()
 
-	# Split into train, validation, test sets (ratio 0.96:0.02:0.02)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
 	# Stratify based on binned age + gender + race
 
 	indices = np.arange(len(x))
@@ -94,9 +97,9 @@ def create_data_loaders(df):
 	train_dataset = CustomDataset(x_train, y_train_age, y_train_gender, y_train_race)
 	val_dataset = CustomDataset(x_val, y_val_age, y_val_gender, y_val_race)
 	test_dataset = CustomDataset(x_test, y_test_age, y_test_gender, y_test_race)
-	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
-	val_loader = DataLoader(val_dataset, batch_size=len(x_val), shuffle=False)
-	test_loader = DataLoader(test_dataset, batch_size=len(x_test), shuffle=False)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+	val_loader = DataLoader(val_dataset, batch_size=len(x_val))
+	test_loader = DataLoader(test_dataset, batch_size=len(x_test))
 
 	return train_loader, val_loader, test_loader
 
@@ -172,13 +175,20 @@ if __name__ == '__main__':
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, N_EPOCHS + 1):
+			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
+
 			for x_train, y_train_age, y_train_gender, y_train_race in train_loader:
+				progress_bar.update()
+				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
 				age_pred, gender_pred_probs, race_pred_probs = model(x_train)
 
 				age_loss = loss_func_age(age_pred, y_train_age)
+				age_mae = metric_age(age_pred, y_train_age).item()
 				gender_loss = loss_func_gender(gender_pred_probs, y_train_gender)
+				gender_f1 = f1_score(y_train_gender, gender_pred_probs.detach().numpy().round())
 				race_loss = loss_func_race(race_pred_probs, y_train_race)
+				race_f1 = f1_score(y_train_race.argmax(dim=1), race_pred_probs.argmax(dim=1), average='weighted')
 
 				# Apply loss weights
 				weighted_loss = age_loss * AGE_LOSS_WEIGHT + gender_loss * GENDER_LOSS_WEIGHT + race_loss * RACE_LOSS_WEIGHT
@@ -187,14 +197,36 @@ if __name__ == '__main__':
 				weighted_loss.backward()
 				optimiser.step()
 
+				progress_bar.set_postfix_str(
+					f'age_loss={age_loss.item():.4f}, '
+					f'age_MAE={age_mae:.4f}, '
+					f'gender_loss={gender_loss.item():.4f}, '
+					f'gender_F1={gender_f1:.4f}, '
+					f'race_loss={race_loss:.4f}, '
+					f'race_F1={race_f1:.4f}'
+				)
+
 			x_val, y_val_age, y_val_gender, y_val_race = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
 				age_val_pred, gender_val_pred_probs, race_val_pred_probs = model(x_val)
 
+			age_val_loss = loss_func_age(age_val_pred, y_val_age).item()
 			age_val_mae = metric_age(age_val_pred, y_val_age).item()
+			gender_val_loss = loss_func_gender(gender_val_pred_probs, y_val_gender).item()
 			gender_val_f1 = f1_score(y_val_gender, gender_val_pred_probs.detach().numpy().round())
+			race_val_loss = loss_func_race(race_val_pred_probs, y_val_race).item()
 			race_val_f1 = f1_score(y_val_race.argmax(dim=1), race_val_pred_probs.argmax(dim=1), average='weighted')
+			progress_bar.set_postfix_str(
+				f'{progress_bar.postfix}, '
+				f'age_val_loss={age_val_loss:.4f}, '
+				f'age_val_MAE={age_val_mae:.4f}, '
+				f'gender_val_loss={gender_val_loss:.4f}, '
+				f'gender_val_F1={gender_val_f1:.4f}, '
+				f'race_val_loss={race_val_loss:.4f}, '
+				f'race_val_F1={race_val_f1:.4f}'
+			)
+			progress_bar.close()
 
 			model_path = f'./model_{age_val_mae:.2f}_{gender_val_f1:.2f}_{race_val_f1:.2f}.pth'
 			torch.save(model.state_dict(), model_path)  # Best: model_5.72_0.90_0.78.pth
@@ -202,11 +234,6 @@ if __name__ == '__main__':
 			history['age_val_MAE'].append(age_val_mae)
 			history['gender_val_F1'].append(gender_val_f1)
 			history['race_val_F1'].append(race_val_f1)
-
-			print(f'Epoch {epoch}/{N_EPOCHS}  |  '
-				f'Age val MAE: {age_val_mae:.4f}  |  '
-				f'Gender val F1: {gender_val_f1:.4f}  |  '
-				f'Race val F1: {race_val_f1:.4f}')
 
 			# Condition early stopping on race val F1 score, as this is the least accurate model output
 			if early_stopping(race_val_f1, None):

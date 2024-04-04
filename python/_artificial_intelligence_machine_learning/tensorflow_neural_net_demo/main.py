@@ -221,5 +221,5 @@ if __name__ == '__main__':
 		plot_confusion_matrix(y_test, test_pred_labels, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 	# To save/load a model:
-	# model.save('model.h5')
-	# new_model = keras.models.load_model('model.h5')
+	# model.save('./model.h5')
+	# new_model = keras.models.load_model('./model.h5')

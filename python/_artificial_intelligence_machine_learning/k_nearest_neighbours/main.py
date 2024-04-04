@@ -46,7 +46,7 @@ if __name__ == '__main__':
 		clf = KNN(k)
 		clf.fit(x, y)
 
-		predictions = np.array([clf.predict(i) for i in x])
+		predictions = np.array([clf.predict(xi) for xi in x])
 		f1 = f1_score(y, predictions, average='binary' if len(labels) == 2 else 'weighted')
 
 		print(f'F1 score for k = {k}: {f1}')
@@ -61,6 +61,6 @@ if __name__ == '__main__':
 
 	clf = KNN(best_k)
 	clf.fit(x, y)
-	predictions = np.array([clf.predict(i) for i in x])
+	predictions = np.array([clf.predict(xi) for xi in x])
 
 	plot_confusion_matrix(y, predictions, labels, f'Confusion matrix for k = {best_k}\n(F1 score: {best_f1:.3f})')

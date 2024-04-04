@@ -16,7 +16,7 @@ TIE = 't'
 BOARD_SIZE = 3
 CELL_SIZE = 120
 GRID_OFFSET = 80
-FOREGROUND = (220, 220, 220)
+FOREGROUND = (224, 224, 224)
 
 board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]
 status_text = "Your turn (or 'A' to make AI go first)"
@@ -123,7 +123,7 @@ def make_best_ai_move():
 
 
 def draw_grid():
-	scene.fill((20, 20, 20))
+	scene.fill((16, 16, 16))
 
 	status_lbl = status_font.render(status_text, True, FOREGROUND)
 	lbl_rect = status_lbl.get_rect(center=(BOARD_SIZE * CELL_SIZE / 2 + GRID_OFFSET, 40))

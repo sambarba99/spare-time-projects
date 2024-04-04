@@ -15,10 +15,7 @@ def plot_critical_path_diagram(df, duration):
 	g = Digraph(
 		name='critical path diagram',
 		graph_attr={'rankdir': 'LR', 'fontsize': '20', 'fontname': 'consolas', 'label': lbl, 'labelloc': 't'},
-		node_attr={
-			'style': 'filled,setlinewidth(0)', 'fontname': 'consolas',
-			'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'
-		}
+		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'}
 	)
 
 	# 2. Create nodes

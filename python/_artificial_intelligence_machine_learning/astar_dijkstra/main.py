@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
 	root = tk.Tk()
 	root.title('A*/Dijkstra Demo')
-	root.config(width=350, height=230, background='#202029')
+	root.config(width=350, height=230, background='#101010')
 	root.resizable(False, False)
 
 	btn_generate_graph = tk.Button(root, text='Generate graph', font='consolas',

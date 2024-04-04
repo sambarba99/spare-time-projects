@@ -16,7 +16,7 @@ import pygame as pg
 BOARD_SIZE = 9
 CELL_SIZE = 50
 GRID_OFFSET = 75
-FOREGROUND = (220, 220, 220)
+FOREGROUND = (224, 224, 224)
 
 # Puzzles in ascending order of difficulty
 PRESET_PUZZLES = {
@@ -79,7 +79,7 @@ def solve():
 
 
 def draw_grid(status):
-	scene.fill((20, 20, 20))
+	scene.fill((16, 16, 16))
 
 	status_lbl = status_font.render(status, True, FOREGROUND)
 	scene.blit(status_lbl, (GRID_OFFSET, 32))
@@ -89,7 +89,7 @@ def draw_grid(status):
 
 		if (y, x) in given_coords:
 			# Draw already given numbers as green
-			cell_lbl = cell_font.render(str_val, True, (0, 140, 0))
+			cell_lbl = cell_font.render(str_val, True, (0, 150, 0))
 		else:
 			cell_lbl = cell_font.render(str_val, True, FOREGROUND)
 

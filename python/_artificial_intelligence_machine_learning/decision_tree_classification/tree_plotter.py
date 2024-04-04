@@ -53,8 +53,8 @@ def plot_tree(tree, features, labels):
 
 	g = Digraph(
 		name='decision tree',
-		node_attr={'style': 'filled,setlinewidth(0)', 'shape': 'rect'},
-		edge_attr={'penwidth': '0.5', 'arrowsize': '0.5'}
+		node_attr={'fontname': 'consolas', 'fontsize': '11', 'style': 'filled,setlinewidth(0)', 'shape': 'rect'},
+		edge_attr={'fontname': 'consolas', 'fontsize': '11', 'arrowsize': '0.7'}
 	)
 
 	# 2. Create nodes

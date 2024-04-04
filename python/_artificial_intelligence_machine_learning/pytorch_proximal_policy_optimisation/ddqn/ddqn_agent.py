@@ -115,7 +115,7 @@ class DDQNAgent:
 			return random.randrange(N_ACTIONS)
 		else:
 			# Exploitation
-			state = torch.FloatTensor(state).unsqueeze(dim=0)
+			state = torch.tensor(state).float().unsqueeze(dim=0)
 			action_values = self.policy_net(state)
 			return action_values.squeeze().argmax().item()
 
@@ -126,11 +126,11 @@ class DDQNAgent:
 		as there are no dropout or batch norm layers.
 		"""
 
-		states = torch.FloatTensor([s[0] for s in batch])
-		actions = torch.FloatTensor([s[1] for s in batch])
-		returns = torch.FloatTensor([s[2] for s in batch])
-		next_states = torch.FloatTensor([s[3] for s in batch])
-		terminal_mask = torch.FloatTensor([s[4] for s in batch])
+		states = torch.tensor([s[0] for s in batch]).float()
+		actions = torch.tensor([s[1] for s in batch]).float()
+		returns = torch.tensor([s[2] for s in batch]).float()
+		next_states = torch.tensor([s[3] for s in batch]).float()
+		terminal_mask = torch.tensor([s[4] for s in batch]).float()
 
 		# ------------------------------ Double DQN ------------------------------ #
 

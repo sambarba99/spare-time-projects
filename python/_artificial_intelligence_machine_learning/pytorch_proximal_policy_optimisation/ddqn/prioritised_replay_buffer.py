@@ -119,7 +119,7 @@ class PrioritisedReplayBuffer:
 			tree_indices.append(tree_idx)
 			sample_indices.append(sample_idx)
 
-		priorities = torch.FloatTensor(priorities).unsqueeze(dim=1)
+		priorities = torch.tensor(priorities).float().unsqueeze(dim=1)
 
 		probs = priorities / self.tree.total
 

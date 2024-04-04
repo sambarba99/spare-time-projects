@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 22/11/2022
 """
 
+
 class HuffmanTree:
 	def __init__(self, symbol, weight, left_child=None, right_child=None):
 		self.symbol = symbol

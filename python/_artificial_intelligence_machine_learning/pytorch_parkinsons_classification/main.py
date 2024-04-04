@@ -36,7 +36,7 @@ BATCH_SIZE = 256
 N_EPOCHS = 100
 
 
-def load_data(df):
+def create_data_loaders(df):
 	def preprocess_img(path, target_w_to_h=1):
 		img = cv.imread(path)
 		img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -72,7 +72,7 @@ def load_data(df):
 
 	x = [
 		preprocess_img(p) for p in
-		tqdm(df['img_path'], desc='Preprocessing images', ascii=True)
+		tqdm(df['img_path'], desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 	y = pd.get_dummies(df['class'], prefix='class', drop_first=True, dtype=int).to_numpy().squeeze()
 	class_dict = {'healthy': 0, 'parkinsons': 1}
@@ -89,22 +89,21 @@ def load_data(df):
 	x.extend(x_augmented)
 	x = [img.astype(np.float64) / 255 for img in x]  # Normalise to [0,1]
 	x = [img.reshape(1, INPUT_SIZE, INPUT_SIZE) for img in x]  # Colour channels, H, W
-	x = np.array(x)
+	x = [torch.tensor(xi).float() for xi in x]
+	y = torch.tensor(y).float()
 
-	# Train:validation:test ratio of 0.7:0.2:0.1
+	# Create train/validation/test sets (ratio 0.7:0.2:0.1)
 	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1)
 
-	# Convert to tensors
-	x_val, y_val, x_test, y_test = map(
-		lambda arr: torch.FloatTensor(arr),
-		[x_val, y_val, x_test, y_test]
-	)
-
 	train_set = CustomDataset(x_train, y_train)
-	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
+	val_set = CustomDataset(x_val, y_val)
+	test_set = CustomDataset(x_test, y_test)
+	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False)
+	val_loader = DataLoader(val_set, batch_size=len(x_val))
+	test_loader = DataLoader(test_set, batch_size=len(x_test))
 
-	return train_loader, x_val, y_val, x_test, y_test
+	return train_loader, val_loader, test_loader
 
 
 if __name__ == '__main__':
@@ -145,7 +144,7 @@ if __name__ == '__main__':
 
 	print(f'\nRaw data:\n{df}\n')
 
-	train_loader, x_val, y_val, x_test, y_test = load_data(df)
+	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
 	print(f'\nModel:\n{model}')
@@ -166,14 +165,17 @@ if __name__ == '__main__':
 
 		for epoch in range(1, N_EPOCHS + 1):
 			total_loss = total_f1 = 0
+			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
-			for x, y in train_loader:
-				y_train_probs = model(x)
+			for x_train, y_train in train_loader:
+				progress_bar.update()
+				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.round().detach().numpy()
 
-				loss = loss_func(y_train_probs, y)
-				f1 = f1_score(y, y_train_pred)
+				loss = loss_func(y_train_probs, y_train)
+				f1 = f1_score(y_train, y_train_pred)
 				total_loss += loss.item()
 				total_f1 += f1
 
@@ -181,23 +183,22 @@ if __name__ == '__main__':
 				loss.backward()
 				optimiser.step()
 
+				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
+
+			x_val, y_val = next(iter(val_loader))
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.round()
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val, y_val_pred)
+			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			progress_bar.close()
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
 			history['val_loss'].append(val_loss)
 			history['val_F1'].append(val_f1)
-
-			print(f'Epoch {epoch}/{N_EPOCHS} | '
-				f'Loss: {total_loss / len(train_loader)} | '
-				f'F1: {total_f1 / len(train_loader)} | '
-				f'Val loss: {val_loss} | '
-				f'Val F1: {val_f1}')
 
 			if early_stopping(val_f1, model.state_dict()):
 				print('Early stopping at epoch', epoch)
@@ -224,6 +225,7 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
+	x_test, y_test = next(iter(test_loader))
 	model.eval()
 	with torch.inference_mode():
 		y_test_probs = model(x_test)

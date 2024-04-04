@@ -52,7 +52,7 @@ class Polynomial:
 			exponent -= 1
 		return Polynomial(deriv_coefficients)
 
-	def __str__(self):
+	def __repr__(self):
 		def expr(degree):
 			if degree == 0: return ''
 			if degree == 1: return 'x'
@@ -67,17 +67,21 @@ class Polynomial:
 
 			if abs(c) == 1 and i < degree:
 				result += ' +' if c > 0 else ' -'
-				if i > 0: result += ' '
+				if i > 0:
+					result += ' '
 				result += expr(degree - i)
 			elif c != 0:
-				if c % 1 == 0: c = int(c)
+				if c % 1 == 0:
+					c = int(c)
 
-				if c > 0: result += ' + '
-				else: result += ' -' if i == 0 else ' - '
+				if c > 0:
+					result += ' + '
+				else:
+					result += ' -' if i == 0 else ' - '
 
 				result += f'{abs(c)}{expr(degree - i)}'
 
-		return result.lstrip(' + ')  # Remove leading ' + '
+		return result.lstrip(' + ')
 
 	# Evaluate polynomial at x
 	def __call__(self, x):

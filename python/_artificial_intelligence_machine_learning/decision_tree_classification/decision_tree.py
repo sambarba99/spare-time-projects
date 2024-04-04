@@ -10,7 +10,7 @@ from sklearn.metrics import f1_score
 
 
 class DecisionTree:
-	def __init__(self, x, y, max_depth):
+	def __init__(self, x, y, max_depth, use_gini=True):
 		self.left = None
 		self.right = None
 		self.is_leaf = None
@@ -23,16 +23,8 @@ class DecisionTree:
 		def find_best_split(x, y):
 			"""
 			Given a dataset and its target values, find the optimal combination of feature
-			and split point that yields minimum Gini impurity (or max info gain if using commented code)
+			and split point that yields minimum Gini impurity (or max info gain)
 			"""
-
-			# def calculate_entropy(y):
-			# 	if len(y) <= 1: return 0
-			#
-			# 	counts = y.bincount()
-			# 	probs = counts[counts.nonzero()] / len(y)  # nonzero() ensures that we're not doing log(0) after
-			#
-			# 	return -(probs * np.log2(probs)).sum()
 
 			def calculate_gini(y):
 				if len(y) <= 1: return 0
@@ -41,39 +33,52 @@ class DecisionTree:
 
 				return 1 - (probs ** 2).sum()
 
+			def calculate_entropy(y):
+				if len(y) <= 1: return 0
 
-			# parent_entropy = calculate_entropy(y)
-			# best = {'info_gain': -1}
-			best = {'gini_impurity': np.inf}
+				counts = np.bincount(y)
+				probs = counts[counts.nonzero()] / len(y)  # nonzero() ensures that we're not doing log(0) after
+
+				return -(probs * np.log2(probs)).sum()
+
+
+			if use_gini:
+				parent_entropy = None
+				best = {'gini_impurity': np.inf}
+			else:
+				parent_entropy = calculate_entropy(y)
+				best = {'info_gain': -1}
 
 			# Loop every possible split of every dimension
 			for i in range(x.shape[1]):
 				for split_threshold in np.unique(x[:, i]):
 					left_indices = x[:, i] <= split_threshold
 					right_indices = ~left_indices
-					left = y[left_indices]
-					right = y[right_indices]
+					left_y = y[left_indices]
+					right_y = y[right_indices]
 
-					# info_gain = parent_entropy - len(left) / len(y) * calculate_entropy(left) \
-					# 	- len(right) / len(y) * calculate_entropy(right)
+					if use_gini:
+						left_gini_impurity = calculate_gini(left_y) * len(left_y) / len(y)
+						right_gini_impurity = calculate_gini(right_y) * len(right_y) / len(y)
+						gini_impurity = left_gini_impurity + right_gini_impurity
 
-					# if info_gain > best['info_gain']:
-					# 	best = {'feature_idx': i,
-					# 		'split_threshold': split_threshold,
-					# 		'info_gain': info_gain,
-					# 		'left_indices': left_indices,
-					# 		'right_indices': right_indices}
+						if gini_impurity < best['gini_impurity']:
+							best = {'feature_idx': i,
+								'split_threshold': split_threshold,
+								'gini_impurity': gini_impurity,
+								'left_indices': left_indices,
+								'right_indices': right_indices}
+					else:
+						left_entropy = calculate_entropy(left_y) * len(left_y) / len(y)
+						right_entropy = calculate_entropy(right_y) * len(right_y) / len(y)
+						info_gain = parent_entropy - left_entropy - right_entropy
 
-					left_gini_impurity = calculate_gini(left) * len(left) / len(y)
-					right_gini_impurity = calculate_gini(right) * len(right) / len(y)
-					gini_impurity = left_gini_impurity + right_gini_impurity
-
-					if gini_impurity < best['gini_impurity']:
-						best = {'feature_idx': i,
-							'split_threshold': split_threshold,
-							'gini_impurity': gini_impurity,
-							'left_indices': left_indices,
-							'right_indices': right_indices}
+						if info_gain > best['info_gain']:
+							best = {'feature_idx': i,
+								'split_threshold': split_threshold,
+								'info_gain': info_gain,
+								'left_indices': left_indices,
+								'right_indices': right_indices}
 
 			return best
 
@@ -90,8 +95,8 @@ class DecisionTree:
 			self.is_leaf = True
 		else:
 			split = find_best_split(x, y)
-			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1)
-			self.right = DecisionTree(x[split['right_indices']], y[split['right_indices']], max_depth - 1)
+			self.left = DecisionTree(x[split['left_indices']], y[split['left_indices']], max_depth - 1, use_gini)
+			self.right = DecisionTree(x[split['right_indices']], y[split['right_indices']], max_depth - 1, use_gini)
 			self.is_leaf = False
 			self.feature_idx = split['feature_idx']
 			self.split_threshold = split['split_threshold']
@@ -105,7 +110,7 @@ class DecisionTree:
 			return self.right.predict(x)
 
 	def evaluate(self, x, y):
-		pred_classes = [self.predict(i)['class'] for i in x]
+		pred_classes = [self.predict(xi)['class'] for xi in x]
 
 		return f1_score(y, pred_classes, average='binary' if len(np.unique(y)) == 2 else 'weighted')
 

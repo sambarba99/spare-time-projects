@@ -19,7 +19,6 @@ tensorflow
 keras
 transformers
 torch
-torchview
 torchvision
 torch-summary
 tqdm

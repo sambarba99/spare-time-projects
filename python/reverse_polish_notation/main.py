@@ -154,20 +154,20 @@ def evaluate_rpn(rpn_expression):
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Infix to RPN Converter')
-	root.config(width=500, height=600, background='#202029')
+	root.config(width=500, height=600, background='#101010')
 	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
 	enter_exp_lbl = tk.Label(root, text='Enter an infix expression:',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 
 	sv = tk.StringVar(value='1+((23-4.5)*6/7)^0.89')
 	sv.trace_add(mode='write', callback=convert_and_solve)
 	entry_box = tk.Entry(root, textvariable=sv, font='consolas', justify='center')
 
-	rpn_result_lbl = tk.Label(root, text='In RPN:', font='consolas', background='#202029', foreground='white')
+	rpn_result_lbl = tk.Label(root, text='In RPN:', font='consolas', background='#101010', foreground='white')
 	output_rpn = tk.Label(root, font='consolas', background='white')
-	evaluation_lbl = tk.Label(root, text='Evaluation:', font='consolas', background='#202029', foreground='white')
+	evaluation_lbl = tk.Label(root, text='Evaluation:', font='consolas', background='#101010', foreground='white')
 	output_num = tk.Text(root, background='white', font='consolas', state='disabled')
 	output_num.tag_configure('center', justify='center')
 

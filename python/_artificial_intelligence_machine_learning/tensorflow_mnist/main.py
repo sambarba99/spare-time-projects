@@ -16,6 +16,7 @@ import pygame as pg
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
+from tensorflow.keras.datasets import mnist
 
 from _utils.model_evaluation_plots import plot_confusion_matrix
 
@@ -24,13 +25,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 tf.random.set_seed(1)
 
 N_EPOCHS = 50
-N_CLASSES = 10  # Class for each digit 0-9
-INPUT_SHAPE = (28, 28, 1)  # W, H, colour channels
+BATCH_SIZE = 256
+INPUT_SHAPE = (28, 28, 1)  # H, W, colour channels
 DRAWING_SIZE = 500
 
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 	# Normalise images to [0,1] and correct shape
 	x = np.concatenate([x_train, x_test], axis=0).astype(float) / 255
@@ -38,11 +39,11 @@ def load_data():
 
 	# One-hot encode y
 	y = np.concatenate([y_train, y_test])
-	y = np.eye(N_CLASSES)[y]
+	y = np.eye(10)[y]  # 10 classes (0-9)
 
-	# Train:validation:test ratio of 0.8:0.1:0.1
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
@@ -57,12 +58,12 @@ def build_model():
 			MaxPooling2D(),
 			Flatten(),
 			Dropout(0.5),
-			Dense(N_CLASSES, activation='softmax')
+			Dense(10, activation='softmax')
 		],
 		name='digit_recognition_model'
 	)
 
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # LR = 1e-3
 	model.build(input_shape=INPUT_SHAPE)
 
 	return model
@@ -72,7 +73,7 @@ if __name__ == '__main__':
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
 
 	if os.path.exists('./model.h5'):
-		model = load_model('model.h5')
+		model = load_model('./model.h5')
 	else:
 		# Plot some example images
 
@@ -95,19 +96,24 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		# Monitor val loss with min_delta = 0, patience = 5
-		early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+		early_stopping = tf.keras.callbacks.EarlyStopping(
+			patience=5,
+			restore_best_weights=True,
+			monitor='val_accuracy',
+			mode='max'
+		)
 
 		history = model.fit(
 			x_train, y_train,
 			epochs=N_EPOCHS,
+			batch_size=BATCH_SIZE,
 			validation_data=(x_val, y_val),
 			callbacks=[early_stopping],
 			verbose=1
 		)
 
 		# Plot loss and accuracy throughout training
-		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True, figsize=(7, 5))
+		_, (ax_loss, ax_accuracy) = plt.subplots(nrows=2, sharex=True, figsize=(8, 5))
 		ax_loss.plot(history.history['loss'], label='Training loss')
 		ax_loss.plot(history.history['val_loss'], label='Validation loss')
 		ax_accuracy.plot(history.history['accuracy'], label='Training accuracy')
@@ -120,7 +126,7 @@ if __name__ == '__main__':
 		plt.title('Model loss and accuracy during training', y=2.24)
 		plt.show()
 
-		model.save('model.h5')
+		model.save('./model.h5')
 
 	# Evaluate model
 

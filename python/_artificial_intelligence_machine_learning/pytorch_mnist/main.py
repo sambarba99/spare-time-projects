@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
@@ -26,10 +27,9 @@ from conv_net import CNN
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 torch.manual_seed(1)
 
-INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
-N_EPOCHS = 100
+N_EPOCHS = 50
 BATCH_SIZE = 256
-LEARNING_RATE = 1e-4
+INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
 DRAWING_SIZE = 500
 
 
@@ -44,18 +44,14 @@ def load_data():
 	y = np.concatenate([y_train, y_test])
 	y = np.eye(10)[y]  # 10 classes (0-9)
 
-	# Train:validation:test ratio of 0.8:0.1:0.1
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.89, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1)
+	x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
-	# Convert to tensors
-	x_val, y_val, x_test, y_test = map(
-		lambda arr: torch.FloatTensor(arr),
-		[x_val, y_val, x_test, y_test]
-	)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
 
 	train_set = CustomDataset(x_train, y_train)
-	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=8)
+	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False)
 
 	return train_loader, x_val, y_val, x_test, y_test
 
@@ -87,20 +83,23 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
 		for epoch in range(1, N_EPOCHS + 1):
 			total_loss = total_f1 = 0
+			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
-			for x, y in train_loader:
-				y_probs = model(x)
-				y_pred = y_probs.argmax(dim=1)
+			for x_train, y_train in train_loader:
+				progress_bar.update()
+				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				y_train_probs = model(x_train)
+				y_train_pred = y_train_probs.argmax(dim=1)
 
-				loss = loss_func(y_probs, y)
-				f1 = f1_score(y.argmax(dim=1), y_pred, average='weighted')
+				loss = loss_func(y_train_probs, y_train)
+				f1 = f1_score(y_train.argmax(dim=1), y_train_pred, average='weighted')
 				total_loss += loss.item()
 				total_f1 += f1
 
@@ -108,23 +107,21 @@ if __name__ == '__main__':
 				loss.backward()
 				optimiser.step()
 
+				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
+
 			model.eval()
 			with torch.inference_mode():
 				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.argmax(dim=1)
 			val_loss = loss_func(y_val_probs, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			progress_bar.close()
 
 			history['loss'].append(total_loss / len(train_loader))
 			history['F1'].append(total_f1 / len(train_loader))
 			history['val_loss'].append(val_loss)
 			history['val_F1'].append(val_f1)
-
-			print(f'Epoch {epoch}/{N_EPOCHS} | '
-				f'Loss: {total_loss / len(train_loader)} | '
-				f'F1: {total_f1 / len(train_loader)} | '
-				f'Val loss: {val_loss} | '
-				f'Val F1: {val_f1}')
 
 			if early_stopping(val_f1, model.state_dict()):
 				print('Early stopping at epoch', epoch)

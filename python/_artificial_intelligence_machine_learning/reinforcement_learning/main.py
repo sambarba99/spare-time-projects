@@ -27,15 +27,15 @@ from agent import Agent
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Reinforcement learning demo')
-	root.config(width=550, height=350, background='#202029')
+	root.config(width=550, height=350, background='#101010')
 	root.resizable(False, False)
 
 	dp_methods_lbl = tk.Label(root, text='Dynamic Programming methods',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 	mc_methods_lbl = tk.Label(root, text='Monte Carlo method',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 	td_methods_lbl = tk.Label(root, text='Temporal Difference methods',
-		font='consolas', background='#202029', foreground='white')
+		font='consolas', background='#101010', foreground='white')
 
 	btn_generate_env = tk.Button(root, text='Generate environment', font='consolas',
 		command=lambda: agent.env.generate())

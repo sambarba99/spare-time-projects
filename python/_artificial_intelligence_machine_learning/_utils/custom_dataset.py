@@ -10,24 +10,19 @@ import torch
 
 class CustomDataset(torch.utils.data.Dataset):
 	def __init__(self, x, *y):
+		assert isinstance(x, torch.Tensor) or all(isinstance(xi, torch.Tensor) for xi in x)
+		assert all(isinstance(yi, torch.Tensor) for yi in y)
+
 		self.x = x
 		self.y = y
 		self.n_samples = len(x)
 
 	def __getitem__(self, index):
-		ret_x = self.x[index] \
-			if isinstance(self.x[index], torch.Tensor) \
-			else torch.FloatTensor(self.x[index])
-
 		if self.y:
-			ret_y = [
-				yi[index] if isinstance(yi[index], torch.Tensor)
-				else torch.FloatTensor(yi[index])
-				for yi in self.y
-			]
-			return ret_x, *ret_y
+			ret_y = [yi[index] for yi in self.y]
+			return self.x[index], *ret_y
 
-		return ret_x
+		return self.x[index]
 
 	def __len__(self):
 		return self.n_samples

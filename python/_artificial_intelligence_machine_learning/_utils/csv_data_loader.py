@@ -23,7 +23,7 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 	for col in x.columns:
 		if x[col].nunique() == 1:
 			# No information from this feature
-			print(f"Dropping column '{col}' (1 unique value)")
+			print(f"Dropping column '{col}' (1 unique value)\n")
 			x = x.drop(col, axis=1)
 
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
@@ -48,13 +48,13 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 		label_encoder = LabelEncoder()
 		y = pd.DataFrame(label_encoder.fit_transform(y), columns=['classification'])
 
-	print(f'\nPreprocessed data:\n\n{pd.concat([x, y], axis=1)}\n')
+	print(f'Preprocessed data:\n\n{pd.concat([x, y], axis=1)}\n')
 
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	if x_transform:
 		x = x_transform.fit_transform(x)
 	if to_tensors:
-		x, y = torch.FloatTensor(x), torch.FloatTensor(y)
+		x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
 	if val_size == test_size == 0:
 		return x, y, labels, features
@@ -102,7 +102,7 @@ def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_tran
 	if x_transform:
 		x = x_transform.fit_transform(x)
 	if to_tensors:
-		x, y = torch.FloatTensor(x), torch.FloatTensor(y)
+		x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
 	if val_size == test_size == 0:
 		return x, y, features

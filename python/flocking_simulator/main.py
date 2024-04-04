@@ -20,6 +20,7 @@ from boid import Boid
 
 
 # Simulation constants
+N_BOIDS = 80
 WIDTH, HEIGHT = 1500, 900
 FPS = 120
 NORTH_ARROW = np.array([[0, 33], [9, 0], [18, 33]], dtype=float)  # Coords describing an arrow
@@ -48,13 +49,13 @@ do_separation = do_alignment = do_cohesion = True
 flock = scene = None
 
 
-def generate_boids(n=50):
+def generate_boids():
 	global flock
 
 	percep_radius = get_slider_val(percep_radius_slider, MIN_PERCEP_RADIUS, MAX_PERCEP_RADIUS)
 	max_force = get_slider_val(max_force_slider, MIN_FORCE, MAX_FORCE)
 
-	flock = [Boid(percep_radius, max_force, WIDTH, HEIGHT) for _ in range(n)]
+	flock = [Boid(percep_radius, max_force, WIDTH, HEIGHT) for _ in range(N_BOIDS)]
 
 
 def draw():
@@ -77,24 +78,24 @@ def draw():
 		return oriented_arrow
 
 
-	scene.fill((20, 20, 20))
+	scene.fill((16, 16, 16))
 
 	for boid in flock:
 		arrow = get_oriented_arrow(boid)
-		pg.draw.polygon(scene, (220, 220, 220), arrow)
+		pg.draw.polygon(scene, (224, 224, 224), arrow)
 
 	# Draw controls
 	pg.draw.rect(scene, (0, 0, 60), pg.Rect(0, 0, 400, 145))
-	controls_lbl = font.render('Controls (1-3, Q/W, A/S, R)', True, (220, 220, 220))
-	percep_radius_ctrl_lbl = font.render('Perecption radius:', True, (220, 220, 220))
-	max_force_ctrl_lbl = font.render('Max force:', True, (220, 220, 220))
-	min_percep_radius_lbl = font.render(str(MIN_PERCEP_RADIUS), True, (220, 220, 220))
-	max_percep_radius_lbl = font.render(str(MAX_PERCEP_RADIUS), True, (220, 220, 220))
-	min_force_lbl = font.render(str(MIN_FORCE), True, (220, 220, 220))
-	max_force_lbl = font.render(str(MAX_FORCE), True, (220, 220, 220))
-	do_separation_lbl = font.render(f"Doing separation: {'Yes' if do_separation else 'No'}", True, (220, 220, 220))
-	do_alignment_lbl = font.render(f"Doing alignment: {'Yes' if do_alignment else 'No'}", True, (220, 220, 220))
-	do_cohesion_lbl = font.render(f"Doing cohesion: {'Yes' if do_cohesion else 'No'}", True, (220, 220, 220))
+	controls_lbl = font.render('Controls (1-3, Q/W, A/S, R)', True, (224, 224, 224))
+	percep_radius_ctrl_lbl = font.render('Perecption radius:', True, (224, 224, 224))
+	max_force_ctrl_lbl = font.render('Max force:', True, (224, 224, 224))
+	min_percep_radius_lbl = font.render(str(MIN_PERCEP_RADIUS), True, (224, 224, 224))
+	max_percep_radius_lbl = font.render(str(MAX_PERCEP_RADIUS), True, (224, 224, 224))
+	min_force_lbl = font.render(str(MIN_FORCE), True, (224, 224, 224))
+	max_force_lbl = font.render(str(MAX_FORCE), True, (224, 224, 224))
+	do_separation_lbl = font.render(f"Doing separation: {'Yes' if do_separation else 'No'}", True, (224, 224, 224))
+	do_alignment_lbl = font.render(f"Doing alignment: {'Yes' if do_alignment else 'No'}", True, (224, 224, 224))
+	do_cohesion_lbl = font.render(f"Doing cohesion: {'Yes' if do_cohesion else 'No'}", True, (224, 224, 224))
 	scene.blit(controls_lbl, (80, 10))
 	scene.blit(percep_radius_ctrl_lbl, (23, 32))
 	scene.blit(max_force_ctrl_lbl, (95, 54))

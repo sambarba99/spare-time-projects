@@ -283,7 +283,7 @@ def draw_array_general(arr, colour='blue', highlight_indices=None, shuffle=False
 		col = 'white' if highlight_indices and (i in highlight_indices) else colour
 		pg.draw.rect(scene, col, (i * bar_w, HEIGHT - bar_h, bar_w, bar_h))
 
-	caption_lbl = font.render('Shuffling...' if shuffle else caption, True, (220, 220, 220))
+	caption_lbl = font.render('Shuffling...' if shuffle else caption, True, (224, 224, 224))
 	lbl_rect = caption_lbl.get_rect(center=(WIDTH // 2, 20))
 	scene.blit(caption_lbl, lbl_rect)
 	pg.display.update()
@@ -304,7 +304,7 @@ def draw_array_quicksort(arr, lo, hi, pivot_idx, swap_i, swap_j):
 
 		pg.draw.rect(scene, colour, (i * bar_w, HEIGHT - bar_h, bar_w, bar_h))
 
-	caption_lbl = font.render(caption, True, (220, 220, 220))
+	caption_lbl = font.render(caption, True, (224, 224, 224))
 	lbl_rect = caption_lbl.get_rect(center=(WIDTH // 2, 20))
 	scene.blit(caption_lbl, lbl_rect)
 	pg.display.update()
@@ -334,8 +334,8 @@ if __name__ == '__main__':
 		bar_w = WIDTH // array_size
 		caption = f'{func_name} ({array_size} elements)'
 
-		linspace = np.linspace(10, HEIGHT - 30, num=array_size, dtype=int)
-		array = list(linspace)
+		lspace = np.linspace(10, HEIGHT - 30, array_size, dtype=int)
+		array = list(lspace)
 		draw_array_general(array, shuffle=True)
 		pg.time.delay(1000)
 		for i in range(array_size - 1):
