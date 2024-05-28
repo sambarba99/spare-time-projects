@@ -1,12 +1,16 @@
 PyTorch demo of a Deep Convolutional Generative Adversarial Network (DCGAN)
 
-Training progress on a fixed noise vector:
+Training progress on a fixed noise vector (up to Early Stopping, epoch 15):
 
-![](training_progress.gif)
+<p align="center">
+  <img src="images/training_progress.gif"/>
+</p>
 
 Visualising some of the latent space by linearly interpolating between 2 random noise vectors:
 
-![](latent_space_interpolation.gif)
+<p align="center">
+  <img src="images/latent_space_interpolation.gif"/>
+</p>
 
 Generator architecture:
 

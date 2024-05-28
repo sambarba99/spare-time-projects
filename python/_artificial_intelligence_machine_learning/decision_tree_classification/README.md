@@ -6,4 +6,6 @@ Example tree for iris dataset (100% accuracy):
 
 Visualisation of different tree depths:
 
-![](different_depths.gif)
+<p align="center">
+  <img src="different_depths.gif"/>
+</p>

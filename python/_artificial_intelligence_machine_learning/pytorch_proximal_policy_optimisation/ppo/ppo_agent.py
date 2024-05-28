@@ -115,6 +115,8 @@ class PPOAgent:
 		self.trainable_policy = ActorCritic(self.training_mode)
 		self.policy = ActorCritic(self.training_mode)
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
+		self.trainable_policy.to('cpu')
+		self.policy.to('cpu')
 
 		self.buffer = RolloutBuffer()
 		self.optimiser = torch.optim.Adam([

@@ -19,21 +19,21 @@ class NaiveBayesClassifier:
 		self.priors = None
 
 	def fit(self, x, y):
-		n_samples, n_features = x.shape
+		num_samples, num_features = x.shape
 		labels, counts = np.unique(y, return_counts=True)
 		self.labels = labels
-		n_classes = sum(counts)
+		num_classes = sum(counts)
 
 		# Calculate mean, variance, and prior for each class
-		self.means = np.zeros((n_classes, n_features))
-		self.variances = np.zeros((n_classes, n_features))
-		self.priors = np.zeros(n_classes)
+		self.means = np.zeros((num_classes, num_features))
+		self.variances = np.zeros((num_classes, num_features))
+		self.priors = np.zeros(num_classes)
 
 		for idx, c in enumerate(self.labels):
 			xc = x[y == c]
 			self.means[idx, :] = xc.mean(axis=0)
 			self.variances[idx, :] = xc.var(axis=0)
-			self.priors[idx] = len(xc) / n_samples
+			self.priors[idx] = len(xc) / num_samples
 
 	def predict(self, x):
 		probs = []

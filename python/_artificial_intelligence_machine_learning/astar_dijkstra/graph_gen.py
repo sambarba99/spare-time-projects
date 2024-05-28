@@ -10,7 +10,7 @@ import numpy as np
 from graph_node import GraphNode
 
 
-def make_graph(x_max, y_max, n_nodes=1000, n_neighbours=4):
+def make_graph(x_max, y_max, num_nodes=1000, num_neighbours=4):
 	"""Note: if max_neighbours = 1, a minimum spanning tree is created"""
 
 	def dfs(visited, node):
@@ -22,19 +22,19 @@ def make_graph(x_max, y_max, n_nodes=1000, n_neighbours=4):
 				dfs(visited, neighbour)
 
 
-	x = np.random.uniform(10, x_max - 10, size=n_nodes)
-	y = np.random.uniform(10, y_max - 10, size=n_nodes)
+	x = np.random.uniform(10, x_max - 10, size=num_nodes)
+	y = np.random.uniform(10, y_max - 10, size=num_nodes)
 	coords = np.vstack((x, y)).T
 	adjacency_list = dict()
 
-	# Link each node to its closest 'n_neighbours' neighbours
+	# Link each node to its closest 'num_neighbours' neighbours
 	for idx, c in enumerate(coords):
 		if idx not in adjacency_list:
 			adjacency_list[idx] = set()
 
 		neighbour_dists = np.linalg.norm(coords - c, axis=1)
 		# '1:' to exlude from closest
-		closest_n = neighbour_dists.argsort()[1:n_neighbours + 1]
+		closest_n = neighbour_dists.argsort()[1:num_neighbours + 1]
 
 		for neighbour_idx in closest_n:
 			if neighbour_idx not in adjacency_list:

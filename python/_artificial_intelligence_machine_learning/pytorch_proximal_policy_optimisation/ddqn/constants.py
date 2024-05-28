@@ -6,14 +6,14 @@ Created 16/02/2023
 """
 
 # ----- TRAINING ----- #
-N_EPOCHS = 20_000      # No. training epochs
+NUM_EPOCHS = 20_000    # No. training epochs
 MAX_EP_LENGTH = 5000   # Maximum length (timesteps/transitions) of each training episode/trajectory
 NO_REWARD_LIMIT = 150  # If no positive return is gained after this many timesteps, skip to next episode
 BATCH_SIZE = 64        # No. transitions with which to do experience replay (learning)
 
 # ----- MODEL/AGENT ----- #
-N_INPUTS = 13             # 10 distances to walls, car's vel and drift vel, direction to next reward gate
-N_ACTIONS = 9             # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
+NUM_INPUTS = 13           # 10 distances to walls, car's vel and drift vel, direction to next reward gate
+NUM_ACTIONS = 9           # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
 LAYER_SIZE = 16           # Nodes per hidden layer
 TAU = 1e-3                # Target network update rate
 GAMMA = 0.9               # Return discount factor

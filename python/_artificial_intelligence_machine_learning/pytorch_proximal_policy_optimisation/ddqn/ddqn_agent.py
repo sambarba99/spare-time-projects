@@ -19,11 +19,11 @@ from ddqn.prioritised_replay_buffer import PrioritisedReplayBuffer
 
 def build_network():
 	return nn.Sequential(
-		nn.Linear(N_INPUTS, LAYER_SIZE),
+		nn.Linear(NUM_INPUTS, LAYER_SIZE),
 		nn.LeakyReLU(),
 		nn.Linear(LAYER_SIZE, LAYER_SIZE),
 		nn.LeakyReLU(),
-		nn.Linear(LAYER_SIZE, N_ACTIONS),
+		nn.Linear(LAYER_SIZE, NUM_ACTIONS),
 		nn.Softmax(dim=-1)
 	)
 
@@ -32,8 +32,10 @@ class DDQNAgent:
 	def __init__(self, *, training_mode):
 		self.epsilon = 1 if training_mode else MIN_EPSILON
 		self.policy_net = build_network()  # Online model, used for action selection (equivalent to actor in PPO)
+		self.policy_net.to('cpu')
 		if training_mode:
 			self.target_net = build_network()  # Offline model, used for action evaluation (equivalent to critic in PPO)
+			self.target_net.to('cpu')
 			self.replay_buffer = PrioritisedReplayBuffer()
 			self.optimiser = torch.optim.Adam(self.policy_net.parameters(), lr=LEARNING_RATE)
 
@@ -63,10 +65,10 @@ class DDQNAgent:
 
 		print('\nTraining...\n')
 
-		epsilon_schedule = np.maximum(EPSILON_DECAY ** np.arange(N_EPOCHS), MIN_EPSILON)
+		epsilon_schedule = np.maximum(EPSILON_DECAY ** np.arange(NUM_EPOCHS), MIN_EPSILON)
 		total_return_per_epoch = []
 
-		for i in range(1, N_EPOCHS + 1):
+		for i in range(1, NUM_EPOCHS + 1):
 			env.reset()
 			state = env.get_state()
 			self.epsilon = epsilon_schedule[i - 1]
@@ -101,7 +103,7 @@ class DDQNAgent:
 			self.update_target()
 
 			if i % 200 == 0:
-				print(f'Epoch {i}/{N_EPOCHS}  |  '
+				print(f'Epoch {i}/{NUM_EPOCHS}  |  '
 					f'epsilon: {self.epsilon:.3f}  |  '
 					f'total return: {total_return:.1f}  |  '
 					f'laps: {laps:.2f}  |  '
@@ -112,7 +114,7 @@ class DDQNAgent:
 	def choose_action(self, state):
 		if random.random() < self.epsilon:
 			# Exploration
-			return random.randrange(N_ACTIONS)
+			return random.randrange(NUM_ACTIONS)
 		else:
 			# Exploitation
 			state = torch.tensor(state).float().unsqueeze(dim=0)

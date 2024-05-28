@@ -1,3 +1,5 @@
 Demo of A* and Dijkstra algorithms
 
-![](output.gif)
+<p align="center">
+  <img src="output.gif"/>
+</p>

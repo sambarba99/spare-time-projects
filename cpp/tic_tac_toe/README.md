@@ -1,3 +1,5 @@
 Tic tac toe AI using minimax algorithm
 
-![](tictactoe.gif)
+<p align="center">
+  <img src="tictactoe.gif"/>
+</p>

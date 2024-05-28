@@ -70,10 +70,10 @@ rvs = [
 data = None
 
 
-def generate_bit_permutations(n_bits):
-	if n_bits < 1: yield slice(None),
+def generate_bit_permutations(num_bits):
+	if num_bits < 1: yield slice(None),
 	else:
-		for head in generate_bit_permutations(n_bits - 1):
+		for head in generate_bit_permutations(num_bits - 1):
 			yield head + (0,)
 			yield head + (1,)
 

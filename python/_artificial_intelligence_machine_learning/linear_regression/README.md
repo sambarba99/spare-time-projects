@@ -1,3 +1,5 @@
 Linear regression demo on the Boston housing dataset
 
-![](boston_linear_regression.gif)
+<p align="center">
+  <img src="boston_linear_regression.gif"/>
+</p>

@@ -1,3 +1,5 @@
 Rendering a 3D ASCII rotating torus
 
-![](rotating_torus.gif)
+<p align="center">
+  <img src="rotating_torus.gif"/>
+</p>

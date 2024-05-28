@@ -9,13 +9,13 @@ import pygame as pg
 
 
 class Tile:
-	def __init__(self, img, edge_colour_codes, n_rotations):
+	def __init__(self, img, edge_colour_codes, num_rotations):
 		self.img = img
 		self.north_edge = edge_colour_codes[0]
 		self.east_edge = edge_colour_codes[1]
 		self.south_edge = edge_colour_codes[2]
 		self.west_edge = edge_colour_codes[3]
-		self.n_rotations = n_rotations
+		self.num_rotations = num_rotations
 		self.north_options = []
 		self.east_options = []
 		self.south_options = []
@@ -39,12 +39,12 @@ class Tile:
 			if self.west_edge == tile.east_edge[::-1]:
 				self.west_options.append(tile)
 
-	def rotate(self, n_times):
+	def rotate(self, num_times):
 		"""
 		Rotate a tile clockwise a certain no. of times, including image and edge colours
 		"""
 
-		rotated_img = pg.transform.rotate(self.img, -90 * n_times)  # Negative for clockwise
+		rotated_img = pg.transform.rotate(self.img, -90 * num_times)  # Negative for clockwise
 		old_edges = [self.north_edge, self.east_edge, self.south_edge, self.west_edge]
-		new_edges = [old_edges[(i - n_times) % 4] for i in range(4)]
+		new_edges = [old_edges[(i - num_times) % 4] for i in range(4)]
 		return Tile(rotated_img, new_edges, None)

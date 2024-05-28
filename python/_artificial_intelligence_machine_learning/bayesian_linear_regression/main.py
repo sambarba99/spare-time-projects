@@ -12,9 +12,9 @@ from sklearn.metrics import mean_absolute_error
 import bayesian_utility
 
 
-N_TRAIN = 14
-N_VAL = N_TRAIN
-N_TEST = 300
+NUM_TRAIN = 14
+NUM_VAL = NUM_TRAIN
+NUM_TEST = 300
 SIGMA = 0.3  # Noise = SIGMA ^ 2
 
 plt.rcParams['figure.figsize'] = (9, 6)
@@ -85,14 +85,14 @@ if __name__ == '__main__':
 	# Synthesise datasets
 
 	data_generator = bayesian_utility.DataGenerator(SIGMA ** 2)
-	x_train, y_train = data_generator.get_data('TRAIN', N_TRAIN)
-	x_val, y_val = data_generator.get_data('VALIDATION', N_VAL)
-	x_test, y_test = data_generator.get_data('TEST', N_TEST)
+	x_train, y_train = data_generator.get_data('TRAIN', NUM_TRAIN)
+	x_val, y_val = data_generator.get_data('VALIDATION', NUM_VAL)
+	x_test, y_test = data_generator.get_data('TEST', NUM_TEST)
 
 	# Compute basis matrices for all 3 datasets - note that because a 'bias' function is used, we need n - 1
 	# Gaussians to make the basis 'complete' (i.e. for m = n)
 
-	m = N_TRAIN - 1
+	m = NUM_TRAIN - 1
 	centres = np.linspace(data_generator.x_min, data_generator.x_max, m)
 	rbf_generator = bayesian_utility.RBFGenerator(centres=centres, radius=1)
 

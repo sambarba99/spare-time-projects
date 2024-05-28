@@ -1,3 +1,5 @@
 Double pendulum simulation
 
-![](pendulum.gif)
+<p align="center">
+  <img src="pendulum.gif"/>
+</p>

@@ -13,8 +13,8 @@ GRAD_STEPS_PER_EPOCH = 80         # No. gradient steps per PPO update (actor + c
 ENTROPY_COEFF = 0.01              # Coefficient for entropy regularisation term
 
 # ----- MODEL/AGENT ----- #
-N_INPUTS = 13     # 10 distances to walls, car's vel and drift vel, direction to next reward gate
-N_ACTIONS = 9     # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
+NUM_INPUTS = 13   # 10 distances to walls, car's vel and drift vel, direction to next reward gate
+NUM_ACTIONS = 9   # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
 LAYER_SIZE = 16   # Nodes per hidden layer
 GAMMA = 0.996     # Return discount factor
 EPSILON = 0.2     # Used to clip the ratio during gradient update - see README/ppo_agent.py

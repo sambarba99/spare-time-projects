@@ -13,7 +13,7 @@ from scipy.optimize import minimize
 plt.rcParams['figure.figsize'] = (8, 8)
 
 DIM = 2  # 2 or 3 for 2D or 3D
-N_LINES = 4
+NUM_LINES = 4
 
 scipy_solution = None
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
 	ax = plt.axes() if DIM == 2 else plt.axes(projection='3d')
 
 	while True:
-		lines = generate_lines(N_LINES)
+		lines = generate_lines(NUM_LINES)
 		initial_point = np.random.rand(DIM)
 
 		# 1. Solve with SciPy first

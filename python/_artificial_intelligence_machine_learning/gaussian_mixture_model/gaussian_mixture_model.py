@@ -13,8 +13,8 @@ EPSILON = 1e-9
 
 
 class GaussianMixtureModel:
-	def __init__(self, n_components):
-		self.n_components = n_components
+	def __init__(self, num_components):
+		self.num_components = num_components
 		self.weights = None
 		self.means = None
 		self.covariances = None
@@ -40,10 +40,10 @@ class GaussianMixtureModel:
 
 	def fit(self, x, max_iters=1000, tolerance=1e-6):
 		# Initialise params
-		self.weights = np.ones(self.n_components) / self.n_components
+		self.weights = np.ones(self.num_components) / self.num_components
 		prev_weights = self.weights.copy()
-		self.means = x[np.random.choice(len(x), self.n_components, replace=False)]
-		self.covariances = np.array([np.cov(x.T) for _ in range(self.n_components)])
+		self.means = x[np.random.choice(len(x), self.num_components, replace=False)]
+		self.covariances = np.array([np.cov(x.T) for _ in range(self.num_components)])
 
 		for i in range(1, max_iters + 1):
 			responsibilities = self.compute_expectation(x)

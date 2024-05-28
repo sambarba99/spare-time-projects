@@ -27,7 +27,7 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 tf.random.set_seed(1)
 
-N_EPOCHS = 100
+NUM_EPOCHS = 100
 
 
 if __name__ == '__main__':
@@ -89,64 +89,64 @@ if __name__ == '__main__':
 
 	# 1. Build model
 
-	n_features = x_train.shape[1]
-	n_targets = 1 if task_choice in 'BR' else len(np.unique(y_train, axis=0))
+	num_features = x_train.shape[1]
+	num_targets = 1 if task_choice in 'BR' else len(np.unique(y_train, axis=0))
 
 	match task_choice + dataset_choice:
 		case 'B1' | 'B2' | 'B3' | 'B4':  # Banknote, breast tumour, mushroom, or pulsar dataset
 			model = Sequential([
-				Dense(8, input_shape=(n_features,), activation='relu'),
-				Dense(n_targets, input_shape=(n_features,), activation='sigmoid')
+				Dense(8, input_shape=(num_features,), activation='relu'),
+				Dense(num_targets, input_shape=(num_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 		case 'B4':  # Titanic dataset
 			model = Sequential([
-				Dense(8, input_shape=(n_features,), activation='relu'),
+				Dense(8, input_shape=(num_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(n_targets, input_shape=(n_features,), activation='sigmoid')
+				Dense(num_targets, input_shape=(num_features,), activation='sigmoid')
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 		case 'MG' | 'MI':  # Glass or iris dataset
 			model = Sequential([
-				Dense(64, input_shape=(n_features,), activation='relu'),
-				Dense(64, input_shape=(n_features,), activation='relu'),
-				Dense(n_targets, input_shape=(n_features,), activation='softmax')
+				Dense(64, input_shape=(num_features,), activation='relu'),
+				Dense(64, input_shape=(num_features,), activation='relu'),
+				Dense(num_targets, input_shape=(num_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 		case 'MW':  # Wine dataset
 			model = Sequential([
-				Dense(16, input_shape=(n_features,), activation='relu'),
-				Dense(n_targets, input_shape=(n_features,), activation='softmax')
+				Dense(16, input_shape=(num_features,), activation='relu'),
+				Dense(num_targets, input_shape=(num_features,), activation='softmax')
 			])
 			model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 		case 'RB':  # Boston housing dataset
 			model = Sequential([
-				Dense(256, input_shape=(n_features,), activation='relu'),
+				Dense(256, input_shape=(num_features,), activation='relu'),
 				Dropout(0.1),
-				Dense(n_targets, input_shape=(n_features,), activation='linear')
+				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics='mae')
 
 		case 'RC':  # Car value dataset
 			model = Sequential([
-				Dense(256, input_shape=(n_features,), activation='relu'),
-				Dense(256, input_shape=(n_features,), activation='relu'),
-				Dense(n_targets, input_shape=(n_features,), activation='linear')
+				Dense(256, input_shape=(num_features,), activation='relu'),
+				Dense(256, input_shape=(num_features,), activation='relu'),
+				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics='mae')
 
 		case _:  # Medical insurance or Parkinson's dataset
 			model = Sequential([
-				Dense(4096, input_shape=(n_features,), activation='relu'),
-				Dense(n_targets, input_shape=(n_features,), activation='linear')
+				Dense(4096, input_shape=(num_features,), activation='relu'),
+				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
 			model.compile(loss='mse', metrics='mae')
 
-	model.build(input_shape=(n_features,))
+	model.build(input_shape=(num_features,))
 	model.summary()
 	# vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
 	history = model.fit(
 		x_train, y_train,
-		epochs=N_EPOCHS,
+		epochs=NUM_EPOCHS,
 		validation_data=(x_val, y_val),
 		callbacks=[early_stopping],
 		verbose=0

@@ -37,7 +37,7 @@ EMBEDDING_LEN = 256
 HIDDEN_LEN = 128
 BATCH_SIZE = 64
 LEARNING_RATE = 2e-4
-N_EPOCHS = 50
+NUM_EPOCHS = 50
 
 
 def load_data():
@@ -90,6 +90,7 @@ if __name__ == '__main__':
 	# 2. Define and train model
 
 	model = MovieReviewClf(vocab_size=vocab_size, embedding_len=EMBEDDING_LEN, hidden_len=HIDDEN_LEN)
+	model.to('cpu')
 	plot_review_classifier(SEQUENCE_LEN, EMBEDDING_LEN, HIDDEN_LEN)
 
 	loss_func = torch.nn.BCELoss()
@@ -101,12 +102,12 @@ if __name__ == '__main__':
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 
 			for x_train, y_train in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.round().detach().numpy()
 

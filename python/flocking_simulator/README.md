@@ -1,3 +1,5 @@
 Flocking simulator using boids
 
-![](boids.gif)
+<p align="center">
+  <img src="boids.gif"/>
+</p>

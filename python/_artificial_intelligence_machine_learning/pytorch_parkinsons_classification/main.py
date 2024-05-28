@@ -33,14 +33,14 @@ DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons'  # Available fro
 DATA_SUBFOLDERS = ['spiral_healthy', 'spiral_parkinsons', 'wave_healthy', 'wave_parkinsons']
 INPUT_SIZE = 64
 BATCH_SIZE = 256
-N_EPOCHS = 100
+NUM_EPOCHS = 100
 
 
 def create_data_loaders(df):
 	def preprocess_img(path, target_w_to_h=1):
 		img = cv.imread(path)
 		img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-		img = cv.medianBlur(img, 3)  # De-noise
+		img = cv.medianBlur(img, 3)  # Denoise
 		_, img = cv.threshold(img, 200, 255, cv.THRESH_BINARY_INV)
 
 		# Make img aspect ratio 1:1
@@ -147,6 +147,7 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
+	model.to('cpu')
 	print(f'\nModel:\n{model}')
 	plot_model(model, (1, INPUT_SIZE, INPUT_SIZE))
 
@@ -163,14 +164,14 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			total_loss = total_f1 = 0
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
 			for x_train, y_train in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.round().detach().numpy()
 

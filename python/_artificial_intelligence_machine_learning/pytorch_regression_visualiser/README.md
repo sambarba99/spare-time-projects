@@ -1,3 +1,5 @@
 Visualising the curve fitting of a PyTorch regression neural net
 
-![](output.gif)
+<p align="center">
+  <img src="output.gif"/>
+</p>

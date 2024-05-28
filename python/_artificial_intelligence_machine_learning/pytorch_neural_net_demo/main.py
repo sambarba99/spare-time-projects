@@ -25,7 +25,7 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 torch.manual_seed(1)
 
-N_EPOCHS = 100
+NUM_EPOCHS = 100
 
 
 if __name__ == '__main__':
@@ -87,79 +87,80 @@ if __name__ == '__main__':
 
 	# 1. Build model
 
-	n_features = x_train.shape[1]
-	n_targets = 1 if task_choice in 'BR' else len(y_train.unique(dim=0))
+	num_features = x_train.shape[1]
+	num_targets = 1 if task_choice in 'BR' else len(y_train.unique(dim=0))
 
 	match task_choice + dataset_choice:
 		case 'B1' | 'B2' | 'B3' | 'B4':  # Banknote, breast tumour, mushroom, or pulsar dataset
 			model = nn.Sequential(
-				nn.Linear(in_features=n_features, out_features=8),
+				nn.Linear(in_features=num_features, out_features=8),
 				nn.ReLU(),
-				nn.Linear(8, n_targets),
+				nn.Linear(8, num_targets),
 				nn.Sigmoid()
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
 		case 'B5':  # Titanic dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 8),
-				nn.Dropout(0.1),
+				nn.Linear(num_features, 8),
 				nn.ReLU(),
-				nn.Linear(8, n_targets),
+				nn.Dropout(0.1),
+				nn.Linear(8, num_targets),
 				nn.Sigmoid()
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
 		case 'MG' | 'MI':  # Glass or iris dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 64),
+				nn.Linear(num_features, 64),
 				nn.ReLU(),
 				nn.Linear(64, 64),
 				nn.ReLU(),
-				nn.Linear(64, n_targets),
+				nn.Linear(64, num_targets),
 				nn.Softmax(dim=-1)
 			)
 			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
 		case 'MW':  # Wine dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 16),
+				nn.Linear(num_features, 16),
 				nn.ReLU(),
-				nn.Linear(16, n_targets),
+				nn.Linear(16, num_targets),
 				nn.Softmax(dim=-1)
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.005)
 
 		case 'RB':  # Boston housing dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 256),
-				nn.Dropout(0.1),
+				nn.Linear(num_features, 256),
 				nn.ReLU(),
-				nn.Linear(256, n_targets)  # Adding no activation function afterwards means linear activation
+				nn.Dropout(0.1),
+				nn.Linear(256, num_targets)  # Adding no activation function afterwards means linear activation
 			)
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=1.5e-3)
 
 		case 'RC':  # Car value dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 256),
+				nn.Linear(num_features, 256),
 				nn.ReLU(),
 				nn.Linear(256, 256),
 				nn.ReLU(),
-				nn.Linear(256, n_targets)
+				nn.Linear(256, num_targets)
 			)
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.004)
 
 		case _:  # Medical insurance or Parkinson's dataset
 			model = nn.Sequential(
-				nn.Linear(n_features, 4096),
+				nn.Linear(num_features, 4096),
 				nn.ReLU(),
-				nn.Linear(4096, n_targets)
+				nn.Linear(4096, num_targets)
 			)
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.02)
 
 	# print(model.state_dict())  # Model weights
+	model.to('cpu')
 	print(f'Model:\n{model}')
-	plot_model(model, (n_features,))
+	plot_model(model, (num_features,))
 
 	# 2. Training
 
@@ -176,7 +177,7 @@ if __name__ == '__main__':
 	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='min')
 	history = {'loss': [], 'metric': [], 'val_loss': [], 'val_metric': []}
 
-	for epoch in range(1, N_EPOCHS + 1):
+	for epoch in range(1, NUM_EPOCHS + 1):
 		model.train()  # Set to training mode (required for layers such as dropout or batch norm)
 
 		# Loss = cross-entropy for classification, MSE for regression

@@ -24,9 +24,9 @@ from _utils.model_evaluation_plots import plot_confusion_matrix
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 tf.random.set_seed(1)
 
-N_EPOCHS = 50
-BATCH_SIZE = 256
 INPUT_SHAPE = (28, 28, 1)  # H, W, colour channels
+BATCH_SIZE = 256
+NUM_EPOCHS = 50
 DRAWING_SIZE = 500
 
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
 		history = model.fit(
 			x_train, y_train,
-			epochs=N_EPOCHS,
+			epochs=NUM_EPOCHS,
 			batch_size=BATCH_SIZE,
 			validation_data=(x_val, y_val),
 			callbacks=[early_stopping],
@@ -194,9 +194,9 @@ if __name__ == '__main__':
 	for idx in conv_layer_indices:
 		layer = model.layers[idx]
 		filters, biases = layer.get_weights()
-		n_filters = filters.shape[-1]
-		rows = n_filters // 8  # Works because n_filters is 32 for 1st conv layer, 64 for 2nd one
-		cols = n_filters // rows
+		num_filters = filters.shape[-1]
+		rows = num_filters // 8  # Works because num_filters is 32 for 1st conv layer, 64 for 2nd one
+		cols = num_filters // rows
 
 		print(f'\nLayer name: {layer.name} | Filters shape: {filters.shape} | Biases shape: {biases.shape}', end='')
 

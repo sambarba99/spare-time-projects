@@ -10,6 +10,8 @@ import numpy as np
 
 class EarlyStopping:
 	def __init__(self, *, patience, min_delta, mode):
+		assert patience >= 0
+		assert min_delta >= 0
 		assert mode in ('min', 'max')
 
 		self.patience = patience
@@ -28,4 +30,4 @@ class EarlyStopping:
 		else:
 			self.trigger_count += 1
 
-		return self.trigger_count >= self.patience
+		return self.trigger_count > self.patience

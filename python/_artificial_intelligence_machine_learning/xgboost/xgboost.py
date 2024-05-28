@@ -10,11 +10,11 @@ from sklearn.tree import DecisionTreeRegressor
 
 
 class XGBoostClassifier:
-	def __init__(self, *, n_estimators, max_depth, learning_rate, n_classes):
-		self.n_estimators = n_estimators
+	def __init__(self, *, num_estimators, max_depth, learning_rate, num_classes):
+		self.num_estimators = num_estimators
 		self.max_depth = max_depth
 		self.learning_rate = learning_rate
-		self.n_classes = n_classes
+		self.num_classes = num_classes
 		self.models = []
 
 	def __softmax(self, x):
@@ -26,12 +26,12 @@ class XGBoostClassifier:
 
 	def fit(self, x, y):
 		# Initialise the predictions with zeros
-		pred = np.zeros((len(y), self.n_classes))
+		pred = np.zeros((len(y), self.num_classes))
 
 		# One-hot encode the target variable
-		y_one_hot = np.eye(self.n_classes)[y]
+		y_one_hot = np.eye(self.num_classes)[y]
 
-		for _ in range(self.n_estimators):
+		for _ in range(self.num_estimators):
 			# Calculate the gradient
 			gradient = self.__calculate_gradient(y_one_hot, pred)
 
@@ -45,7 +45,7 @@ class XGBoostClassifier:
 
 	def predict(self, x):
 		# Initialise predictions with zeros
-		pred = np.zeros((x.shape[0], self.n_classes))
+		pred = np.zeros((x.shape[0], self.num_classes))
 
 		# Make predictions using each weak learner
 		for model in self.models:

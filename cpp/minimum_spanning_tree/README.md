@@ -1,3 +1,5 @@
 Minimum spanning tree demo
 
-![](mst_animated.gif)
+<p align="center">
+  <img src="mst_animated.gif"/>
+</p>

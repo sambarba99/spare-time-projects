@@ -1,3 +1,5 @@
 Support Vector Machine (SVM) demo
 
-![](output.gif)
+<p align="center">
+  <img src="output.gif"/>
+</p>

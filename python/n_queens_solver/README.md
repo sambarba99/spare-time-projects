@@ -2,6 +2,8 @@
 
 E.g. N = 12:
 
-![](output.gif)
+<p align="center">
+  <img src="output.gif"/>
+</p>
 
 ![](backtracks.png)

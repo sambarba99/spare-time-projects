@@ -16,18 +16,18 @@ from torch import nn
 
 plt.rcParams['figure.figsize'] = (6, 6)
 
-N_EPOCHS = 1000
-N_SAMPLES = 1000
+NUM_EPOCHS = 1000
+NUM_SAMPLES = 1000
 LAYER_SIZE = 32
 
-x = y = n_classes = None
+x = y = num_classes = None
 model = nn.Sequential()
 
 
 def make_spiral_classes():
 	clockwise_class, anticlockwise_class = [], []
 
-	for i in range(N_SAMPLES // 2):
+	for i in range(NUM_SAMPLES // 2):
 		theta = i / 180 * np.pi
 		r = i / 500
 		x1 = r * np.cos(theta)
@@ -39,29 +39,29 @@ def make_spiral_classes():
 
 
 def gen_data(mode):
-	global x, y, n_classes
+	global x, y, num_classes
 
 	match mode:
 		case 'clusters':
-			x, y = make_blobs(n_samples=N_SAMPLES, centers=5, cluster_std=2)
+			x, y = make_blobs(n_samples=NUM_SAMPLES, centers=5, cluster_std=2)
 		case 'circles':
-			x, y = make_circles(n_samples=N_SAMPLES, noise=0.15, factor=0.5)
+			x, y = make_circles(n_samples=NUM_SAMPLES, noise=0.15, factor=0.5)
 		case 'moons':
-			x, y = make_moons(n_samples=N_SAMPLES, noise=0.15)
+			x, y = make_moons(n_samples=NUM_SAMPLES, noise=0.15)
 			x[:, 1] *= 1.7  # Stretch a bit in the geometric y direction
 		case 'spirals':
 			class1, class2 = make_spiral_classes()
 			x = np.vstack((class1, class2))
 			x += np.random.normal(scale=0.06, size=x.shape)
-			y1 = np.zeros(N_SAMPLES // 2)
-			y2 = np.ones(N_SAMPLES // 2)
+			y1 = np.zeros(NUM_SAMPLES // 2)
+			y2 = np.ones(NUM_SAMPLES // 2)
 			y = np.concatenate((y1, y2))
 		case _:
 			raise ValueError(f'Bad data gen mode: {mode}')
 
-	n_classes = len(np.unique(y))
-	if n_classes > 2:
-		y = np.eye(n_classes)[y]  # One-hot encode
+	num_classes = len(np.unique(y))
+	if num_classes > 2:
+		y = np.eye(num_classes)[y]  # One-hot encode
 
 	x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
@@ -79,17 +79,18 @@ def build_model():
 		nn.Tanh(),
 		nn.Linear(LAYER_SIZE, LAYER_SIZE),
 		nn.Tanh(),
-		nn.Linear(LAYER_SIZE, 1 if n_classes == 2 else n_classes),
-		nn.Sigmoid() if n_classes == 2 else nn.Softmax(dim=-1)
+		nn.Linear(LAYER_SIZE, 1 if num_classes == 2 else num_classes),
+		nn.Sigmoid() if num_classes == 2 else nn.Softmax(dim=-1)
 	)
+	model.to('cpu')
 
 
 def train_model():
 	build_model()
-	loss_func = nn.BCELoss() if n_classes == 2 else nn.CrossEntropyLoss()
+	loss_func = nn.BCELoss() if num_classes == 2 else nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
-	for epoch in range(1, N_EPOCHS + 1):
+	for epoch in range(1, NUM_EPOCHS + 1):
 		y_probs = model(x).squeeze()
 		loss = loss_func(y_probs, y)
 
@@ -99,12 +100,12 @@ def train_model():
 
 		if epoch % 10 == 0:
 			plot_decision_boundary()
-			plt.title(f'Epoch {epoch}/{N_EPOCHS}')
+			plt.title(f'Epoch {epoch}/{NUM_EPOCHS}')
 			plt.draw()
 			plt.pause(0.01)
 
 	plot_decision_boundary()
-	plt.title(f'Epoch {N_EPOCHS}/{N_EPOCHS}')
+	plt.title(f'Epoch {NUM_EPOCHS}/{NUM_EPOCHS}')
 	plt.show()
 
 
@@ -125,7 +126,7 @@ def plot_decision_boundary():
 	# (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
 	y_probs = model(x_to_pred).squeeze()
 
-	if n_classes == 2:  # Binary
+	if num_classes == 2:  # Binary
 		y_pred = y_probs.round()
 	else:  # Multiclass
 		y_pred = y_probs.argmax(dim=1)

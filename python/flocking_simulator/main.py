@@ -20,7 +20,7 @@ from boid import Boid
 
 
 # Simulation constants
-N_BOIDS = 80
+NUM_BOIDS = 80
 WIDTH, HEIGHT = 1500, 900
 FPS = 120
 NORTH_ARROW = np.array([[0, 33], [9, 0], [18, 33]], dtype=float)  # Coords describing an arrow
@@ -55,7 +55,7 @@ def generate_boids():
 	percep_radius = get_slider_val(percep_radius_slider, MIN_PERCEP_RADIUS, MAX_PERCEP_RADIUS)
 	max_force = get_slider_val(max_force_slider, MIN_FORCE, MAX_FORCE)
 
-	flock = [Boid(percep_radius, max_force, WIDTH, HEIGHT) for _ in range(N_BOIDS)]
+	flock = [Boid(percep_radius, max_force, WIDTH, HEIGHT) for _ in range(NUM_BOIDS)]
 
 
 def draw():
