@@ -18,7 +18,7 @@ plt.rcParams['figure.figsize'] = (7, 5)
 np.random.seed(1)
 
 KNAPSACK_CAPACITY = 100
-N_ITEMS = 100
+NUM_ITEMS = 100
 GENERATIONS = 50
 POP_SIZE = 100
 MUTATION_RATE = 0.4
@@ -34,11 +34,11 @@ def initialise_population():
 	population = []
 
 	for _ in range(POP_SIZE):
-		individual = Knapsack([False] * N_ITEMS)
-		indices = np.random.permutation(N_ITEMS)
+		individual = Knapsack([False] * NUM_ITEMS)
+		indices = np.random.permutation(NUM_ITEMS)
 
 		for i in indices:
-			if individual.total_weight(all_items, N_ITEMS) + all_items[i].weight <= KNAPSACK_CAPACITY:
+			if individual.total_weight(all_items, NUM_ITEMS) + all_items[i].weight <= KNAPSACK_CAPACITY:
 				individual.item_config[i] = True
 
 		population.append(individual)
@@ -67,7 +67,7 @@ def crossover(parents):
 		p1_config = parents[i].item_config
 		p2_config = parents[i + 1].item_config
 
-		c = np.random.choice(N_ITEMS)
+		c = np.random.choice(NUM_ITEMS)
 
 		off1_config = p1_config[:c] + p2_config[c:]
 		off2_config = p2_config[:c] + p1_config[c:]
@@ -90,7 +90,7 @@ def mutation(offspring):
 	for i in range(int(ELITISM_RATE * POP_SIZE), POP_SIZE):
 		if np.random.random() > MUTATION_RATE: continue
 
-		r = np.random.choice(N_ITEMS)
+		r = np.random.choice(NUM_ITEMS)
 		mutants[i].item_config[r] = not mutants[i].item_config[r]
 
 	return mutants
@@ -100,7 +100,7 @@ def evaluate(*population):
 	if isinstance(population[0], list): population = population[0]
 
 	for individual in population:
-		individual.calc_fitness(all_items, N_ITEMS, KNAPSACK_CAPACITY)
+		individual.calc_fitness(all_items, NUM_ITEMS, KNAPSACK_CAPACITY)
 
 
 def find_fittest(*population):
@@ -111,9 +111,9 @@ def find_fittest(*population):
 
 if __name__ == '__main__':
 	# Generate random items
-	item_weights = np.random.uniform(1, KNAPSACK_CAPACITY, size=N_ITEMS)
-	item_values = np.random.uniform(1, 100, size=N_ITEMS)
-	all_items = [Item(i + 1, item_weights[i], item_values[i]) for i in range(N_ITEMS)]
+	item_weights = np.random.uniform(1, KNAPSACK_CAPACITY, size=NUM_ITEMS)
+	item_values = np.random.uniform(1, 100, size=NUM_ITEMS)
+	all_items = [Item(i + 1, item_weights[i], item_values[i]) for i in range(NUM_ITEMS)]
 
 	for item in all_items:
 		print(item)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
 	# Display best items
 
-	items = [all_items[i] for i in range(N_ITEMS) if best_knapsack.item_config[i]]
+	items = [all_items[i] for i in range(NUM_ITEMS) if best_knapsack.item_config[i]]
 	print('\nBest items:', ', '.join(str(item.index) for item in items))
 	print('Value:', sum(item.value for item in items))
 	print('Weight left:', KNAPSACK_CAPACITY - sum(item.weight for item in items))

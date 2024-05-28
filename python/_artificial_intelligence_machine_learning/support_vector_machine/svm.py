@@ -13,10 +13,10 @@ plt.rcParams['figure.figsize'] = (6, 6)
 
 
 class SVM:
-	def __init__(self, learning_rate=0.001, lambda_param=0.001, n_iters=100):
+	def __init__(self, learning_rate=0.001, lambda_param=0.001, num_iters=100):
 		self.lr = learning_rate
 		self.lambda_param = lambda_param
-		self.n_iters = n_iters
+		self.num_iters = num_iters
 		self.w = None
 		self.b = None
 
@@ -46,9 +46,9 @@ class SVM:
 
 			plt.xlim([x0_min - 1, x0_max + 1])
 			plt.ylim([x1_min - 1, x1_max + 1])
-			plt.title(f'Iter {iter_num}/{self.n_iters}')
+			plt.title(f'Iter {iter_num}/{self.num_iters}')
 
-			if iter_num == self.n_iters:
+			if iter_num == self.num_iters:
 				plt.show()
 			else:
 				plt.draw()
@@ -60,7 +60,7 @@ class SVM:
 		self.w = np.zeros(x.shape[1])
 		self.b = 0.5  # Arbitrary random value
 
-		for i in range(1, self.n_iters + 1):
+		for i in range(1, self.num_iters + 1):
 			for idx, xi in enumerate(x):
 				if y[idx] * (np.dot(xi, self.w) - self.b) >= 1:
 					self.w -= self.lr * 2 * self.lambda_param * self.w

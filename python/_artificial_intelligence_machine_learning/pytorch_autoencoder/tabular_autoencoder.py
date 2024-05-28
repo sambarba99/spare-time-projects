@@ -9,10 +9,10 @@ from torch import nn
 
 
 class TabularAutoencoder(nn.Module):
-	def __init__(self, n_features_in, n_features_out):
+	def __init__(self, num_features_in, num_features_out):
 		super().__init__()
 		self.encoder_block = nn.Sequential(
-			nn.Linear(n_features_in, 32),
+			nn.Linear(num_features_in, 32),
 			nn.Tanh(),
 			nn.Linear(32, 16),
 			nn.Tanh(),
@@ -20,10 +20,10 @@ class TabularAutoencoder(nn.Module):
 			nn.Tanh(),
 			nn.Linear(8, 4),
 			nn.Tanh(),
-			nn.Linear(4, n_features_out)
+			nn.Linear(4, num_features_out)
 		)
 		self.decoder_block = nn.Sequential(
-			nn.Linear(n_features_out, 4),
+			nn.Linear(num_features_out, 4),
 			nn.Tanh(),
 			nn.Linear(4, 8),
 			nn.Tanh(),
@@ -31,7 +31,7 @@ class TabularAutoencoder(nn.Module):
 			nn.Tanh(),
 			nn.Linear(16, 32),
 			nn.Tanh(),
-			nn.Linear(32, n_features_in)
+			nn.Linear(32, num_features_in)
 		)
 
 	def forward(self, x):

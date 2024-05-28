@@ -19,11 +19,11 @@ plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
 np.random.seed(1)
 torch.manual_seed(1)
 
-N_SPLITS = 5
-N_EPOCHS = 100
-N_HIDDEN_LAYERS = 2
+NUM_HIDDEN_LAYERS = 2
 HIDDEN_LAYER_SIZE = 16
 LEARNING_RATE = 3e-3
+NUM_SPLITS = 5
+NUM_EPOCHS = 100
 
 
 def plot_test_progress(x_test, y_test_true, y_test_pred, epoch_num, split_num):
@@ -36,7 +36,7 @@ def plot_test_progress(x_test, y_test_true, y_test_pred, epoch_num, split_num):
 	plt.xlabel('$x$', color='white', fontsize=14)
 	plt.ylabel('$y$', color='white', fontsize=14)
 	plt.tick_params(colors='white')
-	plt.title(f'Epoch {epoch_num}/{N_EPOCHS}, split {split_num}/{N_SPLITS}\nTest MAE = {mae:.4f}', color='white')
+	plt.title(f'Epoch {epoch_num}/{NUM_EPOCHS}, split {split_num}/{NUM_SPLITS}\nTest MAE = {mae:.4f}', color='white')
 	legend = plt.legend()
 	for handle in legend.legend_handles:
 		handle.set_alpha(1)
@@ -63,22 +63,23 @@ if __name__ == '__main__':
 	# 2. Define model
 
 	layers = []
-	for i in range(N_HIDDEN_LAYERS):
+	for i in range(NUM_HIDDEN_LAYERS):
 		layers.append(nn.Linear(1 if i == 0 else HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE))
 		layers.append(nn.Tanh())
 	layers.append(nn.Linear(HIDDEN_LAYER_SIZE, 1))
 
 	model = nn.Sequential(*layers)
+	model.to('cpu')
 	loss_func = nn.MSELoss()
 	optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 	print(f'\nModel:\n{model}\n')
 
 	# 3. Training loop
 
-	kf = KFold(n_splits=N_SPLITS)
+	kf = KFold(n_splits=NUM_SPLITS)
 
-	for epoch in range(1, N_EPOCHS + 1):
-		print(f'Epoch {epoch}/{N_EPOCHS}')
+	for epoch in range(1, NUM_EPOCHS + 1):
+		print(f'Epoch {epoch}/{NUM_EPOCHS}')
 
 		for split_num, (train_idx, val_idx) in enumerate(kf.split(x_train_val), start=1):
 			x_train = x_train_val[train_idx]
@@ -98,7 +99,7 @@ if __name__ == '__main__':
 				y_test_pred = model(x_test.unsqueeze(dim=1)).squeeze()
 
 			val_mae = mean_absolute_error(y_val, y_val_pred)
-			print(f'\tSplit {split_num}/{N_SPLITS}  |  Val MAE = {val_mae:.4f}')
+			print(f'\tSplit {split_num}/{NUM_SPLITS}  |  Val MAE = {val_mae:.4f}')
 			plot_test_progress(x_test, y_test, y_test_pred, epoch, split_num)
 
 	plt.show()

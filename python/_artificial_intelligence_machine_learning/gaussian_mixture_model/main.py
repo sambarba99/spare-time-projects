@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
 	x_train, y_train, x_test, y_test, *_ = load_csv_classification_data(path, train_size=0.8, test_size=0.2)
 
-	gmm = GaussianMixtureModel(n_components=len(np.unique(y_train)))
+	gmm = GaussianMixtureModel(num_components=len(np.unique(y_train)))
 	gmm.fit(x_train)
 	predictions = gmm.predict(x_test)
 

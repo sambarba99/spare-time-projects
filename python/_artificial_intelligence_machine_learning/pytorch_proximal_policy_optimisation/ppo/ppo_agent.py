@@ -48,18 +48,18 @@ class ActorCritic(nn.Module):
 		# Policy (actor) function:
 		# Q_pi(s,a) = expected return from starting in state 's', doing action 'a' and following policy 'pi'
 		self.actor = nn.Sequential(
-			nn.Linear(N_INPUTS, LAYER_SIZE),
+			nn.Linear(NUM_INPUTS, LAYER_SIZE),
 			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
 			nn.Tanh(),
-			nn.Linear(LAYER_SIZE, N_ACTIONS),
+			nn.Linear(LAYER_SIZE, NUM_ACTIONS),
 			nn.Softmax(dim=-1)
 		)
 
 		# Value (critic) function:
 		# V_pi(s) = expected return from starting in state 's' and following policy 'pi'
 		self.critic = nn.Sequential(
-			nn.Linear(N_INPUTS, LAYER_SIZE),
+			nn.Linear(NUM_INPUTS, LAYER_SIZE),
 			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
 			nn.Tanh(),
@@ -115,6 +115,8 @@ class PPOAgent:
 		self.trainable_policy = ActorCritic(self.training_mode)
 		self.policy = ActorCritic(self.training_mode)
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
+		self.trainable_policy.to('cpu')
+		self.policy.to('cpu')
 
 		self.buffer = RolloutBuffer()
 		self.optimiser = torch.optim.Adam([

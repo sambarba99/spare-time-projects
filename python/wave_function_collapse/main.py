@@ -56,15 +56,15 @@ def setup():
 		img = pg.image.load(f'./tile_imgs/{COLLAGE_TYPE}/{img_file}').convert()
 		split = img_file.split('_')
 		edge_colour_codes = split[1:-1]
-		n_rotations = split[-1].removesuffix('.png')
-		tiles.append(Tile(img, edge_colour_codes, int(n_rotations)))
+		num_rotations = split[-1].removesuffix('.png')
+		tiles.append(Tile(img, edge_colour_codes, int(num_rotations)))
 
 	# 2. Generate all possible tile orientations
 
 	rotated_tiles = []
 	for tile in tiles:
-		if tile.n_rotations:
-			new_orientations = [tile.rotate(i) for i in range(1, tile.n_rotations + 1)]
+		if tile.num_rotations:
+			new_orientations = [tile.rotate(i) for i in range(1, tile.num_rotations + 1)]
 			rotated_tiles.extend(new_orientations)
 	tiles.extend(rotated_tiles)
 

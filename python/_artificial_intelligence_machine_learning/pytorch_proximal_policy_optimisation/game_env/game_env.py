@@ -92,7 +92,7 @@ class Car:
 		self.direction = 0
 		self.drift_vel = 0
 
-		self.n_gates_crossed = 0
+		self.num_gates_crossed = 0
 		self.drift_marks = deque(maxlen=200)
 
 		# Car corners
@@ -291,7 +291,7 @@ class GameEnv:
 		state.append((self.car.drift_vel + MAX_DRIFT_VEL) / (2 * MAX_DRIFT_VEL))
 
 		# Find relative direction to next reward gate
-		next_gate = self.reward_gates[self.car.n_gates_crossed % len(self.reward_gates)]
+		next_gate = self.reward_gates[self.car.num_gates_crossed % len(self.reward_gates)]
 		next_gate_centre = vec2(
 			(next_gate[0] + next_gate[2]) / 2,
 			(next_gate[1] + next_gate[3]) / 2
@@ -315,7 +315,7 @@ class GameEnv:
 		next_state = self.get_state()
 
 		# Check if car crossed the next reward gate
-		gate_idx = self.car.n_gates_crossed % len(self.reward_gates)
+		gate_idx = self.car.num_gates_crossed % len(self.reward_gates)
 		check_gate = self.reward_gates[gate_idx]
 
 		# If gate active and car crossed it
@@ -324,7 +324,7 @@ class GameEnv:
 			self.reward_gates[gate_idx][-1] = 0
 			self.reward_gates[(gate_idx + 1) % len(self.reward_gates)][-1] = 1
 
-			self.car.n_gates_crossed += 1
+			self.car.num_gates_crossed += 1
 			return GATE_REWARD, next_state, False
 
 		# Check if car crashed
@@ -354,8 +354,8 @@ class GameEnv:
 					pg.draw.line(self.scene, (255, 255, 255), self.car.pos, end_p)
 
 		# Drift marks
-		n_marks = len(self.car.drift_marks)
-		for i in range(n_marks - 1):
+		num_marks = len(self.car.drift_marks)
+		for i in range(num_marks - 1):
 			wheel_1_start = tuple(map(int, self.car.drift_marks[i][0]))
 			wheel_1_end = tuple(map(int, self.car.drift_marks[i + 1][0]))
 
@@ -369,7 +369,7 @@ class GameEnv:
 			wheel_3_end = tuple(map(int, self.car.drift_marks[i + 1][2]))
 			wheel_4_start = tuple(map(int, self.car.drift_marks[i][3]))
 			wheel_4_end = tuple(map(int, self.car.drift_marks[i + 1][3]))
-			c = int(50 * (1 - i / n_marks))
+			c = int(50 * (1 - i / num_marks))
 			pg.draw.line(self.scene, (c, c, c), wheel_1_start, wheel_1_end, 2)
 			pg.draw.line(self.scene, (c, c, c), wheel_2_start, wheel_2_end, 2)
 			pg.draw.line(self.scene, (c, c, c), wheel_3_start, wheel_3_end, 2)
@@ -388,7 +388,7 @@ class GameEnv:
 		pg.draw.rect(self.scene, d_colour, pg.Rect(1149, 100, 54, 54))
 
 		# Display laps and speed
-		laps = self.car.n_gates_crossed / len(self.reward_gates)
+		laps = self.car.num_gates_crossed / len(self.reward_gates)
 		laps_lbl = self.font.render(f'Laps: {laps:.2f}', True, (255, 255, 255))
 		speed_lbl = self.font.render(f'Speed: {self.car.vel:.1f}', True, (255, 255, 255))
 		self.scene.blit(laps_lbl, dest=(1033, 179))

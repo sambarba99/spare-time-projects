@@ -29,8 +29,8 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
 
 	for col in x_to_encode:
-		n_unique = x[col].nunique()
-		if n_unique == 2:
+		num_unique = x[col].nunique()
+		if num_unique == 2:
 			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True, dtype=int)
 		else:
@@ -85,8 +85,8 @@ def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_tran
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
 
 	for col in x_to_encode:
-		n_unique = x[col].nunique()
-		if n_unique == 2:
+		num_unique = x[col].nunique()
+		if num_unique == 2:
 			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True, dtype=int)
 		else:

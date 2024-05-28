@@ -30,7 +30,7 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 torch.manual_seed(1)
 
-N_EPOCHS = 500
+NUM_EPOCHS = 500
 
 # Mouse pointer x and y (for MNIST latent space visualisation)
 mx = my = 0
@@ -53,6 +53,7 @@ def do_mnist():
 	# 2. Load or train model
 
 	model = MNISTAutoencoder()
+	model.to('cpu')
 	plot_model(model, (1, 28, 28), './plots/mnist_autoencoder_architecture')
 
 	if os.path.exists('./models/mnist_model.pth'):
@@ -69,12 +70,12 @@ def do_mnist():
 		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 		val_loss_history = []
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 
 			for x_train in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				reconstructed = model(x_train)
 				loss = loss_func(reconstructed, x_train)
 
@@ -95,15 +96,15 @@ def do_mnist():
 				print('Early stopping at epoch', epoch)
 				break
 
+		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		torch.save(model.state_dict(), './models/mnist_model.pth')
+
 		plt.figure(figsize=(8, 5))
 		plt.plot(range(1, len(val_loss_history) + 1), val_loss_history)
 		plt.xlabel('Epoch')
 		plt.ylabel('Loss')
 		plt.title('MSE val loss per training epoch')
 		plt.show()
-
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
-		torch.save(model.state_dict(), './models/mnist_model.pth')
 
 	# 3. Visualise the latent space, controlled by the mouse
 
@@ -178,19 +179,20 @@ if __name__ == '__main__':
 		# 1. Prepare data
 
 		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), to_tensors=True)
-		n_features_in = x.shape[1]
+		num_features_in = x.shape[1]
 
 		choice = input('Enter 2 to compress to 2 latent variables, or 3: ')
-		n_features_out = int(choice)
-		assert n_features_out in (2, 3)  # So can be plotted on xy[z] axes
+		num_features_out = int(choice)
+		assert num_features_out in (2, 3)  # So can be plotted on xy[z] axes
 
 		# 2. Load or train model
 
 		model_name = path.split('/')[-1].removesuffix('.csv')
-		model_name = f'{model_name}_model_{n_features_out}_latent_variables'
+		model_name = f'{model_name}_model_{num_features_out}_latent_variables'
 		model_path = f'./models/{model_name}.pth'
 
-		model = TabularAutoencoder(n_features_in, n_features_out)
+		model = TabularAutoencoder(num_features_in, num_features_out)
+		model.to('cpu')
 
 		if os.path.exists(model_path):
 			model.load_state_dict(torch.load(model_path))
@@ -206,12 +208,12 @@ if __name__ == '__main__':
 			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 			val_loss_history = []
 
-			for epoch in range(1, N_EPOCHS + 1):
+			for epoch in range(1, NUM_EPOCHS + 1):
 				progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 
 				for x_train in train_loader:
 					progress_bar.update()
-					progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+					progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 					reconstructed = model(x_train)
 					loss = loss_func(reconstructed, x_train)
 
@@ -232,6 +234,9 @@ if __name__ == '__main__':
 					print('Early stopping at epoch', epoch)
 					break
 
+			model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+			torch.save(model.state_dict(), model_path)
+
 			plt.figure(figsize=(8, 5))
 			plt.plot(range(1, len(val_loss_history) + 1), val_loss_history)
 			plt.xlabel('Epoch')
@@ -239,21 +244,18 @@ if __name__ == '__main__':
 			plt.title('MSE val loss per training epoch')
 			plt.show()
 
-			model.load_state_dict(early_stopping.best_weights)  # Restore best weights
-			torch.save(model.state_dict(), model_path)
-
 		# 3. Visualise the latent space
 
 		encodings = model.encoder_block(x).detach().numpy()
 
 		plt.figure(figsize=(7, 6))
-		ax = plt.axes() if n_features_out == 2 else plt.axes(projection='3d')
+		ax = plt.axes() if num_features_out == 2 else plt.axes(projection='3d')
 		scatter = ax.scatter(*encodings.T, c=y, alpha=0.5, cmap='brg') \
-			if n_features_out == 2 else \
+			if num_features_out == 2 else \
 			ax.scatter3D(*encodings.T, c=y, alpha=0.5, cmap='brg')
 		ax.set_xlabel('Latent variable 1')
 		ax.set_ylabel('Latent variable 2')
-		if n_features_out == 3:
+		if num_features_out == 3:
 			x_plt, y_plt, z_plt = encodings.T
 			ax.plot(y_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='x', zs=x_plt.min() - 0.1)
 			ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.max() + 0.1)

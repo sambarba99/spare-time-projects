@@ -148,12 +148,12 @@ class Agent:
 
 		self.__render_q_table(print_table=False)
 
-	def on_policy_first_visit_mc_control(self, n_training_epochs=3000):
+	def on_policy_first_visit_mc_control(self, num_training_epochs=3000):
 		self.__reset_q_table()
 
 		rewards = dict()
 
-		for _ in range(n_training_epochs):
+		for _ in range(num_training_epochs):
 			# Generate trajectory by following epsilon-greedy policy
 			state = self.env.start
 			terminal = False
@@ -188,10 +188,10 @@ class Agent:
 
 		self.__render_q_table(print_table=True)
 
-	def sarsa(self, n_training_epochs=5000):
+	def sarsa(self, num_training_epochs=5000):
 		self.__reset_q_table()
 
-		for _ in range(n_training_epochs):
+		for _ in range(num_training_epochs):
 			state = self.env.start
 			terminal = False
 			if state not in self.q_table:  # Update with start state
@@ -214,10 +214,10 @@ class Agent:
 
 		self.__render_q_table(print_table=True)
 
-	def q_learning(self, n_training_epochs=5000):
+	def q_learning(self, num_training_epochs=5000):
 		self.__reset_q_table()
 
-		for _ in range(n_training_epochs):
+		for _ in range(num_training_epochs):
 			state = self.env.start
 			terminal = False
 			if state not in self.q_table:  # Update with start state

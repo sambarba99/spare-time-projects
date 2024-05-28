@@ -44,12 +44,12 @@ def file_walk():
 		return
 
 	discovered_files = []
-	n_files = path_size = 0
+	num_files = path_size = 0
 
 	start = perf_counter()
 
 	if os.path.isfile(path):
-		n_files, path_size = 1, os.path.getsize(path)
+		num_files, path_size = 1, os.path.getsize(path)
 
 	for folder_name, subfolders, filenames in os.walk(path):
 		folder_name = folder_name.replace('\\', '/')
@@ -63,7 +63,7 @@ def file_walk():
 			file_size, suffix = get_suffix(file_size)
 			discovered_files.append(f'Found file: {fname} ({file_size:.2f} {suffix})')
 		discovered_files.append('')
-		n_files += len(filenames)
+		num_files += len(filenames)
 
 	end = perf_counter()
 	interval = round(1000 * (end - start))
@@ -77,7 +77,7 @@ def file_walk():
 	discovered_files_output_txt.config(state='disabled')
 
 	path_size_output_lbl.config(
-		text=f'{n_files:,} files in path ({path_size:.2f} {suffix})'
+		text=f'{num_files:,} files in path ({path_size:.2f} {suffix})'
 		f'\nWalked in {interval} ms'
 	)
 

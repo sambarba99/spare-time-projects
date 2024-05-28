@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 	# Fit a model and predict
 
-	clf = XGBoostClassifier(n_estimators=100, max_depth=4, learning_rate=0.1, n_classes=len(labels))
+	clf = XGBoostClassifier(num_estimators=100, max_depth=4, learning_rate=0.1, num_classes=len(labels))
 	clf.fit(x_train, y_train)
 
 	test_pred_probs = clf.predict(x_test)

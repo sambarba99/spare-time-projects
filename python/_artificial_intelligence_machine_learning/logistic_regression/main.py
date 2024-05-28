@@ -32,11 +32,11 @@ def load_data(path, train_test_ratio=0.8):
 	labels = sorted(y.unique())
 
 	for col in x_to_encode:
-		n_unique = x[col].nunique()
-		if n_unique == 1:
+		num_unique = x[col].nunique()
+		if num_unique == 1:
 			# No information from this feature
 			x = x.drop(col, axis=1)
-		elif n_unique == 2:
+		elif num_unique == 2:
 			# Binary feature
 			x[col] = pd.get_dummies(x[col], drop_first=True, dtype=int)
 		else:
@@ -50,7 +50,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 
-	pca = PCA(n_components=2)
+	pca = PCA(num_components=2)
 	scaler = MinMaxScaler()
 	x = pca.fit_transform(scaler.fit_transform(x))
 

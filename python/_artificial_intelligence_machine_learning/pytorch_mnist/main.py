@@ -27,9 +27,9 @@ from conv_net import CNN
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 torch.manual_seed(1)
 
-N_EPOCHS = 50
-BATCH_SIZE = 256
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
+BATCH_SIZE = 256
+NUM_EPOCHS = 50
 DRAWING_SIZE = 500
 
 
@@ -60,6 +60,7 @@ if __name__ == '__main__':
 	train_loader, x_val, y_val, x_test, y_test = load_data()
 
 	model = CNN()
+	model.to('cpu')
 	print(f'\nModel:\n{model}')
 	plot_model(model, INPUT_SHAPE)
 
@@ -87,14 +88,14 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			total_loss = total_f1 = 0
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
 			for x_train, y_train in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 

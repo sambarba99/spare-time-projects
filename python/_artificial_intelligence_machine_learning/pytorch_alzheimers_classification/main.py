@@ -39,7 +39,7 @@ SCALE_FACTOR = 0.5
 INPUT_H = round(IMG_H * SCALE_FACTOR)
 INPUT_W = round(IMG_W * SCALE_FACTOR)
 BATCH_SIZE = 128
-N_EPOCHS = 100
+NUM_EPOCHS = 100
 
 
 def create_data_loaders(df):
@@ -119,6 +119,7 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
+	model.to('cpu')
 	print(f'\nModel:\n{model}')
 	plot_model(model, (1, INPUT_H, INPUT_W))
 
@@ -135,14 +136,14 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			total_loss = total_f1 = 0
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
 			for x_train, y_train in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 

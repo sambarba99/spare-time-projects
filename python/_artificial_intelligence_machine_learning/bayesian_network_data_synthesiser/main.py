@@ -71,11 +71,11 @@ def plot_bayes_net():
 	g.render('bayes_net', view=True, cleanup=True, format='png')
 
 
-def generate_data(n_samples=1000):
+def generate_data(num_samples=1000):
 	states = [0, 1]
 	samples = []
 
-	for _ in range(n_samples):
+	for _ in range(num_samples):
 		# Sample parent nodes (A,B,E)
 		sample_a = np.random.choice(states, p=MARG_A)
 		sample_b = np.random.choice(states, p=MARG_B)

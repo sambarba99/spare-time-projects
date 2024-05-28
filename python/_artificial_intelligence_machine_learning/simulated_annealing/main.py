@@ -12,7 +12,7 @@ import numpy as np
 plt.rcParams['figure.figsize'] = (12, 6)
 np.random.seed(1)
 
-N_POINTS = 20  # ~ 10^18 permutations
+NUM_POINTS = 20  # ~ 10^18 permutations
 TEMP_DECREASE_FACTOR = 0.995  # Cool down by 0.5% each iteration
 TEMP_THRESHOLD = 0.1  # Stop when this temperature has been reached
 
@@ -38,9 +38,9 @@ def generate_new_candidate(candidate):
 	chosen point in the remainder of the path.
 	"""
 
-	start_idx, end_idx = np.random.randint(N_POINTS, size=2)
+	start_idx, end_idx = np.random.randint(NUM_POINTS, size=2)
 	while start_idx == end_idx:
-		end_idx = np.random.randint(N_POINTS)
+		end_idx = np.random.randint(NUM_POINTS)
 	start_idx, end_idx = sorted([start_idx, end_idx])
 
 	new_candidate = candidate.copy()
@@ -89,9 +89,9 @@ def plot_candidate(ax, candidate, iter_num, max_iters):
 
 if __name__ == '__main__':
 	# Setup (initial solution is random)
-	best_candidate = np.random.uniform(0, 100, size=(N_POINTS, 2))
+	best_candidate = np.random.uniform(0, 100, size=(NUM_POINTS, 2))
 	best_dist = calc_distance(best_candidate)
-	temperature = N_POINTS  # Arbitrary start temperature
+	temperature = NUM_POINTS  # Arbitrary start temperature
 	max_iters = int(np.ceil(np.log(TEMP_THRESHOLD / temperature) / np.log(TEMP_DECREASE_FACTOR)))
 	iter_num = 0
 	dist_history = []

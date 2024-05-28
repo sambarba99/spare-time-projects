@@ -1,3 +1,5 @@
 Simulated Annealing applied to the Travelling Salesman Problem
 
-![](output.gif)
+<p align="center">
+  <img src="output.gif"/>
+</p>

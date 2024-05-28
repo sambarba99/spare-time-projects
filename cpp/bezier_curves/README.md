@@ -1,3 +1,5 @@
 Bézier curves demo
 
-![](bezier.gif)
+<p align="center">
+  <img src="bezier.gif"/>
+</p>

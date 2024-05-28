@@ -20,11 +20,11 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
 
-def transform(x, y, n_components):
-	n_features = x.shape[1]
+def transform(x, y, num_components):
+	num_features = x.shape[1]
 	mean_overall = np.mean(x, axis=0)
-	sw = np.zeros((n_features, n_features))
-	sb = np.zeros((n_features, n_features))
+	sw = np.zeros((num_features, num_features))
+	sb = np.zeros((num_features, num_features))
 
 	for class_lbl in np.unique(y):
 		x_c = x[y == class_lbl]
@@ -46,7 +46,7 @@ def transform(x, y, n_components):
 	indices = np.abs(eigenvalues).argsort()[::-1]
 	eigenvectors = eigenvectors.T[indices]
 
-	components = eigenvectors[:n_components]
+	components = eigenvectors[:num_components]
 	x_transform = np.dot(x, components.T)
 
 	return x_transform
@@ -74,22 +74,22 @@ if __name__ == '__main__':
 		case '7': path = 'C:/Users/Sam/Desktop/projects/datasets/titanic_survivals.csv'
 		case _: path = 'C:/Users/Sam/Desktop/projects/datasets/wine_classification.csv'
 
-	n_components = None
-	while n_components not in ('2', '3'):
-		n_components = input('\nEnter no. components (2 or 3)\n>>> ')
-	n_components = int(n_components)
+	num_components = None
+	while num_components not in ('2', '3'):
+		num_components = input('\nEnter no. components (2 or 3)\n>>> ')
+	num_components = int(num_components)
 
 	# Normalise x (LDA is sensitive to feature scales)
 	x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler())
-	x_transform = transform(x, y, n_components)
+	x_transform = transform(x, y, num_components)
 
-	ax = plt.axes() if n_components == 2 else plt.axes(projection='3d')
+	ax = plt.axes() if num_components == 2 else plt.axes(projection='3d')
 	scatter = ax.scatter(*x_transform.T, c=y, alpha=0.5, cmap='brg') \
-		if n_components == 2 else \
+		if num_components == 2 else \
 		ax.scatter3D(*x_transform.T, c=y, alpha=0.5, cmap='brg')
 	ax.set_xlabel('Linear discriminant 1')
 	ax.set_ylabel('Linear discriminant 2')
-	if n_components == 3:
+	if num_components == 3:
 		x_plt, y_plt, z_plt = x_transform.T
 		ax.plot(y_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='x', zs=x_plt.min() - 0.1)
 		ax.plot(x_plt, z_plt, 'k.', markersize=2, alpha=0.4, zdir='y', zs=y_plt.max() + 0.1)

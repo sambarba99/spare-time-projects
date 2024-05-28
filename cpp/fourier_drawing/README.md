@@ -1,3 +1,5 @@
 Interactive visualisation of the Discrete Fourier Transform
 
-![](fourier.gif)
+<p align="center">
+  <img src="fourier.gif"/>
+</p>

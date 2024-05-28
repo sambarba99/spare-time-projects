@@ -30,15 +30,15 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'  # Available from Kaggle
+DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'  # https://www.kaggle.com/datasets/jangedoo/utkface-new
 DATASET_DICT = {
 	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
 	'gender_id': {'0': 'male', '1': 'female'}
 }
 INPUT_SIZE = 128
-N_EPOCHS = 50
 BATCH_SIZE = 32
 LEARNING_RATE = 1e-4
+NUM_EPOCHS = 50
 
 # Weighting the losses according to how well the model generally does for each output
 # (e.g. race classification is weakest, so its loss weighs the most)
@@ -155,6 +155,7 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
+	model.to('cpu')
 	print(f'Model:\n{model}')
 	plot_model(model, (3, INPUT_SIZE, INPUT_SIZE))
 
@@ -174,13 +175,13 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
-		for epoch in range(1, N_EPOCHS + 1):
+		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
 			for x_train, y_train_age, y_train_gender, y_train_race in train_loader:
 				progress_bar.update()
-				progress_bar.set_description(f'Epoch {epoch}/{N_EPOCHS}')
+				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 				age_pred, gender_pred_probs, race_pred_probs = model(x_train)
 
 				age_loss = loss_func_age(age_pred, y_train_age)

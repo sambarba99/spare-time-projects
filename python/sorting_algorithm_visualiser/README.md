@@ -2,4 +2,6 @@ Sorting algorithm visualisation
 
 E.g. Bubble sort:
 
-![](bubble_sort.gif)
+<p align="center">
+  <img src="bubble_sort.gif"/>
+</p>

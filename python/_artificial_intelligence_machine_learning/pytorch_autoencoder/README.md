@@ -2,7 +2,9 @@ PyTorch autoencoder demo for the MNIST dataset or for tabular data such as the i
 
 In the case of the MNIST autoencoder, the data dimensionality is reduced from `(1, 28, 28)` (colour channels, width, height) to `(2,)` - a compression factor of 392. These latent variables can thus be plotted on $xy$ axes:
 
-![](plots/mnist_2_latent_variables.gif)
+<p align="center">
+  <img src="plots/mnist_2_latent_variables.gif"/>
+</p>
 
 MNIST autoencoder architecture:
 

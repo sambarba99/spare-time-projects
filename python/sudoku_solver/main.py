@@ -30,7 +30,7 @@ PRESET_PUZZLES = {
 board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 given_coords = None  # Store coords of numbers that are already given
 backtrack_grid = None  # For visualising backtracks
-n_backtracks = 0
+num_backtracks = 0
 
 
 def solve():
@@ -54,7 +54,7 @@ def solve():
 	if is_full():
 		return
 
-	global n_backtracks
+	global num_backtracks
 
 	for event in pg.event.get():
 		if event.type == pg.QUIT:
@@ -64,7 +64,7 @@ def solve():
 	for n in range(1, 10):
 		if legal(n, y, x):
 			board[y][x] = n
-			draw_grid(f'Solving ({n_backtracks} backtracks)')
+			draw_grid(f'Solving ({num_backtracks} backtracks)')
 			solve()
 
 	if is_full(): return
@@ -73,9 +73,9 @@ def solve():
 	# So the previous attempt in the loop must be invalid
 	# So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0
-	n_backtracks += 1
+	num_backtracks += 1
 	backtrack_grid[y][x] += 1
-	draw_grid(f'Solving ({n_backtracks} backtracks)')
+	draw_grid(f'Solving ({num_backtracks} backtracks)')
 
 
 def draw_grid(status):
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 		for difficulty_lvl, config in PRESET_PUZZLES.items():
 			given_coords = []
 			backtrack_grid = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
-			n_backtracks = 0
+			num_backtracks = 0
 
 			for idx, n in enumerate(config):
 				y, x = divmod(idx, BOARD_SIZE)
@@ -154,6 +154,6 @@ if __name__ == '__main__':
 			start = perf_counter()
 			solve()
 			interval = perf_counter() - start
-			draw_grid(f'Solved ({n_backtracks} backtracks, {interval:.3}s) - click for next puzzle')
+			draw_grid(f'Solved ({num_backtracks} backtracks, {interval:.3}s) - click for next puzzle')
 			plot_backtracks(difficulty_lvl)
 			wait_for_click()

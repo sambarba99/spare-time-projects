@@ -15,7 +15,7 @@ class CustomDataset(torch.utils.data.Dataset):
 
 		self.x = x
 		self.y = y
-		self.n_samples = len(x)
+		self.num_samples = len(x)
 
 	def __getitem__(self, index):
 		if self.y:
@@ -25,4 +25,4 @@ class CustomDataset(torch.utils.data.Dataset):
 		return self.x[index]
 
 	def __len__(self):
-		return self.n_samples
+		return self.num_samples
