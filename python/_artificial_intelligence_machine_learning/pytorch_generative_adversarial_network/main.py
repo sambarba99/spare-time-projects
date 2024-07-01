@@ -54,9 +54,9 @@ def create_train_loader():
 
 
 def plot_images(images, title, save_path=None):
-	_, axes = plt.subplots(nrows=5, ncols=5, figsize=(6, 6))
+	_, axes = plt.subplots(nrows=4, ncols=6, figsize=(7, 5))
 	plt.gcf().set_facecolor('black')
-	plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
+	plt.subplots_adjust(left=0.05, right=0.95, bottom=0.05, hspace=0.05, wspace=0.05)
 	for idx, ax in enumerate(axes.flatten()):
 		img = (images[idx] + 1) * 127.5  # De-normalise
 		img = img.type(torch.uint8).permute(1, 2, 0)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='min')
 
-		fixed_noise = torch.randn(25, GEN_LATENT_DIM, 1, 1, device=DEVICE)
+		fixed_noise = torch.randn(24, GEN_LATENT_DIM, 1, 1, device=DEVICE)
 
 		gen_model.eval()
 		with torch.inference_mode():
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
 	# Test generator on a random noise vector
 
-	noise = torch.randn(25, GEN_LATENT_DIM, 1, 1, device=DEVICE)
+	noise = torch.randn(24, GEN_LATENT_DIM, 1, 1, device=DEVICE)
 	gen_model.eval()
 	with torch.inference_mode():
 		fake_images_test = gen_model(noise)
