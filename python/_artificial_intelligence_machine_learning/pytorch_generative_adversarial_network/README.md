@@ -7,6 +7,10 @@ Training progress on a fixed noise vector (up to Early Stopping, epoch 15):
 </p>
 
 <p align="center">
+  <img src="images/test2.png"/>
+</p>
+
+<p align="center">
   <img src="images/training_progress.gif"/>
 </p>
 
