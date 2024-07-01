@@ -18,14 +18,17 @@ from tqdm import tqdm
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.model_architecture_plots import plot_model
-from models import Discriminator, Generator
+from models import Generator, Discriminator
 
 
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 64
-DISC_NOISE_STRENGTH = 0.05
 GEN_LATENT_DIM = 128
+DISC_NOISE_STRENGTH = 0.05
 BATCH_SIZE = 128
 LEARNING_RATE = 2e-4
 OPTIM_BETAS = (0.5, 0.999)
@@ -54,15 +57,15 @@ def create_train_loader():
 
 
 def plot_images(images, title, save_path=None):
-	_, axes = plt.subplots(nrows=3, ncols=8, figsize=(8, 3.4))
+	_, axes = plt.subplots(nrows=4, ncols=6, figsize=(7.63, 5.5))
 	plt.gcf().set_facecolor('black')
-	plt.subplots_adjust(left=0.02, right=0.98, bottom=0.05, hspace=0.05, wspace=0.05)
+	plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.05, wspace=0.05)
 	for idx, ax in enumerate(axes.flatten()):
 		img = (images[idx] + 1) * 127.5  # De-normalise
 		img = img.type(torch.uint8).permute(1, 2, 0)
 		ax.imshow(img.cpu())
 		ax.axis('off')
-	plt.suptitle(title, y=0.96, color='white')
+	plt.suptitle(title, y=0.955, color='white')
 	if save_path:
 		plt.savefig(save_path)
 	else:
@@ -71,15 +74,15 @@ def plot_images(images, title, save_path=None):
 
 
 if __name__ == '__main__':
-	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH)
 	gen_model = Generator(latent_dim=GEN_LATENT_DIM)
-	disc_model.to(DEVICE)
+	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH)
 	gen_model.to(DEVICE)
+	disc_model.to(DEVICE)
 
-	# print(f'\nDiscriminator model:\n\n{disc_model}')
-	# print(f'\nGenerator model:\n\n{gen_model}')
-	# plot_model(disc_model, (3, IMG_SIZE, IMG_SIZE), './discriminator_architecture')
-	# plot_model(gen_model, (GEN_LATENT_DIM, 1, 1), './generator_architecture')
+	print(f'\nGenerator model:\n\n{gen_model}')
+	print(f'\nDiscriminator model:\n\n{disc_model}')
+	plot_model(gen_model, (GEN_LATENT_DIM, 1, 1), './generator_architecture')
+	plot_model(disc_model, (3, IMG_SIZE, IMG_SIZE), './discriminator_architecture')
 
 	if os.path.exists('./gen_model.pth'):
 		gen_model.load_state_dict(torch.load('./gen_model.pth'))
@@ -88,8 +91,10 @@ if __name__ == '__main__':
 
 		train_loader = create_train_loader()
 		loss_func = torch.nn.BCELoss()
-		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
+		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
+		gen_scheduler = torch.optim.lr_scheduler.ExponentialLR(gen_optimiser, gamma=0.95)
+		disc_scheduler = torch.optim.lr_scheduler.ExponentialLR(disc_optimiser, gamma=0.95)
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='min')
 
 		fixed_noise = torch.randn(24, GEN_LATENT_DIM, 1, 1, device=DEVICE)
@@ -143,13 +148,17 @@ if __name__ == '__main__':
 				gen_model.eval()
 				with torch.inference_mode():
 					fake_images_test = gen_model(fixed_noise)
-				title = f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}'
-				save_path = f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png'
-				plot_images(fake_images_test, title, save_path)
+				plot_images(
+					fake_images_test,
+					f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}',
+					f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png'
+				)
 
 			mean_gen_loss = total_gen_loss / len(train_loader)
-			progress_bar.set_postfix_str(f'mean_gen_loss={mean_gen_loss:.4f}')
+			progress_bar.set_postfix_str(f"mean_gen_loss={mean_gen_loss:.4f}, lr={gen_scheduler.get_last_lr()[-1]:.3e}")
 			progress_bar.close()
+			gen_scheduler.step()
+			disc_scheduler.step()
 
 			if early_stopping(mean_gen_loss, gen_model.state_dict()):
 				print('Early stopping at epoch', epoch)

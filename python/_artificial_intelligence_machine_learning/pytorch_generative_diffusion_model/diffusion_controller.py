@@ -41,8 +41,8 @@ class DiffusionController:
 
 		self.plot_images(
 			torch.clamp(images, -1, 1),
-			title=f'Reverse diffusion process (t={self.T}/{self.T})',
-			save_path=f'./images/reverse_diffusion_step_{self.T}.png'
+			f'Reverse diffusion process (t={self.T}/{self.T})',
+			f'./images/reverse_diffusion_step_{self.T}.png'
 		)
 
 		for t in tqdm(reversed(range(self.T)), desc='Iterating over reversed timesteps', ascii=True, total=self.T):
@@ -68,22 +68,22 @@ class DiffusionController:
 
 			self.plot_images(
 				torch.clamp(images, -1, 1),
-				title=f'Reverse diffusion process (t={t}/{self.T})',
-				save_path=f'./images/reverse_diffusion_step_{t:0>4}.png'
+				f'Reverse diffusion process (t={t}/{self.T})',
+				f'./images/reverse_diffusion_step_{t:0>4}.png'
 			)
 
 		self.plot_images(torch.clamp(images, -1, 1), 'Model test on random noise')
 
 	def plot_images(self, images, title, save_path=None):
-		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(6, 6))
+		_, axes = plt.subplots(nrows=4, ncols=6, figsize=(7.63, 5.5))
 		plt.gcf().set_facecolor('black')
-		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
+		plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.05, wspace=0.05)
 		for idx, ax in enumerate(axes.flatten()):
 			img = (images[idx] + 1) * 127.5  # De-normalise
 			img = img.type(torch.uint8).permute(1, 2, 0)
 			ax.imshow(img.cpu())
 			ax.axis('off')
-		plt.suptitle(title, y=0.95, color='white')
+		plt.suptitle(title, y=0.955, color='white')
 		if save_path:
 			plt.savefig(save_path)
 		else:

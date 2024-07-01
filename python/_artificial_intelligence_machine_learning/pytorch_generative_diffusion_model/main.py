@@ -20,7 +20,10 @@ from diffusion_controller import DiffusionController
 from model import DDPM
 
 
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 64
 T = 1000  # Diffusion timesteps
@@ -71,14 +74,14 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=20, min_delta=0, mode='min')
 
 		# Visualise the forward diffusion process
-		first_25_imgs = next(iter(train_loader))[:25].to(DEVICE)
-		diffusion_controller.plot_images(first_25_imgs,
+		first_24_imgs = next(iter(train_loader))[:24].to(DEVICE)
+		diffusion_controller.plot_images(first_24_imgs,
 			f'Forward diffusion process (t=0/{T})',
 			f'./images/forward_diffusion_step_0.png'
 		)
 		for t in tqdm(range(T), desc='Iterating over forward timesteps', ascii=True):
-			t_tensor = torch.full((25,), t, device=DEVICE)
-			noisy_images, _ = diffusion_controller.add_noise(first_25_imgs, t_tensor)
+			t_tensor = torch.full((24,), t, device=DEVICE)
+			noisy_images, _ = diffusion_controller.add_noise(first_24_imgs, t_tensor)
 			diffusion_controller.plot_images(
 				torch.clamp(noisy_images, -1, 1),
 				f'Forward diffusion process (t={t + 1}/{T})',
@@ -135,4 +138,4 @@ if __name__ == '__main__':
 	print('\n----- TESTING -----\n')
 	model.eval()
 	with torch.inference_mode():
-		diffusion_controller.generate_images(model, 25, IMG_SIZE)
+		diffusion_controller.generate_images(model, 24, IMG_SIZE)

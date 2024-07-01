@@ -1,11 +1,35 @@
 """
-Discriminator and generator models
+Generator and disriminator models
 
 Author: Sam Barba
 Created 01/07/2023
 """
 
 from torch import nn, randn_like
+
+
+class Generator(nn.Module):
+	def __init__(self, *, latent_dim):
+		super().__init__()
+		self.main_block = nn.Sequential(
+			nn.ConvTranspose2d(latent_dim, 512, kernel_size=4, bias=False),
+			nn.BatchNorm2d(512),
+			nn.LeakyReLU(),
+			nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(256),
+			nn.LeakyReLU(),
+			nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(128),
+			nn.LeakyReLU(),
+			nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(64),
+			nn.LeakyReLU(),
+			nn.ConvTranspose2d(64, 3, kernel_size=4, stride=2, padding=1),
+			nn.Tanh()
+		)
+
+	def forward(self, x):
+		return self.main_block(x)
 
 
 class Discriminator(nn.Module):
@@ -34,27 +58,3 @@ class Discriminator(nn.Module):
 		noise = randn_like(x) * self.noise_strength
 
 		return self.main_block(x + noise)
-
-
-class Generator(nn.Module):
-	def __init__(self, *, latent_dim):
-		super().__init__()
-		self.main_block = nn.Sequential(
-			nn.ConvTranspose2d(latent_dim, 512, kernel_size=4, bias=False),
-			nn.BatchNorm2d(512),
-			nn.ReLU(),
-			nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, bias=False),
-			nn.BatchNorm2d(256),
-			nn.ReLU(),
-			nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, bias=False),
-			nn.BatchNorm2d(128),
-			nn.ReLU(),
-			nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, bias=False),
-			nn.BatchNorm2d(64),
-			nn.ReLU(),
-			nn.ConvTranspose2d(64, 3, kernel_size=4, stride=2, padding=1),
-			nn.Tanh()
-		)
-
-	def forward(self, x):
-		return self.main_block(x)
