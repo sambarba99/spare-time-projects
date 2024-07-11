@@ -63,7 +63,7 @@ if __name__ == '__main__':
 	diffusion_controller = DiffusionController(num_timesteps=T, beta_min=BETA_MIN, beta_max=BETA_MAX, device=DEVICE)
 
 	if os.path.exists('./model.pth'):
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
 

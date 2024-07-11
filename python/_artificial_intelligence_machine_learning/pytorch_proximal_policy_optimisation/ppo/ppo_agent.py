@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from ppo.constants import *
+from pytorch_proximal_policy_optimisation.ppo.constants import *
 
 
 class RolloutBuffer:
@@ -37,7 +37,12 @@ class RolloutBuffer:
 		return batch_states, batch_state_values, batch_actions, batch_action_log_probs
 
 	def clear(self):
-		self.__init__()
+		self.states.clear()
+		self.state_values.clear()
+		self.actions.clear()
+		self.action_log_probs.clear()
+		self.returns.clear()
+		self.terminals.clear()
 
 
 class ActorCritic(nn.Module):
@@ -115,8 +120,6 @@ class PPOAgent:
 		self.trainable_policy = ActorCritic(self.training_mode)
 		self.policy = ActorCritic(self.training_mode)
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
-		self.trainable_policy.to('cpu')
-		self.policy.to('cpu')
 
 		self.buffer = RolloutBuffer()
 		self.optimiser = torch.optim.Adam([
@@ -131,7 +134,7 @@ class PPOAgent:
 		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                                   # ALGORITHM STEP 2
 			env.reset()
 			state = env.get_state()
-			t = total_return = total_vel = 0
+			t = total_episode_return = total_vel = 0
 
 			for t in range(1, MAX_EP_LENGTH + 1):
 				# Calculate action and make a step in the env
@@ -142,20 +145,32 @@ class PPOAgent:
 				self.buffer.returns.append(return_)
 				self.buffer.terminals.append(terminal)
 
-				total_return += return_
+				total_episode_return += return_
 				total_vel += env.car.vel
 				timesteps_done += 1
 
 				if len(self.buffer) == BATCH_SIZE:
 					# ------------------------------ PPO update ------------------------------ #
 
+					# Save model from last update
+					laps = env.car.num_gates_crossed / len(env.reward_gates)
+					mean_vel = total_vel / t
+					model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
+					if not os.path.exists(model_path):
+						self.save_model(model_path)
+
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs = \
 						self.buffer.rollout()                                                           # ALGORITHM STEP 3
 
-					returns_to_go = self.compute_returns_to_go()                                        # ALGORITHM STEP 4
+					returns = self.compute_returns_to_go(                                               # ALGORITHM STEP 4
+						self.buffer.returns, self.buffer.terminals
+					)
 
-					# Compute expected advantage: A(s,a) = Q(s,a) - V(s)                                  ALGORITHM STEP 5
-					adv = returns_to_go - batch_state_values
+					# Expected advantage: A(s,a) = Q(s,a) - V(s)                                          ALGORITHM STEP 5
+					advantages = returns - batch_state_values
+
+					# Standardise for more stable training
+					advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-9)
 
 					for _ in range(GRAD_STEPS_PER_EPOCH):
 						state_values, action_log_probs, action_dist_entropy = \
@@ -164,23 +179,23 @@ class PPOAgent:
 						# Calculate ratio r(t) = pi_theta(a_t | s_t) / pi_theta_old(a_t | s_t).
 						# r(t) = (prob. of choosing action a_t in state s_t under the current policy)
 						#      ÷ (prob. of choosing a_t | s_t under the prev. policy)
-						ratios = torch.exp(action_log_probs - batch_action_log_probs)
+						log_ratios = action_log_probs - batch_action_log_probs
+						ratios = torch.exp(log_ratios)
 
 						# Calculate surrogate losses (the minimum of these will be used in steps 6/7):
 						# surr2 clips the surr1 ratios to ensure the gradient step isn't too big
-						surr1 = ratios * adv
-						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * adv  # Clip
+						surr1 = ratios * advantages
+						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * advantages  # Clip
 
 						# Calculate losses and do backpropagation                                         ALGORITHM STEP 6/7
 						# Actor loss is negative because we want to maximise (gradient ascent)
 						actor_loss = -torch.min(surr1, surr2)
-						critic_loss = nn.MSELoss()(state_values, returns_to_go)
+						critic_loss = nn.MSELoss()(state_values, returns)
 
-						# Critic loss x0.5 cancels the 2 in the MSE derivative.
 						# An entropy value is used for regularisation, as it adds a penalty based on
 						# the entropy of the policy distribution. By maximising entropy, the agent is
 						# encouraged to explore different actions and avoid converging to local minima.
-						loss = (actor_loss + 0.5 * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
+						loss = (actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
 						self.optimiser.zero_grad()
 						loss.backward()
 						self.optimiser.step()
@@ -193,20 +208,16 @@ class PPOAgent:
 			# Checkpoint and save model in case a PPO update just happened
 			episode_num += 1
 			percent_done = 100 * timesteps_done / TOTAL_TRAIN_TIMESTEPS
-			total_return_per_episode.append(total_return)
-
-			laps = env.car.n_gates_crossed / len(env.reward_gates)
-			mean_vel = total_vel / t
-			model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
-			if not os.path.exists(model_path):
-				self.save_model(model_path)
+			total_return_per_episode.append(total_episode_return)
 
 			if episode_num % 10 == 0:
 				print(f'Episode: {episode_num}  |  '
 					f'timesteps: {t} ({percent_done:.1f}% done)  |  '
-					f'total return: {total_return:.1f}  |  '
-					f'laps: {laps:.2f}  |  '
-					f'mean vel: {mean_vel:.1f}')
+					f'total return: {total_episode_return:.1f}  |  ')
+
+		laps = env.car.num_gates_crossed / len(env.reward_gates)
+		model_path = f'./ppo/model_{laps:.2f}_laps_final_update.pth'
+		self.save_model(model_path)
 
 		return total_return_per_episode
 
@@ -224,20 +235,19 @@ class PPOAgent:
 
 		return action.item()
 
-	def compute_returns_to_go(self):
+	def compute_returns_to_go(self, returns, terminals):
 		"""Compute 'returns-to-go' (estimated future returns from a given start state)"""
 
 		discounted_return = 0
 		returns_to_go = []
 
 		# Iterate through all returns backwards, to correctly apply discount factor GAMMA
-		for return_, terminal in reversed(list(zip(self.buffer.returns, self.buffer.terminals))):
-			discounted_return = 0 if terminal else return_ + GAMMA * discounted_return
-			returns_to_go.insert(0, discounted_return)
+		for r, terminal in reversed(list(zip(returns, terminals))):
+			discounted_return = r + (0 if terminal else GAMMA * discounted_return)
+			returns_to_go.append(discounted_return)
 
-		# Standardise for more stable training
+		returns_to_go.reverse()
 		returns_to_go = torch.tensor(returns_to_go).float()
-		returns_to_go = (returns_to_go - returns_to_go.mean()) / (returns_to_go.std() + 1e-7)
 
 		return returns_to_go
 

@@ -64,7 +64,7 @@ if __name__ == '__main__':
 			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
-		case 'B1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authentication.csv'
+		case 'B1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authenticity.csv'
 		case 'B2': path = 'C:/Users/Sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
 		case 'B3': path = 'C:/Users/Sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
 		case 'B4': path = 'C:/Users/Sam/Desktop/projects/datasets/pulsar_identification.csv'

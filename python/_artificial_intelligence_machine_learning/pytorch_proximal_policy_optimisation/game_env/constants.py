@@ -6,6 +6,8 @@ Created 16/02/2023
 """
 
 # ----- PHYSICS ----- #
+START_X = 89
+START_Y = 456
 FORCE = 0.11             # Force of acceleration/deceleration
 FRICTION = 0.01          # Higher means faster deceleration
 DRIFT_FRICTION = 0.03
@@ -21,9 +23,10 @@ GATE_REWARD = 10
 CRASH_PENALTY = -100
 TIMESTEP_PENALTY = -0.1
 
-# ----- IMAGES ----- #
+# ----- RENDERING ----- #
 DRIFT_RENDER_THRESHOLD = 4  # Min. drift speed for rendering drift marks
 CAR_WIDTH = 21
 CAR_HEIGHT = 42
 TRACK_WIDTH = 1361
 TRACK_HEIGHT = 869
+FPS = 90

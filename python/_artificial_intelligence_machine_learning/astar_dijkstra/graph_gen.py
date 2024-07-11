@@ -27,16 +27,16 @@ def make_graph(x_max, y_max, num_nodes=1000, num_neighbours=4):
 	coords = np.vstack((x, y)).T
 	adjacency_list = dict()
 
-	# Link each node to its closest 'num_neighbours' neighbours
+	# Link each node to its nearest 'num_neighbours' neighbours
 	for idx, c in enumerate(coords):
 		if idx not in adjacency_list:
 			adjacency_list[idx] = set()
 
 		neighbour_dists = np.linalg.norm(coords - c, axis=1)
-		# '1:' to exlude from closest
-		closest_n = neighbour_dists.argsort()[1:num_neighbours + 1]
+		# '1:' to exlude from nearest
+		nearest_n = neighbour_dists.argsort()[1:num_neighbours + 1]
 
-		for neighbour_idx in closest_n:
+		for neighbour_idx in nearest_n:
 			if neighbour_idx not in adjacency_list:
 				adjacency_list[neighbour_idx] = set()
 			adjacency_list[idx].add(neighbour_idx)
@@ -54,7 +54,7 @@ def make_graph(x_max, y_max, num_nodes=1000, num_neighbours=4):
 
 	# Ensure graph connectivity
 	while not connected:
-		# Choose closest pair of nodes in 'visited' and 'unvisited', and link them
+		# Choose nearest pair of nodes in 'visited' and 'unvisited', and link them
 		unvisited = [n for n in nodes if n not in visited]
 		u_idx = v_idx = 0
 		min_dist = 1e9

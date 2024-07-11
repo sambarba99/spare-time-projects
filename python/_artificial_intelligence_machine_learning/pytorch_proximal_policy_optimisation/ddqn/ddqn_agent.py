@@ -13,8 +13,8 @@ import numpy as np
 import torch
 from torch import nn
 
-from ddqn.constants import *
-from ddqn.prioritised_replay_buffer import PrioritisedReplayBuffer
+from pytorch_proximal_policy_optimisation.ddqn.constants import *
+from pytorch_proximal_policy_optimisation.ddqn.prioritised_replay_buffer import PrioritisedReplayBuffer
 
 
 def build_network():
@@ -32,10 +32,8 @@ class DDQNAgent:
 	def __init__(self, *, training_mode):
 		self.epsilon = 1 if training_mode else MIN_EPSILON
 		self.policy_net = build_network()  # Online model, used for action selection (equivalent to actor in PPO)
-		self.policy_net.to('cpu')
 		if training_mode:
 			self.target_net = build_network()  # Offline model, used for action evaluation (equivalent to critic in PPO)
-			self.target_net.to('cpu')
 			self.replay_buffer = PrioritisedReplayBuffer()
 			self.optimiser = torch.optim.Adam(self.policy_net.parameters(), lr=LEARNING_RATE)
 
@@ -88,7 +86,7 @@ class DDQNAgent:
 				state = next_state
 
 			total_return_per_epoch.append(total_return)
-			laps = env.car.n_gates_crossed / len(env.reward_gates)
+			laps = env.car.num_gates_crossed / len(env.reward_gates)
 			mean_vel = total_vel / t
 			model_path = f'./ddqn/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
 			if not os.path.exists(model_path):
@@ -129,10 +127,10 @@ class DDQNAgent:
 		"""
 
 		states = torch.tensor([s[0] for s in batch]).float()
-		actions = torch.tensor([s[1] for s in batch]).float()
+		actions = torch.tensor([s[1] for s in batch])
 		returns = torch.tensor([s[2] for s in batch]).float()
 		next_states = torch.tensor([s[3] for s in batch]).float()
-		terminal_mask = torch.tensor([s[4] for s in batch]).float()
+		terminal_mask = torch.tensor([s[4] for s in batch])
 
 		# ------------------------------ Double DQN ------------------------------ #
 
@@ -156,7 +154,7 @@ class DDQNAgent:
 		self.optimiser.step()
 
 		# Temporal Difference error (used to update priority replay tree)
-		td_errors = (policy_q_current - expected_q_current).abs().detach().numpy()
+		td_errors = (policy_q_current.cpu() - expected_q_current.cpu()).abs().detach().numpy()
 
 		return td_errors
 
@@ -173,4 +171,4 @@ class DDQNAgent:
 
 	def load_model(self):
 		# No need to load target_net (only need policy model for testing)
-		self.policy_net = torch.load('./ddqn/model.pth')
+		self.policy_net.load_state_dict(torch.load('./ddqn/model.pth'))

@@ -11,7 +11,7 @@ from math import pi, sin, cos, atan2, degrees, radians
 
 import pygame as pg
 
-from game_env.constants import *
+from pytorch_proximal_policy_optimisation.game_env.constants import *
 
 
 # Lines crossed by the car that represent progress (reward for crossing)
@@ -82,14 +82,14 @@ def find_line_intersection(line_a, line_b):
 
 
 class Car:
-	def __init__(self, x, y, do_rendering):
+	def __init__(self, do_rendering):
 		self.do_rendering = do_rendering
 
 		# Physical properties
-		self.pos = vec2(x, y)
+		self.pos = vec2(START_X, START_Y)
 		self.vel = 0
 		self.acc = 0
-		self.direction = 0
+		self.heading = 0  # Heading = direction pointed by car
 		self.drift_vel = 0
 
 		self.num_gates_crossed = 0
@@ -119,7 +119,7 @@ class Car:
 			return new_x, new_y
 
 
-		# 1. Decode action no.
+		# 1. Decode action num
 
 		accelerating = action in (1, 5, 6)
 		decelerating = action in (2, 7, 8)
@@ -138,8 +138,8 @@ class Car:
 		elif turning_right: turn_amount = TURN_RATE * self.vel
 		else: turn_amount = 0
 
-		self.direction += turn_amount
-		self.direction %= (2 * pi)
+		self.heading += turn_amount
+		self.heading %= (2 * pi)
 
 		# Rotate car's image/rectangle
 		if turn_amount:
@@ -149,7 +149,7 @@ class Car:
 			self.p3.update(rotate(centre, self.p3, turn_amount))
 			self.p4.update(rotate(centre, self.p4, turn_amount))
 			if self.do_rendering:
-				self.img = pg.transform.rotate(self.original_img, -degrees(self.direction))
+				self.img = pg.transform.rotate(self.original_img, -degrees(self.heading))
 
 		# 4. Update velocity/drift
 
@@ -171,11 +171,11 @@ class Car:
 			self.drift_marks.append((self.p1.copy(), self.p2.copy(), self.p3.copy(), self.p4.copy()))
 
 		vel_vector = vec2(
-			self.vel * sin(self.direction) - self.drift_vel * cos(self.direction),
-			self.vel * cos(self.direction) + self.drift_vel * sin(self.direction)
+			self.vel * sin(self.heading) - self.drift_vel * cos(self.heading),
+			self.vel * cos(self.heading) + self.drift_vel * sin(self.heading)
 		)
 
-		if vel_vector.length() != 0:
+		if vel_vector.magnitude() != 0:
 			vel_vector = vel_vector.normalize()
 
 		vel_vector.x *= abs(self.vel)
@@ -209,8 +209,8 @@ class Car:
 
 		# Line defining the car's direction
 		cx1, cy1 = self.pos
-		cx2 = cx1 + MAX_RAY_LENGTH * sin(self.direction)
-		cy2 = cy1 - MAX_RAY_LENGTH * cos(self.direction)
+		cx2 = cx1 + MAX_RAY_LENGTH * sin(self.heading)
+		cy2 = cy1 - MAX_RAY_LENGTH * cos(self.heading)
 
 		gate_line = gate[:-1]
 
@@ -236,7 +236,7 @@ class GameEnv:
 
 		self.car = None
 
-		# These define the car's "vision"
+		# These define the car's "vision" and are only used when rendering
 		self.ray_contact_points = None
 		self.ray_end_points = None  # Some rays might not intersect a wall
 
@@ -255,12 +255,12 @@ class GameEnv:
 
 		# Angles of rays projecting from the car
 		ray_angles = [
-			self.car.direction,
-			self.car.direction + radians(11), self.car.direction - radians(11),
-			self.car.direction + radians(45), self.car.direction - radians(45),
-			self.car.direction + radians(90), self.car.direction - radians(90),
-			self.car.direction + radians(135), self.car.direction - radians(135),
-			self.car.direction + radians(180)
+			self.car.heading,
+			self.car.heading + radians(11), self.car.heading - radians(11),
+			self.car.heading + radians(45), self.car.heading - radians(45),
+			self.car.heading + radians(90), self.car.heading - radians(90),
+			self.car.heading + radians(135), self.car.heading - radians(135),
+			self.car.heading + radians(180)
 		]
 
 		state = []
@@ -269,23 +269,23 @@ class GameEnv:
 
 		for ray_angle in ray_angles:
 			record = MAX_RAY_LENGTH
-			closest_contact_point = None
+			nearest_contact_point = None
 			ray_end_x = self.car.pos.x + record * sin(ray_angle)
 			ray_end_y = self.car.pos.y - record * cos(ray_angle)
 
 			for wall in self.walls:
 				if pt := find_line_intersection((*self.car.pos, ray_end_x, ray_end_y), wall):
 					if (dist := self.car.pos.distance_to(pt)) < record:
-						record, closest_contact_point = dist, pt
+						record, nearest_contact_point = dist, pt
 
 			# Normalise observation: 0 is close, 1 is far
 			state.append(record / MAX_RAY_LENGTH)
 
 			# Used in rendering
-			self.ray_contact_points.append(closest_contact_point)
+			self.ray_contact_points.append(nearest_contact_point)
 			self.ray_end_points.append((ray_end_x, ray_end_y))
 
-		# Agent knows its own (normalised) velocities
+		# Agent knows its own velocities (normalised)
 		# Transform from range [-max, max] to [0, 1]
 		state.append((self.car.vel + MAX_GRIP_VEL) / (2 * MAX_GRIP_VEL))
 		state.append((self.car.drift_vel + MAX_DRIFT_VEL) / (2 * MAX_DRIFT_VEL))
@@ -297,7 +297,7 @@ class GameEnv:
 			(next_gate[1] + next_gate[3]) / 2
 		)
 		next_gate_rel_pos = vec2(next_gate_centre.x - self.car.pos.x, next_gate_centre.y - self.car.pos.y)
-		next_gate_rel_dir = degrees(self.car.direction - atan2(next_gate_rel_pos.y, next_gate_rel_pos.x)) - 90
+		next_gate_rel_dir = degrees(self.car.heading - atan2(next_gate_rel_pos.y, next_gate_rel_pos.x)) - 90
 		next_gate_rel_dir %= 360
 		if next_gate_rel_dir > 180:
 			next_gate_rel_dir -= 360
@@ -391,12 +391,12 @@ class GameEnv:
 		laps = self.car.num_gates_crossed / len(self.reward_gates)
 		laps_lbl = self.font.render(f'Laps: {laps:.2f}', True, (255, 255, 255))
 		speed_lbl = self.font.render(f'Speed: {self.car.vel:.1f}', True, (255, 255, 255))
-		self.scene.blit(laps_lbl, dest=(1033, 179))
-		self.scene.blit(speed_lbl, dest=(1033, 219))
+		self.scene.blit(laps_lbl, (1033, 179))
+		self.scene.blit(speed_lbl, (1033, 219))
 
-		self.clock.tick(90)  # 90 FPS
 		pg.display.update()
+		self.clock.tick(FPS)
 
 	def reset(self):
 		self.reward_gates = deepcopy(REWARD_GATES)
-		self.car = Car(89, 456, self.do_rendering)
+		self.car = Car(self.do_rendering)

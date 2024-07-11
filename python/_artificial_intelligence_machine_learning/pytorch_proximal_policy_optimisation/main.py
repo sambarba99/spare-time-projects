@@ -18,9 +18,9 @@ import pygame as pg
 from scipy.signal import savgol_filter
 import torch
 
-from ddqn.ddqn_agent import DDQNAgent
-from ppo.ppo_agent import PPOAgent
-from game_env.game_env import GameEnv
+from pytorch_proximal_policy_optimisation.ddqn.ddqn_agent import DDQNAgent
+from pytorch_proximal_policy_optimisation.ppo.ppo_agent import PPOAgent
+from pytorch_proximal_policy_optimisation.game_env.game_env import GameEnv
 
 
 plt.rcParams['figure.figsize'] = (10, 6)
@@ -42,8 +42,7 @@ def train(is_ppo):
 	plt.xlabel('Epoch no.')
 	plt.ylabel('Total return')
 	plt.title('Total return per training epoch')
-	plt.savefig(f"./{'ppo' if is_ppo else 'ddqn'}/graph_total_returns.png")
-	plt.close()
+	plt.show()
 
 
 def test(is_ppo):
@@ -94,7 +93,6 @@ def play_manually():
 			turning_left = keys_pressed[pg.K_a]
 			turning_right = keys_pressed[pg.K_d]
 
-			action = 0
 			if accelerating and turning_left: action = 5
 			elif accelerating and turning_right: action = 6
 			elif decelerating and turning_left: action = 7
@@ -103,6 +101,7 @@ def play_manually():
 			elif decelerating: action = 2
 			elif turning_left: action = 3
 			elif turning_right: action = 4
+			else: action = 0
 
 			*_, terminal = env.step(action)
 
@@ -111,7 +110,7 @@ def play_manually():
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEter 1 to play manually,'
+		'\nEnter 1 to play manually,'
 		'\n2 to test existing PPO agent,'
 		'\n3 to test existing DDQN agent,'
 		'\n4 to train new PPO agent,'

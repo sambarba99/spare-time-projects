@@ -229,8 +229,10 @@ if __name__ == '__main__':
 			)
 			progress_bar.close()
 
-			model_path = f'./model_{age_val_mae:.2f}_{gender_val_f1:.2f}_{race_val_f1:.2f}.pth'
-			torch.save(model.state_dict(), model_path)  # Best: model_5.72_0.90_0.78.pth
+			torch.save(
+				model.state_dict(),
+				f'./model_{age_val_mae:.2f}_{gender_val_f1:.2f}_{race_val_f1:.2f}.pth'
+			)
 
 			history['age_val_MAE'].append(age_val_mae)
 			history['gender_val_F1'].append(gender_val_f1)

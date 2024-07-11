@@ -31,7 +31,7 @@ class DecisionTree:
 
 				probs = np.bincount(y) / len(y)
 
-				return 1 - (probs ** 2).sum()
+				return 1 - (probs * probs).sum()
 
 			def calculate_entropy(y):
 				if len(y) <= 1: return 0

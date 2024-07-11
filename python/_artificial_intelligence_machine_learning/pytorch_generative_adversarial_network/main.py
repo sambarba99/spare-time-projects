@@ -84,7 +84,7 @@ if __name__ == '__main__':
 	plot_model(disc_model, (3, IMG_SIZE, IMG_SIZE), './images/discriminator_architecture')
 
 	if os.path.exists('./gen_model.pth'):
-		gen_model.load_state_dict(torch.load('./gen_model.pth'))
+		gen_model.load_state_dict(torch.load('./gen_model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
 
