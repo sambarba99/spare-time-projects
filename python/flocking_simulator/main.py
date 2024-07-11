@@ -116,6 +116,7 @@ def draw():
 	pg.draw.line(scene, (255, 0, 0), *max_force_slider)
 
 	pg.display.update()
+	clock.tick(FPS)
 
 
 def get_slider_val(slider, min_val, max_val):
@@ -182,5 +183,3 @@ if __name__ == '__main__':
 			boid.update()
 
 		draw()
-
-		clock.tick(FPS)

@@ -32,13 +32,13 @@ class Boid:
 		if do_cohesion: self.acc += self.cohesion(flock)
 
 		try:
-			self.acc = self.acc.clamp_magnitude(self.max_force)
+			self.acc.clamp_magnitude_ip(self.max_force)
 		except ValueError:
 			pass  # In case of 'ValueError: Cannot clamp a vector with zero length'
 
 	def update(self):
 		self.vel += self.acc
-		self.vel = self.vel.clamp_magnitude(self.max_force)
+		self.vel.clamp_magnitude_ip(self.max_force)
 		self.pos += self.vel
 
 		# Check bounds

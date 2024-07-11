@@ -14,9 +14,7 @@ Reverse diffusion process (using the model to iteratively denoise a purely rando
 
 The update equation for the reverse diffusion process (`diffusion_controller.generate_images`) is:
 
-<p align="center">
-	$x_{t-1}=\frac{1}{\sqrt{\alpha_t}}\bigg(x_t-\frac{1-\alpha_t}{\sqrt{1-\alpha^T_t}}\epsilon_\theta(x_t,t)\bigg)+\sqrt{\beta_t}z_t$
-</p>
+$$x_{t-1}=\frac{1}{\sqrt{\alpha_t}}\bigg(x_t-\frac{1-\alpha_t}{\sqrt{1-\alpha^T_t}}\epsilon_\theta(x_t,t)\bigg)+\sqrt{\beta_t}z_t$$
 
 Where:
 - $x_t$ = noisy image at timestep $t$

@@ -10,7 +10,7 @@ import random
 
 import torch
 
-from ddqn.constants import *
+from pytorch_proximal_policy_optimisation.ddqn.constants import *
 
 
 class SumTree:

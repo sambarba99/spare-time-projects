@@ -38,7 +38,7 @@ class KMeans:
 			for i in range(self.k):
 				cluster_points_i = x[x_cluster_labels == i]
 				distances = np.linalg.norm(cluster_points_i - self.centroids[i], axis=1)
-				sum_squares = (distances ** 2).sum()
+				sum_squares = (distances * distances).sum()
 				total_sum_squares += sum_squares
 
 			return total_sum_squares

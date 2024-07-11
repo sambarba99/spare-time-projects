@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from ppo.constants import *
+from pytorch_proximal_policy_optimisation.ppo.constants import *
 
 
 class RolloutBuffer:
@@ -115,8 +115,6 @@ class PPOAgent:
 		self.trainable_policy = ActorCritic(self.training_mode)
 		self.policy = ActorCritic(self.training_mode)
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
-		self.trainable_policy.to('cpu')
-		self.policy.to('cpu')
 
 		self.buffer = RolloutBuffer()
 		self.optimiser = torch.optim.Adam([
@@ -131,7 +129,7 @@ class PPOAgent:
 		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                                   # ALGORITHM STEP 2
 			env.reset()
 			state = env.get_state()
-			t = total_return = total_vel = 0
+			t = total_episode_return = total_vel = 0
 
 			for t in range(1, MAX_EP_LENGTH + 1):
 				# Calculate action and make a step in the env
@@ -142,12 +140,19 @@ class PPOAgent:
 				self.buffer.returns.append(return_)
 				self.buffer.terminals.append(terminal)
 
-				total_return += return_
+				total_episode_return += return_
 				total_vel += env.car.vel
 				timesteps_done += 1
 
 				if len(self.buffer) == BATCH_SIZE:
 					# ------------------------------ PPO update ------------------------------ #
+
+					# Save model from last update
+					laps = env.car.num_gates_crossed / len(env.reward_gates)
+					mean_vel = total_vel / t
+					model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
+					if not os.path.exists(model_path):
+						self.save_model(model_path)
 
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs = \
 						self.buffer.rollout()                                                           # ALGORITHM STEP 3
@@ -193,20 +198,16 @@ class PPOAgent:
 			# Checkpoint and save model in case a PPO update just happened
 			episode_num += 1
 			percent_done = 100 * timesteps_done / TOTAL_TRAIN_TIMESTEPS
-			total_return_per_episode.append(total_return)
-
-			laps = env.car.n_gates_crossed / len(env.reward_gates)
-			mean_vel = total_vel / t
-			model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
-			if not os.path.exists(model_path):
-				self.save_model(model_path)
+			total_return_per_episode.append(total_episode_return)
 
 			if episode_num % 10 == 0:
 				print(f'Episode: {episode_num}  |  '
 					f'timesteps: {t} ({percent_done:.1f}% done)  |  '
-					f'total return: {total_return:.1f}  |  '
-					f'laps: {laps:.2f}  |  '
-					f'mean vel: {mean_vel:.1f}')
+					f'total return: {total_episode_return:.1f}  |  ')
+
+		laps = env.car.num_gates_crossed / len(env.reward_gates)
+		model_path = f'./ppo/model_{laps:.2f}_laps_final_update.pth'
+		self.save_model(model_path)
 
 		return total_return_per_episode
 
