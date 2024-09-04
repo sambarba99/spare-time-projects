@@ -243,7 +243,7 @@ class GameEnv:
 		if self.do_rendering:
 			pg.init()
 			pg.display.set_caption('Deep Reinforcement Learning self-driving car')
-			self.font = pg.font.SysFont('consolas', 30)
+			self.font = pg.font.SysFont('lucidasanstypewriteroblique', 26)
 			self.scene = pg.display.set_mode((TRACK_WIDTH, TRACK_HEIGHT))
 			self.clock = pg.time.Clock()
 			self.track_img = pg.image.load('./game_env/track.png').convert()
@@ -334,24 +334,24 @@ class GameEnv:
 		# Penalise every time step
 		return TIMESTEP_PENALTY, next_state, False
 
-	def render(self, action, render_meta):
+	def render(self, action, render_meta, terminal):
 		self.scene.blit(self.track_img, self.track_img.get_rect())
 
 		if render_meta:
 			# Draw reward gates and rays
 
 			for x1, y1, x2, y2, active in self.reward_gates:
-				pg.draw.line(self.scene, (0, 255, 0) if active else (0, 0, 255), (x1, y1), (x2, y2), 2)
+				pg.draw.line(self.scene, 'green' if active else 'blue', (x1, y1), (x2, y2), 2)
 
 			# for idx, (x1, y1, x2, y2) in enumerate(self.walls):
-			# 	pg.draw.line(self.scene, (255, 0, 0) if idx % 2 else (0, 0, 255), (x1, y1), (x2, y2))
+			# 	pg.draw.line(self.scene, 'red' if idx % 2 else 'blue', (x1, y1), (x2, y2))
 
 			for end_p, contact_p in zip(self.ray_end_points, self.ray_contact_points):
 				if contact_p:
-					pg.draw.line(self.scene, (255, 255, 255), self.car.pos, contact_p)
-					pg.draw.circle(self.scene, (255, 0, 0), contact_p, 4)
+					pg.draw.line(self.scene, 'white', self.car.pos, contact_p)
+					pg.draw.circle(self.scene, 'red', contact_p, 4)
 				else:
-					pg.draw.line(self.scene, (255, 255, 255), self.car.pos, end_p)
+					pg.draw.line(self.scene, 'white', self.car.pos, end_p)
 
 		# Drift marks
 		num_marks = len(self.car.drift_marks)
@@ -378,10 +378,13 @@ class GameEnv:
 		self.scene.blit(self.car.img, self.car.rect)
 
 		# Display WASD control (key is green if used, else grey)
-		w_colour = (0, 255, 0) if action in (1, 5, 6) else (50, 50, 50)
-		a_colour = (0, 255, 0) if action in (3, 5, 7) else (50, 50, 50)
-		s_colour = (0, 255, 0) if action in (2, 7, 8) else (50, 50, 50)
-		d_colour = (0, 255, 0) if action in (4, 6, 8) else (50, 50, 50)
+		if terminal:
+			w_colour = a_colour = s_colour = d_colour = 'red'
+		else:
+			w_colour = 'green' if action in (1, 5, 6) else (50, 50, 50)
+			a_colour = 'green' if action in (3, 5, 7) else (50, 50, 50)
+			s_colour = 'green' if action in (2, 7, 8) else (50, 50, 50)
+			d_colour = 'green' if action in (4, 6, 8) else (50, 50, 50)
 		pg.draw.rect(self.scene, w_colour, pg.Rect(1092, 43, 54, 54))
 		pg.draw.rect(self.scene, a_colour, pg.Rect(1035, 100, 54, 54))
 		pg.draw.rect(self.scene, s_colour, pg.Rect(1092, 100, 54, 54))
@@ -389,12 +392,14 @@ class GameEnv:
 
 		# Display laps and speed
 		laps = self.car.num_gates_crossed / len(self.reward_gates)
-		laps_lbl = self.font.render(f'Laps: {laps:.2f}', True, (255, 255, 255))
-		speed_lbl = self.font.render(f'Speed: {self.car.vel:.1f}', True, (255, 255, 255))
-		self.scene.blit(laps_lbl, (1033, 179))
-		self.scene.blit(speed_lbl, (1033, 219))
+		laps_lbl = self.font.render(f'Laps: {laps:.2f}', True, 'white')
+		speed_lbl = self.font.render(f'Speed: {self.car.vel:.1f}', True, 'white')
+		self.scene.blit(laps_lbl, (1033, 170))
+		self.scene.blit(speed_lbl, (1033, 210))
 
 		pg.display.update()
+		if terminal:
+			pg.time.wait(800)
 		self.clock.tick(FPS)
 
 	def reset(self):

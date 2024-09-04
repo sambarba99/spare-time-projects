@@ -417,6 +417,7 @@ class GameEnv:
 						self.make_asteroids()
 
 					if idx == self.nearest_asteroid_idx:
+						# Highly reward destroying the nearest asteroid
 						return AGENT_ASTEROID_DESTROY_REWARD + self.timestep_reward, next_state, False
 					else:
 						return self.timestep_reward, next_state, False
@@ -431,7 +432,7 @@ class GameEnv:
 		for idx, (s1, s2) in enumerate(self.spaceship.lines):
 			if idx < 3:
 				# Hull = red if game over, else white
-				colour = (255, 0, 0) if terminal else (255, 255, 255)
+				colour = 'red' if terminal else 'white'
 			else:
 				# Thruster = red/orange/yellow
 				colour = (255, flame_green, 0)
@@ -440,25 +441,25 @@ class GameEnv:
 		# Draw asteroids
 		for a in self.asteroids:
 			for a1, a2 in a.lines:
-				pg.draw.line(self.scene, (255, 255, 255), a1, a2)
+				pg.draw.line(self.scene, 'white', a1, a2)
 
 		# Draw bullets
 		for b in self.spaceship.bullets:
-			pg.draw.circle(self.scene, (255, 255, 255), b.pos, 3)
+			pg.draw.circle(self.scene, 'white', b.pos, 3)
 
 		# Display arrow/space key control (key is green if used, else grey)
-		up_colour = (0, 255, 0) if action in (1, 5, 6, 7, 10, 11) else (80, 80, 80)
-		left_colour = (0, 255, 0) if action in (2, 5, 8, 10) else (80, 80, 80)
-		right_colour = (0, 255, 0) if action in (3, 6, 9, 11) else (80, 80, 80)
-		space_colour = (0, 255, 0) if action in (4, 7, 8, 9, 10, 11) else (80, 80, 80)
+		up_colour = 'green' if action in (1, 5, 6, 7, 10, 11) else (80, 80, 80)
+		left_colour = 'green' if action in (2, 5, 8, 10) else (80, 80, 80)
+		right_colour = 'green' if action in (3, 6, 9, 11) else (80, 80, 80)
+		space_colour = 'green' if action in (4, 7, 8, 9, 10, 11) else (80, 80, 80)
 		pg.draw.rect(self.scene, up_colour, pg.Rect(120, 80, 25, 25))
 		pg.draw.rect(self.scene, left_colour, pg.Rect(95, 105, 25, 25))
 		pg.draw.rect(self.scene, right_colour, pg.Rect(145, 105, 25, 25))
 		pg.draw.rect(self.scene, space_colour, pg.Rect(12, 105, 75, 25))
 
 		# Display level and score
-		level_lbl = self.font.render(f'Level: {self.level}', True, (255, 255, 255))
-		score_lbl = self.font.render(f'Score: {self.spaceship.score}', True, (255, 255, 255))
+		level_lbl = self.font.render(f'Level: {self.level}', True, 'white')
+		score_lbl = self.font.render(f'Score: {self.spaceship.score}', True, 'white')
 		self.scene.blit(level_lbl, (10, 10))
 		self.scene.blit(score_lbl, (10, 40))
 

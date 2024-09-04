@@ -108,12 +108,12 @@ def draw():
 	scene.blit(do_cohesion_lbl, (50, 120))
 
 	# Lines representing slider scales
-	pg.draw.line(scene, (255, 0, 0), (SLIDER_MIN_X, 39), (SLIDER_MAX_X, 39))
-	pg.draw.line(scene, (255, 0, 0), (SLIDER_MIN_X, 61), (SLIDER_MAX_X, 61))
+	pg.draw.line(scene, 'red', (SLIDER_MIN_X, 39), (SLIDER_MAX_X, 39))
+	pg.draw.line(scene, 'red', (SLIDER_MIN_X, 61), (SLIDER_MAX_X, 61))
 
 	# Lines representing sliders on their respective scales
-	pg.draw.line(scene, (255, 0, 0), *percep_radius_slider)
-	pg.draw.line(scene, (255, 0, 0), *max_force_slider)
+	pg.draw.line(scene, 'red', *percep_radius_slider)
+	pg.draw.line(scene, 'red', *max_force_slider)
 
 	pg.display.update()
 	clock.tick(FPS)

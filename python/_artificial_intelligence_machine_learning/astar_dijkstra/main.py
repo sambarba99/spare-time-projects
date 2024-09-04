@@ -131,7 +131,7 @@ def draw():
 	if maze_mode:
 		for y in range(ROWS):
 			for x in range(COLS):
-				c = (0, 0, 0) if graph[y][x].is_wall else (80, 80, 80)
+				c = 'black' if graph[y][x].is_wall else (80, 80, 80)
 
 				pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
@@ -148,10 +148,10 @@ def draw():
 
 		if path:
 			for node, next_node in zip(path[:-1], path[1:]):
-				pg.draw.line(scene, (0, 255, 0), (node.x, node.y), (next_node.x, next_node.y), 4)
+				pg.draw.line(scene, 'green', (node.x, node.y), (next_node.x, next_node.y), 4)
 
 		for node in graph:
-			pg.draw.circle(scene, (255, 0, 0), (node.x, node.y), 3)
+			pg.draw.circle(scene, 'red', (node.x, node.y), 3)
 
 		# Start and target
 		pg.draw.circle(scene, (0, 80, 255), (start_node.x, start_node.y), 6)

@@ -71,7 +71,7 @@ def test(is_ppo):
 				action = agent.choose_action(state)
 				_, state, terminal = env.step(action)
 
-			env.render(action, render_meta=render_meta)
+			env.render(action, render_meta, terminal)
 
 
 def play_manually():
@@ -105,7 +105,7 @@ def play_manually():
 
 			*_, terminal = env.step(action)
 
-			env.render(action, render_meta=False)
+			env.render(action, render_meta=False, terminal=terminal)
 
 
 if __name__ == '__main__':

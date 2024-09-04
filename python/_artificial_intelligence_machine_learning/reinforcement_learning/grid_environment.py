@@ -85,7 +85,7 @@ class GridEnv:
 				best_action_val = None
 
 				if not final_q_table or (y, x) not in final_q_table:
-					col = (0, 0, 0)
+					col = 'black'
 				else:
 					best_action_val = max(final_q_table[y, x])
 					c = map_range(best_action_val, smallest_grid_q, biggest_grid_q, 20, 120)
