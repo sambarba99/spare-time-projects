@@ -12,7 +12,7 @@ from sklearn.preprocessing import LabelEncoder
 import torch
 
 
-def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, one_hot_y=False, to_tensors=False):
+def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, one_hot_y=False, tensor_device=None):
 	assert np.isclose(train_size + val_size + test_size, 1) and train_size > 0
 
 	df = pd.read_csv(path)
@@ -53,8 +53,8 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	if x_transform:
 		x = x_transform.fit_transform(x)
-	if to_tensors:
-		x, y = torch.tensor(x).float(), torch.tensor(y).float()
+	if tensor_device:
+		x, y = torch.tensor(x, device=tensor_device).float(), torch.tensor(y, device=tensor_device).float()
 
 	if val_size == test_size == 0:
 		return x, y, labels, features
@@ -68,7 +68,7 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 	return x_train, y_train, x_val, y_val, x_remaining, y_remaining, labels, features
 
 
-def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, to_tensors=False):
+def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, tensor_device=None):
 	assert np.isclose(train_size + val_size + test_size, 1) and train_size > 0
 
 	df = pd.read_csv(path)
@@ -96,13 +96,13 @@ def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_tran
 
 	features = x.columns
 
-	print(f'\nPreprocessed data:\n\n{pd.concat([x, y], axis=1)}\n')
+	print(f'Preprocessed data:\n\n{pd.concat([x, y], axis=1)}\n')
 
-	x, y = x.to_numpy(), y.to_numpy()
+	x, y = x.to_numpy(), y.to_numpy().squeeze()
 	if x_transform:
 		x = x_transform.fit_transform(x)
-	if to_tensors:
-		x, y = torch.tensor(x).float(), torch.tensor(y).float()
+	if tensor_device:
+		x, y = torch.tensor(x, device=tensor_device).float(), torch.tensor(y, device=tensor_device).float()
 
 	if val_size == test_size == 0:
 		return x, y, features

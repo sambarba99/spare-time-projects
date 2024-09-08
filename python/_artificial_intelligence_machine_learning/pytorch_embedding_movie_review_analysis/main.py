@@ -108,6 +108,7 @@ if __name__ == '__main__':
 			for x_train, y_train in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.round().detach().numpy()
 

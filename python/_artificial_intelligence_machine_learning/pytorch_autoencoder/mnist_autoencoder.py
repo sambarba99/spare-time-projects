@@ -11,7 +11,7 @@ from torch import nn
 class MNISTAutoencoder(nn.Module):
 	def __init__(self):
 		super().__init__()
-		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, width, height)
+		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, height, width)
 		self.encoder_block = nn.Sequential(
 			nn.Conv2d(1, 16, 3, 2, 1),   # -> (N, 16, 14, 14)
 			nn.Tanh(),
@@ -45,5 +45,5 @@ class MNISTAutoencoder(nn.Module):
 
 	def forward(self, x):
 		encoded = self.encoder_block(x)
-		decoded = self.decoder_block(encoded)
-		return decoded
+		reconstructed = self.decoder_block(encoded)
+		return reconstructed

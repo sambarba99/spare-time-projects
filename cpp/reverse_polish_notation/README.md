@@ -1,3 +1,5 @@
 Infix to RPN converter and evaluator
 
-![](rpn.png)
+<p align="center">
+	<img src="rpn.png"/>
+</p>

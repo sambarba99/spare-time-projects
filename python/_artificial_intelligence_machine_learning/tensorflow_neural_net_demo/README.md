@@ -2,8 +2,12 @@
 
 Example performance of iris dataset test classification:
 
-![](iris_test_confusion_matrix.png)
+<p align="center">
+	<img src="iris_test_confusion_matrix.png"/>
+</p>
 
 Corresponding architecture of iris classifier:
 
-![](iris_model_architecture.png)
+<p align="center">
+	<img src="iris_model_architecture.png"/>
+</p>

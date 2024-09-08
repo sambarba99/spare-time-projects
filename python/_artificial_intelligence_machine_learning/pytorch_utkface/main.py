@@ -30,12 +30,12 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'  # https://www.kaggle.com/datasets/jangedoo/utkface-new
+DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'
 DATASET_DICT = {
 	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
 	'gender_id': {'0': 'male', '1': 'female'}
 }
-INPUT_SIZE = 128
+IMG_SIZE = 128
 BATCH_SIZE = 32
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 50
@@ -56,7 +56,7 @@ def create_data_loaders(df):
 	# Preprocess images now instead of during training (faster pipeline overall)
 
 	transform = transforms.Compose([
-		transforms.Resize(INPUT_SIZE),
+		transforms.Resize(IMG_SIZE),
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
@@ -155,9 +155,9 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	model.to('cpu')
 	print(f'Model:\n{model}')
-	plot_model(model, (3, INPUT_SIZE, INPUT_SIZE))
+	plot_model(model, (3, IMG_SIZE, IMG_SIZE))
+	model.to('cpu')
 
 	loss_func_age = torch.nn.MSELoss()
 	loss_func_gender = torch.nn.BCELoss()
@@ -182,6 +182,7 @@ if __name__ == '__main__':
 			for x_train, y_train_age, y_train_gender, y_train_race in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				age_pred, gender_pred_probs, race_pred_probs = model(x_train)
 
 				age_loss = loss_func_age(age_pred, y_train_age)
@@ -203,12 +204,12 @@ if __name__ == '__main__':
 					f'age_MAE={age_mae:.4f}, '
 					f'gender_loss={gender_loss.item():.4f}, '
 					f'gender_F1={gender_f1:.4f}, '
-					f'race_loss={race_loss:.4f}, '
+					f'race_loss={race_loss.item():.4f}, '
 					f'race_F1={race_f1:.4f}'
 				)
 
-			x_val, y_val_age, y_val_gender, y_val_race = next(iter(val_loader))
 			model.eval()
+			x_val, y_val_age, y_val_gender, y_val_race = next(iter(val_loader))
 			with torch.inference_mode():
 				age_val_pred, gender_val_pred_probs, race_val_pred_probs = model(x_val)
 
@@ -262,8 +263,8 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
-	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
 	model.eval()
+	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
 	with torch.inference_mode():
 		age_test_pred, gender_test_pred_probs, race_test_pred_probs = model(x_test)
 
@@ -295,6 +296,8 @@ if __name__ == '__main__':
 	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 8))
 	plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.05, hspace=0.45)
 
+	pil_image_transform = transforms.ToPILImage()
+
 	for idx, ax in enumerate(axes.flatten()):
 		img, y_age, y_gender, y_race = x_test[idx], y_test_age[idx], y_test_gender[idx], y_test_race[idx]
 
@@ -311,8 +314,7 @@ if __name__ == '__main__':
 		race_pred = race_test_pred_probs[idx].argmax().item()
 		race_pred_label = DATASET_DICT['race_id'][str(race_pred)]
 
-		img = (img * 255).type(torch.uint8).permute(1, 2, 0)
-		ax.imshow(img)
+		ax.imshow(pil_image_transform(img))
 		ax.axis('off')
 		ax.set_title(
 			f'Pred: {age_pred}, {gender_pred_label}, {race_pred_label}'

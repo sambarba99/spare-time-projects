@@ -1,3 +1,5 @@
 Demo of various Reinforcement Learning methods applied to a grid world
 
-![](rl.png)
+<p align="center">
+	<img src="rl.png"/>
+</p>

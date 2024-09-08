@@ -1,16 +1,24 @@
 (TensorFlow) MNIST convolutional neural network
 
-![](data_samples.png)
+<p align="center">
+	<img src="data_samples.png"/>
+</p>
 
 Testing on a user-drawn digit:
 
-![](drawn_digit_classification.png)
+<p align="center">
+	<img src="drawn_digit_classification.png"/>
+</p>
 
 Corresponding convolutional layer feature maps:
 
-![](conv1_feature_map.png)
-![](conv2_feature_map.png)
+<p align="center">
+	<img src="conv1_feature_map.png"/>
+	<img src="conv2_feature_map.png"/>
+</p>
 
 Model architecture:
 
-![](model_architecture.png)
+<p align="center">
+	<img src="model_architecture.png"/>
+</p>

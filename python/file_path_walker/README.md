@@ -1,3 +1,5 @@
 App for file path walking
 
-![](output.png)
+<p align="center">
+	<img src="output.png"/>
+</p>

@@ -33,7 +33,7 @@ class HuffmanTree:
 		return ''.join(huffman_dict[c] for c in string)
 
 	def decode(self, encoded):
-		is_binary = all(c in '01' for c in encoded)
+		is_binary = len(set(encoded).difference(set('01'))) == 0
 		assert is_binary, f"Encoded string must be binary (got '{encoded}')"
 
 		result = []

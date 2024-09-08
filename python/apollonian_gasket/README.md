@@ -1,3 +1,5 @@
 Apollonian Gasket fractal renderer
 
-![](gasket.png)
+<p align="center">
+	<img src="gasket.png"/>
+</p>

@@ -1,11 +1,17 @@
 PyTorch classification of brain scans for Alzheimer's disease detection
 
-![](data_samples.png)
+<p align="center">
+	<img src="data_samples.png"/>
+</p>
 
 Test output:
 
-![](test_confusion_matrix.png)
+<p align="center">
+	<img src="test_confusion_matrix.png"/>
+</p>
 
 Model architecture:
 
-![](model_architecture.png)
+<p align="center">
+	<img src="model_architecture.png"/>
+</p>

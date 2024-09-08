@@ -61,7 +61,7 @@ def plot_images(images, title, save_path=None):
 	plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.03, wspace=0.03)
 	for idx, ax in enumerate(axes.flatten()):
 		img = (images[idx] + 1) * 127.5  # De-normalise
-		img = img.type(torch.uint8).permute(1, 2, 0)
+		img = img.type(torch.uint8).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
 		ax.imshow(img.cpu())
 		ax.axis('off')
 	plt.suptitle(title, y=0.955, color='white')
@@ -75,13 +75,13 @@ def plot_images(images, title, save_path=None):
 if __name__ == '__main__':
 	gen_model = Generator(latent_dim=GEN_LATENT_DIM)
 	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH)
-	gen_model.to(DEVICE)
-	disc_model.to(DEVICE)
 
 	print(f'\nGenerator model:\n\n{gen_model}')
 	print(f'\nDiscriminator model:\n\n{disc_model}')
 	plot_model(gen_model, (GEN_LATENT_DIM, 1, 1), './images/generator_architecture')
 	plot_model(disc_model, (3, IMG_SIZE, IMG_SIZE), './images/discriminator_architecture')
+	gen_model.to(DEVICE)
+	disc_model.to(DEVICE)
 
 	if os.path.exists('./gen_model.pth'):
 		gen_model.load_state_dict(torch.load('./gen_model.pth', map_location=DEVICE))
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 			for batch_idx, img_batch in enumerate(train_loader, start=1):
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				gen_model.train()
 				noise = torch.randn(len(img_batch), GEN_LATENT_DIM, 1, 1, device=DEVICE)
 				fake = gen_model(noise)

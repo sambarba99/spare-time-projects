@@ -1,4 +1,6 @@
 Wordle game with optional Information Theory assistant
 
-![](wordle1.png)
-![](wordle2.png)
+<p align="center">
+	<img src="wordle1.png"/>
+	<img src="wordle2.png"/>
+</p>

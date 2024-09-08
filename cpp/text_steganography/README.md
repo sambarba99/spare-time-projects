@@ -1,3 +1,5 @@
 Text steganography demo
 
-![](steg.png)
+<p align="center">
+	<img src="steg.png"/>
+</p>

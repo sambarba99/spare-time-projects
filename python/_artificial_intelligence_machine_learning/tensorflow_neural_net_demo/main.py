@@ -9,7 +9,7 @@ import os
 
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
-from keras.utils import vis_utils
+from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
 	model.build(input_shape=(num_features,))
 	model.summary()
-	# vis_utils.plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
+	# plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
 	# 2. Training
 

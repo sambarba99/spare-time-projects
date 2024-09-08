@@ -10,25 +10,37 @@ $x,y >= 0$
 
 Solution ( $(x,y)=(1.4,1.7)$ ):
 
-![](optimisation_result.png)
+<p align="center">
+	<img src="optimisation_result.png"/>
+</p>
 
 ### Interpolation:
 
-![](interpolation.png)
+<p align="center">
+	<img src="interpolation.png"/>
+</p>
 
 ### Derivation:
 
-![](derivation.png)
+<p align="center">
+	<img src="derivation.png"/>
+</p>
 
 ### Integration:
 
-![](integration.png)
+<p align="center">
+	<img src="integration.png"/>
+</p>
 
 ### Curve fitting:
 
-![](curve_fitting_samples.png)
-![](curve_fitting_result.png)
+<p align="center">
+	<img src="curve_fitting_samples.png"/>
+	<img src="curve_fitting_result.png"/>
+</p>
 
 ### Minimising the distances from a point to multiple lines via Stochastic Gradient Descent:
 
-![](line_distance_minimising.png)
+<p align="center">
+	<img src="line_distance_minimising.png"/>
+</p>

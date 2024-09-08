@@ -306,7 +306,7 @@ class GameEnv:
 
 		# 2. Get asteroid indices based on distance
 
-		self.nearest_asteroid_idx = np.argmin(dists_to_asteroids)
+		self.nearest_asteroid_idx = dists_to_asteroids.argmin()
 
 		if self.detected_asteroid_idx is None or max(self.detected_asteroid_idx) >= len(self.asteroids):
 			self.detected_asteroid_idx = np.argsort(dists_to_asteroids)[:MAX_ASTEROIDS_DETECT]

@@ -2,4 +2,6 @@ Decision tree regression demo
 
 Sine wave example:
 
-![](sine_wave_prediction.png)
+<p align="center">
+	<img src="sine_wave_prediction.png"/>
+</p>

@@ -15,6 +15,7 @@ pygame
 pyinstaller
 pytube
 scikit-learn
+scikit-optimize
 tensorflow
 keras
 transformers

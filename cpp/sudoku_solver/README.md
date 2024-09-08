@@ -1,3 +1,5 @@
 Sudoku solver using Depth-First Search and backtracking
 
-![](sudoku.png)
+<p align="center">
+	<img src="sudoku.png"/>
+</p>

@@ -118,5 +118,5 @@ class KMeans:
 		"""Classify samples as the index of their clusters (nearest centroids)"""
 
 		distances = np.linalg.norm(x[:, np.newaxis] - self.centroids, axis=2)
-		y = np.argmin(distances, axis=1)
+		y = distances.argmin(axis=1)
 		return y

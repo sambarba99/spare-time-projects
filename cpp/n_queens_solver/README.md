@@ -2,4 +2,6 @@
 
 E.g. N = 24:
 
-![](n_queens.png)
+<p align="center">
+	<img src="n_queens.png"/>
+</p>

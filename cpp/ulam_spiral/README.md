@@ -1,3 +1,5 @@
 Ulam spiral generator
 
-![](ulam.png)
+<p align="center">
+	<img src="ulam.png"/>
+</p>

@@ -3,13 +3,13 @@ PyTorch demo of a generative diffusion model (Denoising Diffusion Probabilistic 
 Forward diffusion process (model learns to predict noise added at each step, effectively learning how to reverse the diffusion process):
 
 <p align="center">
-  <img src="images/forward_process.webp"/>
+	<img src="images/forward_process.webp"/>
 </p>
 
 Reverse diffusion process (using the model to iteratively denoise a purely random noise sample):
 
 <p align="center">
-  <img src="images/reverse_process.webp"/>
+	<img src="images/reverse_process.webp"/>
 </p>
 
 The update equation for the reverse diffusion process (`diffusion_controller.generate_images`) is:

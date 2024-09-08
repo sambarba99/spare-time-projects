@@ -1,3 +1,5 @@
 Towers of Hanoi solver
 
-![](hanoi.png)
+<p align="center">
+	<img src="hanoi.png"/>
+</p>

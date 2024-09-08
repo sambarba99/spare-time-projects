@@ -4,10 +4,14 @@ Example outputs:
 
 Circuit collage:
 
-![](example_outputs/circuit1.png)
-![](example_outputs/circuit2.png)
+<p align="center">
+	<img src="example_outputs/circuit1.png"/>
+	<img src="example_outputs/circuit2.png"/>
+</p>
 
 Plain collage:
 
-![](example_outputs/plain1.png)
-![](example_outputs/plain2.png)
+<p align="center">
+	<img src="example_outputs/plain1.png"/>
+	<img src="example_outputs/plain2.png"/>
+</p>

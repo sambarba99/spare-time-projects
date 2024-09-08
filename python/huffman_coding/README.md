@@ -1,5 +1,5 @@
 Huffman coding demo
 
-Example output:
-
-![](example_output.png)
+<p align="center">
+	<img src="example_output.png"/>
+</p>

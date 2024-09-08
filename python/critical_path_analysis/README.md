@@ -15,4 +15,6 @@ Critical path analysis demo (example: engineering project)
 
 Output (critical path red):
 
-![](critical_path_diagram.png)
+<p align="center">
+	<img src="critical_path_diagram.png"/>
+</p>

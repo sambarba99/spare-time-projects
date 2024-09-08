@@ -2,8 +2,12 @@ Binary tree demo
 
 Unbalanced example:
 
-![](binary_tree_unbalanced.png)
+<p align="center">
+	<img src="binary_tree_unbalanced.png"/>
+</p>
 
 After balancing:
 
-![](binary_tree_balanced.png)
+<p align="center">
+	<img src="binary_tree_balanced.png"/>
+</p>

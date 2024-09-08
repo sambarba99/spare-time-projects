@@ -51,7 +51,7 @@ if __name__ == '__main__':
 	clf.fit(x_train, y_train)
 
 	test_pred_probs = clf.predict(x_test)
-	test_pred_classes = np.argmax(test_pred_probs, axis=1)
+	test_pred_classes = test_pred_probs.argmax(axis=1)
 
 	# Confusion matrix
 	f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')

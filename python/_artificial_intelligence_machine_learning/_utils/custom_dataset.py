@@ -5,24 +5,21 @@ Author: Sam Barba
 Created 26/03/2024
 """
 
-import torch
+from torch.utils.data import Dataset
 
 
-class CustomDataset(torch.utils.data.Dataset):
-	def __init__(self, x, *y):
-		assert isinstance(x, torch.Tensor) or all(isinstance(xi, torch.Tensor) for xi in x)
-		assert all(isinstance(yi, torch.Tensor) for yi in y)
+class CustomDataset(Dataset):
+	def __init__(self, *data):
+		assert len(data) >= 1, 'Dataset needs at least 1 data iterable'
+		assert len(set(map(len, data))) == 1, 'All data iterables must be the same length'
 
-		self.x = x
-		self.y = y
-		self.num_samples = len(x)
+		self.data = data
+		self.num_samples = len(data[0])
 
 	def __getitem__(self, index):
-		if self.y:
-			ret_y = [yi[index] for yi in self.y]
-			return self.x[index], *ret_y
+		ret = [d[index] for d in self.data]
 
-		return self.x[index]
+		return ret[0] if len(ret) == 1 else ret
 
 	def __len__(self):
 		return self.num_samples

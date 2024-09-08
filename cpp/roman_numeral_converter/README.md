@@ -1,3 +1,5 @@
 Roman numeral converter
 
-![](numerals.png)
+<p align="center">
+	<img src="numerals.png"/>
+</p>

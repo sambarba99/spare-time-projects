@@ -1,3 +1,5 @@
 Number to words converter
 
-![](num_to_words.png)
+<p align="center">
+	<img src="num_to_words.png"/>
+</p>

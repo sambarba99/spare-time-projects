@@ -1,3 +1,5 @@
 Cellular automata demo
 
-![](cellular_automata.png)
+<p align="center">
+	<img src="cellular_automata.png"/>
+</p>

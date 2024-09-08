@@ -1,3 +1,5 @@
 Interactive ray casting demo
 
-![](rays.png)
+<p align="center">
+	<img src="rays.png"/>
+</p>

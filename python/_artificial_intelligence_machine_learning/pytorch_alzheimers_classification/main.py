@@ -9,7 +9,6 @@ import os
 
 import cv2 as cv
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from PIL import Image
 from sklearn.metrics import f1_score
@@ -26,7 +25,6 @@ from _utils.model_evaluation_plots import plot_confusion_matrix
 from conv_net import CNN
 
 
-np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
@@ -39,6 +37,7 @@ SCALE_FACTOR = 0.5
 INPUT_H = round(IMG_H * SCALE_FACTOR)
 INPUT_W = round(IMG_W * SCALE_FACTOR)
 BATCH_SIZE = 128
+LEARNING_RATE = 2e-4
 NUM_EPOCHS = 100
 
 
@@ -56,7 +55,7 @@ def create_data_loaders(df):
 		tqdm(df['img_path'], desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
-	y = pd.get_dummies(df['class'], prefix='class', dtype=int).to_numpy()
+	y = pd.get_dummies(df['class'], prefix='class', dtype=int).to_numpy().squeeze()
 	y = torch.tensor(y).float()
 
 	# Create train/validation/test sets (ratio 0.8:0.1:0.1)
@@ -119,9 +118,9 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	model.to('cpu')
 	print(f'\nModel:\n{model}')
 	plot_model(model, (1, INPUT_H, INPUT_W))
+	model.to('cpu')
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -132,7 +131,7 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=2e-4)
+		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
@@ -144,6 +143,7 @@ if __name__ == '__main__':
 			for x_train, y_train in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 
@@ -158,8 +158,8 @@ if __name__ == '__main__':
 
 				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
 
-			x_val, y_val = next(iter(val_loader))
 			model.eval()
+			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
 				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.argmax(dim=1)
@@ -198,8 +198,8 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
-	x_test, y_test = next(iter(test_loader))
 	model.eval()
+	x_test, y_test = next(iter(test_loader))
 	with torch.inference_mode():
 		y_test_probs = model(x_test)
 	y_test_pred = y_test_probs.argmax(dim=1)

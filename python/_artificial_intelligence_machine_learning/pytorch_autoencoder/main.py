@@ -46,15 +46,15 @@ def do_mnist():
 	y = np.concatenate([y_train, y_test])
 
 	# Normalise images to [0,1] and correct shape
-	x = np.reshape(x, (len(x), 1, 28, 28)) / 255  # Colour channels, width, height
+	x = np.reshape(x, (len(x), 1, 28, 28)) / 255  # Colour channels, height, width
 
 	x = torch.tensor(x).float()
 
 	# 2. Load or train model
 
 	model = MNISTAutoencoder()
-	model.to('cpu')
 	plot_model(model, (1, 28, 28), './plots/mnist_autoencoder_architecture')
+	model.to('cpu')
 
 	if os.path.exists('./models/mnist_model.pth'):
 		model.load_state_dict(torch.load('./models/mnist_model.pth'))
@@ -76,6 +76,7 @@ def do_mnist():
 			for x_train in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				reconstructed = model(x_train)
 				loss = loss_func(reconstructed, x_train)
 
@@ -178,7 +179,7 @@ if __name__ == '__main__':
 	else:
 		# 1. Prepare data
 
-		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), to_tensors=True)
+		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), tensor_device='cpu')
 		num_features_in = x.shape[1]
 
 		choice = input('Enter 2 to compress to 2 latent variables, or 3: ')
@@ -214,6 +215,7 @@ if __name__ == '__main__':
 				for x_train in train_loader:
 					progress_bar.update()
 					progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 					reconstructed = model(x_train)
 					loss = loss_func(reconstructed, x_train)
 

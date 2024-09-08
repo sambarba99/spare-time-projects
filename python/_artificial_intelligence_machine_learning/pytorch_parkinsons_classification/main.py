@@ -31,8 +31,9 @@ torch.manual_seed(1)
 
 DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons'  # Available from Kaggle
 DATA_SUBFOLDERS = ['spiral_healthy', 'spiral_parkinsons', 'wave_healthy', 'wave_parkinsons']
-INPUT_SIZE = 64
+IMG_SIZE = 64
 BATCH_SIZE = 256
+LEARNING_RATE = 1e-4
 NUM_EPOCHS = 100
 
 
@@ -65,7 +66,7 @@ def create_data_loaders(df):
 		kernel = np.ones((4, 4), np.uint8)
 		new_img = cv.dilate(new_img, kernel)
 
-		new_img = cv.resize(new_img, (INPUT_SIZE, INPUT_SIZE), interpolation=cv.INTER_NEAREST)
+		new_img = cv.resize(new_img, (IMG_SIZE, IMG_SIZE), interpolation=cv.INTER_NEAREST)
 
 		return new_img
 
@@ -88,7 +89,7 @@ def create_data_loaders(df):
 
 	x.extend(x_augmented)
 	x = [img.astype(np.float64) / 255 for img in x]  # Normalise to [0,1]
-	x = [img.reshape(1, INPUT_SIZE, INPUT_SIZE) for img in x]  # Colour channels, H, W
+	x = [img.reshape(1, IMG_SIZE, IMG_SIZE) for img in x]  # Colour channels, H, W
 	x = [torch.tensor(xi).float() for xi in x]
 	y = torch.tensor(y).float()
 
@@ -147,9 +148,9 @@ if __name__ == '__main__':
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	model.to('cpu')
 	print(f'\nModel:\n{model}')
-	plot_model(model, (1, INPUT_SIZE, INPUT_SIZE))
+	plot_model(model, (1, IMG_SIZE, IMG_SIZE))
+	model.to('cpu')
 
 	loss_func = torch.nn.BCELoss()
 
@@ -160,7 +161,7 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=1e-4)
+		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
@@ -172,6 +173,7 @@ if __name__ == '__main__':
 			for x_train, y_train in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.round().detach().numpy()
 
@@ -186,8 +188,8 @@ if __name__ == '__main__':
 
 				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
 
-			x_val, y_val = next(iter(val_loader))
 			model.eval()
+			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
 				y_val_probs = model(x_val)
 			y_val_pred = y_val_probs.round()
@@ -226,8 +228,8 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
-	x_test, y_test = next(iter(test_loader))
 	model.eval()
+	x_test, y_test = next(iter(test_loader))
 	with torch.inference_mode():
 		y_test_probs = model(x_test)
 	y_test_pred = y_test_probs.round()

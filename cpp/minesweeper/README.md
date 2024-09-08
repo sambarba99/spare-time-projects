@@ -1,4 +1,6 @@
 Minesweeper game
 
-![](mines1.png)
-![](mines2.png)
+<p align="center">
+	<img src="mines1.png"/>
+	<img src="mines2.png"/>
+</p>

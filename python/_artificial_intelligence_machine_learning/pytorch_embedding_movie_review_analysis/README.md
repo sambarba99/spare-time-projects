@@ -2,12 +2,18 @@ Sentiment Analysis of movie reviews via an embedding-based PyTorch model
 
 Raw data:
 
-![](raw_data.png)
+<p align="center">
+	<img src="raw_data.png"/>
+</p>
 
 Test set performance:
 
-![](test_confusion_matrix.png)
+<p align="center">
+	<img src="test_confusion_matrix.png"/>
+</p>
 
 Model architecture (input size = 300 tokens):
 
-![](model_architecture.png)
+<p align="center">
+	<img src="model_architecture.png"/>
+</p>

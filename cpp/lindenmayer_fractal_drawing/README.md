@@ -2,8 +2,8 @@ Lindenmayer fractal rendering
 
 Example iterations for 'Dragon Curve':
 
-![](dragon1.png)
-
-![](dragon2.png)
-
-![](dragon3.png)
+<p align="center">
+	<img src="dragon1.png"/>
+	<img src="dragon2.png"/>
+	<img src="dragon3.png"/>
+</p>

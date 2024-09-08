@@ -15,4 +15,6 @@ Critical path analysis demo (example: engineering project)
 
 Output:
 
-![](cpa_output.png)
+<p align="center">
+	<img src="cpa_output.png"/>
+</p>

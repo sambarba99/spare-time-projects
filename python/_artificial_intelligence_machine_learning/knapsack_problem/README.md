@@ -1,5 +1,6 @@
 Genetic algorithm applied to the knapsack problem
 
-![](evolution_graph.png)
-
-![](best_items.png)
+<p align="center">
+	<img src="evolution_graph.png"/>
+	<img src="best_items.png"/>
+</p>

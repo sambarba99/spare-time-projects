@@ -1,3 +1,5 @@
 Binary tree demo
 
-![](binary_tree.png)
+<p align="center">
+	<img src="binary_tree.png"/>
+</p>

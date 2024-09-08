@@ -74,7 +74,7 @@ class DiffusionController:
 		plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.03, wspace=0.03)
 		for idx, ax in enumerate(axes.flatten()):
 			img = (images[idx] + 1) * 127.5  # De-normalise
-			img = img.type(torch.uint8).permute(1, 2, 0)
+			img = img.type(torch.uint8).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
 			ax.imshow(img.cpu())
 			ax.axis('off')
 		plt.suptitle(title, y=0.955, color='white')

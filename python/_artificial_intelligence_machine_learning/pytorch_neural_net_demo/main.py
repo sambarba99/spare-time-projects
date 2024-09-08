@@ -6,10 +6,8 @@ Created 28/10/2022
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import torch
 from torch import nn
@@ -80,10 +78,10 @@ if __name__ == '__main__':
 	labels = None
 	if task_choice in 'BM':
 		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = \
-			load_csv_classification_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True, to_tensors=True)
+			load_csv_classification_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True, tensor_device='cpu')
 	else:
 		x_train, y_train, x_val, y_val, x_test, y_test, _ = \
-			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), to_tensors=True)
+			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), tensor_device='cpu')
 
 	# 1. Build model
 
@@ -158,9 +156,9 @@ if __name__ == '__main__':
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.02)
 
 	# print(model.state_dict())  # Model weights
-	model.to('cpu')
 	print(f'Model:\n{model}')
 	plot_model(model, (num_features,))
+	model.to('cpu')
 
 	# 2. Training
 
@@ -201,7 +199,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
 			y_val_pred = y_val_probs.round()
-			val_loss = loss_func(y_val_probs, y_val)
+			val_loss = loss_func(y_val_probs, y_val).item()
 			val_metric = f1_score(y_val, y_val_pred)
 
 		elif task_choice == 'M':
@@ -219,7 +217,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				y_val_probs = model(x_val).squeeze()
 			y_val_pred = y_val_probs.argmax(dim=1)
-			val_loss = loss_func(y_val_probs, y_val)
+			val_loss = loss_func(y_val_probs, y_val).item()
 			val_metric = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
 		elif task_choice == 'R':

@@ -1,3 +1,5 @@
 Conway's Game of Life
 
-![](game_of_life.png)
+<p align="center">
+	<img src="game_of_life.png"/>
+</p>

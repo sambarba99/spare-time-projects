@@ -60,9 +60,9 @@ if __name__ == '__main__':
 	train_loader, x_val, y_val, x_test, y_test = load_data()
 
 	model = CNN()
-	model.to('cpu')
 	print(f'\nModel:\n{model}')
 	plot_model(model, INPUT_SHAPE)
+	model.to('cpu')
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -96,6 +96,7 @@ if __name__ == '__main__':
 			for x_train, y_train in train_loader:
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
 				y_train_probs = model(x_train)
 				y_train_pred = y_train_probs.argmax(dim=1)
 

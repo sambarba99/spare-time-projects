@@ -31,8 +31,8 @@ BETA_MIN = 1e-4  # Min. noise variance
 BETA_MAX = 0.02  # Max. noise variance
 T_ENCODING_DIM = 128  # Timestep encoding dim
 BATCH_SIZE = 32
-NUM_EPOCHS = 200
 LEARNING_RATE = 2e-4
+NUM_EPOCHS = 200
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 

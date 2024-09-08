@@ -1,7 +1,7 @@
 ## Proximal Policy Optimisation with Generalised Advantage Estimation applied to Asteroids
 
 <p align="center">
-  <img src="agent_gameplay.webp"/>
+	<img src="agent_gameplay.webp"/>
 </p>
 
 For a full explanation of PPO, see [this other project](https://github.com/sambarba99/spare-time-projects/tree/master/python/_artificial_intelligence_machine_learning/pytorch_proximal_policy_optimisation). In `ppo/ppo_agent.py`, the PPO-Clip variant is implemented:
@@ -37,6 +37,6 @@ $$\hat{A}\_t = \sum_{l=0}^\infty (\gamma \lambda)^l \delta_{t+l}^V$$
 - $V(s_t)$ = value of state $s_t$.
 
 Sources:
+- [High-Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/pdf/1506.02438) (Schulman et. al. 2016)
 - [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf) (Schulman et. al. 2017)
 - [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/algorithms/ppo.html#exploration-vs-exploitation) (OpenAI 2018)
-- [High-Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/pdf/1506.02438) (Schulman et. al. 2016)

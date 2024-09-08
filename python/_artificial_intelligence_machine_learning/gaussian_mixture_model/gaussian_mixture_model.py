@@ -38,24 +38,34 @@ class GaussianMixtureModel:
 			for mean, responsibility, total_resp in zip(self.means, responsibilities.T, total_responsibilities)
 		]
 
-	def fit(self, x, max_iters=1000, tolerance=1e-6):
+	def compute_log_likelihood(self, x):
+		likelihoods = np.array([
+			multivariate_normal.pdf(x, mean=mean, cov=cov, allow_singular=True)
+			for mean, cov in zip(self.means, self.covariances)
+		]).T
+
+		return np.log(np.sum(likelihoods * self.weights, axis=1) + EPSILON).sum()
+
+	def fit(self, x, max_iters=1000):
 		# Initialise params
 		self.weights = np.ones(self.num_components) / self.num_components
-		prev_weights = self.weights.copy()
 		self.means = x[np.random.choice(len(x), self.num_components, replace=False)]
 		self.covariances = np.array([np.cov(x.T) for _ in range(self.num_components)])
 
-		for i in range(1, max_iters + 1):
+		prev_log_likelihood = -np.inf
+
+		for i in range(max_iters):
 			responsibilities = self.compute_expectation(x)
 			self.compute_maximisation(x, responsibilities)
+			log_likelihood = self.compute_log_likelihood(x)
 
 			# Check for convergence
-			if i > 0 and np.abs(prev_weights - self.weights).max() < tolerance:
-				print(f'Stopping at iter {i}/{max_iters}')
+			if abs(log_likelihood - prev_log_likelihood) < EPSILON:
+				print(f'Stopping at iter {i + 1}/{max_iters}')
 				break
 
-			prev_weights = self.weights.copy()
+			prev_log_likelihood = log_likelihood
 
-	def predict(self, X):
-		responsibilities = self.compute_expectation(X)
-		return np.argmax(responsibilities, axis=1)
+	def predict(self, x):
+		probs = self.compute_expectation(x)
+		return probs
