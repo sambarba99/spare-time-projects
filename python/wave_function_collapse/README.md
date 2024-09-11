@@ -1,6 +1,4 @@
-Visualisation of Wave Function Collapse
-
-Example outputs:
+## Visualisation of [Wave Function Collapse](https://en.wikipedia.org/wiki/Wave_function_collapse)
 
 Circuit collage:
 

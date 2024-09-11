@@ -1,4 +1,4 @@
-VGG16-based CNN model for age prediction and gender/race classification of UTKFace dataset
+## VGG16-based CNN model for age prediction and gender/race classification of UTKFace
 
 <p align="center">
 	<img src="output_examples.png"/>

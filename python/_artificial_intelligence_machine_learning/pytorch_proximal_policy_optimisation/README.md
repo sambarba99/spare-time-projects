@@ -8,7 +8,7 @@ PPO agent's performance (clipped to 5 laps):
 	<img src="ppo/ppo_5_laps.webp"/>
 </p>
 
-For an implementation of PPO with Generalised Advantage Estimation (instead of returns-to-go), see [this other project](https://github.com/sambarba99/spare-time-projects/tree/master/python/_artificial_intelligence_machine_learning/pytorch_ppo_asteroids).
+For an implementation of PPO with Generalised Advantage Estimation (instead of returns-to-go), see [this other project](../pytorch_ppo_asteroids).
 
 <h3 align="center">PPO</h3>
 

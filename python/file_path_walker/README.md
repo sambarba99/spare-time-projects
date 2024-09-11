@@ -1,4 +1,4 @@
-App for file path walking
+## App for File Path Walking
 
 <p align="center">
 	<img src="output.png"/>

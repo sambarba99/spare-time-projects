@@ -1,4 +1,4 @@
-Minesweeper game
+## Minesweeper
 
 <p align="center">
 	<img src="mines1.png"/>

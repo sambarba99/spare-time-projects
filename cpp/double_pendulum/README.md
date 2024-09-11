@@ -1,4 +1,4 @@
-Double pendulum simulation
+## Double Pendulum simulator
 
 <p align="center">
 	<img src="pendulum.gif"/>

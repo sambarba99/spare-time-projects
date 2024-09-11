@@ -1,4 +1,4 @@
-SciPy demo
+## SciPy demo
 
 ### Optimisation:
 

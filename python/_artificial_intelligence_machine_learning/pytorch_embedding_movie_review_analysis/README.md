@@ -1,4 +1,4 @@
-Sentiment Analysis of movie reviews via an embedding-based PyTorch model
+## Sentiment Analysis of Movie Reviews via an Embedding-based PyTorch model
 
 Raw data:
 

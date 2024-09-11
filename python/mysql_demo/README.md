@@ -1,4 +1,6 @@
-SQL demo with MySQL and the following database:
+## SQL demo with MySQL
+
+With this database:
 
 <p align="center">
 	<img src="company_database.png"/>

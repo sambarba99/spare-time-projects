@@ -1,4 +1,4 @@
-Sorting algorithm visualisation
+## Sorting Algorithm Visualisation
 
 E.g. Bubble sort:
 

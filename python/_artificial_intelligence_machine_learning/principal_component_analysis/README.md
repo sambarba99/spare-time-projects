@@ -1,4 +1,4 @@
-Principal Component Analysis demo
+## Principal Component Analysis demo
 
 E.g. Iris dataset with 2 and 3 components:
 

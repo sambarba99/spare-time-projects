@@ -1,4 +1,4 @@
-(TensorFlow) MNIST convolutional neural network
+## (TensorFlow) MNIST Convolutional Neural Network (CNN)
 
 <p align="center">
 	<img src="data_samples.png"/>

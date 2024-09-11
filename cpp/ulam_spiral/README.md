@@ -1,4 +1,4 @@
-Ulam spiral generator
+## Ulam Spiral generator
 
 <p align="center">
 	<img src="ulam.png"/>

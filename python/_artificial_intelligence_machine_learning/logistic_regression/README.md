@@ -1,4 +1,4 @@
-Logistic regression demo
+## Logistic Regression demo
 
 Breast tumour dataset example:
 

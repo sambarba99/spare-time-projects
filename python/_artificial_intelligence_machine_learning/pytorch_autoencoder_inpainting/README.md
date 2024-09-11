@@ -1,4 +1,4 @@
-Demo of a variational autoencoder (VAE) for inpainting
+## Demo of a Variational Autoencoder (VAE) for [Inpainting](https://en.wikipedia.org/wiki/Inpainting)
 
 Example test set outputs:
 

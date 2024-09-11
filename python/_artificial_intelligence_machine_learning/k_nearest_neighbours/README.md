@@ -1,4 +1,4 @@
-K Nearest Neighbours demo
+## K Nearest Neighbours demo
 
 KNN performance on iris dataset:
 

@@ -1,4 +1,4 @@
-Naive Bayes classifier demo
+## Naive Bayes classifier demo
 
 Iris dataset test example:
 

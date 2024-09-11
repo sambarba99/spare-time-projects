@@ -1,4 +1,4 @@
-Visualisation of the Collatz conjecture
+## Visualisation of the Collatz conjecture
 
 The unsolved conjecture: given a positive integer $n$, does repeating the function
 

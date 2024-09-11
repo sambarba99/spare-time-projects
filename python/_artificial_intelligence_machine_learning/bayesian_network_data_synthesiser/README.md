@@ -1,4 +1,4 @@
-Demo of data synthesis from a Bayesian network
+## Data Synthesis via a Bayesian Network
 
 E.g. Given this graphical model (Bayes net):
 

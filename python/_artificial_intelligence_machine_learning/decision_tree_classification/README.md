@@ -1,4 +1,4 @@
-Decision tree classification demo
+## Decision Tree Classification demo
 
 Example tree for iris dataset (100% accuracy):
 

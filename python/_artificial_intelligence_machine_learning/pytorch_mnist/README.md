@@ -1,4 +1,4 @@
-(PyTorch) MNIST convolutional neural network
+## (PyTorch) MNIST Convolutional Neural Network (CNN)
 
 <p align="center">
 	<img src="data_samples.png"/>

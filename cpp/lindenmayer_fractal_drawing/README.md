@@ -1,4 +1,4 @@
-Lindenmayer fractal rendering
+## Rendering [Lindenmayer Fractals](https://en.wikipedia.org/wiki/L-system)
 
 Example iterations for 'Dragon Curve':
 

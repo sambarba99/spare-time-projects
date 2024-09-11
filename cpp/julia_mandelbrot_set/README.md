@@ -1,4 +1,4 @@
-Julia/Mandelbrot set renderer
+## Julia/Mandelbrot Set renderer
 
 Examples of 1x zoom and 100x zoom on the Mandelbrot set:
 

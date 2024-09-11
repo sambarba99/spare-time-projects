@@ -1,4 +1,4 @@
-Infix to RPN converter and evaluator
+## Infix to RPN Converter and Evaluator
 
 <p align="center">
 	<img src="rpn.png"/>

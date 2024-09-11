@@ -1,4 +1,6 @@
-Critical path analysis demo (example: engineering project)
+## Critical Path Analysis demo
+
+Example: engineering project
 
 | Task description | Code | Duration | Predecessors |
 | :---: | :---: | :---: | :---: |

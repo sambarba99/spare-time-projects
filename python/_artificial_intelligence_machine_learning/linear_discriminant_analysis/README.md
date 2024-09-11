@@ -1,4 +1,4 @@
-Linear Discriminant Analysis demo
+## Linear Discriminant Analysis demo
 
 E.g. Iris dataset with 2 and 3 components:
 

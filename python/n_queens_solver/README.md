@@ -1,4 +1,4 @@
-'N Queens' depth-first search solver
+## [N Queens](https://en.wikipedia.org/wiki/Eight_queens_puzzle) Solver using Depth-First Search with Backtracking
 
 E.g. N = 12:
 

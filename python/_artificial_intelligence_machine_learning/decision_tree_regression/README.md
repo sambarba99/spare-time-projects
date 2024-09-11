@@ -1,4 +1,4 @@
-Decision tree regression demo
+## Decision Tree Regression demo
 
 Sine wave example:
 

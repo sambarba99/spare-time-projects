@@ -4,7 +4,7 @@
 	<img src="agent_gameplay.webp"/>
 </p>
 
-For a full explanation of PPO, see [this other project](https://github.com/sambarba99/spare-time-projects/tree/master/python/_artificial_intelligence_machine_learning/pytorch_proximal_policy_optimisation). In `ppo/ppo_agent.py`, the PPO-Clip variant is implemented:
+For a full explanation of PPO, see [this other project](../pytorch_proximal_policy_optimisation). In `ppo/ppo_agent.py`, the PPO-Clip variant is implemented:
 
 <p align="center">
 	<img src="ppo/ppo_clip_pseudocode.png"/>

@@ -12,9 +12,9 @@ import numpy as np
 plt.rcParams['figure.figsize'] = (12, 6)
 np.random.seed(1)
 
-NUM_POINTS = 20  # ~ 10^18 permutations
+NUM_POINTS = 25  # (N - 1)! / 2 = 3.1x10^23 permutations
 TEMP_DECREASE_FACTOR = 0.995  # Cool down by 0.5% each iteration
-TEMP_THRESHOLD = 0.1  # Stop when this temperature has been reached
+TEMP_THRESHOLD = 0.01  # Stop when this temperature has been reached
 
 
 def calc_distance(candidate):
@@ -31,18 +31,13 @@ def calc_distance(candidate):
 
 def generate_new_candidate(candidate):
 	"""
-	Generate a new candidate based on an existing candidate. First, a segment is randomly chosen from
-	the existing candidate, then a 'coin' is flipped to choose either `reverse` or `shift`: if `reverse`,
-	an alternative path is generated in which the points in the chosen segment are reversed in order of
-	visit. If `shift`, the segment is clipped out of its original position and spliced in at a randomly
-	chosen point in the remainder of the path.
+	Generates a new candidate based on an existing candidate. First, a segment is randomly chosen from
+	the existing one. This segment is then either reversed or shifted with a 50/50 chance: if reversed,
+	the points in the segment are reversed in order of visit. If shifted, the segment is clipped out of
+	its original position and spliced in at a random point in the remainder of the path.
 	"""
 
-	start_idx, end_idx = np.random.randint(NUM_POINTS, size=2)
-	while start_idx == end_idx:
-		end_idx = np.random.randint(NUM_POINTS)
-	start_idx, end_idx = sorted([start_idx, end_idx])
-
+	start_idx, end_idx = sorted(np.random.choice(NUM_POINTS, size=2, replace=False))
 	new_candidate = candidate.copy()
 	segment = new_candidate[start_idx:end_idx]
 
@@ -63,7 +58,7 @@ def plot_dist_graph(ax, dist_history):
 	ax.plot(dist_history, linewidth=1)
 	ax.set_xlabel('Iteration')
 	ax.set_ylabel('Distance')
-	ax.set_title(f'Distance vs iteration ({dist_history[-1]:.3f})')
+	ax.set_title(f'Solution distance vs iteration ({dist_history[-1]:.2f})')
 
 
 def plot_temp_graph(ax, temp_history):
@@ -71,7 +66,7 @@ def plot_temp_graph(ax, temp_history):
 	ax.plot(temp_history, linewidth=1)
 	ax.set_xlabel('Iteration')
 	ax.set_ylabel('Temperature')
-	ax.set_title(f'Temperature vs iteration ({temp_history[-1]:.3f})')
+	ax.set_title(f'Temperature vs iteration ({temp_history[-1]:.2f})')
 
 
 def plot_candidate(ax, candidate, iter_num, max_iters):
@@ -84,7 +79,7 @@ def plot_candidate(ax, candidate, iter_num, max_iters):
 	ax.axis('scaled')
 	ax.set_xlabel('X')
 	ax.set_ylabel('Y')
-	ax.set_title(f'Current candidate (iteration {iter_num} / {max_iters})')
+	ax.set_title(f'Current solution (iteration {iter_num} / {max_iters})')
 
 
 if __name__ == '__main__':

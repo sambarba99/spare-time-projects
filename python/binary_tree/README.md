@@ -1,4 +1,4 @@
-Binary tree demo
+## Binary Tree demo
 
 Unbalanced example:
 

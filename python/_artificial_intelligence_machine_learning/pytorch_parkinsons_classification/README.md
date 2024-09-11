@@ -1,4 +1,4 @@
-PyTorch classification of patient drawings for Parkinson's disease detection
+## PyTorch Classification of Patient Drawings for Parkinson's Disease Detection
 
 <p align="center">
 	<img src="data_samples.png"/>

@@ -1,4 +1,4 @@
-DBSCAN demo
+## DBSCAN demo
 
 <p align="center">
 	<img src="output_moon_data.png"/>

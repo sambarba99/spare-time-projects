@@ -1,1 +1,1 @@
-Gaussian Mixture Model demo
+## Gaussian Mixture Model demo

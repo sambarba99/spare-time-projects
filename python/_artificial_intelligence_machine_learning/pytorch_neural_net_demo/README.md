@@ -1,4 +1,4 @@
-(PyTorch) Neural network demo for binary classification, multiclass classification, or regression
+## (PyTorch) Neural Network demo for binary/multiclass classification or regression
 
 Example performance of iris dataset test classification:
 

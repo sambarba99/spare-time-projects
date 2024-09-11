@@ -1,4 +1,4 @@
-Wordle game with optional Information Theory assistant
+## Wordle game with optional Information Theory assistant
 
 <p align="center">
 	<img src="wordle1.png"/>

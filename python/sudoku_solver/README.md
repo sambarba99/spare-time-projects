@@ -1,4 +1,4 @@
-Sudoku solver using Depth-First Search and backtracking
+## Sudoku Solver using Depth-First Search with Backtracking
 
 Solving the [world's hardest sudoku](https://sudoku2.com/play-the-hardest-sudoku-in-the-world/):
 

@@ -1,4 +1,6 @@
-Bayesian network belief propagation demo based on this graphical model of a coffee machine:
+## Bayesian Network Belief Propagation demo
+
+Based on this graphical model of a coffee machine:
 
 <p align="center">
 	<img src="coffee_machine_graphical_model.png"/>

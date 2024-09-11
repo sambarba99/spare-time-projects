@@ -1,4 +1,4 @@
-PyTorch demo of a generative diffusion model (Denoising Diffusion Probabilistic Model - DDPM)
+## PyTorch demo of a Generative Denoising Diffusion Probabilistic Model (DDPM)
 
 Forward diffusion process (model learns to predict noise added at each step, effectively learning how to reverse the diffusion process):
 
