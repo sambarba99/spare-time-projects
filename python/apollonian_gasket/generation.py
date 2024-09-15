@@ -7,8 +7,6 @@ Created 23/09/2022
 
 from cmath import sqrt
 
-from circle import Circle
-
 
 def tangent_circles_from_radii(r2, r3, r4):
 	"""
@@ -27,7 +25,7 @@ def tangent_circles_from_radii(r2, r3, r4):
 		cen3 = circle3.centre
 		cur4 = -2 * (cur1 * cur2 + cur2 * cur3 + cur1 * cur3) ** 0.5 + cur1 + cur2 + cur3
 		c4 = (-2 * sqrt(cur1 * cen1 * cur2 * cen2 + cur2 * cen2 * cur3 * cen3 + cur1 * cen1 * cur3 * cen3)
-			  + cur1 * cen1 + cur2 * cen2 + cur3 * cen3) / cur4
+			+ cur1 * cen1 + cur2 * cen2 + cur3 * cen3) / cur4
 		circle4 = Circle(c4.real, c4.imag, 1 / cur4)
 
 		return circle4
@@ -54,6 +52,18 @@ def second_solution(fixed, c1, c2, c3):
 	cur = 2 * (cur1 + cur2 + cur3) - cur_fixed
 	c = (2 * (cur1 * c1.centre + cur2 * c2.centre + cur3 * c3.centre) - cur_fixed * fixed.centre) / cur
 	return Circle(c.real, c.imag, 1 / cur)
+
+
+class Circle:
+	"""A circle represented by a complex centre point and a radius"""
+
+	def __init__(self, x, y, r):
+		self.centre = x + y * 1j
+		self.r = r
+		self.curvature = 1 / r
+
+	def __repr__(self):
+		return f'Circle (centre=({self.centre.real}, {self.centre.imag}), r={self.r})'
 
 
 class ApollonianGasketGenerator:
@@ -94,5 +104,7 @@ class ApollonianGasketGenerator:
 
 	def generate(self, depth):
 		"""Wrapper for the recurse function (generates the gasket)"""
+
 		self.recurse(self.start, 0, depth)
+
 		return self.gen_circles
