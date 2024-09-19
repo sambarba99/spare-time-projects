@@ -65,8 +65,8 @@ def do_mnist():
 		x_train, x_val = train_test_split(x, stratify=y, train_size=0.98, random_state=1)
 		train_dataset = CustomDataset(x_train)
 		train_loader = DataLoader(train_dataset, batch_size=512, shuffle=False)
-		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		loss_func = torch.nn.MSELoss()
+		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 		val_loss_history = []
 
@@ -90,7 +90,7 @@ def do_mnist():
 				val_reconstructed = model(x_val)
 			val_loss = loss_func(val_reconstructed, x_val).item()
 			val_loss_history.append(val_loss)
-			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}')
+			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 			progress_bar.close()
 
 			if early_stopping(val_loss, model.state_dict()):
@@ -204,8 +204,8 @@ if __name__ == '__main__':
 			x_train, x_val = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
 			train_dataset = CustomDataset(x_train)
 			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False)
-			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 			loss_func = torch.nn.MSELoss()
+			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 			val_loss_history = []
 
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 					val_reconstructed = model(x_val)
 				val_loss = loss_func(val_reconstructed, x_val).item()
 				val_loss_history.append(val_loss)
-				progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}')
+				progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 				progress_bar.close()
 
 				if early_stopping(val_loss, model.state_dict()):

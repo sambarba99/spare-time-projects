@@ -37,4 +37,5 @@ class TabularAutoencoder(nn.Module):
 	def forward(self, x):
 		encoded = self.encoder_block(x)
 		reconstructed = self.decoder_block(encoded)
+
 		return reconstructed

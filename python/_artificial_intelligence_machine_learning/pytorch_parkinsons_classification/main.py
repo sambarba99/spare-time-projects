@@ -29,7 +29,7 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons'  # Available from Kaggle
+DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons'
 DATA_SUBFOLDERS = ['spiral_healthy', 'spiral_parkinsons', 'wave_healthy', 'wave_parkinsons']
 IMG_SIZE = 64
 BATCH_SIZE = 256
@@ -149,10 +149,10 @@ if __name__ == '__main__':
 
 	model = CNN()
 	print(f'\nModel:\n{model}')
-	plot_model(model, (1, IMG_SIZE, IMG_SIZE))
+	plot_model(model, (1, IMG_SIZE, IMG_SIZE), './images/model_architecture')
 	model.to('cpu')
 
-	loss_func = torch.nn.BCELoss()
+	loss_func = torch.nn.BCEWithLogitsLoss()
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
@@ -163,10 +163,8 @@ if __name__ == '__main__':
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
-		history = {'loss': [], 'F1': [], 'val_loss': [], 'val_F1': []}
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			total_loss = total_f1 = 0
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
 			model.train()
 
@@ -174,34 +172,25 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_probs = model(x_train)
-				y_train_pred = y_train_probs.round().detach().numpy()
-
-				loss = loss_func(y_train_probs, y_train)
-				f1 = f1_score(y_train, y_train_pred)
-				total_loss += loss.item()
-				total_f1 += f1
+				y_train_logits = model(x_train)
+				loss = loss_func(y_train_logits, y_train)
 
 				optimiser.zero_grad()
 				loss.backward()
 				optimiser.step()
 
-				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, F1={f1:.4f}')
+				progress_bar.set_postfix_str(f'loss={loss.item():.4f}')
 
 			model.eval()
 			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
-				y_val_probs = model(x_val)
+				y_val_logits = model(x_val)
+			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round()
-			val_loss = loss_func(y_val_probs, y_val).item()
+			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val, y_val_pred)
-			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
-
-			history['loss'].append(total_loss / len(train_loader))
-			history['F1'].append(total_f1 / len(train_loader))
-			history['val_loss'].append(val_loss)
-			history['val_F1'].append(val_f1)
 
 			if early_stopping(val_f1, model.state_dict()):
 				print('Early stopping at epoch', epoch)
@@ -210,35 +199,20 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-		# Plot loss and F1 throughout training
-		_, (ax_loss, ax_f1) = plt.subplots(nrows=2, sharex=True, figsize=(8, 5))
-		ax_loss.plot(history['loss'], label='Training loss')
-		ax_loss.plot(history['val_loss'], label='Validation loss')
-		ax_f1.plot(history['F1'], label='Training F1')
-		ax_f1.plot(history['val_F1'], label='Validation F1')
-		ax_loss.set_ylabel('Binary\ncross-entropy')
-		ax_f1.set_ylabel('F1')
-		ax_f1.set_xlabel('Epoch')
-		ax_loss.legend()
-		ax_f1.legend()
-		plt.title('Model loss and F1 score during training', y=2.24)
-		plt.show()
-
-	# 6. Testing
+	# 6. Test model (plot confusion matrix and ROC curve)
 
 	print('\n----- TESTING -----\n')
 
 	model.eval()
 	x_test, y_test = next(iter(test_loader))
 	with torch.inference_mode():
-		y_test_probs = model(x_test)
+		y_test_logits = model(x_test)
+	y_test_probs = torch.sigmoid(y_test_logits)
 	y_test_pred = y_test_probs.round()
-	test_loss = loss_func(y_test_probs, y_test)
+	test_loss = loss_func(y_test_logits, y_test)
 	print('Test loss:', test_loss.item())
 
-	# Confusion matrix
 	f1 = f1_score(y_test, y_test_pred)
 	plot_confusion_matrix(y_test, y_test_pred, ['healthy', 'parkinsons'], f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# ROC curve
-	plot_roc_curve(y_test, y_test_probs)
+	plot_roc_curve(y_test, y_test_logits)

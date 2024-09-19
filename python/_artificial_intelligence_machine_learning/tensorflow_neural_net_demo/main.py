@@ -150,7 +150,7 @@ if __name__ == '__main__':
 	model.summary()
 	# plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
 
-	# 2. Training
+	# 2. Train model
 
 	print('\n----- TRAINING -----\n')
 
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 		print('Test MSE:', test_mse)
 		print('Test MAE:', test_mae)
 
-	# 4. Testing
+	# 4. Test model
 
 	if task_choice in 'BM':
 		print('\n----- TESTING -----')

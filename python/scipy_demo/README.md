@@ -11,36 +11,37 @@ $x,y >= 0$
 Solution ( $(x,y)=(1.4,1.7)$ ):
 
 <p align="center">
-	<img src="optimisation_result.png"/>
+	<img src="images/optimisation_result.png"/>
 </p>
 
 ### Interpolation:
 
 <p align="center">
-	<img src="interpolation.png"/>
+	<img src="images/interpolation.png"/>
 </p>
 
 ### Derivation:
 
 <p align="center">
-	<img src="derivation.png"/>
+	<img src="images/derivation.png"/>
 </p>
 
 ### Integration:
 
 <p align="center">
-	<img src="integration.png"/>
+	<img src="images/integration.png"/>
 </p>
 
 ### Curve fitting:
 
 <p align="center">
-	<img src="curve_fitting_samples.png"/>
-	<img src="curve_fitting_result.png"/>
+	<img src="images/curve_fitting_samples.png"/>
+	<br>
+	<img src="images/curve_fitting_result.png"/>
 </p>
 
 ### Minimising the distances from a point to multiple lines via Stochastic Gradient Descent:
 
 <p align="center">
-	<img src="line_distance_minimising.png"/>
+	<img src="images/line_distance_minimising.png"/>
 </p>

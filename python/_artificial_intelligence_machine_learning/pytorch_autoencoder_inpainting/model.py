@@ -14,21 +14,21 @@ class VariationalAutoencoder(nn.Module):
 		super().__init__()
 		# Input shape (N, 3, 128, 128) (batch size, no. colour channels, height, width)
 		self.encoder_block = nn.Sequential(
-			nn.Conv2d(3, 16, 3, 2, 1),     # -> (N, 16, 64, 64)
+			nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1),     # -> (N, 16, 64, 64)
 			nn.ReLU(),
-			nn.Conv2d(16, 32, 3, 2, 1),    # -> (N, 32, 32, 32)
+			nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),    # -> (N, 32, 32, 32)
 			nn.ReLU(),
-			nn.Conv2d(32, 64, 3, 2, 1),    # -> (N, 64, 16, 16)
+			nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),    # -> (N, 64, 16, 16)
 			nn.ReLU(),
-			nn.Conv2d(64, 128, 3, 2, 1),   # -> (N, 128, 8, 8)
+			nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),   # -> (N, 128, 8, 8)
 			nn.ReLU(),
-			nn.Conv2d(128, 256, 3, 2, 1),  # -> (N, 256, 4, 4)
+			nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),  # -> (N, 256, 4, 4)
 			nn.ReLU(),
-			nn.Conv2d(256, 512, 3, 2, 1),  # -> (N, 512, 2, 2)
+			nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1),  # -> (N, 512, 2, 2)
 			nn.ReLU(),
-			nn.Conv2d(512, 1024, 2),       # -> (N, 1024, 1, 1)
+			nn.Conv2d(512, 1024, kernel_size=2),                      # -> (N, 1024, 1, 1)
 			nn.ReLU(),
-			nn.Flatten()                   # -> (N, 1024)
+			nn.Flatten()                                              # -> (N, 1024)
 		)
 
 		# Instead of 1 latent space, like a regular autoencoder, we have 2:
@@ -39,20 +39,20 @@ class VariationalAutoencoder(nn.Module):
 		self.decoder_block = nn.Sequential(
 			nn.Linear(512, 1024),
 			nn.ReLU(),
-			nn.Unflatten(1, (1024, 1, 1)),             # -> (N, 1024, 1, 1)
-			nn.ConvTranspose2d(1024, 512, 2),          # -> (N, 512, 2, 2)
+			nn.Unflatten(1, (1024, 1, 1)),                                                       # -> (N, 1024, 1, 1)
+			nn.ConvTranspose2d(1024, 512, kernel_size=2),                                        # -> (N, 512, 2, 2)
 			nn.ReLU(),
-			nn.ConvTranspose2d(512, 256, 3),           # -> (N, 256, 4, 4)
+			nn.ConvTranspose2d(512, 256, kernel_size=3),                                         # -> (N, 256, 4, 4)
 			nn.ReLU(),
-			nn.ConvTranspose2d(256, 128, 3, 2, 1, 1),  # -> (N, 128, 8, 8)
+			nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1),  # -> (N, 128, 8, 8)
 			nn.ReLU(),
-			nn.ConvTranspose2d(128, 64, 3, 2, 1, 1),   # -> (N, 64, 16, 16)
+			nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),   # -> (N, 64, 16, 16)
 			nn.ReLU(),
-			nn.ConvTranspose2d(64, 32, 3, 2, 1, 1),    # -> (N, 32, 32, 32)
+			nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),    # -> (N, 32, 32, 32)
 			nn.ReLU(),
-			nn.ConvTranspose2d(32, 16, 3, 2, 1, 1),    # -> (N, 16, 64, 64)
+			nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1),    # -> (N, 16, 64, 64)
 			nn.ReLU(),
-			nn.ConvTranspose2d(16, 3, 3, 2, 1, 1),     # -> (N, 3, 128, 128)
+			nn.ConvTranspose2d(16, 3, kernel_size=3, stride=2, padding=1, output_padding=1),     # -> (N, 3, 128, 128)
 			nn.Sigmoid()
 		)
 

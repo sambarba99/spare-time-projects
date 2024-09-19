@@ -3,13 +3,13 @@
 Given this objective function $f(x)$ (where $x$ in this case is the set of model parameters):
 
 <p align="center">
-	<img src="objective.png"/>
+	<img src="images/objective.png"/>
 </p>
 
 and this search space:
 
 <p align="center">
-	<img src="search_space.png"/>
+	<img src="images/search_space.png"/>
 </p>
 
 use Bayesian optimisation to find the best set of hyperparameters for the neural net (those which minimise the objective).
@@ -19,9 +19,9 @@ The objective is treated as a [black box](https://en.wikipedia.org/wiki/Black_bo
 Output:
 
 <p align="center">
-	<img src="output.png"/>
+	<img src="images/output.png"/>
 </p>
 
 <p align="center">
-	<img src="convergence_plot.png"/>
+	<img src="images/convergence_plot.png"/>
 </p>

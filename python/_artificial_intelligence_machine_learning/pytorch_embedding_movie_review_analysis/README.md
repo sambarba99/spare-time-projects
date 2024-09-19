@@ -3,17 +3,22 @@
 Raw data:
 
 <p align="center">
-	<img src="raw_data.png"/>
+	<img src="images/raw_data.png"/>
 </p>
 
 Test set performance:
 
 <p align="center">
-	<img src="test_confusion_matrix.png"/>
+	<img src="images/test_confusion_matrix.png"/>
+	<br>
+	<img src="images/test_roc_curve.png"/>
 </p>
 
 Model architecture (input size = 300 tokens):
 
 <p align="center">
-	<img src="model_architecture.png"/>
+	<img src="images/model_architecture.png"/>
 </p>
+
+Sources:
+- [IMDb Dataset of 50K Movie Reviews](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews) (Kaggle dataset)

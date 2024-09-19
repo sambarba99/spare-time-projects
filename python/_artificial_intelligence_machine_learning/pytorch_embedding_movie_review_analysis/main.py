@@ -83,7 +83,7 @@ def load_data():
 
 
 if __name__ == '__main__':
-	# 1. Get data (available from Kaggle)
+	# 1. Prepare data
 
 	train_loader, x_val, y_val, x_test, y_test, labels, vocab_size = load_data()
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 	model.to('cpu')
 	plot_review_classifier(SEQUENCE_LEN, EMBEDDING_LEN, HIDDEN_LEN)
 
-	loss_func = torch.nn.BCELoss()
+	loss_func = torch.nn.BCEWithLogitsLoss()
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
@@ -109,24 +109,22 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_probs = model(x_train)
-				y_train_pred = y_train_probs.round().detach().numpy()
-
-				loss = loss_func(y_train_probs, y_train)
-				f1 = f1_score(y_train, y_train_pred)
+				y_train_logits = model(x_train)
+				loss = loss_func(y_train_logits, y_train)
 
 				optimiser.zero_grad()
 				loss.backward()
 				optimiser.step()
 
-				progress_bar.set_postfix_str(f'loss={loss.item():.4f}, f1={f1:.4f}')
+				progress_bar.set_postfix_str(f'loss={loss.item():.4f}')
 
 			with torch.inference_mode():
-				y_val_probs = model(x_val)
-			y_val_pred = y_val_probs.round()
-			val_loss = loss_func(y_val_probs, y_val).item()
+				y_val_logits = model(x_val)
+			y_val_probs = torch.sigmoid(y_val_logits)
+			y_val_pred = y_val_probs.round().detach()
+			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val, y_val_pred)
-			progress_bar.set_postfix_str(f'{progress_bar.postfix}, val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
 			if early_stopping(val_f1, model.state_dict()):
@@ -139,10 +137,11 @@ if __name__ == '__main__':
 	# 3. Test model (plot confusion matrix and ROC curve)
 
 	with torch.inference_mode():
-		y_test_probs = model(x_test)
-	y_test_pred = y_test_probs.round()
+		y_test_logits = model(x_test)
+	y_test_probs = torch.sigmoid(y_test_logits)
+	y_test_pred = y_test_probs.round().detach()
 
-	test_loss = loss_func(y_test_probs, y_test).item()
+	test_loss = loss_func(y_test_logits, y_test).item()
 	print('\nTest loss:', test_loss)
 
 	f1 = f1_score(y_test, y_test_pred)

@@ -3,17 +3,17 @@
 E.g. Given this graphical model (Bayes net):
 
 <p align="center">
-	<img src="bayes_net.png"/>
+	<img src="images/bayes_net.png"/>
 </p>
 
 and its distributions (marginal and conditional):
 
 <p align="center">
-	<img src="distributions.png"/>
+	<img src="images/distributions.png"/>
 </p>
 
 we can sample from these distributions to synthesise data:
 
 <p align="center">
-	<img src="synthesised_data.png"/>
+	<img src="images/synthesised_data.png"/>
 </p>

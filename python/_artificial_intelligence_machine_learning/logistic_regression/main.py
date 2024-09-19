@@ -50,7 +50,7 @@ def load_data(path, train_test_ratio=0.8):
 
 	x, y = x.to_numpy(), y.to_numpy().squeeze()
 
-	pca = PCA(num_components=2)
+	pca = PCA(n_components=2)
 	scaler = MinMaxScaler()
 	x = pca.fit_transform(scaler.fit_transform(x))
 

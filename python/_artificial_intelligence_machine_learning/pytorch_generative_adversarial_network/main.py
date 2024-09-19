@@ -42,7 +42,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	root_dir = 'C:/Users/Sam/Desktop/projects/datasets/celeba'  # https://www.kaggle.com/datasets/badasstechie/celebahq-resized-256x256
+	root_dir = 'C:/Users/Sam/Desktop/projects/datasets/celeba'
 	img_paths = [f'{root_dir}/{f}' for f in os.listdir(root_dir) if f.endswith('.jpg')]
 	x = [
 		transform(Image.open(fp)) for fp in

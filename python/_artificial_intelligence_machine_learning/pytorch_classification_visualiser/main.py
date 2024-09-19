@@ -75,24 +75,23 @@ def build_model():
 	global model
 
 	model = nn.Sequential(
-		nn.Linear(in_features=2, out_features=LAYER_SIZE),
+		nn.Linear(2, LAYER_SIZE),
 		nn.Tanh(),
 		nn.Linear(LAYER_SIZE, LAYER_SIZE),
 		nn.Tanh(),
-		nn.Linear(LAYER_SIZE, 1 if num_classes == 2 else num_classes),
-		nn.Sigmoid() if num_classes == 2 else nn.Softmax(dim=-1)
+		nn.Linear(LAYER_SIZE, 1 if num_classes == 2 else num_classes)
 	)
 	model.to('cpu')
 
 
-def train_model():
+def build_and_train_model():
 	build_model()
-	loss_func = nn.BCELoss() if num_classes == 2 else nn.CrossEntropyLoss()
+	loss_func = nn.BCEWithLogitsLoss() if num_classes == 2 else nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
 	for epoch in range(1, NUM_EPOCHS + 1):
-		y_probs = model(x).squeeze()
-		loss = loss_func(y_probs, y)
+		y_logits = model(x).squeeze()
+		loss = loss_func(y_logits, y)
 
 		optimiser.zero_grad()
 		loss.backward()
@@ -124,12 +123,13 @@ def plot_decision_boundary():
 
 	# Make predictions
 	# (no need to use eval() or inference_mode() as model doesn't have dropout or batch norm)
-	y_probs = model(x_to_pred).squeeze()
+	y_logits = model(x_to_pred).squeeze()
 
 	if num_classes == 2:  # Binary
+		y_probs = torch.sigmoid(y_logits)
 		y_pred = y_probs.round()
 	else:  # Multiclass
-		y_pred = y_probs.argmax(dim=1)
+		y_pred = y_logits.argmax(dim=1)
 
 	# Reshape and plot
 	plt.cla()
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 	btn_circles = tk.Button(root, text='Circles', font='consolas', command=lambda: gen_data('circles'))
 	btn_moons = tk.Button(root, text='Moons', font='consolas', command=lambda: gen_data('moons'))
 	btn_spirals = tk.Button(root, text='Spirals', font='consolas', command=lambda: gen_data('spirals'))
-	btn_train = tk.Button(root, text='Train', font='consolas', command=train_model)
+	btn_train = tk.Button(root, text='Train', font='consolas', command=build_and_train_model)
 
 	gen_data_lbl.place(width=298, height=36, relx=0.5, y=36, anchor='center')
 	train_model_lbl.place(width=298, height=36, relx=0.5, y=156, anchor='center')

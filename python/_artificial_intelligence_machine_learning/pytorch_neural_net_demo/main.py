@@ -18,7 +18,7 @@ from _utils.model_architecture_plots import plot_model
 from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
 
 
-plt.rcParams['figure.figsize'] = (8, 5)
+plt.rcParams['figure.figsize'] = (7, 5)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 torch.manual_seed(1)
@@ -91,10 +91,9 @@ if __name__ == '__main__':
 	match task_choice + dataset_choice:
 		case 'B1' | 'B2' | 'B3' | 'B4':  # Banknote, breast tumour, mushroom, or pulsar dataset
 			model = nn.Sequential(
-				nn.Linear(in_features=num_features, out_features=8),
+				nn.Linear(num_features, 8),
 				nn.ReLU(),
-				nn.Linear(8, num_targets),
-				nn.Sigmoid()
+				nn.Linear(8, num_targets)
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
@@ -103,8 +102,7 @@ if __name__ == '__main__':
 				nn.Linear(num_features, 8),
 				nn.ReLU(),
 				nn.Dropout(0.1),
-				nn.Linear(8, num_targets),
-				nn.Sigmoid()
+				nn.Linear(8, num_targets)
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
@@ -114,8 +112,7 @@ if __name__ == '__main__':
 				nn.ReLU(),
 				nn.Linear(64, 64),
 				nn.ReLU(),
-				nn.Linear(64, num_targets),
-				nn.Softmax(dim=-1)
+				nn.Linear(64, num_targets)
 			)
 			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
@@ -123,8 +120,7 @@ if __name__ == '__main__':
 			model = nn.Sequential(
 				nn.Linear(num_features, 16),
 				nn.ReLU(),
-				nn.Linear(16, num_targets),
-				nn.Softmax(dim=-1)
+				nn.Linear(16, num_targets)
 			)
 			optimiser = torch.optim.Adam(model.parameters(), lr=0.005)
 
@@ -133,7 +129,7 @@ if __name__ == '__main__':
 				nn.Linear(num_features, 256),
 				nn.ReLU(),
 				nn.Dropout(0.1),
-				nn.Linear(256, num_targets)  # Adding no activation function afterwards means linear activation
+				nn.Linear(256, num_targets)
 			)
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=1.5e-3)
 
@@ -157,7 +153,7 @@ if __name__ == '__main__':
 
 	# print(model.state_dict())  # Model weights
 	print(f'Model:\n{model}')
-	plot_model(model, (num_features,))
+	plot_model(model, (num_features,), './images/model_architecture')
 	model.to('cpu')
 
 	# 2. Training
@@ -165,9 +161,9 @@ if __name__ == '__main__':
 	print('\n----- TRAINING -----\n')
 
 	if task_choice == 'B':
-		loss_func = nn.BCELoss()  # Binary cross-entropy
+		loss_func = nn.BCEWithLogitsLoss()  # Binary cross-entropy (takes raw logits from model)
 	elif task_choice == 'M':
-		loss_func = nn.CrossEntropyLoss()  # Categorical cross-entropy
+		loss_func = nn.CrossEntropyLoss()  # Categorical cross-entropy (also takes raw logits)
 	else:
 		loss_func = nn.MSELoss()  # Mean Squared Error
 	mae_loss = nn.L1Loss()
@@ -184,29 +180,33 @@ if __name__ == '__main__':
 
 		if task_choice == 'B':
 			# Forward pass
-			y_train_probs = model(x_train).squeeze()  # Class probabilities
-			y_train_pred = y_train_probs.round().detach().numpy()  # Class predictions
+			y_train_logits = model(x_train).squeeze()      # Class logits
+			y_train_probs = torch.sigmoid(y_train_logits)  # Class probs (use sigmoid when binary)
+			y_train_pred = y_train_probs.round().detach()  # Class predictions
 
 			# Calculate loss and F1
-			loss = loss_func(y_train_probs, y_train)  # If using BCEWithLogitsLoss, take raw logits instead of y_train_probs
-			metric = f1_score(y_train, y_train_pred)  # Equivalent to a TensorFlow metric
+			loss = loss_func(y_train_logits, y_train)
+			metric = f1_score(y_train, y_train_pred)
 
-			optimiser.zero_grad()  # Reset gradients from last step
-			loss.backward()        # Backpropagation (calculate gradients with respect to all model params)
-			optimiser.step()       # Gradient descent (update model params to reduce gradients)
+			optimiser.zero_grad()  # Reset gradients from previous step
+			loss.backward()        # Backpropagation (compute gradients with respect to model params)
+			optimiser.step()       # Gradient descent (update model params using computed gradients)
 
-			model.eval()  # Set to testing mode
+			model.eval()  # Set to evaluation mode
 			with torch.inference_mode():
-				y_val_probs = model(x_val).squeeze()
+				y_val_logits = model(x_val).squeeze()
+			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round()
-			val_loss = loss_func(y_val_probs, y_val).item()
+			val_loss = loss_func(y_val_logits, y_val).item()
 			val_metric = f1_score(y_val, y_val_pred)
 
 		elif task_choice == 'M':
-			y_train_probs = model(x_train).squeeze()
-			y_train_pred = y_train_probs.argmax(dim=1)
+			y_train_logits = model(x_train).squeeze()
+			y_train_probs = torch.softmax(y_train_logits, dim=-1)  # Use softmax when multi-class
+			y_train_pred = y_train_probs.argmax(dim=1).detach()
+			# y_train_pred = y_train_logits.argmax(dim=1)
 
-			loss = loss_func(y_train_probs, y_train)
+			loss = loss_func(y_train_logits, y_train)
 			metric = f1_score(y_train.argmax(dim=1), y_train_pred, average='weighted')
 
 			optimiser.zero_grad()
@@ -215,9 +215,9 @@ if __name__ == '__main__':
 
 			model.eval()
 			with torch.inference_mode():
-				y_val_probs = model(x_val).squeeze()
-			y_val_pred = y_val_probs.argmax(dim=1)
-			val_loss = loss_func(y_val_probs, y_val).item()
+				y_val_logits = model(x_val).squeeze()
+			y_val_pred = y_val_logits.argmax(dim=1)  # Same as computing probs then rounding
+			val_loss = loss_func(y_val_logits, y_val).item()
 			val_metric = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
 
 		elif task_choice == 'R':
@@ -243,9 +243,9 @@ if __name__ == '__main__':
 
 		if epoch % 10 == 0:
 			if task_choice in 'BM':
-				print(f'Epoch: {epoch}  |  Loss: {loss}  |  F1: {metric}  |  Val loss: {val_loss}  |  Val F1: {val_metric}')
+				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  F1: {metric:.4f}  |  Val loss: {val_loss:.4f}  |  Val F1: {val_metric:.4f}')
 			else:
-				print(f'Epoch: {epoch}  |  Loss: {loss}  |  MAE: {metric}  |  Val loss: {val_loss}  |  Val MAE: {val_metric}')
+				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  MAE: {metric:.4f}  |  Val loss: {val_loss:.4f}  |  Val MAE: {val_metric:.4f}')
 
 		if early_stopping(val_loss, model.state_dict()):
 			print('Early stopping at epoch', epoch)
@@ -270,41 +270,49 @@ if __name__ == '__main__':
 	plt.suptitle(f'Loss and {"F1 score" if task_choice in "BM" else "MAE"} during training', y=0.95)
 	plt.show()
 
-	# 3. Testing
+	# 3. Test model
 
 	print('\n----- TESTING -----\n')
 
 	with torch.inference_mode():
 		if task_choice == 'B':
-			test_pred_probs = model(x_test).squeeze()
-			test_pred_labels = test_pred_probs.round()
+			test_logits = model(x_test).squeeze()
+			test_probs = torch.sigmoid(test_logits)
+			test_pred = test_probs.round()
 
-			test_loss = loss_func(test_pred_probs, y_test)
+			test_loss = loss_func(test_logits, y_test)
 			print('Test loss:', test_loss.item())
 
 			# Confusion matrix
-			f1 = f1_score(y_test, test_pred_labels)
-			plot_confusion_matrix(y_test, test_pred_labels, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+			f1 = f1_score(y_test, test_pred)
+			plot_confusion_matrix(y_test, test_pred, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 			# ROC curve
-			plot_roc_curve(y_test, test_pred_probs)
+			plot_roc_curve(y_test, test_probs)
 
 		elif task_choice == 'M':
-			test_pred_probs = model(x_test).squeeze()
-			test_pred_labels = test_pred_probs.argmax(dim=1)
+			test_logits = model(x_test).squeeze()
+			test_pred = test_logits.argmax(dim=1)
 
-			test_loss = loss_func(test_pred_probs, y_test)
+			test_loss = loss_func(test_logits, y_test)
 			print('Test loss:', test_loss.item())
 
 			# Confusion matrix
-			f1 = f1_score(y_test.argmax(dim=1), test_pred_labels, average='weighted')
-			plot_confusion_matrix(y_test.argmax(dim=1), test_pred_labels, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+			f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
+			plot_confusion_matrix(
+				y_test.argmax(dim=1),
+				test_pred,
+				labels,
+				f'Test confusion matrix\n(F1 score: {f1:.3f})',
+				x_ticks_rotation=45,
+				horiz_alignment='right'
+			)
 
 		else:
-			test_pred_labels = model(x_test).squeeze()
+			test_pred = model(x_test).squeeze()
 
-			test_loss = loss_func(test_pred_labels, y_test)
-			test_metric = mae_loss(test_pred_labels, y_test)
+			test_loss = loss_func(test_pred, y_test)
+			test_metric = mae_loss(test_pred, y_test)
 
 			print('Test loss:', test_loss.item())
 			print('Test MAE:', test_metric.item())

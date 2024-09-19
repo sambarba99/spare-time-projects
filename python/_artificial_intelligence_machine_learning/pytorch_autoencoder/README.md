@@ -3,7 +3,7 @@
 In the case of the MNIST autoencoder, the data dimensionality is reduced from `(1, 28, 28)` (colour channels, height, width) to `(2,)` - a compression factor of 392. These latent variables can thus be plotted on $xy$ axes:
 
 <p align="center">
-	<img src="plots/mnist_2_latent_variables.gif"/>
+	<img src="plots/mnist_2_latent_variables.webp"/>
 </p>
 
 MNIST autoencoder architecture:

@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve
 
 
-def plot_confusion_matrix(y_test, test_pred_labels, labels, title):
+def plot_confusion_matrix(y_test, test_pred_labels, labels, title, x_ticks_rotation=0, horiz_alignment='center'):
 	cm = confusion_matrix(y_test, test_pred_labels)
 	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+	plt.xticks(rotation=x_ticks_rotation, ha=horiz_alignment)
 	plt.title(title)
 	plt.show()
 

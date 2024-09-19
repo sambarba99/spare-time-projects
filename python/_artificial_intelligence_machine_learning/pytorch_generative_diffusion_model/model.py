@@ -20,11 +20,12 @@ class DownBlock(nn.Module):
 			nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
 			nn.LeakyReLU()
 		)
-		self.pool = nn.MaxPool2d(kernel_size=2)
+		self.pool = nn.MaxPool2d(2)
 
 	def forward(self, x):
 		x_conv = self.conv_block(x)
 		pooled = self.pool(x_conv)
+
 		return x_conv, pooled
 
 
@@ -51,6 +52,7 @@ class UpBlock(nn.Module):
 		upsampled = self.conv_transpose_block(x)
 		x_concat = torch.cat([upsampled, skip_connection], dim=1)
 		x_conv = self.conv_block(x_concat)
+
 		return x_conv
 
 

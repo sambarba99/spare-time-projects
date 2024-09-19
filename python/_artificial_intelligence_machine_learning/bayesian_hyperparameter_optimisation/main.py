@@ -48,8 +48,8 @@ class CustomNN:
 		layers.append(nn.Linear(nodes_per_hidden_layer, NUM_OUTPUTS))
 
 		self.model = nn.Sequential(*layers)
-		self.optimiser = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 		self.loss_func = nn.MSELoss()
+		self.optimiser = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 		self.early_stopping = EarlyStopping(patience=10, min_delta=0, mode='min')
 
 	def fit(self, train_loader, val_loader):
