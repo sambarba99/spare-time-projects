@@ -285,7 +285,14 @@ if __name__ == '__main__':
 
 			# Confusion matrix
 			f1 = f1_score(y_test, test_pred)
-			plot_confusion_matrix(y_test, test_pred, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+			plot_confusion_matrix(
+				y_test,
+				test_pred,
+				labels,
+				f'Test confusion matrix\n(F1 score: {f1:.3f})',
+				x_ticks_rotation=45,
+				horiz_alignment='right'
+			)
 
 			# ROC curve
 			plot_roc_curve(y_test, test_probs)

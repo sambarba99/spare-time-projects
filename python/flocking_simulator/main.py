@@ -136,7 +136,8 @@ if __name__ == '__main__':
 	while True:
 		for event in pg.event.get():
 			match event.type:
-				case pg.QUIT: sys.exit()
+				case pg.QUIT:
+					sys.exit()
 				case pg.KEYDOWN:
 					match event.key:
 						case pg.K_r:  # Reset params (move sliders to centre)

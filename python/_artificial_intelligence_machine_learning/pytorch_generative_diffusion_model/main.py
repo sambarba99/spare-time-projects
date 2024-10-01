@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 28/05/2024
 """
 
+import glob
 import os
 from time import sleep
 
@@ -43,10 +44,9 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	root_dir = 'C:/Users/Sam/Desktop/projects/datasets/celeba'
-	img_paths = [f'{root_dir}/{f}' for f in os.listdir(root_dir) if f.endswith('.jpg')]
+	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/celeba/*.jpg')
 	x = [
-		transform(Image.open(fp)) for fp in
+		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 

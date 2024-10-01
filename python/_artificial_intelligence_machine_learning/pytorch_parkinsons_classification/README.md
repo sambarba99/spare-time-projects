@@ -2,7 +2,7 @@
 
 <p align="center">
 	<img src="images/data_samples.png"/>
-	<br>
+	<br/>
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 

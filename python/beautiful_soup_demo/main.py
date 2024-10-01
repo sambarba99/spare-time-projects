@@ -5,7 +5,6 @@ Author: Sam Barba
 Created 26/10/2022
 """
 
-import io
 import os
 import requests
 
@@ -18,17 +17,17 @@ def read_bbc_news():
 	html = BeautifulSoup(result.text, 'html.parser')
 
 	# Search for 'Most read', then for next <ol> (ordered list) tag after it in tree structure
-	ordered_list = html.find(text='Most read').find_next('ol')
+	ordered_list = html.find(string='Most read').find_next('ol')
 	list_items = ordered_list.find_all('li')  # <li> = list item
 
-	ss = io.StringIO()
+	result = ''
 	for idx, item in enumerate(list_items):
 		link_tag = item.find('a')  # <a> tags are links
 		link_text = link_tag.string
 		hyperlink = link_tag['href']  # Hypertext reference
-		ss.write(f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})')
+		result += f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})'
 
-	return f'Most read BBC News stories:\n{ss.getvalue()}'
+	return f'Most read BBC News stories:\n{result}'
 
 
 def read_wiki_article_of_the_day():
@@ -37,7 +36,7 @@ def read_wiki_article_of_the_day():
 	html = BeautifulSoup(result.text, 'html.parser')
 
 	# Search for "From today's featured article", then for next <p> (paragraph) tag after it in tree structure
-	p = html.find(text="From today's featured article").find_next('p')
+	p = html.find(string="From today's featured article").find_next('p')
 	p_text = p.text.strip().rsplit(' ', 1)[0]  # Exclude final "(Full article...)" hyperlink
 	link_tag = p.find_all('a')[-1]  # Grab hyperlink manually to add to file
 	hyperlink = link_tag['href']
@@ -60,14 +59,13 @@ def read_crypto_prices():
 	result = 'Crypto prices:'
 	result += f'\n\n{name_h:>15}   |   {price_h}'
 	result += '\n' + '-' * 38
-	ss = io.StringIO()
 
 	for tr in table_rows[1:10]:
 		row_data = tr.find_all('td')[2:4]  # <td> = table data
 		name, price = row_data
-		ss.write(f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}')
+		result += f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}'
 
-	return f'{result}{ss.getvalue()}'
+	return result
 
 
 if __name__ == '__main__':

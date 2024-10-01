@@ -7,7 +7,7 @@ superposition is 'collapsed'), meaning its image can be visualised.
 
 All tile images in ./tile_imgs are named as:
 
-<name>_<north left/middle/right colors>_<east left/middle/right colors>_<etc>_<no. times to rotate>.png.
+<name>_<north left/middle/right colours>_<east left/middle/right colours>_<etc>_<no. times to rotate>.png.
 
 E.g. ./tile_imgs/plain/bar_aaa_aba_aaa_aba_1.png.
 
@@ -19,7 +19,7 @@ Author: Sam Barba
 Created 19/07/2023
 """
 
-import os
+import glob
 import random
 import sys
 
@@ -33,8 +33,6 @@ COLLAGE_TYPE = 'circuit'  # 'plain' or 'circuit'
 COLLAGE_WIDTH = 80  # In tiles
 COLLAGE_HEIGHT = 50
 TILE_PX_SIZE = 15  # All images are 15px x 15px
-
-DIRECTIONS = [(0, -1), (1, 0), (0, 1), (-1, 0)]  # N/E/S/W (dx, dy)
 
 tiles = grid = scene = font = None
 
@@ -52,9 +50,9 @@ def setup():
 	# 1. Read files in tile_imgs; decode their names to get colour codes and rotations
 
 	tiles = []
-	for img_file in os.listdir(f'./tile_imgs/{COLLAGE_TYPE}'):
-		img = pg.image.load(f'./tile_imgs/{COLLAGE_TYPE}/{img_file}').convert()
-		split = img_file.split('_')
+	for img_path in glob.glob(f'./tile_imgs/{COLLAGE_TYPE}/*.png'):
+		img = pg.image.load(img_path).convert()
+		split = img_path.split('/')[-1].split('_')
 		edge_colour_codes = split[1:-1]
 		num_rotations = split[-1].removesuffix('.png')
 		tiles.append(Tile(img, edge_colour_codes, int(num_rotations)))
@@ -83,8 +81,7 @@ def wave_function_collapse(first_cell=False):
 		Break any ties randomly.
 		"""
 
-		flattened_grid = [cell for row in grid for cell in row]
-		uncollapsed = [cell for cell in flattened_grid if not cell.is_collapsed]
+		uncollapsed = [cell for row in grid for cell in row if not cell.is_collapsed]
 
 		# If all are collapsed (1 state option left), we're done
 		if not uncollapsed:
@@ -99,7 +96,7 @@ def wave_function_collapse(first_cell=False):
 
 	# 1. Choose a cell whose superposition to collapse to one state
 
-	next_cell_to_collapse = choose_min_entropy_cell()
+	next_cell_to_collapse = grid[COLLAGE_HEIGHT // 2][COLLAGE_WIDTH // 2] if first_cell else choose_min_entropy_cell()
 
 	if next_cell_to_collapse:
 		contradiction = next_cell_to_collapse.observe()
@@ -123,7 +120,7 @@ def wave_function_collapse(first_cell=False):
 	while stack:
 		current_cell = stack.pop()
 
-		for dx, dy in DIRECTIONS:
+		for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:  # N, E, S, W
 			adj_x = current_cell.x + dx  # Adjacent cell coords
 			adj_y = current_cell.y + dy
 
@@ -164,16 +161,15 @@ def wave_function_collapse(first_cell=False):
 def update_collage():
 	scene.fill('black')
 
-	for x in range(COLLAGE_WIDTH):
-		for y in range(COLLAGE_HEIGHT):
-			cell = grid[y][x]
+	for row in grid:
+		for cell in row:
 			if cell.is_collapsed:
 				tile_img = cell.tile_options[0].img
-				tile_img_rect = tile_img.get_rect(center=((x + 0.5) * TILE_PX_SIZE - 1, (y + 0.5) * TILE_PX_SIZE - 1))
+				tile_img_rect = tile_img.get_rect(center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1))
 				scene.blit(tile_img, tile_img_rect)
 			# else:
 			# 	cell_lbl = font.render(str(cell.entropy), True, (255, 255, 255))
-			# 	lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * TILE_PX_SIZE - 1, (y + 0.5) * TILE_PX_SIZE - 1))
+			# 	lbl_rect = cell_lbl.get_rect(center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1))
 			# 	scene.blit(cell_lbl, lbl_rect)
 
 	pg.display.update()

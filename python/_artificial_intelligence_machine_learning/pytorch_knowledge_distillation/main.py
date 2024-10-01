@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 29/09/2024
 """
 
+import glob
 import os
 
 import matplotlib.pyplot as plt
@@ -27,7 +28,6 @@ from conv_nets import Teacher, Student
 
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/cifar10'
 IMG_SIZE = 32
 BATCH_SIZE = 128
 LEARNING_RATE = 1e-3
@@ -37,16 +37,17 @@ CROSS_ENTROPY_LOSS_WEIGHT = 0.4  # Contribution of cross-entropy loss to KD trai
 TEMPERATURE = 2                  # Controls smoothness of output distributions
 
 
-def create_data_loaders(file_paths):
+def create_data_loaders():
 	# Preprocess images now instead of during training (faster pipeline overall)
 
 	transform = transforms.ToTensor()  # Normalise to [0,1]
 
+	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/cifar10/*.png')
 	x = [
-		transform(Image.open(fp)) for fp in
-		tqdm(file_paths, desc='Preprocessing images', unit='imgs', ascii=True)
+		transform(Image.open(img_path)) for img_path in
+		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
-	y_labels = [fp.split('/')[-1].split('_')[0] for fp in file_paths]
+	y_labels = [img_path.split('\\')[-1].split('_')[0] for img_path in img_paths]
 
 	# One-hot encode y
 	one_hot_encoder = OneHotEncoder(sparse_output=False)
@@ -243,10 +244,7 @@ def test(model, plot_title):
 if __name__ == '__main__':
 	# 1. Load data
 
-	file_names = os.listdir(DATA_PATH)
-	file_paths = [f'{DATA_PATH}/{file_name}' for file_name in file_names]
-
-	train_loader, val_loader, test_loader = create_data_loaders(file_paths)
+	train_loader, val_loader, test_loader = create_data_loaders()
 
 	# 2. Define models
 

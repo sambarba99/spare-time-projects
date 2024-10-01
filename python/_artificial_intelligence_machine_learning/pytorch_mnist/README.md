@@ -8,7 +8,7 @@ Test performance:
 
 <p align="center">
 	<img src="images/drawn_digit_classification.png"/>
-	<br>
+	<br/>
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 

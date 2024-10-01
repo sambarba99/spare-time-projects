@@ -5,6 +5,8 @@ Author: Sam Barba
 Created 27/12/2021
 """
 
+from math import dist
+
 import numpy as np
 
 
@@ -30,7 +32,8 @@ class DBSCAN:
 		self.labels = np.full(x.shape[0], NOISE)  # Initialise all points as noise
 
 		for point_id in range(x.shape[0]):
-			if self.labels[point_id] != NOISE: continue  # Skip processed points
+			if self.labels[point_id] != NOISE:
+				continue  # Skip processed points
 
 			neighbour_ids = self.__get_neighbours(point_id)
 			if len(neighbour_ids) >= self.min_samples:
@@ -42,8 +45,8 @@ class DBSCAN:
 	def __get_neighbours(self, point_id):
 		neighbour_ids = []
 		for i in range(self.x.shape[0]):
-			dist = np.linalg.norm(self.x[point_id] - self.x[i])
-			if dist < self.epsilon:
+			d = math.dist(self.x[point_id], self.x[i])
+			if d < self.epsilon:
 				neighbour_ids.append(i)
 
 		return neighbour_ids

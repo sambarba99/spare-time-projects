@@ -81,7 +81,8 @@ class DDQNAgent:
 				total_vel += env.car.vel
 				no_reward_count = no_reward_count + 1 if return_ <= 0 else 0
 
-				if terminal or no_reward_count > NO_REWARD_LIMIT: break
+				if terminal or no_reward_count > NO_REWARD_LIMIT:
+					break
 
 				state = next_state
 

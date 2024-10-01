@@ -16,6 +16,6 @@ Example of tabular data compression (iris dataset, 2 latent variables and 3 late
 
 <p align="center">
 	<img src="plots/iris_2_latent_variables.png"/>
-	<br>
+	<br/>
 	<img src="plots/iris_3_latent_variables.png"/>
 </p>

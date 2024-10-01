@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 22/10/2021
 """
 
-import numpy as np
+from math import dist
 
 
 class KNN:
@@ -19,21 +19,19 @@ class KNN:
 		self.y_train = y
 
 	def predict(self, x):
-		def euclidean_dist(a, b):
-			return np.linalg.norm(np.array(a) - np.array(b))
+		# Enumerate distances between input and all training points
+		idx_and_distances = enumerate(dist(x, i) for i in self.x_train)
 
+		# Sort in ascending order of distance
+		sorted_idx_and_distances = sorted(idx_and_distances, key=lambda i: i[1])
 
-		# Compute distance between input and all training points
-		distances = [euclidean_dist(x, i) for i in self.x_train]
-
-		# Index each calculated distance
-		idx_and_distances = list(enumerate(distances))
-
-		# Sort in ascending order by distance, and keep first k training samples (nearest)
-		nearest_k = sorted(idx_and_distances, key=lambda i: i[1])[:self.k]
+		# Keep k nearest
+		k_nearest = sorted_idx_and_distances[:self.k]
 
 		# Get labels of nearest k samples
-		nearest_k_labels = [self.y_train[idx] for idx, _ in nearest_k]
+		k_nearest_labels = [self.y_train[idx] for idx, _ in k_nearest]
 
-		# Return mode label
-		return max(set(nearest_k_labels), key=nearest_k_labels.count)
+		# Prediction is the modal label
+		pred = max(set(k_nearest_labels), key=k_nearest_labels.count)
+
+		return pred
