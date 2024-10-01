@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 08/09/2024
 """
 
+import glob
 import os
 
 import matplotlib.pyplot as plt
@@ -22,7 +23,6 @@ from model import VariationalAutoencoder
 
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'
 IMG_SIZE = 128
 CORRUPTED_SQUARE_SIZE = 64
 BATCH_SIZE = 64
@@ -30,7 +30,7 @@ LEARNING_RATE = 1e-3
 NUM_EPOCHS = 100
 
 
-def create_data_loaders(file_paths):
+def create_data_loaders():
 	def add_black_square(img):
 		x1, y1 = torch.randint(0, IMG_SIZE - CORRUPTED_SQUARE_SIZE + 1, size=(2,))
 		x2 = x1 + CORRUPTED_SQUARE_SIZE
@@ -48,9 +48,10 @@ def create_data_loaders(file_paths):
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
+	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg')
 	x_ground_truth = [
-		transform(Image.open(fp)) for fp in
-		tqdm(file_paths, desc='Preprocessing images', unit='imgs', ascii=True)
+		transform(Image.open(img_path)) for img_path in
+		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 	x_corrputed_and_coords = [
 		add_black_square(img) for img in
@@ -97,10 +98,7 @@ def plot_images(images, pil_img_transform, title, save_path):
 if __name__ == '__main__':
 	# 1. Load data
 
-	file_names = os.listdir(DATA_PATH)
-	file_paths = [f'{DATA_PATH}/{file_name}' for file_name in file_names]
-
-	train_loader, val_loader, test_loader, test_corrupted_top_left = create_data_loaders(file_paths)
+	train_loader, val_loader, test_loader, test_corrupted_top_left = create_data_loaders()
 
 	# 2. Define model
 

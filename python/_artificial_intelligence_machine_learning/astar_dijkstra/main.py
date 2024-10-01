@@ -5,191 +5,275 @@ Author: Sam Barba
 Created 20/09/2021
 """
 
-import sys
 import tkinter as tk
 
-import numpy as np
 import pygame as pg
 
-from daedalus import make_maze
-from graph_gen import make_graph
+from graph import Graph
 
 
-# For maze mode
-ROWS = 99
-COLS = 149
-CELL_SIZE = 7
+# For labyrinth/maze mode
+ROWS = 59
+COLS = 99
+CELL_SIZE = 10
 
-maze_mode = True  # False means normal graph (nodes/edges) mode
-graph = start_node = target_node = path = None
+# For graph (nodes/edges) mode
+NUM_NODES = 1000
+MAX_EDGES_PER_NODE = 4
+WIDTH = COLS * CELL_SIZE
+HEIGHT = ROWS * CELL_SIZE
 
-
-def generate_and_draw_graph():
-	global graph, start_node, target_node, path
-
-	if maze_mode:
-		graph = make_maze(ROWS, COLS)
-		# Start and target are top-left and bottom-right, respectively
-		start_node = graph[0][0]
-		target_node = graph[-1][-1]
-	else:
-		graph = make_graph(x_max=COLS * CELL_SIZE, y_max=ROWS * CELL_SIZE)
-		np_coords = np.array(list(zip([n.x for n in graph], [n.y for n in graph])))
-
-		# Start is top-left-most node; target is node furthest from this
-		distances_from_top_left = np.linalg.norm(np_coords, axis=1)
-		start_node = graph[distances_from_top_left.argmin()]
-		target_node = graph[distances_from_top_left.argmax()]
-
-	path = None
-	draw()
+graph = None
 
 
-def a_star():
-	open_set, closed_set = {start_node}, set()
+def generate_graph():
+	global graph
+
+	graph = Graph(
+		graph_type=stringv_type.get(),
+		rows=ROWS,
+		cols=COLS,
+		num_nodes=NUM_NODES,
+		max_edges_per_node=MAX_EDGES_PER_NODE,
+		x_max=WIDTH,
+		y_max=HEIGHT
+	)
+
+	draw(open_set=[], closed_set=set(), is_solved=False)
+
+
+def astar():
+	graph.reset_node_parents()
+
+	open_set = [graph.start_node]
+	closed_set = set()
+
+	# Costs nothing to get from start to start (start_node parent will always be None)
+	graph.start_node.g_cost = 0
+	graph.start_node.h_cost = graph.dist(graph.start_node, graph.target_node)
 
 	while open_set:
-		# Sort by f_cost then by h_cost
-		cheapest_node = min(open_set, key=lambda n: (n.get_f_cost(), n.h_cost))
+		cheapest_node = min(open_set, key=lambda node: (node.f_cost, node.h_cost))
 
-		if cheapest_node is target_node:
-			retrace_path()
-			draw()
-			return
+		if cheapest_node is graph.target_node:
+			break  # Found target
 
+		draw(open_set, closed_set, False)
 		open_set.remove(cheapest_node)
 		closed_set.add(cheapest_node)
 
-		neighbours = cheapest_node.get_neighbours(graph, maze_generation=False) \
-			if maze_mode \
-			else cheapest_node.neighbours
+		neighbours = graph.get_neighbours(cheapest_node)
+		unvisited = neighbours.difference(closed_set)
+		for neighbour in unvisited:
+			tentative_g_cost = cheapest_node.g_cost + graph.dist(cheapest_node, neighbour)
+			if neighbour not in open_set:
+				open_set.append(neighbour)  # Discovered a new node
+			elif tentative_g_cost >= neighbour.g_cost:
+				continue  # This isn't a better path
 
-		for n in neighbours:
-			if n in closed_set: continue
+			# This path to neighbour is better than any previous one - record it
+			neighbour.parent = cheapest_node
+			neighbour.g_cost = tentative_g_cost
+			neighbour.h_cost = graph.dist(neighbour, graph.target_node)
 
-			cost_move_to_n = cheapest_node.g_cost + cheapest_node.dist(n)
-			if cost_move_to_n < n.g_cost or n not in open_set:
-				n.g_cost = cost_move_to_n
-				n.h_cost = n.dist(target_node)
-				n.parent = cheapest_node
-				open_set.add(n)
+	draw(open_set, closed_set, True)
 
 
 def dijkstra():
 	"""Generates Shortest Path Tree"""
 
-	unvisited = {node for row in graph for node in row if not node.is_wall} \
-		if maze_mode \
-		else {n for n in graph}
+	graph.reset_node_parents()
+
+	open_set = [graph.start_node]
+	closed_set = set()
 
 	# Costs nothing to get from start to start (start_node parent will always be None)
-	start_node.cost = 0
+	graph.start_node.cost = 0
 
-	while unvisited:
-		cheapest_node = min(unvisited, key=lambda node: node.cost)
+	while open_set:
+		cheapest_node = min(open_set, key=lambda node: node.cost)
 
-		if cheapest_node is target_node:
-			# Stop generating Shortest Path Tree
-			# (only need path from start_node to target_node)
-			break
+		if cheapest_node is graph.target_node:
+			break  # Found target
 
-		neighbours = cheapest_node.get_neighbours(graph, maze_generation=False) \
-			if maze_mode \
-			else cheapest_node.neighbours
+		draw(open_set, closed_set, False)
+		open_set.remove(cheapest_node)
+		closed_set.add(cheapest_node)
 
-		for n in neighbours:
-			step = 1 if maze_mode else cheapest_node.dist(n)
+		neighbours = graph.get_neighbours(cheapest_node)
+		unvisited = neighbours.difference(closed_set)
+		for neighbour in unvisited:
+			tentative_cost = cheapest_node.cost + graph.dist(cheapest_node, neighbour)
+			if neighbour not in open_set:
+				open_set.append(neighbour)  # Discovered a new node
+			elif tentative_cost >= neighbour.cost:
+				continue  # This isn't a better path
 
-			if cheapest_node.cost + step < n.cost:
-				n.cost = cheapest_node.cost + step
-				n.parent = cheapest_node
+			# This path to neighbour is better than any previous one - record it
+			neighbour.parent = cheapest_node
+			neighbour.cost = tentative_cost
 
-		# Cheapest node has now been visited
-		unvisited.remove(cheapest_node)
-
-	retrace_path()
-	draw()
-
-
-def retrace_path():
-	global path
-
-	# Trace back from end
-	current = target_node
-	retraced_path = [current]
-
-	while current != start_node:
-		current = current.parent
-		retraced_path.append(current)
-
-	path = retraced_path[::-1]
+	draw(open_set, closed_set, True)
 
 
-def draw():
-	scene.fill('black')
+def graph_traversal(search_type):
+	"""Non-recursive traversal search (depth-first or breadth-first)"""
 
-	if maze_mode:
-		for y in range(ROWS):
-			for x in range(COLS):
-				c = 'black' if graph[y][x].is_wall else (80, 80, 80)
+	assert search_type in ('dfs', 'bfs')
 
-				pg.draw.rect(scene, c, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+	graph.reset_node_parents()
 
-		if path:
-			for node in path:
-				pg.draw.rect(scene, (220, 0, 0), pg.Rect(node.x * CELL_SIZE, node.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-				pg.time.delay(2)
-				pg.display.update()
+	open_set = [graph.start_node]
+	closed_set = set()
+
+	while open_set:
+		if graph.target_node.parent:
+			break  # Found target
+
+		draw(open_set, closed_set, False)
+
+		pop_idx = -1 if search_type == 'dfs' else 0
+		node = open_set.pop(pop_idx)
+		closed_set.add(node)
+
+		neighbours = graph.get_neighbours(node)
+		unvisited = neighbours.difference(closed_set)
+		for neighbour in unvisited:
+			if neighbour not in open_set:
+				open_set.append(neighbour)  # Discovered a new node
+			neighbour.parent = node
+
+	draw(open_set, closed_set, True)
+
+
+def draw(open_set, closed_set, is_solved):
+	scene.fill('black' if stringv_type.get() in ('labyrinth', 'maze') else (192, 192, 192))
+
+	path = None
+
+	if is_solved:
+		# Trace back from end
+		path = []
+		current = graph.target_node
+		while current:
+			path.insert(0, current)
+			current = current.parent
+
+	if stringv_type.get() in ('labyrinth', 'maze'):
+		for node in graph:
+			if node in (graph.start_node, graph.target_node):
+				colour = (255, 64, 0)
+			elif node.is_wall:
+				colour = (80, 80, 80)
+			elif node in open_set:
+				colour = (0, 192, 0)
+			elif node in closed_set:
+				colour = (64, 128, 192)
+			else:
+				colour = (192, 192, 192)
+
+			pg.draw.rect(scene, colour, pg.Rect(node.x * CELL_SIZE, node.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+		pg.display.update()
+		clock.tick(90)
+
+		if not path:
+			return
+
+		for i in range(len(path) - 1):
+			node = path[i]
+			next_node = path[i + 1]
+			pg.draw.line(
+				scene,
+				'black',
+				((node.x + 0.5) * CELL_SIZE - 1, (node.y + 0.5) * CELL_SIZE - 1),
+				((next_node.x + 0.5) * CELL_SIZE - 1, (next_node.y + 0.5) * CELL_SIZE - 1),
+				2
+			)
+			pg.draw.circle(
+				scene,
+				'black',
+				((node.x + 0.5) * CELL_SIZE, (node.y + 0.5) * CELL_SIZE),
+				1
+			)
+			pg.draw.circle(
+				scene,
+				'black',
+				((next_node.x + 0.5) * CELL_SIZE, (next_node.y + 0.5) * CELL_SIZE),
+				1
+			)
+			pg.display.update()
+			clock.tick(120)
+
 	else:
 		# Draw edges then nodes on top
+		done_edges = set()
 		for node in graph:
-			for neighbour in node.neighbours:
-				pg.draw.line(scene, (160, 160, 160), (node.x, node.y), (neighbour.x, neighbour.y))
+			for neighbour in graph.get_neighbours(node):
+				pair = tuple(sorted([node.idx, neighbour.idx]))
+				if pair in done_edges:
+					continue
+				done_edges.add(pair)
+				pg.draw.line(scene, 'black', (node.x - 1, node.y - 1), (neighbour.x - 1, neighbour.y - 1))
 
 		if path:
-			for node, next_node in zip(path[:-1], path[1:]):
-				pg.draw.line(scene, 'green', (node.x, node.y), (next_node.x, next_node.y), 4)
+			for i in range(len(path) - 1):
+				node = path[i]
+				next_node = path[i + 1]
+				pg.draw.line(scene, 'black', (node.x, node.y), (next_node.x, next_node.y), 4)
 
 		for node in graph:
-			pg.draw.circle(scene, 'red', (node.x, node.y), 3)
+			r = 4
+			if node in (graph.start_node, graph.target_node):
+				colour = (255, 64, 0)
+				r = 6
+			elif node in open_set:
+				colour = (0, 255, 0)
+			elif node in closed_set:
+				colour = (0, 128, 255)
+			else:
+				colour = (80, 80, 80)
 
-		# Start and target
-		pg.draw.circle(scene, (0, 80, 255), (start_node.x, start_node.y), 6)
-		pg.draw.circle(scene, (0, 80, 255), (target_node.x, target_node.y), 6)
+			pg.draw.circle(scene, colour, (node.x, node.y), r)
 
-	pg.display.update()
-
-
-def toggle_maze_mode():
-	global maze_mode
-	maze_mode = not maze_mode
-	generate_and_draw_graph()
+		pg.display.update()
+		clock.tick(90)
 
 
 if __name__ == '__main__':
 	pg.init()
 	pg.display.set_caption('A* and Dijkstra demo')
-	scene = pg.display.set_mode((COLS * CELL_SIZE, ROWS * CELL_SIZE))
-
-	generate_and_draw_graph()
+	scene = pg.display.set_mode((WIDTH, HEIGHT))
+	clock = pg.time.Clock()
 
 	root = tk.Tk()
 	root.title('A*/Dijkstra Demo')
-	root.config(width=350, height=230, background='#101010')
+	root.config(width=380, height=235, background='#101010')
 	root.resizable(False, False)
 
-	btn_generate_graph = tk.Button(root, text='Generate graph', font='consolas',
-		command=lambda: generate_and_draw_graph())
-	btn_solve_a_star = tk.Button(root, text='Solve with A*', font='consolas',
-		command=lambda: a_star())
-	btn_solve_dijkstra = tk.Button(root, text='Solve with Dijkstra', font='consolas',
-		command=lambda: dijkstra())
-	btn_toggle_maze_mode = tk.Button(root, text='Toggle maze/graph mode', font='consolas',
-		command=lambda: toggle_maze_mode())
+	stringv_type = tk.StringVar(value='labyrinth')
+	radio_btn_labyrinth = tk.Radiobutton(root, text='Labyrinth', font='consolas 10', variable=stringv_type, value='labyrinth',
+		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
+	radio_btn_maze = tk.Radiobutton(root, text='Maze', font='consolas 10', variable=stringv_type, value='maze',
+		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
+	radio_btn_graph = tk.Radiobutton(root, text='Graph', font='consolas 10', variable=stringv_type, value='graph',
+		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
 
-	btn_generate_graph.place(width=280, height=32, relx=0.5, y=46, anchor='center')
-	btn_solve_a_star.place(width=280, height=32, relx=0.5, y=92, anchor='center')
-	btn_solve_dijkstra.place(width=280, height=32, relx=0.5, y=138, anchor='center')
-	btn_toggle_maze_mode.place(width=280, height=32, relx=0.5, y=184, anchor='center')
+	btn_generate = tk.Button(root, text='Generate', font='consolas', command=generate_graph)
+	btn_solve_astar = tk.Button(root, text='Solve with A*', font='consolas', command=astar)
+	btn_solve_dijkstra = tk.Button(root, text='Solve with Dijkstra', font='consolas', command=dijkstra)
+	btn_solve_dfs = tk.Button(root, text='Solve with DFS', font='consolas', command=lambda: graph_traversal('dfs'))
+	btn_solve_bfs = tk.Button(root, text='Solve with BFS', font='consolas', command=lambda: graph_traversal('bfs'))
+
+	radio_btn_labyrinth.place(width=95, height=32, x=20, y=40, anchor='w')
+	radio_btn_maze.place(width=65, height=32, x=115, y=40, anchor='w')
+	radio_btn_graph.place(width=70, height=32, x=180, y=40, anchor='w')
+
+	btn_generate.place(width=100, height=32, x=310, y=40, anchor='center')
+	btn_solve_astar.place(width=280, height=32, relx=0.5, y=90, anchor='center')
+	btn_solve_dijkstra.place(width=280, height=32, relx=0.5, y=125, anchor='center')
+	btn_solve_dfs.place(width=280, height=32, relx=0.5, y=160, anchor='center')
+	btn_solve_bfs.place(width=280, height=32, relx=0.5, y=195, anchor='center')
+
+	generate_graph()
 
 	root.mainloop()

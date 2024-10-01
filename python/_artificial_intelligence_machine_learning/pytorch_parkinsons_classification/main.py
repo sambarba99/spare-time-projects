@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 27/01/2024
 """
 
+import glob
 import os
 
 import cv2 as cv
@@ -29,8 +30,6 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons'
-DATA_SUBFOLDERS = ['spiral_healthy', 'spiral_parkinsons', 'wave_healthy', 'wave_parkinsons']
 IMG_SIZE = 64
 BATCH_SIZE = 256
 LEARNING_RATE = 1e-4
@@ -72,7 +71,7 @@ def create_data_loaders(df):
 
 
 	x = [
-		preprocess_img(p) for p in
+		preprocess_img(img_path) for img_path in
 		tqdm(df['img_path'], desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 	y = pd.get_dummies(df['class'], prefix='class', drop_first=True, dtype=int).to_numpy().squeeze()
@@ -111,11 +110,9 @@ if __name__ == '__main__':
 	# 1. Convert data to dataframe
 
 	data = []
-	for subfolder in DATA_SUBFOLDERS:
-		directory = f'{DATA_PATH}/{subfolder}'
-		class_name = subfolder.split('_')[1]
-		for img_path in os.listdir(directory):
-			data.append((f'{directory}/{img_path}', class_name))
+	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/parkinsons/*/*.jpg'):
+		class_name = img_path.split('\\')[1].split('_')[1]
+		data.append((img_path, class_name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 

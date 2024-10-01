@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 30/10/2022
 """
 
+import glob
 import os
 
 import matplotlib.pyplot as plt
@@ -30,7 +31,6 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/utkface'
 DATASET_DICT = {
 	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
 	'gender_id': {'0': 'male', '1': 'female'}
@@ -62,7 +62,7 @@ def create_data_loaders(df):
 	])
 
 	x = [
-		transform(Image.open(fp)) for fp in
+		transform(Image.open(img_path)) for img_path in
 		tqdm(x_path, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 	y_age = torch.tensor(y_age).float()
@@ -109,10 +109,11 @@ if __name__ == '__main__':
 	# 1. Convert data to dataframe
 
 	data = []
-	for img_path in os.listdir(DATA_PATH):
-		age, gender, race = img_path.split('_')[:3]
+	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg'):
+		y = img_path.split('\\')[1]
+		age, gender, race = y.split('_')[:3]
 		data.append((
-			f'{DATA_PATH}/{img_path}',
+			img_path,
 			int(age),
 			DATASET_DICT['gender_id'][gender],
 			DATASET_DICT['race_id'][race]

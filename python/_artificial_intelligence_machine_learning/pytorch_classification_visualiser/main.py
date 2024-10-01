@@ -5,16 +5,15 @@ Author: Sam Barba
 Created 04/11/2022
 """
 
-import tkinter as tk
-
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
 import numpy as np
 from sklearn.datasets import make_blobs, make_circles, make_moons
 import torch
 from torch import nn
 
 
-plt.rcParams['figure.figsize'] = (6, 6)
+plt.rcParams['figure.figsize'] = (7, 7)
 
 NUM_EPOCHS = 1000
 NUM_SAMPLES = 1000
@@ -24,18 +23,25 @@ x = y = num_classes = None
 model = nn.Sequential()
 
 
-def make_spiral_classes():
+def make_spirals():
 	clockwise_class, anticlockwise_class = [], []
 
 	for i in range(NUM_SAMPLES // 2):
 		theta = i / 180 * np.pi
 		r = i / 500
-		x1 = r * np.cos(theta)
-		x2 = r * np.sin(theta)
-		clockwise_class.append([x1, x2])
-		anticlockwise_class.append([-x1, -x2])
+		x_coord = r * np.cos(theta)
+		y_coord = r * np.sin(theta)
+		clockwise_class.append([x_coord, y_coord])
+		anticlockwise_class.append([-x_coord, -y_coord])
 
-	return np.array(clockwise_class), np.array(anticlockwise_class)
+	class1, class2 = np.array(clockwise_class), np.array(anticlockwise_class)
+	x = np.vstack((class1, class2))
+	x += np.random.normal(scale=0.06, size=x.shape)
+	y1 = np.zeros(NUM_SAMPLES // 2)
+	y2 = np.ones(NUM_SAMPLES // 2)
+	y = np.concatenate((y1, y2))
+
+	return x, y
 
 
 def gen_data(mode):
@@ -49,15 +55,8 @@ def gen_data(mode):
 		case 'moons':
 			x, y = make_moons(n_samples=NUM_SAMPLES, noise=0.15)
 			x[:, 1] *= 1.7  # Stretch a bit in the geometric y direction
-		case 'spirals':
-			class1, class2 = make_spiral_classes()
-			x = np.vstack((class1, class2))
-			x += np.random.normal(scale=0.06, size=x.shape)
-			y1 = np.zeros(NUM_SAMPLES // 2)
-			y2 = np.ones(NUM_SAMPLES // 2)
-			y = np.concatenate((y1, y2))
 		case _:
-			raise ValueError(f'Bad data gen mode: {mode}')
+			x, y = make_spirals()
 
 	num_classes = len(np.unique(y))
 	if num_classes > 2:
@@ -67,7 +66,7 @@ def gen_data(mode):
 
 	build_model()
 	plot_decision_boundary()
-	plt.title('Start (random weights)')
+	ax_classification.set_title('Start (random weights)')
 	plt.show()
 
 
@@ -84,7 +83,7 @@ def build_model():
 	model.to('cpu')
 
 
-def build_and_train_model():
+def build_and_train_model(*_):
 	build_model()
 	loss_func = nn.BCEWithLogitsLoss() if num_classes == 2 else nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
@@ -99,12 +98,11 @@ def build_and_train_model():
 
 		if epoch % 10 == 0:
 			plot_decision_boundary()
-			plt.title(f'Epoch {epoch}/{NUM_EPOCHS}')
-			plt.draw()
+			ax_classification.set_title(f'Epoch {epoch}/{NUM_EPOCHS}')
 			plt.pause(0.01)
 
 	plot_decision_boundary()
-	plt.title(f'Epoch {NUM_EPOCHS}/{NUM_EPOCHS}')
+	ax_classification.set_title(f'Epoch {NUM_EPOCHS}/{NUM_EPOCHS}')
 	plt.show()
 
 
@@ -132,41 +130,34 @@ def plot_decision_boundary():
 		y_pred = y_logits.argmax(dim=1)
 
 	# Reshape and plot
-	plt.cla()
+	ax_classification.clear()
 	y_flat = y if y.dim() == 1 else y.argmax(dim=1)
-	plt.scatter(x[:, 0], x[:, 1], c=y_flat, cmap='jet', alpha=0.7)
+	ax_classification.scatter(x[:, 0], x[:, 1], c=y_flat, cmap='jet', alpha=0.7)
 	y_pred = y_pred.reshape(xx.shape).detach().numpy()
-	plt.imshow(
+	ax_classification.imshow(
 		y_pred, interpolation='nearest', cmap='jet', alpha=0.5, aspect='auto', origin='lower',
 		extent=(xx.min(), xx.max(), yy.min(), yy.max())
 	)
 
 
 if __name__ == '__main__':
-	root = tk.Tk()
-	root.title('Neural net boundary visualiser')
-	root.config(width=350, height=240, background='#101010')
-	root.resizable(False, False)
+	ax_classification = plt.axes([0.18, 0.28, 0.64, 0.64])
+	ax_gen_clusters = plt.axes([0.29, 0.16, 0.2, 0.05])
+	ax_gen_circles = plt.axes([0.5, 0.16, 0.2, 0.05])
+	ax_gen_moons = plt.axes([0.29, 0.1, 0.2, 0.05])
+	ax_gen_spirals = plt.axes([0.5, 0.1, 0.2, 0.05])
+	ax_train_model = plt.axes([0.29, 0.04, 0.41, 0.05])
 
-	gen_data_lbl = tk.Label(root, text='1. Generate data',
-		font='consolas', background='#101010', foreground='white')
-	train_model_lbl = tk.Label(root, text='2. Train model',
-		font='consolas', background='#101010', foreground='white')
+	gen_clusters_btn = Button(ax_gen_clusters, 'Generate clusters')
+	gen_circles_btn = Button(ax_gen_circles, 'Generate circles')
+	gen_moons_btn = Button(ax_gen_moons, 'Generate moons')
+	gen_spirals_btn = Button(ax_gen_spirals, 'Generate spirals')
+	train_model_btn = Button(ax_train_model, 'Train model')
 
-	btn_clusters = tk.Button(root, text='Clusters', font='consolas', command=lambda: gen_data('clusters'))
-	btn_circles = tk.Button(root, text='Circles', font='consolas', command=lambda: gen_data('circles'))
-	btn_moons = tk.Button(root, text='Moons', font='consolas', command=lambda: gen_data('moons'))
-	btn_spirals = tk.Button(root, text='Spirals', font='consolas', command=lambda: gen_data('spirals'))
-	btn_train = tk.Button(root, text='Train', font='consolas', command=build_and_train_model)
-
-	gen_data_lbl.place(width=298, height=36, relx=0.5, y=36, anchor='center')
-	train_model_lbl.place(width=298, height=36, relx=0.5, y=156, anchor='center')
-	btn_clusters.place(width=105, height=36, relx=0.344, y=72, anchor='center')
-	btn_circles.place(width=105, height=36, relx=0.656, y=72, anchor='center')
-	btn_moons.place(width=105, height=36, relx=0.344, y=113, anchor='center')
-	btn_spirals.place(width=105, height=36, relx=0.656, y=113, anchor='center')
-	btn_train.place(width=105, height=36, relx=0.5, y=190, anchor='center')
+	gen_clusters_btn.on_clicked(lambda _: gen_data('clusters'))
+	gen_circles_btn.on_clicked(lambda _: gen_data('circles'))
+	gen_moons_btn.on_clicked(lambda _: gen_data('moons'))
+	gen_spirals_btn.on_clicked(lambda _: gen_data('spirals'))
+	train_model_btn.on_clicked(build_and_train_model)
 
 	gen_data('clusters')
-
-	root.mainloop()

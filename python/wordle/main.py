@@ -248,7 +248,8 @@ if __name__ == '__main__':
 			print(f"\nAttempt {i}/{MAX_ATTEMPTS}: try '{attempt_word}'")
 			info = input(f"Enter the info (0/1/2 for grey/yellow/green) for '{attempt_word}' (or W if won)\n>>> ").upper()
 
-			if info == 'W': break
+			if info == 'W':
+				break
 
 			info = tuple([int(c) for c in info])
 
@@ -276,9 +277,11 @@ if __name__ == '__main__':
 	while True:
 		for event in pg.event.get():
 			match event.type:
-				case pg.QUIT: sys.exit()
+				case pg.QUIT:
+					sys.exit()
 				case pg.KEYDOWN:
-					if game_over and event.key != pg.K_SPACE: continue
+					if game_over and event.key != pg.K_SPACE:
+						continue
 
 					match event.key:
 						case pg.K_SPACE:  # Reset if game over
@@ -296,7 +299,8 @@ if __name__ == '__main__':
 								col_num += 1
 								draw_grid(colour_current_row=False)
 						case pg.K_RETURN:  # Submit attempt
-							if col_num != WORD_LEN: continue
+							if col_num != WORD_LEN:
+								continue
 
 							user_word = ''.join(attempts[attempt_num])
 
