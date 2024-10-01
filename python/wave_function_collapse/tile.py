@@ -47,4 +47,5 @@ class Tile:
 		rotated_img = pg.transform.rotate(self.img, -90 * num_times)  # Negative for clockwise
 		old_edges = [self.north_edge, self.east_edge, self.south_edge, self.west_edge]
 		new_edges = [old_edges[(i - num_times) % 4] for i in range(4)]
+
 		return Tile(rotated_img, new_edges, None)

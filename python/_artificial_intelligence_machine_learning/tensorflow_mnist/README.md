@@ -14,7 +14,7 @@ Corresponding convolutional layer feature maps:
 
 <p align="center">
 	<img src="images/conv1_feature_map.png"/>
-	<br>
+	<br/>
 	<img src="images/conv2_feature_map.png"/>
 </p>
 

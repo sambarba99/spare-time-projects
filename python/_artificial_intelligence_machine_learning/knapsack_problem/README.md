@@ -2,6 +2,6 @@
 
 <p align="center">
 	<img src="evolution_graph.png"/>
-	<br>
+	<br/>
 	<img src="best_items.png"/>
 </p>

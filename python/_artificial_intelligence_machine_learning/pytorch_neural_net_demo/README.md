@@ -4,7 +4,7 @@ Example performance (iris dataset model):
 
 <p align="center">
 	<img src="images/iris_train_progress.png"/>
-	<br>
+	<br/>
 	<img src="images/iris_test_confusion_matrix.png"/>
 </p>
 

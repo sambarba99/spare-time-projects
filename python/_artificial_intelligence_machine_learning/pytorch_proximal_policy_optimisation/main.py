@@ -60,7 +60,8 @@ def test(is_ppo):
 		while not terminal:
 			for event in pg.event.get():
 				match event.type:
-					case pg.QUIT: sys.exit()
+					case pg.QUIT:
+						sys.exit()
 					case pg.KEYDOWN:
 						if event.key == pg.K_m:
 							render_meta = not render_meta

@@ -44,8 +44,8 @@ class SVM:
 			plt.plot([x0_min, x0_max], [neg_margin_hyperplane_1, neg_margin_hyperplane_2], 'k--')
 			plt.plot([x0_min, x0_max], [pos_margin_hyperplane_1, pos_margin_hyperplane_2], 'k--')
 
-			plt.xlim([x0_min - 1, x0_max + 1])
-			plt.ylim([x1_min - 1, x1_max + 1])
+			plt.xlim(x0_min - 1, x0_max + 1)
+			plt.ylim(x1_min - 1, x1_max + 1)
 			plt.title(f'Iter {iter_num}/{self.num_iters}')
 
 			if iter_num == self.num_iters:

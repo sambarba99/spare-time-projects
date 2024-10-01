@@ -53,7 +53,8 @@ if __name__ == '__main__':
 
 		if f1 > best_f1:
 			best_f1, best_k = f1, k
-			if best_f1 == 1: break
+			if best_f1 == 1:
+				break
 		else:
 			break  # No improvement, so stop
 
@@ -63,4 +64,11 @@ if __name__ == '__main__':
 	clf.fit(x, y)
 	predictions = np.array([clf.predict(xi) for xi in x])
 
-	plot_confusion_matrix(y, predictions, labels, f'Confusion matrix for k = {best_k}\n(F1 score: {best_f1:.3f})')
+	plot_confusion_matrix(
+		y,
+		predictions,
+		labels,
+		f'Confusion matrix for k = {best_k}\n(F1 score: {best_f1:.3f})',
+		x_ticks_rotation=45,
+		horiz_alignment='right'
+	)

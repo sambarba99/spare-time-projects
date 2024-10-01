@@ -62,7 +62,8 @@ def crossover(parents):
 	offspring = deepcopy(parents)
 
 	for i in range(POP_SIZE - 1):
-		if np.random.random() > CROSSOVER_RATE: continue
+		if np.random.random() > CROSSOVER_RATE:
+			continue
 
 		p1_config = parents[i].item_config
 		p2_config = parents[i + 1].item_config
@@ -88,7 +89,8 @@ def mutation(offspring):
 	mutants.sort(key=lambda ind: ind.fitness, reverse=True)
 
 	for i in range(int(ELITISM_RATE * POP_SIZE), POP_SIZE):
-		if np.random.random() > MUTATION_RATE: continue
+		if np.random.random() > MUTATION_RATE:
+			continue
 
 		r = np.random.choice(NUM_ITEMS)
 		mutants[i].item_config[r] = not mutants[i].item_config[r]

@@ -5,6 +5,8 @@ Author: Sam Barba
 Created 26/11/2023
 """
 
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
@@ -26,6 +28,7 @@ class Line:
 
 	def __init__(self, *points):
 		assert len(points) == DIM * 2
+
 		self.point1 = np.array(points[:DIM])
 		self.point2 = np.array(points[DIM:])
 		self.direction = self.point2 - self.point1
@@ -33,9 +36,10 @@ class Line:
 	def distance(self, point):
 		vector_to_point = point - self.point1
 		projection = np.dot(vector_to_point, self.direction) / np.dot(self.direction, self.direction)
-		closest_point_on_line = self.point1 + projection * self.direction
-		distance = np.linalg.norm(point - closest_point_on_line)
-		return closest_point_on_line, distance
+		nearest_point_on_line = self.point1 + projection * self.direction
+		distance = math.dist(point, nearest_point_on_line)
+
+		return nearest_point_on_line, distance
 
 
 def plot_lines_and_nearest_point(title, ax, lines, nearest_point, trajectory):

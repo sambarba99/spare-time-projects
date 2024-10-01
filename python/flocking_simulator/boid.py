@@ -54,7 +54,8 @@ class Boid:
 		total = 0
 
 		for boid in flock:
-			if self is boid: continue
+			if self is boid:
+				continue
 
 			d = self.pos.distance_to(boid.pos)
 			if d < self.perception_radius:
@@ -78,7 +79,8 @@ class Boid:
 		total = 0
 
 		for boid in flock:
-			if self is boid: continue
+			if self is boid:
+				continue
 
 			if self.pos.distance_to(boid.pos) < self.perception_radius:
 				steering += boid.vel
@@ -100,7 +102,8 @@ class Boid:
 		total = 0
 
 		for boid in flock:
-			if self is boid: continue
+			if self is boid:
+				continue
 
 			if self.pos.distance_to(boid.pos) < self.perception_radius:
 				steering += boid.pos

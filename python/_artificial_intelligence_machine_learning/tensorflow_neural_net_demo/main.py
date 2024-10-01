@@ -218,7 +218,14 @@ if __name__ == '__main__':
 
 		# Confusion matrix
 		f1 = f1_score(y_test, test_pred_labels, average='binary' if len(labels) == 2 else 'weighted')
-		plot_confusion_matrix(y_test, test_pred_labels, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+		plot_confusion_matrix(
+			y_test,
+			test_pred_labels,
+			labels,
+			f'Test confusion matrix\n(F1 score: {f1:.3f})',
+			x_ticks_rotation=45,
+			horiz_alignment='right'
+		)
 
 	# To save/load a model:
 	# model.save('./model.h5')

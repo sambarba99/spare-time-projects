@@ -71,7 +71,8 @@ def plot_tree(tree, features, labels):
 		for level, next_level in zip(levels[:-1], levels[1:]):
 			next_copy = next_level[:]
 			for src in level:
-				if '<=' not in src: continue  # Leaf nodes don't have children
+				if '<=' not in src:
+					continue  # Leaf nodes don't have children
 
 				left_child = next_copy.pop(0)
 				right_child = next_copy.pop(0)

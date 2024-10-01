@@ -5,9 +5,10 @@ Author: Sam Barba
 Created 27/01/2024
 """
 
+import glob
 import os
 
-import cv2 as cv
+from cv2 import imread
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
@@ -29,8 +30,6 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
-DATA_PATH = 'C:/Users/Sam/Desktop/projects/datasets/alzheimers'
-DATA_SUBFOLDERS = ['0_healthy', '1_very_mild', '2_mild', '3_moderate']  # Also class names
 IMG_H = 208
 IMG_W = 176
 SCALE_FACTOR = 0.5
@@ -39,6 +38,7 @@ INPUT_W = round(IMG_W * SCALE_FACTOR)
 BATCH_SIZE = 128
 LEARNING_RATE = 2e-4
 NUM_EPOCHS = 100
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders(df):
@@ -51,7 +51,7 @@ def create_data_loaders(df):
 	])
 
 	x = [
-		transform(Image.open(fp)) for fp in
+		transform(Image.open(img_path)) for img_path in
 		tqdm(df['img_path'], desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
@@ -76,10 +76,9 @@ if __name__ == '__main__':
 	# 1. Convert data to dataframe
 
 	data = []
-	for subfolder in DATA_SUBFOLDERS:
-		directory = f'{DATA_PATH}/{subfolder}'
-		for img_path in os.listdir(directory):
-			data.append((f'{directory}/{img_path}', subfolder))  # subfolder = class name
+	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/alzheimers/*/*.jpg'):
+		class_name = img_path.split('\\')[1]
+		data.append((img_path, class_name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 	print(f'\nRaw data:\n{df}\n')
@@ -90,7 +89,7 @@ if __name__ == '__main__':
 	_, axes = plt.subplots(nrows=2, ncols=4, figsize=(8, 6))
 	plt.subplots_adjust(top=0.85, bottom=0.05, hspace=0, wspace=0.05)
 	for idx, ax in zip(example_indices, axes.flatten()):
-		sample = cv.imread(df['img_path'][idx])
+		sample = imread(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
 		ax.set_title(df['class'][idx][2:].replace('_', ' '))
@@ -99,19 +98,12 @@ if __name__ == '__main__':
 
 	# 3. Plot output feature (class) distributions
 
-	unique_values_counts = df['class'].value_counts()
-	plt.bar(unique_values_counts.index, unique_values_counts.values)
+	unique_value_counts = df['class'].value_counts()
+	plt.bar(unique_value_counts.index, unique_value_counts.values)
 	plt.xlabel('Class')
 	plt.ylabel('Count')
 	plt.title('Class distribution')
 	plt.show()
-
-	# Fix some of the class imbalance by adding duplicates
-
-	class_2_rows = df[df['class'] == '2_mild']
-	class_3_rows = df[df['class'] == '3_moderate']
-	df = pd.concat([df] + [class_2_rows], ignore_index=True)
-	df = pd.concat([df] + [class_3_rows] * 27, ignore_index=True)
 
 	# 4. Define data loaders and model
 
@@ -120,7 +112,7 @@ if __name__ == '__main__':
 	model = CNN()
 	print(f'\nModel:\n{model}')
 	plot_model(model, (1, INPUT_H, INPUT_W), './images/model_architecture')
-	model.to('cpu')
+	model.to(DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -142,6 +134,9 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
+				x_train = x_train.to(DEVICE)
+				y_train = y_train.to(DEVICE)
+
 				y_train_logits = model(x_train)
 				loss = loss_func(y_train_logits, y_train)
 
@@ -153,8 +148,9 @@ if __name__ == '__main__':
 
 			model.eval()
 			x_val, y_val = next(iter(val_loader))
+			x_val = x_val.to(DEVICE)
 			with torch.inference_mode():
-				y_val_logits = model(x_val)
+				y_val_logits = model(x_val).cpu()
 			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
@@ -173,8 +169,9 @@ if __name__ == '__main__':
 
 	model.eval()
 	x_test, y_test = next(iter(test_loader))
+	x_test = x_test.to(DEVICE)
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test).cpu()
 
 	test_loss = loss_func(y_test_logits, y_test)
 	print('Test loss:', test_loss.item())
@@ -184,7 +181,7 @@ if __name__ == '__main__':
 	plot_confusion_matrix(
 		y_test.argmax(dim=1),
 		y_test_logits.argmax(dim=1),
-		DATA_SUBFOLDERS,
+		['healthy', 'very mild', 'mild', 'moderate'],
 		f'Test confusion matrix\n(F1 score: {f1:.3f})',
 		x_ticks_rotation=45,
 		horiz_alignment='right'

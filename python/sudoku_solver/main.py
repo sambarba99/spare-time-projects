@@ -114,8 +114,10 @@ def wait_for_click():
 	while True:
 		for event in pg.event.get():
 			match event.type:
-				case pg.MOUSEBUTTONDOWN: return
-				case pg.QUIT: sys.exit()
+				case pg.MOUSEBUTTONDOWN:
+					return
+				case pg.QUIT:
+					sys.exit()
 
 
 def plot_backtracks(difficulty_lvl):

@@ -132,7 +132,8 @@ def draw_grid():
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
 			token = board[y][x]
-			if not token: continue
+			if not token:
+				continue
 
 			colour = (220, 20, 20) if token == AI else (20, 120, 220)
 			cell_lbl = token_font.render(token, True, colour)
@@ -160,7 +161,8 @@ if __name__ == '__main__':
 	while True:
 		for event in pg.event.get():
 			match event.type:
-				case pg.QUIT: sys.exit()
+				case pg.QUIT:
+					sys.exit()
 				case pg.MOUSEBUTTONDOWN:
 					if find_winner():  # Click to reset if game over
 						board = [[None] * BOARD_SIZE for _ in range(BOARD_SIZE)]

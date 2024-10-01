@@ -33,8 +33,7 @@ torch.manual_seed(1)
 NUM_EPOCHS = 500
 
 # Mouse pointer x and y (for MNIST latent space visualisation)
-mx = my = 0
-last_mx = last_my = 0
+mx = my = last_mx = last_my = 0
 
 
 def do_mnist():
@@ -55,9 +54,10 @@ def do_mnist():
 	model = MNISTAutoencoder()
 	plot_model(model, (1, 28, 28), './plots/mnist_autoencoder_architecture')
 	model.to('cpu')
+	model_path = './models/mnist_model.pth'
 
-	if os.path.exists('./models/mnist_model.pth'):
-		model.load_state_dict(torch.load('./models/mnist_model.pth'))
+	if os.path.exists(model_path):
+		model.load_state_dict(torch.load(model_path))
 	else:
 		print('\n----- TRAINING -----\n')
 
@@ -98,7 +98,7 @@ def do_mnist():
 				break
 
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
-		torch.save(model.state_dict(), './models/mnist_model.pth')
+		torch.save(model.state_dict(), model_path)
 
 		plt.figure(figsize=(8, 5))
 		plt.plot(range(1, len(val_loss_history) + 1), val_loss_history)

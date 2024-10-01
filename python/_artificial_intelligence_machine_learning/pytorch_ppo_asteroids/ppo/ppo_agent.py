@@ -202,7 +202,8 @@ class PPOAgent:
 					mean_checkpoint_scores.append(mean_score)
 					self.buffer.clear()
 
-				if terminal: break
+				if terminal:
+					break
 
 			episode_num += 1
 			timesteps_done += t
@@ -266,7 +267,8 @@ class PPOAgent:
 			for _ in range(MAX_EP_LENGTH):
 				action = self.choose_action(state, True)  # Be greedy when testing
 				_, state, terminal = env.step(action)
-				if terminal: break
+				if terminal:
+					break
 
 			total_score += env.spaceship.score
 

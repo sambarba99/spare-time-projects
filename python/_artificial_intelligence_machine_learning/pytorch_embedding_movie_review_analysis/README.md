@@ -10,7 +10,7 @@ Test set performance:
 
 <p align="center">
 	<img src="images/test_confusion_matrix.png"/>
-	<br>
+	<br/>
 	<img src="images/test_roc_curve.png"/>
 </p>
 

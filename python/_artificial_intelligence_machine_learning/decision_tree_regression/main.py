@@ -35,7 +35,8 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 
 		if test_rmse < best_test_rmse:
 			best_tree, best_test_rmse = tree, test_rmse
-			if test_rmse == 0: break
+			if test_rmse == 0:
+				break
 		else:
 			break  # No improvement, so stop
 

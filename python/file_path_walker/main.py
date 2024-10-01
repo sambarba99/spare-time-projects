@@ -77,7 +77,7 @@ def file_walk():
 	discovered_files_output_txt.config(state='disabled')
 
 	path_size_output_lbl.config(
-		text=f'{num_files:,} files in path ({path_size:.2f} {suffix})'
+		text=f'Found {num_files:,} files ({path_size:.2f} {suffix})'
 		f'\nWalked in {interval} ms'
 	)
 
@@ -99,8 +99,8 @@ if __name__ == '__main__':
 	path_size_output_lbl = tk.Label(root, font='consolas', background='white')
 
 	lbl_selected_path.place(width=550, height=25, relx=0.5, y=30, anchor='center')
-	button_select_path.place(width=130, height=40, relx=0.38, y=75, anchor='center')
-	button_walk.place(width=130, height=40, relx=0.62, y=75, anchor='center')
+	button_select_path.place(width=130, height=35, x=232, y=75, anchor='center')
+	button_walk.place(width=130, height=35, x=368, y=75, anchor='center')
 	discovered_files_lbl.place(width=200, height=25, relx=0.5, y=120, anchor='center')
 	discovered_files_output_txt.place(width=550, height=383, relx=0.5, y=330, anchor='center')
 	path_size_output_lbl.place(width=550, height=95, relx=0.5, y=582, anchor='center')

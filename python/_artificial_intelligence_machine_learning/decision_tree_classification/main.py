@@ -37,7 +37,8 @@ def make_best_tree(x_train, y_train, x_test, y_test, use_gini=True):
 
 		if test_f1 > best_test_f1:
 			best_tree, best_test_f1 = tree, test_f1
-			if test_f1 == 1: break
+			if test_f1 == 1:
+				break
 		else:
 			break  # No improvement, so stop
 
@@ -136,7 +137,14 @@ if __name__ == '__main__':
 		test_pred = [tree.predict(xi) for xi in x_test]
 		test_pred_classes = [p['class'] for p in test_pred]
 		f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
-		plot_confusion_matrix(y_test, test_pred_classes, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+		plot_confusion_matrix(
+			y_test,
+			test_pred_classes,
+			labels,
+			f'Test confusion matrix\n(F1 score: {f1:.3f})',
+			x_ticks_rotation=45,
+			horiz_alignment='right'
+		)
 
 		# ROC curve
 		if len(labels) == 2:  # Binary classification
