@@ -203,7 +203,8 @@ class PPOAgent:
 					self.policy.load_state_dict(self.trainable_policy.state_dict())
 					self.buffer.clear()
 
-				if terminal: break
+				if terminal:
+					break
 
 			# Checkpoint and save model in case a PPO update just happened
 			episode_num += 1

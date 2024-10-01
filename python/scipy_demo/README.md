@@ -2,10 +2,10 @@
 
 ### Optimisation:
 
-E.g. Minimise $f(x,y) = (x-1)^2 + (y-2.5)^2$ subject to:<br>
-$x-2y+2 >= 0$<br>
-$-x-2y+6 >= 0$<br>
-$-x-2y+2 >= 0$<br>
+E.g. Minimise $f(x,y) = (x-1)^2 + (y-2.5)^2$ subject to:<br/>
+$x-2y+2 >= 0$<br/>
+$-x-2y+6 >= 0$<br/>
+$-x-2y+2 >= 0$<br/>
 $x,y >= 0$
 
 Solution ( $(x,y)=(1.4,1.7)$ ):
@@ -36,7 +36,7 @@ Solution ( $(x,y)=(1.4,1.7)$ ):
 
 <p align="center">
 	<img src="images/curve_fitting_samples.png"/>
-	<br>
+	<br/>
 	<img src="images/curve_fitting_result.png"/>
 </p>
 
