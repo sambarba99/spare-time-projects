@@ -1,5 +1,5 @@
 """
-Visualising the curve fitting of a PyTorch regression neural net
+Visualising the curve fitting of a PyTorch regression model
 
 Author: Sam Barba
 Created 14/02/2024

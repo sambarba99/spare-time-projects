@@ -70,7 +70,7 @@ if __name__ == '__main__':
 	x_train, y_train, x_test, y_test, feature, y_name = load_data()
 
 	bias, weight = ordinary_least_squares(x_train, y_train)
-	print(f'\nOLS solution: weight = {weight[0][0]:.3f}, bias = {bias[0]:.3f}')
+	print(f'\nOLS solution: weight = {weight[0, 0]:.3f}, bias = {bias[0]:.3f}')
 
 	regressor = LinearRegressor(feature, y_name)
 	regressor.fit(x_train, y_train)

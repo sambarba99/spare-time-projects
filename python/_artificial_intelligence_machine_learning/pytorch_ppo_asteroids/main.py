@@ -39,7 +39,7 @@ def train():
 
 	plt.plot(total_return_per_epoch, alpha=0.4, linewidth=1, color='red')
 	plt.plot(smoothed, linewidth=2, color='red')
-	plt.xlabel('Epoch no.')
+	plt.xlabel('Epoch')
 	plt.ylabel('Total return')
 	plt.title('Total return per training epoch')
 	plt.savefig('./training_return.png')

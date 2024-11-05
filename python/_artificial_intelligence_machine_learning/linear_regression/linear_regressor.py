@@ -30,7 +30,7 @@ class LinearRegressor:
 			padding = 2
 			line_x = np.array([x.min() - padding, x.max() + padding]) \
 				if not first_time else None
-			line_y = weights[0][0] * line_x + bias \
+			line_y = weights[0, 0] * line_x + bias \
 				if not first_time else None
 
 			plt.cla()
@@ -43,7 +43,7 @@ class LinearRegressor:
 			plt.ylabel(fr'$y$ ({self.y_name})')
 			plt.title(
 				'Start' if first_time else
-				f'Gradient descent solution: $m$ = {weights[0][0]:.3f}  |  $c$ = {bias:.3f}\n(converged: {converged})'
+				f'Gradient descent solution: $m$ = {weights[0, 0]:.3f}  |  $c$ = {bias:.3f}\n(converged: {converged})'
 			)
 
 			if converged:

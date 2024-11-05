@@ -127,7 +127,7 @@ class DDPM(nn.Module):
 		even_indices = torch.arange(0, encoding_dim, 2)
 		log_term = torch.log(torch.tensor(10000)) / encoding_dim
 		div_term = torch.exp(even_indices * -log_term)
-		timesteps = torch.arange(num_timesteps).unsqueeze(1)
+		timesteps = torch.arange(num_timesteps).unsqueeze(dim=1)
 		self.pe_matrix = torch.zeros(num_timesteps, encoding_dim, device=device)
 		self.pe_matrix[:, 0::2] = torch.sin(timesteps * div_term)
 		self.pe_matrix[:, 1::2] = torch.cos(timesteps * div_term)

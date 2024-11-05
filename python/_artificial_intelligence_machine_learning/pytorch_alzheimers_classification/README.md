@@ -1,4 +1,4 @@
-## PyTorch Brain Scan Classification for Alzheimer's Disease Detection
+## PyTorch Brain Scan classification for Alzheimer's Disease Detection
 
 <p align="center">
 	<img src="images/data_samples.png"/>

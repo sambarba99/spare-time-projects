@@ -30,15 +30,16 @@ torch.manual_seed(1)
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
 BATCH_SIZE = 256
 NUM_EPOCHS = 50
-DRAWING_SIZE = 500
+DRAWING_CELL_SIZE = 15
+DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 
 
 def load_data():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-	# Normalise images to [0,1] and correct shape
-	x = np.concatenate([x_train, x_test], axis=0).astype(float) / 255
-	x = np.reshape(x, (len(x), *INPUT_SHAPE))
+	# Normalise images to [0,1] and add channel dim
+	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
+	x = np.expand_dims(x, 1)
 
 	# One-hot encode y
 	y = np.concatenate([y_train, y_test])
@@ -132,18 +133,46 @@ if __name__ == '__main__':
 		y_test_logits = model(x_test)
 	test_pred = y_test_logits.argmax(dim=1)
 	test_loss = loss_func(y_test_logits, y_test)
-	print('Test loss:', test_loss.item())
+	print(f'Test loss: {test_loss.item()}\n')
 
 	# Confusion matrix
 	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
 	plot_confusion_matrix(y_test.argmax(dim=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# User draws a digit to predict
+	# 6. Plot the learned conv layer filters
+
+	conv_layer_indices = [
+		int(idx) for idx, layer in
+		model.conv_block.named_children()
+		if isinstance(layer, torch.nn.Conv2d)
+	]
+
+	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
+		layer = model.conv_block[conv_idx]
+		filters, biases = layer.weight, layer.bias
+		num_filters = filters.shape[0]
+		rows = num_filters // 4  # Works because num_filters is 8 for 1st conv layer, 16 for 2nd one
+		cols = num_filters // rows
+
+		print(f'Conv layer {idx}/{len(conv_layer_indices)} | Filters shape: {tuple(filters.shape)} | Biases shape: {tuple(biases.shape)}')
+
+		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
+		for ax_idx, ax in enumerate(axes.flatten()):
+			channel_mean = filters[ax_idx].mean(dim=0)  # Mean of this filter across the channel dimension (0)
+			ax.imshow(channel_mean.detach(), cmap='gray')
+			ax.axis('off')
+		plt.suptitle(f'Filters of conv layer {idx}/{len(conv_layer_indices)}', x=0.512, y=0.94)
+		plt.gcf().set_facecolor('#80b0f0')
+		plt.show()
+
+	# 7. User draws a digit to predict
 
 	pg.init()
 	pg.display.set_caption('Draw a digit!')
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
-	user_drawing_coords = []
+	font = pg.font.SysFont('consolas', 16)
+	user_drawing_coords = np.zeros((0, 2))
+	model_input = torch.zeros(INPUT_SHAPE)
 	drawing = True
 	left_btn_down = False
 
@@ -157,29 +186,75 @@ if __name__ == '__main__':
 					if event.button == 1:
 						left_btn_down = True
 						x, y = event.pos
-						user_drawing_coords.append([x, y])
-						scene.set_at((x, y), (255, 255, 255))
-						pg.display.update()
+						user_drawing_coords = np.append(user_drawing_coords, [[x, y]], axis=0)
 				case pg.MOUSEMOTION:
 					if left_btn_down:
 						x, y = event.pos
-						user_drawing_coords.append([x, y])
-						scene.set_at((x, y), (255, 255, 255))
-						pg.display.update()
+						user_drawing_coords = np.append(user_drawing_coords, [[x, y]], axis=0)
 				case pg.MOUSEBUTTONUP:
 					if event.button == 1:
 						left_btn_down = False
 
-	user_drawing_coords = np.array(user_drawing_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
-	user_drawing_coords = np.unique(user_drawing_coords, axis=0)  # Keep unique pairs only
-	drawn_digit_grid = torch.zeros(INPUT_SHAPE[1:])
-	drawn_digit_grid[user_drawing_coords[:, 1], user_drawing_coords[:, 0]] = 1
-	drawn_digit_input = drawn_digit_grid.reshape((1, *INPUT_SHAPE))
-	with torch.inference_mode():
-		pred_logits = model(drawn_digit_input)
-	pred_probs = torch.softmax(pred_logits, dim=-1)
+		if not left_btn_down:
+			continue
 
-	plt.imshow(drawn_digit_grid, cmap='gray')
-	plt.title(f'Drawn digit is {pred_probs.argmax()} ({(100 * pred_probs.max()):.1f}% sure)')
-	plt.axis('off')
-	plt.show()
+		# Map coords to range [0,27]
+		pixelated_coords = user_drawing_coords * 27 / DRAWING_SIZE
+		pixelated_coords = np.unique(np.round(pixelated_coords), axis=0).astype(int)  # Keep only unique coords
+		pixelated_coords = np.clip(pixelated_coords, 0, 27)
+
+		# Set these pixels as bright
+		model_input[:, pixelated_coords[:, 1], pixelated_coords[:, 0]] = 1
+
+		# Add some edge blurring
+		for x, y in pixelated_coords:
+			for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+				if 0 <= x + dx <= 27 and 0 <= y + dy <= 27 and model_input[:, y + dy, x + dx] == 0:
+					model_input[:, y + dy, x + dx] = np.random.uniform(0.33, 1)
+
+		with torch.inference_mode():
+			pred_logits = model(model_input.unsqueeze(dim=0))
+		pred_probs = torch.softmax(pred_logits, dim=-1)
+
+		for y in range(28):
+			for x in range(28):
+				colour = round(255 * model_input[0, y, x].item())
+				pg.draw.rect(
+					scene,
+					(colour, colour, colour),
+					pg.Rect(x * DRAWING_CELL_SIZE, y * DRAWING_CELL_SIZE, DRAWING_CELL_SIZE, DRAWING_CELL_SIZE)
+				)
+
+		pred_lbl = font.render(f'{pred_probs.argmax()} ({(100 * pred_probs.max()):.1f}% sure)', True, 'green')
+		scene.blit(pred_lbl, (10, 10))
+
+		pg.display.update()
+
+	# 8. Plot feature maps for user-drawn digit
+
+	def get_feature_map(layer):
+		def hook_func(module, input, output):
+			feature_maps.append(output)
+
+		feature_maps = []  # To store the feature map
+		hook = layer.register_forward_hook(hook_func)
+		_ = model(model_input.unsqueeze(dim=0))  # Pass the input through the model
+		hook.remove()  # Remove hook after use
+
+		return feature_maps[0]  # Return the feature map of the layer
+
+	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
+		feature_map = get_feature_map(model.conv_block[conv_idx])
+		print(f'Feature map {idx}/{len(conv_layer_indices)} shape: {tuple(feature_map.shape)}')
+
+		map_depth = feature_map.shape[1]  # No. channels
+		rows = map_depth // 4
+		cols = map_depth // rows
+
+		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
+		for ax_idx, ax in enumerate(axes.flatten()):
+			ax.imshow(feature_map[0, ax_idx].detach(), cmap='gray')  # Plot feature_map of depth 'ax_idx'
+			ax.axis('off')
+		plt.suptitle(f'Feature map of conv layer {idx}/{len(conv_layer_indices)}\n(user-drawn digit)', x=0.512, y=0.97)
+		plt.gcf().set_facecolor('#80b0f0')
+		plt.show()

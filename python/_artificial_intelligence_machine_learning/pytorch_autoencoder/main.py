@@ -1,5 +1,5 @@
 """
-PyTorch autoencoder demo for the MNIST dataset or for tabular data e.g. iris dataset
+PyTorch Autoencoder demo (on MNIST dataset or tabular data)
 
 Author: Sam Barba
 Created 17/06/2023
@@ -41,13 +41,12 @@ def do_mnist():
 
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-	x = np.concatenate([x_train, x_test], axis=0).astype(float)
-	y = np.concatenate([y_train, y_test])
-
-	# Normalise images to [0,1] and correct shape
-	x = np.reshape(x, (len(x), 1, 28, 28)) / 255  # Colour channels, height, width
-
+	# Normalise images to [0,1] and add channel dim
+	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
+	x = np.expand_dims(x, 1)
 	x = torch.tensor(x).float()
+
+	y = np.concatenate([y_train, y_test])
 
 	# 2. Load or train model
 

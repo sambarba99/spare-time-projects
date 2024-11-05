@@ -7,7 +7,7 @@ Created 20/10/2021
 
 import os
 
-from keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
+from keras.layers import Conv2D, Dense, Dropout, Flatten, Input, LeakyReLU, MaxPooling2D
 from keras.models import load_model, Model, Sequential
 from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
@@ -27,7 +27,8 @@ tf.random.set_seed(1)
 INPUT_SHAPE = (28, 28, 1)  # H, W, colour channels
 BATCH_SIZE = 256
 NUM_EPOCHS = 50
-DRAWING_SIZE = 500
+DRAWING_CELL_SIZE = 15
+DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 
 
 def load_data():
@@ -52,12 +53,16 @@ def build_model():
 	model = Sequential(
 		layers=[
 			Input(shape=INPUT_SHAPE),
-			Conv2D(32, kernel_size=3, activation='relu'),
-			MaxPooling2D(),  # pool_size = (2, 2)
-			Conv2D(64, kernel_size=3, activation='relu'),
-			MaxPooling2D(),
-			Flatten(),
+			Conv2D(8, kernel_size=3),   # -> (N, 26, 26, 8)
+			LeakyReLU(alpha=1e-2),
+			MaxPooling2D(),  # 2          -> (N, 13, 13, 8)
+			Conv2D(16, kernel_size=3),  # -> (N, 11, 11, 16)
+			LeakyReLU(alpha=1e-2),
+			MaxPooling2D(),             # -> (N, 5, 5, 16)
+			Flatten(),                  # -> (N, 400)
 			Dropout(0.5),
+			Dense(64),
+			LeakyReLU(alpha=1e-2),
 			Dense(10, activation='softmax')
 		],
 		name='digit_recognition_model'
@@ -70,12 +75,14 @@ def build_model():
 
 
 if __name__ == '__main__':
+	# 1. Prepare data
+
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
 
 	if os.path.exists('./model.h5'):
 		model = load_model('./model.h5')
 	else:
-		# Plot some example images
+		# 2. Plot some example images
 
 		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
@@ -86,13 +93,20 @@ if __name__ == '__main__':
 		plt.suptitle('Data samples', y=0.95)
 		plt.show()
 
-		# Build model
+		# 3. Define model
 
 		model = build_model()
 		model.summary()
-		plot_model(model, show_shapes=True, show_dtype=True, expand_nested=True, show_layer_activations=True)
+		plot_model(
+			model,
+			to_file='./images/model_architecture.png',
+			show_shapes=True,
+			show_dtype=True,
+			expand_nested=True,
+			show_layer_activations=True
+		)
 
-		# Train model
+		# 4. Train model
 
 		print('\n----- TRAINING -----\n')
 
@@ -128,24 +142,52 @@ if __name__ == '__main__':
 
 		model.save('./model.h5')
 
-	# Evaluate model
+	# 5. Evaluate model
 
 	print('\n----- EVALUATION -----\n')
 	test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
 	print('Test loss:', test_loss)
-	print('Test accuracy:', test_accuracy)
+	print(f'Test accuracy: {test_accuracy}\n')
 
 	# Confusion matrix
-	test_pred = model.predict(x_test).argmax(axis=1)
+	test_pred = model.predict(x_test, verbose=0).argmax(axis=1)
 	f1 = f1_score(y_test.argmax(axis=1), test_pred, average='weighted')
 	plot_confusion_matrix(y_test.argmax(axis=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# User draws a digit to predict
+	# 6. Plot the learned conv layer filters
+
+	conv_layer_indices = [
+		idx for idx, layer_name in
+		enumerate([layer.name for layer in model.layers])
+		if 'conv' in layer_name
+	]
+
+	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
+		layer = model.layers[conv_idx]
+		filters, biases = layer.get_weights()
+		num_filters = filters.shape[-1]
+		rows = num_filters // 4  # Works because num_filters is 8 for 1st conv layer, 16 for 2nd one
+		cols = num_filters // rows
+
+		print(f'Layer name: {layer.name} | Filters shape: {filters.shape} | Biases shape: {biases.shape}')
+
+		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
+		for ax_idx, ax in enumerate(axes.flatten()):
+			channel_mean = filters[..., ax_idx].mean(axis=2)  # Mean of this filter across the channel dimension (2)
+			ax.imshow(channel_mean, cmap='gray')
+			ax.axis('off')
+		plt.suptitle(f'Filters of conv layer {idx}/{len(conv_layer_indices)}', x=0.512, y=0.94)
+		plt.gcf().set_facecolor('#80b0f0')
+		plt.show()
+
+	# 7. User draws a digit to predict
 
 	pg.init()
 	pg.display.set_caption('Draw a digit!')
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
-	user_drawing_coords = []
+	font = pg.font.SysFont('consolas', 16)
+	user_drawing_coords = np.zeros((0, 2))
+	model_input = np.zeros(INPUT_SHAPE)
 	drawing = True
 	left_btn_down = False
 
@@ -159,101 +201,65 @@ if __name__ == '__main__':
 					if event.button == 1:
 						left_btn_down = True
 						x, y = event.pos
-						user_drawing_coords.append([x, y])
-						scene.set_at((x, y), (255, 255, 255))
-						pg.display.update()
+						user_drawing_coords = np.append(user_drawing_coords, [[x, y]], axis=0)
 				case pg.MOUSEMOTION:
 					if left_btn_down:
 						x, y = event.pos
-						user_drawing_coords.append([x, y])
-						scene.set_at((x, y), (255, 255, 255))
-						pg.display.update()
+						user_drawing_coords = np.append(user_drawing_coords, [[x, y]], axis=0)
 				case pg.MOUSEBUTTONUP:
 					if event.button == 1:
 						left_btn_down = False
 
-	user_drawing_coords = np.array(user_drawing_coords) // (DRAWING_SIZE // 27)  # Make coords range from 0-27
-	user_drawing_coords = np.unique(user_drawing_coords, axis=0)  # Keep unique pairs only
-	drawn_digit_grid = np.zeros(INPUT_SHAPE[:2])
-	drawn_digit_grid[user_drawing_coords[:, 1], user_drawing_coords[:, 0]] = 1
-	drawn_digit_input = drawn_digit_grid.reshape((1, *INPUT_SHAPE))
-	pred_vector = model.predict(drawn_digit_input)
+		if not left_btn_down:
+			continue
 
-	plt.imshow(drawn_digit_grid, cmap='gray')
-	plt.title(f'Drawn digit is {pred_vector.argmax()} ({(100 * pred_vector.max()):.1f}% sure)')
-	plt.axis('off')
-	plt.show()
+		# Map coords to range [0,27]
+		pixelated_coords = user_drawing_coords * 27 / DRAWING_SIZE
+		pixelated_coords = np.unique(np.round(pixelated_coords), axis=0).astype(int)  # Keep only unique coords
+		pixelated_coords = np.clip(pixelated_coords, 0, 27)
 
-	# Plot filters and conv layer feature maps for user-drawn digit
+		# Set these pixels as bright
+		model_input[pixelated_coords[:, 1], pixelated_coords[:, 0], :] = 1
 
-	conv_layer_indices = [
-		idx for idx, layer_name in
-		enumerate([layer.name for layer in model.layers]) if 'conv' in layer_name
-	]
+		# Add some edge blurring
+		for x, y in pixelated_coords:
+			for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+				if 0 <= x + dx <= 27 and 0 <= y + dy <= 27 and model_input[y + dy, x + dx, :] == 0:
+					model_input[y + dy, x + dx, :] = np.random.uniform(0.33, 1)
 
-	for idx in conv_layer_indices:
-		layer = model.layers[idx]
-		filters, biases = layer.get_weights()
-		num_filters = filters.shape[-1]
-		rows = num_filters // 8  # Works because num_filters is 32 for 1st conv layer, 64 for 2nd one
-		cols = num_filters // rows
+		pred_vector = model.predict(np.expand_dims(model_input, 0), verbose=0)
 
-		print(f'\nLayer name: {layer.name} | Filters shape: {filters.shape} | Biases shape: {biases.shape}', end='')
+		for y in range(28):
+			for x in range(28):
+				colour = round(255 * model_input[y, x, 0])
+				pg.draw.rect(
+					scene,
+					(colour, colour, colour),
+					pg.Rect(x * DRAWING_CELL_SIZE, y * DRAWING_CELL_SIZE, DRAWING_CELL_SIZE, DRAWING_CELL_SIZE)
+				)
 
-		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
-		for ax_idx, ax in enumerate(axes.flatten()):
-			filt = filters[..., ax_idx]
-			ax.imshow(filt[..., 0], cmap='gray')  # Plot only 0th (red) channel
-			ax.axis('off')
-		plt.suptitle(f"Filters for '{layer.name}' layer", x=0.512, y=0.94)
-		plt.show()
+		pred_lbl = font.render(f'{pred_vector.argmax()} ({(100 * pred_vector.max()):.1f}% sure)', True, 'green')
+		scene.blit(pred_lbl, (10, 10))
+
+		pg.display.update()
+
+	# 8. Plot feature maps for user-drawn digit
 
 	outputs = [model.layers[i].output for i in conv_layer_indices]  # Conv outputs for user digit
 	short_model = Model(inputs=model.inputs, outputs=outputs)
-	feature_output = short_model.predict(drawn_digit_input)
+	feature_maps = short_model.predict(np.expand_dims(model_input, 0), verbose=0)
 
-	"""
-	feature_output = output of each convolutional layer (2 feature maps)
-	Shape of 1st: (1, 26, 26, 32) (1: just 1 image; 26x26: WxH; 32: depth)
-	Shape of 2nd: (1, 11, 11, 64)
+	for idx, feature_map in enumerate(feature_maps, start=1):
+		print(f'Feature map {idx}/{len(feature_maps)} shape: {feature_map.shape}')
 
-	Calculating their shape:
-
-	1. Conv layers accept a volume of size W1 x H1 x D1.
-		They require 4 hyperparameters:
-			- No. filters K (32 and 64 here)
-			- Filter/kernel size F (both 3 here)
-			- Stride S (default 1)
-			- Amount of zero padding P (default 0)
-		A volume W2 x H2 x D2 is produced, where:
-			W2 = (W1 - F + 2P) / S + 1
-			H2 = (H1 - F + 2P) / S + 1
-			D2 = K
-
-	2. Pooling layers accept a volume of size W1 x H1 x D1.
-		They require 2 hyperparameters:
-			- Filter/kernel size F (both 2 here)
-			- Stride S (defaults to F if not specified, so 2)
-		A volume W2 x H2 x D2 is produced, where:
-			W2 = (W1 - F) / S + 1
-			H2 = (H1 - F) / S + 1
-			D2 = D1
-
-	So shape of 1st conv layer output: W2 = H2 = (28 - 3 + 2(0)) / 1 + 1 = 26
-	1st pooling layer output: W2 = H2 = (26 - 2) / 2 + 1 = 13
-	2nd conv layer output: W2 = H2 = (13 - 3 + 2(0)) / 1 + 1 = 11
-	"""
-
-	for idx, feature_map in enumerate(feature_output, start=1):
-		print(f'\nFeature map {idx}/{len(feature_output)} shape: {feature_map.shape}', end='')
-
-		map_depth = feature_map.shape[-1]
-		rows = map_depth // 8
+		map_depth = feature_map.shape[-1]  # No. channels
+		rows = map_depth // 4
 		cols = map_depth // rows
 
 		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
 		for ax_idx, ax in enumerate(axes.flatten()):
 			ax.imshow(feature_map[0, ..., ax_idx], cmap='gray')  # Plot feature_map of depth 'ax_idx'
 			ax.axis('off')
-		plt.suptitle(f'Feature map of convolutional layer {idx}/{len(feature_output)}\n(user-drawn digit)', x=0.512, y=0.97)
+		plt.suptitle(f'Feature map of conv layer {idx}/{len(feature_maps)}\n(user-drawn digit)', x=0.512, y=0.97)
+		plt.gcf().set_facecolor('#80b0f0')
 		plt.show()

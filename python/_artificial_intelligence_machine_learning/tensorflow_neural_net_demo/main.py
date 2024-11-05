@@ -148,7 +148,14 @@ if __name__ == '__main__':
 
 	model.build(input_shape=(num_features,))
 	model.summary()
-	# plot_model(model, show_shapes=True, expand_nested=True, show_layer_activations=True)
+	plot_model(
+		model,
+		to_file='./model_architecture.png',
+		show_shapes=True,
+		show_dtype=True,
+		expand_nested=True,
+		show_layer_activations=True
+	)
 
 	# 2. Train model
 
@@ -162,7 +169,7 @@ if __name__ == '__main__':
 		epochs=NUM_EPOCHS,
 		validation_data=(x_val, y_val),
 		callbacks=[early_stopping],
-		verbose=0
+		verbose=1
 	)
 
 	# Plot loss and accuracy/MAE throughout training
@@ -189,7 +196,7 @@ if __name__ == '__main__':
 
 	# 3. Evaluation
 
-	print('----- EVALUATION -----\n')
+	print('\n----- EVALUATION -----\n')
 
 	if task_choice in 'BM':
 		test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
@@ -205,7 +212,7 @@ if __name__ == '__main__':
 	if task_choice in 'BM':
 		print('\n----- TESTING -----')
 
-		test_pred_probs = model.predict(x_test).squeeze()
+		test_pred_probs = model.predict(x_test, verbose=0).squeeze()
 
 		if task_choice == 'B':  # Binary
 			test_pred_labels = test_pred_probs.round()

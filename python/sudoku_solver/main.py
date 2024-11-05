@@ -63,7 +63,7 @@ def solve():
 	y, x = find_free_square()
 	for n in range(1, 10):
 		if legal(n, y, x):
-			board[y][x] = n
+			board[y, x] = n
 			draw_grid(f'Solving ({num_backtracks} backtracks)')
 			solve()
 
@@ -72,9 +72,9 @@ def solve():
 	# If we're here, no numbers were legal
 	# So the previous attempt in the loop must be invalid
 	# So we reset the square in order to backtrack, so next number is tried
-	board[y][x] = 0
+	board[y, x] = 0
 	num_backtracks += 1
-	backtrack_grid[y][x] += 1
+	backtrack_grid[y, x] += 1
 	draw_grid(f'Solving ({num_backtracks} backtracks)')
 
 
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
 			for idx, n in enumerate(config):
 				y, x = divmod(idx, BOARD_SIZE)
-				board[y][x] = int(n)
+				board[y, x] = int(n)
 				if n != '0': given_coords.append((y, x))
 
 			draw_grid(f'Level: {difficulty_lvl} (click to solve)')

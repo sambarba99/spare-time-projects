@@ -34,7 +34,7 @@ class DataGenerator:
 			xi = np.linspace(start, end, points_per_portion)
 			x = np.append(x, xi)
 
-		x = x.reshape((n, 1))
+		x = x.reshape(n, 1)
 		y = np.sin(x) + np.sin(2 * x)
 
 		if self.noise > 0:
@@ -44,7 +44,7 @@ class DataGenerator:
 
 	def __make_test_data(self, n):
 		# Full sin wave
-		x = np.linspace(self.x_min, self.x_max, n).reshape((n, 1))
+		x = np.linspace(self.x_min, self.x_max, n).reshape(n, 1)
 		y = np.sin(x) + np.sin(2 * x)
 		return x, y
 
@@ -54,7 +54,7 @@ class RBFGenerator:
 
 	def __init__(self, centres, radius, bias=True):
 		self.m = len(centres)
-		self.centres = centres.reshape((self.m, 1))
+		self.centres = centres.reshape(self.m, 1)
 		self.r = radius
 		self.bias = bias
 

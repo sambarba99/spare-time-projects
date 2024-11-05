@@ -12,19 +12,19 @@ class Teacher(nn.Module):
 	def __init__(self):
 		super().__init__()
 		self.conv_block = nn.Sequential(
-			nn.Conv2d(3, 16, kernel_size=3, padding=1),
+			nn.Conv2d(3, 16, kernel_size=3, padding=1),    # -> (N, 16, 32, 32)
 			nn.LeakyReLU(),
-			nn.Conv2d(16, 32, kernel_size=3, padding=1),
+			nn.Conv2d(16, 32, kernel_size=3, padding=1),   # -> (N, 32, 32, 32)
 			nn.LeakyReLU(),
-			nn.MaxPool2d(2),
-			nn.Conv2d(32, 64, kernel_size=3, padding=1),
+			nn.MaxPool2d(2),                               # -> (N, 32, 16, 16)
+			nn.Conv2d(32, 64, kernel_size=3, padding=1),   # -> (N, 64, 16, 16)
 			nn.LeakyReLU(),
-			nn.Conv2d(64, 128, kernel_size=3, padding=1),
+			nn.Conv2d(64, 128, kernel_size=3, padding=1),  # -> (N, 128, 16, 16)
 			nn.LeakyReLU(),
-			nn.MaxPool2d(2)
+			nn.MaxPool2d(2)                                # -> (N, 128, 8, 8)
 		)
 		self.fc_block = nn.Sequential(
-			nn.Flatten(),
+			nn.Flatten(),                                  # -> (N, 8192)
 			nn.Linear(8192, 2048),
 			nn.LeakyReLU(),
 			nn.Dropout(),  # 0.5
@@ -45,14 +45,14 @@ class Student(nn.Module):
 	def __init__(self):
 		super().__init__()
 		self.conv_block = nn.Sequential(
-			nn.Conv2d(3, 16, kernel_size=3, padding=1),
+			nn.Conv2d(3, 16, kernel_size=3, padding=1),   # -> (N, 16, 32, 32)
 			nn.LeakyReLU(),
-			nn.Conv2d(16, 32, kernel_size=3, padding=1),
+			nn.Conv2d(16, 32, kernel_size=3, padding=1),  # -> (N, 32, 32, 32)
 			nn.LeakyReLU(),
-			nn.MaxPool2d(2)
+			nn.MaxPool2d(2)                               # -> (N, 32, 16, 16)
 		)
 		self.fc_block = nn.Sequential(
-			nn.Flatten(),
+			nn.Flatten(),                                 # -> (N, 8192)
 			nn.Linear(8192, 256),
 			nn.LeakyReLU(),
 			nn.Dropout(),

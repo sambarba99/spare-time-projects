@@ -1,6 +1,6 @@
 ## (TensorFlow) Neural Network demo for binary/multiclass classification or regression
 
-Example performance of iris dataset test classification:
+Example performance of iris dataset test set classification:
 
 <p align="center">
 	<img src="iris_test_confusion_matrix.png"/>

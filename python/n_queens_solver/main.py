@@ -33,14 +33,14 @@ def solve(row=0):
 
 	for col in range(N):
 		if valid(row, col):
-			board[row][col] = QUEEN
+			board[row, col] = QUEEN
 			draw_grid('Solving...')
 			if solve(row + 1):
 				return True
 
 		# Reset the square in order to backtrack
-		board[row][col] = BLANK
-		backtrack_grid[row][col] += 1
+		board[row, col] = BLANK
+		backtrack_grid[row, col] += 1
 		draw_grid('Solving...')
 
 	return False
@@ -52,12 +52,12 @@ def valid(row, col):
 
 	# Check upper diagonal on left side
 	for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-		if board[i][j] == QUEEN:
+		if board[i, j] == QUEEN:
 			return False
 
 	# Check upper diagonal on right side
 	for i, j in zip(range(row, -1, -1), range(col, N)):
-		if board[i][j] == QUEEN:
+		if board[i, j] == QUEEN:
 			return False
 
 	return True
@@ -82,7 +82,7 @@ def draw_grid(solve_status):
 					pg.Rect(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET, CELL_SIZE, CELL_SIZE)
 				)
 
-			if board[i][j] == QUEEN:
+			if board[i, j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
 				lbl_rect = cell_lbl.get_rect(center=((j + 0.5) * CELL_SIZE + GRID_OFFSET,
 					(i + 0.5) * CELL_SIZE + GRID_OFFSET))
