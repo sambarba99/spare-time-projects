@@ -10,14 +10,14 @@ import numpy as np
 import pandas as pd
 
 
-# Bayes net structure dictionary format: {node: [parents]}
+# Bayes net structure dictionary format: {node: [children]}
 BAYES_STRUCTURE_DICT = {
-	'A': [],
-	'B': [],
-	'C': ['A', 'B'],
-	'D': ['B'],
-	'E': [],
-	'F': ['C', 'D', 'E']
+	'A': ['C'],
+	'B': ['C', 'D'],
+	'C': ['F'],
+	'D': ['F'],
+	'E': ['F'],
+	'F': []
 }
 
 # Marginal distributions (parent nodes)
@@ -28,23 +28,23 @@ MARG_E = np.array([0.5, 0.5])  # P(E=0), P(E=1)
 # Conditional distributions
 COND_D_GIVEN_B = np.array([
 	[0.7, 0.3],  # P(D=0|B=0), P(D=1|B=0)
-	[0.4, 0.6]  # P(D=0|B=1), P(D=1|B=1)
+	[0.4, 0.6]   # P(D=0|B=1), P(D=1|B=1)
 ])
 COND_C_GIVEN_AB = np.array([
 	[[0.9, 0.1],  # P(C=0|A=0,B=0), P(C=1|A=0,B=0)
 	[0.3, 0.7]],  # P(C=0|A=0,B=1), P(C=1|A=0,B=1)
 	[[0.2, 0.8],  # P(C=0|A=1,B=0), P(C=1|A=1,B=0)
-	[0.1, 0.9]]  # P(C=0|A=1,B=1), P(C=1|A=1,B=1)
+	[0.1, 0.9]]   # P(C=0|A=1,B=1), P(C=1|A=1,B=1)
 ])
 COND_F_GIVEN_CDE = np.array([
 	[[[0.88, 0.12],  # P(F=0|C=0,D=0,E=0), P(F=1|C=0,D=0,E=0)
-	[0.01, 0.99]],  # P(F=0|C=0,D=0,E=1), P(F=1|C=0,D=0,E=1)
-	[[0.64, 0.36],  # P(F=0|C=0,D=1,E=0), P(F=1|C=0,D=1,E=0)
+	[0.01, 0.99]],   # P(F=0|C=0,D=0,E=1), P(F=1|C=0,D=0,E=1)
+	[[0.64, 0.36],   # P(F=0|C=0,D=1,E=0), P(F=1|C=0,D=1,E=0)
 	[0.75, 0.25]]],  # P(F=0|C=0,D=1,E=1), P(F=1|C=0,D=1,E=1)
 	[[[0.33, 0.67],  # P(F=0|C=1,D=0,E=0), P(F=1|C=1,D=0,E=0)
-	[0.07, 0.93]],  # P(F=0|C=1,D=0,E=1), P(F=1|C=1,D=0,E=1)
-	[[0.48, 0.52],  # P(F=0|C=1,D=1,E=0), P(F=1|C=1,D=1,E=0)
-	[0.59, 0.41]]]  # P(F=0|C=1,D=1,E=1), P(F=1|C=1,D=1,E=1)
+	[0.07, 0.93]],   # P(F=0|C=1,D=0,E=1), P(F=1|C=1,D=0,E=1)
+	[[0.48, 0.52],   # P(F=0|C=1,D=1,E=0), P(F=1|C=1,D=1,E=0)
+	[0.59, 0.41]]]   # P(F=0|C=1,D=1,E=1), P(F=1|C=1,D=1,E=1)
 ])
 
 
@@ -64,9 +64,9 @@ def plot_bayes_net():
 
 	# 3. Create edges
 
-	for node, parents in BAYES_STRUCTURE_DICT.items():
-		for p in parents:
-			g.edge(p, node)
+	for node, children in BAYES_STRUCTURE_DICT.items():
+		for child in children:
+			g.edge(node, child)
 
 	g.render('bayes_net', view=True, cleanup=True, format='png')
 

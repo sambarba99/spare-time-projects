@@ -6,8 +6,4 @@ Based on this graphical model of a coffee machine:
 	<img src="coffee_machine_graphical_model.png"/>
 </p>
 
-Where e.g. `cw` &rarr; `pl` means $P(\text{power light switches on | circuitry works})$
-
-<p align="center">
-	<img src="dataset_desc.png"/>
-</p>
+Where e.g. `cw` &rarr; `pl` $= P(\text{pl|cw}) = P(\text{power light switches on | circuitry works})$

@@ -59,11 +59,11 @@ def plot_lines_and_nearest_point(title, ax, lines, nearest_point, trajectory):
 
 	ax.set_xlim(0, 1)
 	ax.set_ylim(0, 1)
-	ax.set_xlabel('X')
-	ax.set_ylabel('Y')
+	ax.set_xlabel('x')
+	ax.set_ylabel('y')
 	if DIM == 3:
 		ax.set_zlim(0, 1)
-		ax.set_zlabel('Z')
+		ax.set_zlabel('z')
 
 	ax.legend()
 	plt.title(title)
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
 		# 1. Solve with SciPy first
 
-		result = minimize(objective_function, initial_point, args=(lines,))
+		result = minimize(objective_function, x0=initial_point, args=(lines,))
 		optimal_solution = result.x
 
 		if np.all((0 <= optimal_solution) & (optimal_solution <= 1)):

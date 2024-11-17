@@ -77,8 +77,8 @@ def plot_progress(candidate):
 	ax_current_candidate.plot(*coords.T, color='red', linewidth=1, zorder=1)
 	ax_current_candidate.scatter(*coords.T, color='black', s=18, zorder=2)
 	ax_current_candidate.axis('scaled')
-	ax_current_candidate.set_xlabel('X')
-	ax_current_candidate.set_ylabel('Y')
+	ax_current_candidate.set_xlabel('x')
+	ax_current_candidate.set_ylabel('y')
 	ax_current_candidate.set_title(f'Current solution (iteration {iter_num} / {max_iters})')
 
 
