@@ -128,7 +128,7 @@ class Graph:
 					node.is_wall = True
 
 		else:  # Graph (nodes/edges)
-			# 1. Ensure random points aren't too close
+			# Ensure random points aren't too close
 
 			min_dist = 15
 			while len(self) < num_nodes:
@@ -141,7 +141,7 @@ class Graph:
 				if distance_valid:
 					self.nodes.append(Node(x, y, len(self)))
 
-			# 2. Make graph into a Minimum Spanning Tree to ensure connectivity
+			# Make graph into a Minimum Spanning Tree to ensure connectivity
 
 			# Priority queue (distance, node_in, node_out)
 			priority_queue = []
@@ -173,7 +173,7 @@ class Graph:
 					dist = self.dist(nearest_out, node_out)
 					heapq.heappush(priority_queue, (dist, nearest_out, node_out))
 
-			# 3. Add some more random edges so that the graph isn't just an MST
+			# Add some more random edges so that the graph isn't just an MST
 
 			node_coords = np.array([[node.x, node.y] for node in self])
 

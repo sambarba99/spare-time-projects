@@ -83,11 +83,11 @@ def load_data():
 
 
 if __name__ == '__main__':
-	# 1. Prepare data
+	# Prepare data
 
 	train_loader, x_val, y_val, x_test, y_test, labels, vocab_size = load_data()
 
-	# 2. Define and train model
+	# Define and train model
 
 	model = MovieReviewClf(vocab_size=vocab_size, embedding_len=EMBEDDING_LEN, hidden_len=HIDDEN_LEN)
 	model.to('cpu')
@@ -134,7 +134,7 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# 3. Test model (plot confusion matrix and ROC curve)
+	# Test model (plot confusion matrix and ROC curve)
 
 	with torch.inference_mode():
 		y_test_logits = model(x_test)

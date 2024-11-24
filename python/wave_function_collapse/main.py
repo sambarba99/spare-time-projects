@@ -47,7 +47,7 @@ def setup():
 	scene = pg.display.set_mode((TILE_PX_SIZE * COLLAGE_WIDTH, TILE_PX_SIZE * COLLAGE_HEIGHT))
 	font = pg.font.SysFont('consolas', 11)
 
-	# 1. Read files in tile_imgs; decode their names to get colour codes and rotations
+	# Read files in tile_imgs; decode their names to get colour codes and rotations
 
 	tiles = []
 	for img_path in glob.glob(f'./tile_imgs/{COLLAGE_TYPE}/*.png'):
@@ -57,7 +57,7 @@ def setup():
 		num_rotations = split[-1].removesuffix('.png')
 		tiles.append(Tile(img, edge_colour_codes, int(num_rotations)))
 
-	# 2. Generate all possible tile orientations
+	# Generate all possible tile orientations
 
 	rotated_tiles = []
 	for tile in tiles:
@@ -66,7 +66,7 @@ def setup():
 			rotated_tiles.extend(new_orientations)
 	tiles.extend(rotated_tiles)
 
-	# 3. Generate adjacency rules using edge colour codes
+	# Generate adjacency rules using edge colour codes
 
 	for tile in tiles:
 		tile.generate_adjacency_rules(tiles)
@@ -94,7 +94,7 @@ def wave_function_collapse(first_cell=False):
 		return random.choice(cells_with_min_entropy)
 
 
-	# 1. Choose a cell whose superposition to collapse to one state
+	# Choose a cell whose superposition to collapse to one state
 
 	next_cell_to_collapse = grid[COLLAGE_HEIGHT // 2][COLLAGE_WIDTH // 2] if first_cell else choose_min_entropy_cell()
 
@@ -113,7 +113,7 @@ def wave_function_collapse(first_cell=False):
 		update_collage()
 		pg.time.delay(1000)
 
-	# 2. Propagate adjacency rules to ensure only legal superpositions remain
+	# Propagate adjacency rules to ensure only legal superpositions remain
 
 	stack = [next_cell_to_collapse]
 

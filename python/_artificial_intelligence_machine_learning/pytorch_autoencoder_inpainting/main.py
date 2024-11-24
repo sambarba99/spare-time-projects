@@ -96,11 +96,11 @@ def plot_images(images, pil_img_transform, title, save_path):
 
 
 if __name__ == '__main__':
-	# 1. Load data
+	# Load data
 
 	train_loader, val_loader, test_loader, test_corrupted_top_left = create_data_loaders()
 
-	# 2. Define model
+	# Define model
 
 	model = VariationalAutoencoder()
 	model.to('cpu')
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
-		# 3. Train model
+		# Train model
 
 		print('\n----- TRAINING -----\n')
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# 4. Plot some test set outputs
+	# Plot some test set outputs
 
 	print('\n----- TESTING -----')
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
 	plt.show()
 
-	# 5. Visualise some of the model's latent space by linearly interpolating between 2 random noise vectors
+	# Visualise some of the model's latent space by linearly interpolating between 2 random noise vectors
 
 	# z1 = torch.randn(24, 512)
 	# z2 = torch.randn_like(z1)

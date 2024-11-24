@@ -154,7 +154,7 @@ if __name__ == '__main__':
 		lines = generate_lines(NUM_LINES)
 		initial_point = np.random.rand(DIM)
 
-		# 1. Solve with SciPy first
+		# Solve with SciPy first
 
 		result = minimize(objective_function, x0=initial_point, args=(lines,))
 		optimal_solution = result.x
@@ -164,6 +164,6 @@ if __name__ == '__main__':
 
 	scipy_solution = ', '.join(f'{i:.3f}' for i in optimal_solution)
 
-	# 2. Animate Stochastic Gradient Descent solution
+	# Animate Stochastic Gradient Descent solution
 
 	solve_with_sgd(initial_point, lines)

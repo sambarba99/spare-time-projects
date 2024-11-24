@@ -22,7 +22,7 @@ from tqdm import tqdm
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix
+from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 from conv_nets import Teacher, Student
 
 
@@ -242,11 +242,11 @@ def test(model, plot_title):
 
 
 if __name__ == '__main__':
-	# 1. Load data
+	# Load data
 
 	train_loader, val_loader, test_loader = create_data_loaders()
 
-	# 2. Define models
+	# Define models
 
 	teacher_model = Teacher()
 	student_model_no_kd = Student()
@@ -263,9 +263,9 @@ if __name__ == '__main__':
 	teacher_params = sum(p.numel() for p in teacher_model.parameters())
 	student_params = sum(p.numel() for p in student_model_no_kd.parameters())
 	print(f'\nTeacher parameters: {teacher_params:,}')
-	print(f'Student parameters: {student_params:,} ({round(student_params / teacher_params, 2)}x)')
+	print(f'Student parameters: {student_params:,} ({round(student_params / teacher_params, 2)}x)\n')
 
-	# 3. Load models, or train if they don't exist
+	# Load models, or train if they don't exist
 
 	teacher_model_path = './teacher_model.pth'
 	student_model_no_kd_path = './student_model_no_kd.pth'
@@ -274,22 +274,33 @@ if __name__ == '__main__':
 	if os.path.exists(teacher_model_path):
 		teacher_model.load_state_dict(torch.load(teacher_model_path))
 	else:
-		print('\n----- TRAINING TEACHER -----\n')
+		print('----- TRAINING TEACHER -----\n')
 		train(teacher_model, teacher_model_path)
 
 	if os.path.exists(student_model_no_kd_path):
 		student_model_no_kd.load_state_dict(torch.load(student_model_no_kd_path))
 	else:
-		print('\n----- TRAINING STUDENT (NO KD) -----\n')
+		print('----- TRAINING STUDENT (NO KD) -----\n')
 		train(student_model_no_kd, student_model_no_kd_path)
 
 	if os.path.exists(student_model_with_kd_path):
 		student_model_with_kd.load_state_dict(torch.load(student_model_with_kd_path))
 	else:
-		print('\n----- TRAINING STUDENT (WITH KD) -----\n')
+		print('----- TRAINING STUDENT (WITH KD) -----\n')
 		train_student_with_kd(teacher_model, student_model_with_kd, student_model_with_kd_path)
 
-	# 4. Test teacher, student without KD, student with KD
+	# Plot the models' learned filters, and corresponding feature maps of a sample image
+
+	x_val, _ = next(iter(val_loader))
+	for model, name in zip(
+		[teacher_model, student_model_no_kd, student_model_with_kd],
+		['teacher model', 'student model (no KD)', 'student model (with KD)']
+	):
+		print(f'{name.capitalize()}:')
+		plot_cnn_learned_filters(model, num_cols=16, title_append=f' ({name})')
+		plot_cnn_feature_maps(model, num_cols=16, input_img=x_val[0], title_append=f' ({name})')
+
+	# Test teacher, student without KD, student with KD
 
 	print('\n----- TESTING TEACHER -----')
 	test(teacher_model, 'Teacher model test')

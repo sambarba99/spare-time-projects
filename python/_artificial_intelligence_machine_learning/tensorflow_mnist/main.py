@@ -8,7 +8,7 @@ Created 20/10/2021
 import os
 
 from keras.layers import Conv2D, Dense, Dropout, Flatten, Input, LeakyReLU, MaxPooling2D
-from keras.models import load_model, Model, Sequential
+from keras.models import load_model, Sequential
 from keras.utils.vis_utils import plot_model
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 
-from _utils.model_evaluation_plots import plot_confusion_matrix
+from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -75,14 +75,14 @@ def build_model():
 
 
 if __name__ == '__main__':
-	# 1. Prepare data
+	# Prepare data
 
 	x_train, y_train, x_val, y_val, x_test, y_test = load_data()
 
 	if os.path.exists('./model.h5'):
 		model = load_model('./model.h5')
 	else:
-		# 2. Plot some example images
+		# Plot some example images
 
 		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 		plt.suptitle('Data samples', y=0.95)
 		plt.show()
 
-		# 3. Define model
+		# Define model
 
 		model = build_model()
 		model.summary()
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 			show_layer_activations=True
 		)
 
-		# 4. Train model
+		# Train model
 
 		print('\n----- TRAINING -----\n')
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
 		model.save('./model.h5')
 
-	# 5. Evaluate model
+	# Evaluate model
 
 	print('\n----- EVALUATION -----\n')
 	test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
@@ -154,33 +154,10 @@ if __name__ == '__main__':
 	f1 = f1_score(y_test.argmax(axis=1), test_pred, average='weighted')
 	plot_confusion_matrix(y_test.argmax(axis=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# 6. Plot the learned conv layer filters
+	# Plot the model's learned filters
+	plot_cnn_learned_filters(model, num_cols=4, model_type='tensorflow')
 
-	conv_layer_indices = [
-		idx for idx, layer_name in
-		enumerate([layer.name for layer in model.layers])
-		if 'conv' in layer_name
-	]
-
-	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
-		layer = model.layers[conv_idx]
-		filters, biases = layer.get_weights()
-		num_filters = filters.shape[-1]
-		rows = num_filters // 4  # Works because num_filters is 8 for 1st conv layer, 16 for 2nd one
-		cols = num_filters // rows
-
-		print(f'Layer name: {layer.name} | Filters shape: {filters.shape} | Biases shape: {biases.shape}')
-
-		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
-		for ax_idx, ax in enumerate(axes.flatten()):
-			channel_mean = filters[..., ax_idx].mean(axis=2)  # Mean of this filter across the channel dimension (2)
-			ax.imshow(channel_mean, cmap='gray')
-			ax.axis('off')
-		plt.suptitle(f'Filters of conv layer {idx}/{len(conv_layer_indices)}', x=0.512, y=0.94)
-		plt.gcf().set_facecolor('#80b0f0')
-		plt.show()
-
-	# 7. User draws a digit to predict
+	# User draws a digit to predict
 
 	pg.init()
 	pg.display.set_caption('Draw a digit!')
@@ -243,23 +220,5 @@ if __name__ == '__main__':
 
 		pg.display.update()
 
-	# 8. Plot feature maps for user-drawn digit
-
-	outputs = [model.layers[i].output for i in conv_layer_indices]  # Conv outputs for user digit
-	short_model = Model(inputs=model.inputs, outputs=outputs)
-	feature_maps = short_model.predict(np.expand_dims(model_input, 0), verbose=0)
-
-	for idx, feature_map in enumerate(feature_maps, start=1):
-		print(f'Feature map {idx}/{len(feature_maps)} shape: {feature_map.shape}')
-
-		map_depth = feature_map.shape[-1]  # No. channels
-		rows = map_depth // 4
-		cols = map_depth // rows
-
-		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
-		for ax_idx, ax in enumerate(axes.flatten()):
-			ax.imshow(feature_map[0, ..., ax_idx], cmap='gray')  # Plot feature_map of depth 'ax_idx'
-			ax.axis('off')
-		plt.suptitle(f'Feature map of conv layer {idx}/{len(feature_maps)}\n(user-drawn digit)', x=0.512, y=0.97)
-		plt.gcf().set_facecolor('#80b0f0')
-		plt.show()
+	# Plot feature maps for user-drawn digit
+	plot_cnn_feature_maps(model, num_cols=4, model_type='tensorflow', input_img=model_input, title_append=' (user-drawn digit)')

@@ -24,7 +24,7 @@ def get_collatz_trajectory(num):
 
 
 if __name__ == '__main__':
-	# 1. Plot trajectory for a single number
+	# Plot trajectory for a single number
 
 	num = 27
 	trajectory = get_collatz_trajectory(num)
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 	plt.title(f'{len(trajectory) - 1} iterations for {num:,} to reach 1 (max value: {max(trajectory):,})')
 	plt.show()
 
-	# 2. Plot no. iterations per number, 1 to 10,000
+	# Plot no. iterations per number, 1 to 10,000
 
 	nums_and_iters = dict()
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 	plt.title('Iterations per num')
 	plt.show()
 
-	# 3. Generate graph of trajectories of all numbers that take <= 15 steps to reach 1
+	# Generate graph of trajectories of all numbers that take <= 15 steps to reach 1
 
 	# See https://en.wikipedia.org/wiki/Collatz_conjecture#In_reverse
 	# (function for generating trajectories in reverse)

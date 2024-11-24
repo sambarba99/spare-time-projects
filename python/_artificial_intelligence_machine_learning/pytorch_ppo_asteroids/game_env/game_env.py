@@ -49,39 +49,39 @@ class Spaceship:
 	def perform_action(self, action):
 		"""Perform an action e.g. boosting, and update spaceship properties accordingly"""
 
-		# 1. Decode action num
+		# Decode action num
 
 		boosting = action in (1, 5, 6, 7, 10, 11)
 		turning_left = action in (2, 5, 8, 10)
 		turning_right = action in (3, 6, 9, 11)
 		shooting = action in (4, 7, 8, 9, 10, 11)
 
-		# 2. Apply force to accelerate/decelerate if necessary
+		# Apply force to accelerate/decelerate if necessary
 
 		self.acc = ACCELERATION_FORCE if boosting else 0
 
-		# 3. Apply steering if necessary
+		# Apply steering if necessary
 
 		if turning_left:
 			self.heading = (self.heading - TURN_RATE) % (2 * pi)
 		elif turning_right:
 			self.heading = (self.heading + TURN_RATE) % (2 * pi)
 
-		# 4. Update velocity
+		# Update velocity
 
 		if self.acc:
 			acc_vector = vec2(cos(self.heading), sin(self.heading)) * self.acc
 			self.vel += acc_vector
 			self.vel.clamp_magnitude_ip(MAX_VEL)
 
-		# 5. Update position
+		# Update position
 
 		self.pos += self.vel
 		self.pos.x %= SCENE_WIDTH
 		self.pos.y %= SCENE_HEIGHT
 		self.update_lines()
 
-		# 6. Add bullets
+		# Add bullets
 
 		if shooting and len(self.bullets) < MAX_BULLETS:
 			self.bullets.append(
@@ -300,11 +300,11 @@ class GameEnv:
 			return angle
 
 
-		# 1. Caluclate distances to all asteroids
+		# Caluclate distances to all asteroids
 
 		dists_to_asteroids = np.array([toroidal_distance_to_asteroid(a) for a in self.asteroids])
 
-		# 2. Get asteroid indices based on distance
+		# Get asteroid indices based on distance
 
 		self.nearest_asteroid_idx = dists_to_asteroids.argmin()
 
@@ -313,7 +313,7 @@ class GameEnv:
 		dists_to_asteroids = dists_to_asteroids[self.detected_asteroid_idx]
 		pad_size = max(0, MAX_ASTEROIDS_DETECT - len(self.detected_asteroid_idx))
 
-		# 3. Find the following asteroid info
+		# Find the following asteroid info
 
 		directions_to_asteroids = []
 		rel_asteroid_vel_mags = []
@@ -340,19 +340,19 @@ class GameEnv:
 			rel_asteroid_vel_mags.append(mag_diff)
 			rel_asteroid_vel_angles.append(angle_diff)
 
-		# 4. Find angle to aim at in order to hit the nearest asteroid
+		# Find angle to aim at in order to hit the nearest asteroid
 
 		gun_pos = vec2(self.spaceship.lines[0][0])
 		nearest_asteroid = self.asteroids[self.nearest_asteroid_idx]
 		aim_angle = find_aim_angle(gun_pos, nearest_asteroid, adjusted_heading)
 
-		# 5. The further the spaceship is from asteroids, the greater the timestep reward
+		# The further the spaceship is from asteroids, the greater the timestep reward
 
 		dists_to_asteroids /= MAX_ASTEROID_DIST
 		nearest_3_dists = dists_to_asteroids[:3]
 		self.timestep_reward = 2 * sum(nearest_3_dists) / len(nearest_3_dists)
 
-		# 6. Construct state representation
+		# Construct state representation
 
 		dists_to_asteroids = np.pad(dists_to_asteroids, (0, pad_size), constant_values=(1,))
 		directions_to_asteroids = np.pad(directions_to_asteroids, (0, pad_size))

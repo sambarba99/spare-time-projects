@@ -48,7 +48,7 @@ def plot_tree(tree, features):
 			n += 1
 		levels.append(level)
 
-	# 1. Set up global attributes
+	# Set up global attributes
 
 	g = Digraph(
 		name='decision tree',
@@ -56,7 +56,7 @@ def plot_tree(tree, features):
 		edge_attr={'fontname': 'consolas', 'fontsize': '11', 'arrowsize': '0.7'}
 	)
 
-	# 2. Create nodes
+	# Create nodes
 
 	for level in levels:
 		for node in level:
@@ -64,7 +64,7 @@ def plot_tree(tree, features):
 			colour = '#80c0ff' if '<=' in node else '#30e090'
 			g.node(node, label=node.split('--')[-1], color=colour)
 
-	# 3. Create edges
+	# Create edges
 
 	if len(levels) > 1:
 		for level, next_level in zip(levels[:-1], levels[1:]):
@@ -78,6 +78,6 @@ def plot_tree(tree, features):
 				g.edge(src, left_child, label='T')  # Left = true
 				g.edge(src, right_child, label='F')
 
-	# 4. Render graph
+	# Render graph
 
 	g.render('tree', view=True, cleanup=True, format='png')

@@ -8,8 +8,10 @@ Created 04/11/2024
 import os
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
+from scipy import ndimage
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
@@ -20,6 +22,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
+from _utils.model_evaluation_plots import plot_cnn_learned_filters
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -27,7 +30,7 @@ torch.manual_seed(1)
 
 # Model
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 NUM_EPOCHS = 50
 
 # Rendering
@@ -36,31 +39,41 @@ DIGIT_CELL_SPACING = 1
 DIGIT_CANVAS_SIZE = (DIGIT_CELL_SIZE + DIGIT_CELL_SPACING) * 28
 DIGIT_CANVAS_TOP_LEFT_X = 100
 DIGIT_CANVAS_TOP_LEFT_Y = 143
-LAYER_LEFTS = 578, 808, 1038
-CLASS_PROBS_LEFT = 1168
-LAYER_TOPS = 85, 85, 181
-CLASS_PROBS_TOP = 181
-LAYER_NODE_RADIUS = 15
-LAYER_NODE_SPACING = 2
-SCENE_WIDTH = 1283
+CONV_LEFTS = 563, 715
+CONV_TOPS = 114, 118
+CONV_ZOOMS = 2, 4
+CONV_SPACINGS = 1, 9
+LINEAR_LEFTS = 873, 1003
+LINEAR_TOPS = 107, 172
+LINEAR_NODE_RADII = 14, 16
+LINEAR_NODE_SPACINGS = 1, 2
+CLASS_PROBS_LEFT = 1135
+SCENE_WIDTH = 1251
 SCENE_HEIGHT = 650
 
 
-class Model(nn.Module):
+class CNN(nn.Module):
 	def __init__(self):
 		super().__init__()
-		self.layer1 = nn.Linear(784, 16)  # 784 = 1 x 28 x 28
-		self.layer2 = nn.Linear(16, 16)
-		self.layer3 = nn.Linear(16, 10)  # 10 classes
+		self.conv1 = nn.Conv2d(1, 8, kernel_size=3)
+		self.conv2 = nn.Conv2d(8, 8, kernel_size=3)
+		self.max_pool = nn.MaxPool2d(2)
+		self.dropout = nn.Dropout(0.2)
+		self.linear1 = nn.Linear(200, 16)
+		self.linear2 = nn.Linear(16, 10)  # 10 classes
 		self.leaky_relu = nn.LeakyReLU()
 
 	def forward(self, x):
-		x_flat = x.flatten(start_dim=1)  # (N, 1, 28, 28) -> (N, 784)
-		layer1_out = self.leaky_relu(self.layer1(x_flat)).squeeze()
-		layer2_out = self.leaky_relu(self.layer2(layer1_out)).squeeze()
-		layer3_out = self.layer3(layer2_out).squeeze()
+		conv1_out = self.leaky_relu(self.conv1(x))
+		max_pool1_out = self.max_pool(conv1_out)
+		conv2_out = self.leaky_relu(self.conv2(max_pool1_out))
+		max_pool2_out = self.max_pool(conv2_out)
+		flattened = max_pool2_out.flatten(start_dim=1)
+		dropout = self.dropout(flattened)
+		linear1_out = self.leaky_relu(self.linear1(dropout))
+		linear2_out = self.linear2(linear1_out)
 
-		return layer1_out, layer2_out, layer3_out
+		return conv1_out, conv2_out, linear1_out, linear2_out
 
 
 def load_data():
@@ -86,22 +99,22 @@ def load_data():
 
 
 if __name__ == '__main__':
-	# 1. Prepare data
+	# Prepare data
 
 	train_loader, x_val, y_val = load_data()
 
-	# 2. Define model
+	# Define model
 
-	model = Model()
+	model = CNN()
 	model.to('cpu')
-	print(f'\nModel:\n{model}')
+	print(f'\nModel:\n{model}\n')
 
 	if os.path.exists('./mnist_model.pth'):
 		model.load_state_dict(torch.load('./mnist_model.pth'))
 	else:
-		# 3. Train model
+		# Train model
 
-		print('\n----- TRAINING -----\n')
+		print('----- TRAINING -----\n')
 
 		loss_func = torch.nn.CrossEntropyLoss()
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
@@ -139,7 +152,10 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './mnist_model.pth')
 
-	# 4. Visualise activations with live drawing
+	# Plot the model's learned filters
+	plot_cnn_learned_filters(model, num_cols=8, figsize=(9, 2))
+
+	# Visualise activations with live drawing
 
 	print('\n----- TESTING -----')
 
@@ -216,12 +232,19 @@ if __name__ == '__main__':
 						model_input[:, y + dy, x + dx] = np.random.uniform(0.33, 1)
 
 		if model_input.any():
+			torch.manual_seed(1)
 			with torch.inference_mode():
-				layer1_out, layer2_out, layer3_out = model(model_input)
-			pred_probs = torch.softmax(layer3_out, dim=-1)
+				conv1_out, conv2_out, linear1_out, linear2_out = model(model_input.unsqueeze(dim=0))
+			conv1_out = conv1_out.squeeze()
+			conv2_out = conv2_out.squeeze()
+			linear1_out = linear1_out.squeeze()
+			linear2_out = linear2_out.squeeze()
+			pred_probs = torch.softmax(linear2_out, dim=-1)
 		else:
-			layer1_out = layer2_out = torch.zeros(16)
-			layer3_out = pred_probs = torch.zeros(10)
+			conv1_out = torch.zeros(8, 26, 26)
+			conv2_out = torch.zeros(8, 11, 11)
+			linear1_out = torch.zeros(16)
+			linear2_out = pred_probs = torch.zeros(10)
 
 		scene.fill('#0064c8')
 
@@ -252,33 +275,50 @@ if __name__ == '__main__':
 
 		# Layer labels
 		input_lbl = font14.render('Input', True, 'white')
-		layer1_out_lbl = font14.render('Layer 1', True, 'white')
-		layer2_out_lbl = font14.render('Layer 2', True, 'white')
-		layer3_out_lbl = font14.render('Layer 3', True, 'white')
-		softmax_out_lbl1 = font14.render('Softmax', True, 'white')
-		softmax_out_lbl2 = font14.render('probabilities', True, 'white')
-		scene.blit(input_lbl, (261, 121))
-		scene.blit(layer1_out_lbl, (550, 48))
-		scene.blit(layer2_out_lbl, (780, 48))
-		scene.blit(layer3_out_lbl, (1010, 144))
-		scene.blit(softmax_out_lbl1, (1140, 125))
-		scene.blit(softmax_out_lbl2, (1116, 144))
+		conv1_lbl = font14.render('Conv 1', True, 'white')
+		conv2_lbl = font14.render('Conv 2', True, 'white')
+		linear1_lbl = font14.render('Linear 1', True, 'white')
+		linear2_lbl = font14.render('Linear 2', True, 'white')
+		softmax_lbl1 = font14.render('Softmax', True, 'white')
+		softmax_lbl2 = font14.render('probabilities', True, 'white')
+		scene.blit(input_lbl, (261, 116))
+		scene.blit(conv1_lbl, (565, 66))
+		scene.blit(conv2_lbl, (714, 66))
+		scene.blit(linear1_lbl, (841, 66))
+		scene.blit(linear2_lbl, (971, 129))
+		scene.blit(softmax_lbl1, (1107, 110))
+		scene.blit(softmax_lbl2, (1083, 129))
 
-		# Activations of layers 1-3
-		for layer_out, layer_left_pos, layer_top_pos in zip([layer1_out, layer2_out, layer3_out], LAYER_LEFTS, LAYER_TOPS):
-			layer_min, layer_max = layer_out.min(), layer_out.max()
-			layer_max_min = layer_max - layer_min
+		# Feature maps (activations) of conv layers
+		for conv_out, layer_left_pos, layer_top_pos, zoom, spacing \
+			in zip([conv1_out, conv2_out], CONV_LEFTS, CONV_TOPS, CONV_ZOOMS, CONV_SPACINGS):
+			for idx, feature_map in enumerate(conv_out):
+				max_min = feature_map.max() - feature_map.min()
+				if max_min:
+					feature_map = (feature_map - feature_map.min()) / max_min
+				feature_map = (feature_map.numpy() * 255).astype(np.uint8)
+				feature_map = ndimage.zoom(feature_map, (zoom, zoom), order=0)
+				rgb_arr = np.stack((feature_map, feature_map, feature_map), axis=-1)
+				surface = pg.surfarray.make_surface(rgb_arr)
+				surface = pg.transform.flip(surface, flip_x=True, flip_y=False)
+				surface = pg.transform.rotate(surface, 90)
+				scene.blit(surface, (layer_left_pos, layer_top_pos + idx * (len(feature_map) + spacing)))
+
+		# Activations of linear layers
+		for layer_out, layer_left_pos, layer_top_pos, node_radius, node_spacing \
+			in zip([linear1_out, linear2_out], LINEAR_LEFTS, LINEAR_TOPS, LINEAR_NODE_RADII, LINEAR_NODE_SPACINGS):
+			max_min = layer_out.max() - layer_out.min()
 			for idx, y in enumerate(layer_out):
-				if layer_max_min != 0:
-					y_normalised = (y - layer_min) / layer_max_min
+				if max_min:
+					y_normalised = (y - layer_out.min()) / max_min
 					colour = round(255 * y_normalised.item())
 				else:
 					colour = 0
 				pg.draw.circle(
 					scene,
 					(colour, colour, colour),
-					(layer_left_pos, idx * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + layer_top_pos),
-					LAYER_NODE_RADIUS
+					(layer_left_pos, idx * (2 * node_radius + node_spacing) + layer_top_pos),
+					node_radius
 				)
 
 		# Softmax applied to layer 3
@@ -287,21 +327,21 @@ if __name__ == '__main__':
 			pg.draw.circle(
 				scene,
 				(colour, colour, colour),
-				(CLASS_PROBS_LEFT, idx * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + CLASS_PROBS_TOP),
-				LAYER_NODE_RADIUS
+				(CLASS_PROBS_LEFT, idx * (2 * LINEAR_NODE_RADII[1] + LINEAR_NODE_SPACINGS[1]) + LINEAR_TOPS[1]),
+				LINEAR_NODE_RADII[1]
 			)
 			digit_lbl = font18.render(str(idx), True, '#00c030')
 			lbl_rect = digit_lbl.get_rect(
 				center=(
 					CLASS_PROBS_LEFT,
-					idx * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + CLASS_PROBS_TOP
+					idx * (2 * LINEAR_NODE_RADII[1] + LINEAR_NODE_SPACINGS[1]) + LINEAR_TOPS[1]
 				)
 			)
 			scene.blit(digit_lbl, lbl_rect)
 
 		# Layer connections
 
-		# Input to layer 1
+		# Input to conv 1
 		pg.draw.line(
 			scene,
 			'white',
@@ -320,55 +360,78 @@ if __name__ == '__main__':
 			(DIGIT_CANVAS_SIZE + DIGIT_CANVAS_TOP_LEFT_X + 3, DIGIT_CANVAS_TOP_LEFT_Y - 5),
 			(DIGIT_CANVAS_SIZE + DIGIT_CANVAS_TOP_LEFT_X + 3, DIGIT_CANVAS_SIZE + DIGIT_CANVAS_TOP_LEFT_Y + 3)
 		)
-		for i in range(16):
+		for i in range(8):
 			pg.draw.line(
 				scene,
-				'#e0e0e0',
+				'white',
 				(DIGIT_CANVAS_SIZE + DIGIT_CANVAS_TOP_LEFT_X + 4, SCENE_HEIGHT // 2 - 1),
-				(LAYER_LEFTS[0] - LAYER_NODE_RADIUS - 1, i * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[0] - 1)
+				(
+					CONV_LEFTS[0] - 1,
+					i * (len(conv1_out[0]) * CONV_ZOOMS[0] + CONV_SPACINGS[0]) + CONV_TOPS[0] + len(conv1_out[0]) - 1
+				)
 			)
 
-		# Layer 1 to layer 2
-		for i in range(16):
-			layer_min, layer_max = layer1_out.min(), layer1_out.max()
-			layer_max_min = layer_max - layer_min
-			if layer_max_min != 0:
-				y_normalised = (layer1_out[i] - layer_min) / layer_max_min
-				colour = round(255 * y_normalised.item())
-			else:
-				colour = 224
+		# Conv 1 to conv 2
+		for i in range(8):
+			for j in range(8):
+				pg.draw.line(
+					scene,
+					'#e0e0e0',
+					(
+						CONV_LEFTS[0] + len(conv1_out[0]) * CONV_ZOOMS[0],
+						i * (len(conv1_out[0]) * CONV_ZOOMS[0] + CONV_SPACINGS[0]) + CONV_TOPS[0] + len(conv1_out[0]) - 1
+					),
+					(
+						CONV_LEFTS[1] - 1,
+						j * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1]) + CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
+					)
+				)
+
+		# Conv 2 to linear 1
+		for i in range(8):
 			for j in range(16):
 				pg.draw.line(
 					scene,
-					(colour, colour, colour),
-					(LAYER_LEFTS[0] + LAYER_NODE_RADIUS, i * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[0] - 1),
-					(LAYER_LEFTS[1] - LAYER_NODE_RADIUS - 1, j * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[1] - 1)
+					'#e0e0e0',
+					(
+						CONV_LEFTS[1] + len(conv2_out[0]) * CONV_ZOOMS[1],
+						i * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1]) + CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
+					),
+					(
+						LINEAR_LEFTS[0] - LINEAR_NODE_RADII[0] - 1,
+						j * (2 * LINEAR_NODE_RADII[0] + LINEAR_NODE_SPACINGS[0]) + LINEAR_TOPS[0]
+					)
 				)
 
-		# Layer 2 to layer 3
+		# Linear 1 to linear 2
 		for i in range(16):
-			layer_min, layer_max = layer2_out.min(), layer2_out.max()
-			layer_max_min = layer_max - layer_min
-			if layer_max_min != 0:
-				y_normalised = (layer2_out[i] - layer_min) / layer_max_min
-				colour = round(255 * y_normalised.item())
-			else:
-				colour = 224
 			for j in range(10):
 				pg.draw.line(
 					scene,
-					(colour, colour, colour),
-					(LAYER_LEFTS[1] + LAYER_NODE_RADIUS, i * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[1] - 1),
-					(LAYER_LEFTS[2] - LAYER_NODE_RADIUS - 1, j * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[2] - 1)
+					'#e0e0e0',
+					(
+						LINEAR_LEFTS[0] + LINEAR_NODE_RADII[0],
+						i * (2 * LINEAR_NODE_RADII[0] + LINEAR_NODE_SPACINGS[0]) + LINEAR_TOPS[0] - 1
+					),
+					(
+						LINEAR_LEFTS[1] - LINEAR_NODE_RADII[1] - 1,
+						j * (2 * LINEAR_NODE_RADII[1] + LINEAR_NODE_SPACINGS[1]) + LINEAR_TOPS[1] - 1
+					)
 				)
 
-		# Layer 3 to softmax output
+		# Linear 2 to softmax output
 		for i in range(10):
 			pg.draw.line(
 				scene,
 				'#e0e0e0',
-				(LAYER_LEFTS[2] + LAYER_NODE_RADIUS, i * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + LAYER_TOPS[2] - 1),
-				(CLASS_PROBS_LEFT - LAYER_NODE_RADIUS - 1, i * (2 * LAYER_NODE_RADIUS + LAYER_NODE_SPACING) + CLASS_PROBS_TOP - 1)
+				(
+					LINEAR_LEFTS[1] + LINEAR_NODE_RADII[1],
+					i * (2 * LINEAR_NODE_RADII[1] + LINEAR_NODE_SPACINGS[1]) + LINEAR_TOPS[1] - 1
+				),
+				(
+					CLASS_PROBS_LEFT - LINEAR_NODE_RADII[1] - 1,
+					i * (2 * LINEAR_NODE_RADII[1] + LINEAR_NODE_SPACINGS[1]) + LINEAR_TOPS[1] - 1
+				)
 			)
 
 		pg.display.update()

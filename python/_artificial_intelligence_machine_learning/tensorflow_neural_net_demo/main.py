@@ -87,7 +87,7 @@ if __name__ == '__main__':
 		x_train, y_train, x_val, y_val, x_test, y_test, _ = \
 			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler())
 
-	# 1. Build model
+	# Build model
 
 	num_features = x_train.shape[1]
 	num_targets = 1 if task_choice in 'BR' else len(np.unique(y_train, axis=0))
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 		show_layer_activations=True
 	)
 
-	# 2. Train model
+	# Train model
 
 	print('\n----- TRAINING -----\n')
 
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 	plt.suptitle(f'Loss and {"accuracy" if task_choice in "BM" else "MAE"} during training', y=0.95)
 	plt.show()
 
-	# 3. Evaluation
+	# Evaluation
 
 	print('\n----- EVALUATION -----\n')
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
 		print('Test MSE:', test_mse)
 		print('Test MAE:', test_mae)
 
-	# 4. Test model
+	# Test model
 
 	if task_choice in 'BM':
 		print('\n----- TESTING -----')

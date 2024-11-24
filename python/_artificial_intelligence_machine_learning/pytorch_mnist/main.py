@@ -20,7 +20,7 @@ from tqdm import tqdm
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix
+from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 from conv_net import CNN
 
 
@@ -58,14 +58,14 @@ def load_data():
 
 
 if __name__ == '__main__':
-	# 1. Prepare data
+	# Prepare data
 
 	train_loader, x_val, y_val, x_test, y_test = load_data()
 
-	# 2. Define model
+	# Define model
 
 	model = CNN()
-	print(f'\nModel:\n{model}')
+	print(f'\nModel:\n{model}\n')
 	plot_model(model, INPUT_SHAPE, './images/model_architecture')
 	model.to('cpu')
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
-		# 3. Plot some example images
+		# Plot some example images
 
 		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
@@ -85,9 +85,9 @@ if __name__ == '__main__':
 		plt.suptitle('Data samples', y=0.95)
 		plt.show()
 
-		# 4. Train model
+		# Train model
 
-		print('\n----- TRAINING -----\n')
+		print('----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
@@ -124,7 +124,10 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# 5. Test model
+	# Plot the model's learned filters
+	plot_cnn_learned_filters(model, num_cols=4)
+
+	# Test model
 
 	print('\n----- TESTING -----\n')
 
@@ -139,33 +142,7 @@ if __name__ == '__main__':
 	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
 	plot_confusion_matrix(y_test.argmax(dim=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# 6. Plot the learned conv layer filters
-
-	conv_layer_indices = [
-		int(idx) for idx, layer in
-		model.conv_block.named_children()
-		if isinstance(layer, torch.nn.Conv2d)
-	]
-
-	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
-		layer = model.conv_block[conv_idx]
-		filters, biases = layer.weight, layer.bias
-		num_filters = filters.shape[0]
-		rows = num_filters // 4  # Works because num_filters is 8 for 1st conv layer, 16 for 2nd one
-		cols = num_filters // rows
-
-		print(f'Conv layer {idx}/{len(conv_layer_indices)} | Filters shape: {tuple(filters.shape)} | Biases shape: {tuple(biases.shape)}')
-
-		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
-		for ax_idx, ax in enumerate(axes.flatten()):
-			channel_mean = filters[ax_idx].mean(dim=0)  # Mean of this filter across the channel dimension (0)
-			ax.imshow(channel_mean.detach(), cmap='gray')
-			ax.axis('off')
-		plt.suptitle(f'Filters of conv layer {idx}/{len(conv_layer_indices)}', x=0.512, y=0.94)
-		plt.gcf().set_facecolor('#80b0f0')
-		plt.show()
-
-	# 7. User draws a digit to predict
+	# User draws a digit to predict
 
 	pg.init()
 	pg.display.set_caption('Draw a digit!')
@@ -230,31 +207,5 @@ if __name__ == '__main__':
 
 		pg.display.update()
 
-	# 8. Plot feature maps for user-drawn digit
-
-	def get_feature_map(layer):
-		def hook_func(module, input, output):
-			feature_maps.append(output)
-
-		feature_maps = []  # To store the feature map
-		hook = layer.register_forward_hook(hook_func)
-		_ = model(model_input.unsqueeze(dim=0))  # Pass the input through the model
-		hook.remove()  # Remove hook after use
-
-		return feature_maps[0]  # Return the feature map of the layer
-
-	for idx, conv_idx in enumerate(conv_layer_indices, start=1):
-		feature_map = get_feature_map(model.conv_block[conv_idx])
-		print(f'Feature map {idx}/{len(conv_layer_indices)} shape: {tuple(feature_map.shape)}')
-
-		map_depth = feature_map.shape[1]  # No. channels
-		rows = map_depth // 4
-		cols = map_depth // rows
-
-		_, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(8, 5))
-		for ax_idx, ax in enumerate(axes.flatten()):
-			ax.imshow(feature_map[0, ax_idx].detach(), cmap='gray')  # Plot feature_map of depth 'ax_idx'
-			ax.axis('off')
-		plt.suptitle(f'Feature map of conv layer {idx}/{len(conv_layer_indices)}\n(user-drawn digit)', x=0.512, y=0.97)
-		plt.gcf().set_facecolor('#80b0f0')
-		plt.show()
+	# Plot feature maps of user-drawn digit
+	plot_cnn_feature_maps(model, num_cols=4, input_img=model_input, title_append=' (user-drawn digit)')

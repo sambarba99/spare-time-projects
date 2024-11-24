@@ -35,7 +35,7 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 
 	input_shape = tuple([1] + list(input_shape))  # Add batch size of 1
 
-	# 1. Get graph edges using symbolic_trace
+	# Get graph edges using symbolic_trace
 
 	symbolic_trace = str(torch.fx.symbolic_trace(model).graph)
 	symbolic_trace = symbolic_trace.replace('input_1', 'x').replace(' ', '')
@@ -53,7 +53,7 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 		else:
 			edges[src_node] = [dest_node]
 
-	# 2. Get layer output shapes
+	# Get layer output shapes
 
 	summary_str = str(summary(model, input_data=torch.zeros(input_shape), verbose=0))
 	summary_str = summary_str.replace(' ', '').splitlines()[3:-11]
@@ -61,7 +61,7 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 	output_shapes = [line.split('[-1,')[1].split(']')[0] for line in summary_str]
 	output_shapes = [f'(N,{i})'.replace(',', ', ') for i in output_shapes]
 
-	# 3. Get layer names, types, other info
+	# Get layer names, types, other info
 
 	graph = dict()
 
@@ -80,14 +80,14 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 			'dest': edges.get(name, [])
 		}
 
-	# 4. For every node, find its source node and input shape
+	# For every node, find its source node and input shape
 
 	for k, v in graph.items():
 		for vi in v['dest']:
 			graph[vi]['src'] = k
 			graph[vi]['input_shape'] = v['output_shape']
 
-	# 5. Merge any activation node into its source node
+	# Merge any activation node into its source node
 
 	merged_graph = graph.copy()
 
@@ -97,7 +97,7 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 			merged_graph[v['src']]['dest'] = v['dest']
 			merged_graph.pop(k)  # Discard activation (now merged)
 
-	# 6. Create and render digraph
+	# Create and render digraph
 
 	g = Digraph(
 		edge_attr={'arrowsize': '0.7', 'color': 'white'},

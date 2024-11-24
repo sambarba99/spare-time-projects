@@ -114,7 +114,7 @@ def print_progress(res):
 
 
 if __name__ == '__main__':
-	# 1. Load data
+	# Load data
 
 	x_train, y_train, x_val, y_val, x_test, y_test, _ = load_csv_regression_data(
 		DATASET_PATH,
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 	val_loader = DataLoader(val_dataset, batch_size=len(x_val))
 	test_loader = DataLoader(test_dataset, batch_size=len(x_test))
 
-	# 2. Define the hyperparameter search space
+	# Define the hyperparameter search space
 
 	search_space = [
 		Integer(1, 4),                                      # Num hidden layers: int from 1-4
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 		Real(1e-4, 0.01, prior='log-uniform')               # Learning rate: real from 0.0001-0.01
 	]
 
-	# 3. Run Bayesian optimisation
+	# Run Bayesian optimisation
 
 	objective_scores = []
 	print('Running Bayesian optimisation...\n')

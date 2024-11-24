@@ -12,7 +12,7 @@ FILL_COLOURS = {'D': '#bbbbff', 'F': '#ffbbbb', 'M': '#bbbbbb'}
 
 
 def plot_graphical_model(rvs):
-	# 1. Set up global attributes and key
+	# Set up global attributes and key
 
 	g = Digraph(
 		name='graphical model',
@@ -31,7 +31,7 @@ def plot_graphical_model(rvs):
 		fillcolor='white'
 	)
 
-	# 2. Create nodes and edges
+	# Create nodes and edges
 
 	for rv in rvs:
 		prob_name = rv[1]  # E.g. P(ne) or P(he|me,fh)
@@ -50,13 +50,13 @@ def plot_graphical_model(rvs):
 		for s in src.split(','):  # In case of multiple conditions
 			g.edge(s, dest)
 
-	# 3. Render graph
+	# Render graph
 
 	g.render('coffee_machine_graphical_model', view=True, cleanup=True, format='png')
 
 
 def plot_factor_graph(edges, itn, rvs):
-	# 1. Set up global attributes and key
+	# Set up global attributes and key
 
 	g = Graph(
 		name='factor graph',
@@ -79,7 +79,7 @@ def plot_factor_graph(edges, itn, rvs):
 		fillcolor='white'
 	)
 
-	# 2. Create nodes and edges
+	# Create nodes and edges
 
 	for node in set([e[0] for e in edges] + [e[1] for e in edges]):
 		if node < len(itn):  # RV
@@ -95,6 +95,6 @@ def plot_factor_graph(edges, itn, rvs):
 	for src, dest in edges:
 		g.edge(str(src), str(dest))
 
-	# 3. Render graph
+	# Render graph
 
 	g.render('coffee_machine_factor_graph', view=True, cleanup=True, format='png')

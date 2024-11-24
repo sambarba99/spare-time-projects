@@ -83,7 +83,7 @@ if __name__ == '__main__':
 		x_train, y_train, x_val, y_val, x_test, y_test, _ = \
 			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), tensor_device='cpu')
 
-	# 1. Build model
+	# Build model
 
 	num_features = x_train.shape[1]
 	num_targets = 1 if task_choice in 'BR' else len(y_train.unique(dim=0))
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 	plot_model(model, (num_features,), './images/model_architecture')
 	model.to('cpu')
 
-	# 2. Training
+	# Training
 
 	print('\n----- TRAINING -----\n')
 
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 			y_train_logits = model(x_train).squeeze()
 			y_train_probs = torch.softmax(y_train_logits, dim=-1)  # Use softmax when multi-class
 			y_train_pred = y_train_probs.argmax(dim=1).detach()
-			# y_train_pred = y_train_logits.argmax(dim=1)
+			# y_train_pred = y_train_logits.argmax(dim=1).detach()
 
 			loss = loss_func(y_train_logits, y_train)
 			metric = f1_score(y_train.argmax(dim=1), y_train_pred, average='weighted')
@@ -270,7 +270,7 @@ if __name__ == '__main__':
 	plt.suptitle(f'Loss and {"F1 score" if task_choice in "BM" else "MAE"} during training', y=0.95)
 	plt.show()
 
-	# 3. Test model
+	# Test model
 
 	print('\n----- TESTING -----\n')
 

@@ -22,7 +22,7 @@ from tqdm import tqdm
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix
+from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 from conv_net import CNN
 
 
@@ -73,7 +73,7 @@ def create_data_loaders(df):
 
 
 if __name__ == '__main__':
-	# 1. Convert data to dataframe
+	# Convert data to dataframe
 
 	data = []
 	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/alzheimers/*/*.jpg'):
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 	print(f'\nRaw data:\n{df}\n')
 
-	# 2. Plot some examples
+	# Plot some examples
 
 	example_indices = [0, 1, 3200, 3201, 5440, 5441, 6336, 6337]
 	_, axes = plt.subplots(nrows=2, ncols=4, figsize=(8, 6))
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 	plt.suptitle('Data samples', x=0.514, y=0.94)
 	plt.show()
 
-	# 3. Plot output feature (class) distributions
+	# Plot output feature (class) distributions
 
 	unique_value_counts = df['class'].value_counts()
 	plt.bar(unique_value_counts.index, unique_value_counts.values)
@@ -105,12 +105,12 @@ if __name__ == '__main__':
 	plt.title('Class distribution')
 	plt.show()
 
-	# 4. Define data loaders and model
+	# Define data loaders and model
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	print(f'\nModel:\n{model}')
+	print(f'\nModel:\n{model}\n')
 	plot_model(model, (1, INPUT_H, INPUT_W), './images/model_architecture')
 	model.to(DEVICE)
 
@@ -119,9 +119,9 @@ if __name__ == '__main__':
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
-		# 5. Train model
+		# Train model
 
-		print('\n----- TRAINING -----\n')
+		print('----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
@@ -163,7 +163,14 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# 6. Test model
+	# Plot the model's learned filters, and corresponding feature maps of a sample image
+
+	plot_cnn_learned_filters(model, num_cols=8)
+
+	x_val, _ = next(iter(val_loader))
+	plot_cnn_feature_maps(model, num_cols=8, input_img=x_val[0].to(DEVICE), title_append=' of a sample image')
+
+	# Test model
 
 	print('\n----- TESTING -----\n')
 

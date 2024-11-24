@@ -9,7 +9,7 @@ from graphviz import Graph
 
 
 def plot_tree(tree):
-	# 1. Set up global attributes
+	# Set up global attributes
 
 	g = Graph(
 		name='Huffman tree',
@@ -18,7 +18,7 @@ def plot_tree(tree):
 		edge_attr={'fontname': 'consolas'}
 	)
 
-	# 2. Create nodes and edges
+	# Create nodes and edges
 
 	nodes, edges = generate_graph(tree)
 
@@ -32,7 +32,7 @@ def plot_tree(tree):
 	for n1, n2, bit in edges:
 		g.edge(n1, n2, label=str(bit))
 
-	# 3. Render graph
+	# Render graph
 
 	g.render('tree', view=True, cleanup=True, format='png')
 

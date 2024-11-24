@@ -49,7 +49,7 @@ COND_F_GIVEN_CDE = np.array([
 
 
 def plot_bayes_net():
-	# 1. Set up global attributes
+	# Set up global attributes
 
 	g = Digraph(
 		name='bayesian network',
@@ -57,12 +57,12 @@ def plot_bayes_net():
 		node_attr={'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'shape': 'circle'}
 	)
 
-	# 2. Create nodes
+	# Create nodes
 
 	for node in BAYES_STRUCTURE_DICT:
 		g.node(node, label=node, color='#80c0ff')
 
-	# 3. Create edges
+	# Create edges
 
 	for node, children in BAYES_STRUCTURE_DICT.items():
 		for child in children:

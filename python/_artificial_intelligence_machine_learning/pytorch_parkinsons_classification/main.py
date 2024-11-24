@@ -21,7 +21,7 @@ from tqdm import tqdm
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix, plot_roc_curve
 from conv_net import CNN
 
 
@@ -107,7 +107,7 @@ def create_data_loaders(df):
 
 
 if __name__ == '__main__':
-	# 1. Convert data to dataframe
+	# Convert data to dataframe
 
 	data = []
 	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/parkinsons/*/*.jpg'):
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 
-	# 2. Plot some examples
+	# Plot some examples
 
 	example_indices = [0, 52, 102, 154]
 	_, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 5))
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 	plt.suptitle('Data samples', x=0.514, y=0.95)
 	plt.show()
 
-	# 3. Plot output feature (class) distributions
+	# Plot output feature (class) distributions
 
 	unique_values_counts = df['class'].value_counts()
 	plt.bar(unique_values_counts.index, unique_values_counts.values)
@@ -138,14 +138,14 @@ if __name__ == '__main__':
 	plt.title('Class distribution')
 	plt.show()
 
-	# 4. Preprocess data for loading
+	# Preprocess data for loading
 
 	print(f'\nRaw data:\n{df}\n')
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
 	model = CNN()
-	print(f'\nModel:\n{model}')
+	print(f'\nModel:\n{model}\n')
 	plot_model(model, (1, IMG_SIZE, IMG_SIZE), './images/model_architecture')
 	model.to('cpu')
 
@@ -154,9 +154,9 @@ if __name__ == '__main__':
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
-		# 5. Train model
+		# Train model
 
-		print('\n----- TRAINING -----\n')
+		print('----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
@@ -196,7 +196,14 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# 6. Test model (plot confusion matrix and ROC curve)
+	# Plot the model's learned filters, and corresponding feature maps of a sample image
+
+	plot_cnn_learned_filters(model, num_cols=16, figsize=(9, 3))
+
+	x_val, _ = next(iter(val_loader))
+	plot_cnn_feature_maps(model, num_cols=16, input_img=x_val[0], title_append=' of a sample image', figsize=(9, 3))
+
+	# Test model (plot confusion matrix and ROC curve)
 
 	print('\n----- TESTING -----\n')
 

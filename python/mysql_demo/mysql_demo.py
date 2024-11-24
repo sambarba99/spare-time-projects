@@ -89,7 +89,7 @@ def create_tables():
 
 
 def populate_tables():
-	# 1. Tables 'employee' and 'branch'
+	# Tables 'employee' and 'branch'
 	# Corporate
 	curs.execute("INSERT INTO employee VALUES(100, 'Wallace', 'David', '1967-11-17', 'M', 250000, NULL, NULL);")
 	curs.execute("INSERT INTO branch VALUES(1, 'Corporate', 100, '1993-05-18');")
@@ -114,7 +114,7 @@ def populate_tables():
 	curs.execute("INSERT INTO employee VALUES(108, 'Halpert', 'Jim', '1978-10-01', 'M', 71000, 106, 3);")
 	con.commit()
 
-	# 2. Table 'branch_supplier'
+	# Table 'branch_supplier'
 	curs.execute("INSERT INTO branch_supplier VALUES(2, 'Hammer Mill', 'Paper');")
 	curs.execute("INSERT INTO branch_supplier VALUES(2, 'Uni-ball', 'Writing Utensils');")
 	curs.execute("INSERT INTO branch_supplier VALUES(3, 'Patriot Paper', 'Paper');")
@@ -124,7 +124,7 @@ def populate_tables():
 	curs.execute("INSERT INTO branch_supplier VALUES(3, 'Stamford Lables', 'Custom Forms');")
 	con.commit()
 
-	# 3. Table 'client'
+	# Table 'client'
 	curs.execute("INSERT INTO client VALUES(400, 'Dunmore Highschool', 2);")
 	curs.execute("INSERT INTO client VALUES(401, 'Lackawana County', 2);")
 	curs.execute("INSERT INTO client VALUES(402, 'FedEx', 3);")
@@ -134,7 +134,7 @@ def populate_tables():
 	curs.execute("INSERT INTO client VALUES(406, 'FedEx', 2);")
 	con.commit()
 
-	# 4. Table 'works_with'
+	# Table 'works_with'
 	curs.execute('INSERT INTO works_with VALUES(105, 400, 55000);')
 	curs.execute('INSERT INTO works_with VALUES(102, 401, 267000);')
 	curs.execute('INSERT INTO works_with VALUES(108, 402, 22500);')

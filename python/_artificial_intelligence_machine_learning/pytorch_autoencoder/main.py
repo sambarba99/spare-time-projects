@@ -37,7 +37,7 @@ mx = my = last_mx = last_my = 0
 
 
 def do_mnist():
-	# 1. Prepare data
+	# Prepare data
 
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -48,7 +48,7 @@ def do_mnist():
 
 	y = np.concatenate([y_train, y_test])
 
-	# 2. Load or train model
+	# Load or train model
 
 	model = MNISTAutoencoder()
 	plot_model(model, (1, 28, 28), './plots/mnist_autoencoder_architecture')
@@ -106,7 +106,7 @@ def do_mnist():
 		plt.title('MSE val loss per training epoch')
 		plt.show()
 
-	# 3. Visualise the latent space, controlled by the mouse
+	# Visualise the latent space, controlled by the mouse
 
 	encodings = model.encoder_block(x).detach().numpy()
 
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 	if path == 'mnist':
 		do_mnist()
 	else:
-		# 1. Prepare data
+		# Prepare data
 
 		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), tensor_device='cpu')
 		num_features_in = x.shape[1]
@@ -185,7 +185,7 @@ if __name__ == '__main__':
 		num_features_out = int(choice)
 		assert num_features_out in (2, 3)  # So can be plotted on xy[z] axes
 
-		# 2. Load or train model
+		# Load or train model
 
 		model_name = path.split('/')[-1].removesuffix('.csv')
 		model_name = f'{model_name}_model_{num_features_out}_latent_variables'
@@ -245,7 +245,7 @@ if __name__ == '__main__':
 			plt.title('MSE val loss per training epoch')
 			plt.show()
 
-		# 3. Visualise the latent space
+		# Visualise the latent space
 
 		encodings = model.encoder_block(x).detach().numpy()
 

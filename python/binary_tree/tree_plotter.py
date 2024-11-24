@@ -9,7 +9,7 @@ from graphviz import Graph
 
 
 def plot_tree(tree, title):
-	# 1. Set up global attributes
+	# Set up global attributes
 
 	g = Graph(
 		name='binary tree',
@@ -17,7 +17,7 @@ def plot_tree(tree, title):
 		node_attr={'style': 'filled,setlinewidth(0)', 'label': '', 'shape': 'rect', 'fillcolor': '#80c0ff'}
 	)
 
-	# 2. Create nodes and edges
+	# Create nodes and edges
 
 	nodes, edges = generate_graph(tree)
 
@@ -27,7 +27,7 @@ def plot_tree(tree, title):
 	for n1, n2 in edges:
 		g.edge(n1, n2)
 
-	# 3. Render graph
+	# Render graph
 
 	g.render(f'binary_tree_{title}', view=True, cleanup=True, format='png')
 

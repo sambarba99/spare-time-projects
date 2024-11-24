@@ -106,7 +106,7 @@ def create_data_loaders(df):
 
 
 if __name__ == '__main__':
-	# 1. Convert data to dataframe
+	# Convert data to dataframe
 
 	data = []
 	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg'):
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender', 'race'])
 	print(f'\nRaw data:\n{df}\n')
 
-	# 2. Plot some examples
+	# Plot some examples
 
 	rand_indices = np.random.choice(range(df.shape[0]), size=16, replace=False)
 	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(7, 7))
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 	plt.suptitle('Data samples (age, gender, race)', y=0.96)
 	plt.show()
 
-	# 3. Plot output feature distributions
+	# Plot output feature distributions
 
 	fig, axes = plt.subplots(nrows=3, figsize=(8, 6))
 	plt.subplots_adjust(hspace=0.4)
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 	plt.suptitle('Output feature distributions', y=0.94)
 	plt.show()
 
-	# 4. Define data loaders and model
+	# Define data loaders and model
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
@@ -169,7 +169,7 @@ if __name__ == '__main__':
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
-		# 5. Train model
+		# Train model
 
 		print('\n----- TRAINING -----\n')
 
@@ -286,7 +286,7 @@ if __name__ == '__main__':
 		plt.suptitle('Training metrics', x=0.505)
 		plt.show()
 
-	# 6. Test model
+	# Test model
 
 	print('\n----- TESTING -----\n')
 

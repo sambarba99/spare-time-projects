@@ -86,12 +86,12 @@ class KMeans:
 				plt.pause(0.8)
 
 
-		# 1. Initially choose centroids randomly from x
+		# Initially choose centroids randomly from x
 		self.centroids = x[np.random.choice(len(x), size=self.k, replace=False)]
 
-		# 2. Optimise clusters
+		# Optimise clusters
 		while True:
-			# 2a. Create clusters by assigning sample indices to their nearest centroid
+			# Create clusters by assigning sample indices to their nearest centroid
 			self.clusters = [[] for _ in range(self.k)]
 			y = self.predict(x)
 			for idx, yi in enumerate(y):
@@ -99,14 +99,14 @@ class KMeans:
 
 			plot('Classified samples')
 
-			# 2b. Calculate new centroids from the clusters
+			# Calculate new centroids from the clusters
 			centroids_prev = self.centroids.copy()
 
 			for i in range(self.k):
 				cluster_mean = x[y == i].mean(axis=0)
 				self.centroids[i] = cluster_mean
 
-			# 2c. Check for convergence (no distance change since last time)
+			# Check for convergence (no distance change since last time)
 			distances = np.linalg.norm(centroids_prev - self.centroids, axis=1)
 			if sum(distances) == 0:
 				plot('Converged')

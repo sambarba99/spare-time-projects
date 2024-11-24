@@ -45,7 +45,7 @@ def plot_test_progress(x_test, y_test_true, y_test_pred, epoch_num, split_num):
 
 
 if __name__ == '__main__':
-	# 1. Define an arbitrary function
+	# Define an arbitrary function
 
 	x = np.linspace(-1, 1, 2000)
 	y = 5 * x ** 3 - x ** 2 - 3 * x + 1  # 5x^3 - x^2 - 3x + 1
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 	x_test = x_test[test_idx]
 	y_test = y_test[test_idx]
 
-	# 2. Define model
+	# Define model
 
 	layers = []
 	for i in range(NUM_HIDDEN_LAYERS):
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 	optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 	print(f'\nModel:\n{model}\n')
 
-	# 3. Training loop
+	# Training loop
 
 	kf = KFold(n_splits=NUM_SPLITS)
 

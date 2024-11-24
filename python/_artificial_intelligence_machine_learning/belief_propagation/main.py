@@ -204,7 +204,7 @@ def calculate_marginals(known, msg_order):
 
 
 if __name__ == '__main__':
-	# 1. Get coffee machine data
+	# Get coffee machine data
 
 	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/coffee_machines.csv')
 	print(f'\nRaw data:\n{df}\n')
@@ -213,7 +213,7 @@ if __name__ == '__main__':
 	print('No. working machines:', data[:, nti['he']].sum())  # Works only if 'he' ('makes hot espresso') is true
 	print('No. broken machines:', len(data) - data[:, nti['he']].sum())
 
-	# 2. Display graphical model, RVs, and their calculated probability distributions
+	# Display graphical model, RVs, and their calculated probability distributions
 
 	plot_graphical_model(rvs)
 
@@ -235,12 +235,12 @@ if __name__ == '__main__':
 				conditionals = rv[0][bit_permutation]
 				print(f'\tP({event_name}|{bits}) = {conditionals}')
 
-	# 3. Display factor graph
+	# Display factor graph
 
 	edges = calculate_edges()
 	plot_factor_graph(edges, itn, rvs)
 
-	# 4. Display message order
+	# Display message order
 
 	msg_order = calculate_message_order(edges)
 	print(f'\nFactor graph message order ({len(msg_order)} messages):')
@@ -250,7 +250,7 @@ if __name__ == '__main__':
 		else:  # src is a factor
 			print(f'{src} (factor) -> {dest} ({itn[dest]})')
 
-	# 5. Display marginals ('beliefs')
+	# Display marginals ('beliefs')
 
 	print('\nMarginals with no observations:\n')
 	marginals = calculate_marginals(known=dict(), msg_order=msg_order)
@@ -264,7 +264,7 @@ if __name__ == '__main__':
 		print(f'P({itn[idx]}) = {m}')
 	print()
 
-	# 6. Test on some example machines
+	# Test on some example machines
 
 	machines = {
 		'Machine A': {nti['me']: True},

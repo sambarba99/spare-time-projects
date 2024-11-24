@@ -119,20 +119,20 @@ class Car:
 			return new_x, new_y
 
 
-		# 1. Decode action num
+		# Decode action num
 
 		accelerating = action in (1, 5, 6)
 		decelerating = action in (2, 7, 8)
 		turning_left = action in (3, 5, 7)
 		turning_right = action in (4, 6, 8)
 
-		# 2. Apply force to accelerate/decelerate if necessary
+		# Apply force to accelerate/decelerate if necessary
 
 		if accelerating: self.acc = FORCE
 		elif decelerating: self.acc = -FORCE
 		else: self.acc = 0
 
-		# 3. Apply steering if necessary
+		# Apply steering if necessary
 
 		if turning_left: turn_amount = -TURN_RATE * self.vel
 		elif turning_right: turn_amount = TURN_RATE * self.vel
@@ -151,7 +151,7 @@ class Car:
 			if self.do_rendering:
 				self.img = pg.transform.rotate(self.original_img, -degrees(self.heading))
 
-		# 4. Update velocity/drift
+		# Update velocity/drift
 
 		self.vel += self.acc
 		self.vel *= (1 - FRICTION)
@@ -181,7 +181,7 @@ class Car:
 		vel_vector.x *= abs(self.vel)
 		vel_vector.y *= -abs(self.vel)  # Minus because origin (0,0) is at top-left of screen
 
-		# 5. Update position
+		# Update position
 
 		self.pos += vel_vector
 		self.p1 += vel_vector

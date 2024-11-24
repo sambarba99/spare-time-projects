@@ -15,7 +15,7 @@ plt.rcParams['figure.figsize'] = (8, 5)
 
 
 if __name__ == '__main__':
-	# 1. Load data
+	# Load data
 
 	choice = input('\nEnter C for circle-shaped data or M for moon-shaped data\n>>> ').upper()
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 		if choice == 'C' else \
 		make_moons(n_samples=500, noise=0.1, random_state=1)
 
-	# 2. Cluster samples
+	# Cluster samples
 
 	clusterer = DBSCAN(epsilon=0.2, min_samples=9) \
 		if choice == 'C' else \
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
 	labels = clusterer.fit_predict(x)
 
-	# 3. Plot clusters and noise
+	# Plot clusters and noise
 
 	unique_labels = sorted(set(labels))
 

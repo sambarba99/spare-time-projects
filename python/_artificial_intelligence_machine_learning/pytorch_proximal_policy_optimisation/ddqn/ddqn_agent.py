@@ -38,7 +38,7 @@ class DDQNAgent:
 			self.optimiser = torch.optim.Adam(self.policy_net.parameters(), lr=LEARNING_RATE)
 
 	def do_training(self, env):
-		# 1. Pretraining step: populate agent's memory with transitions
+		# Pretraining step: populate agent's memory with transitions
 
 		print('\nPretraining (populating agent memory)...')
 
@@ -59,7 +59,7 @@ class DDQNAgent:
 				# Update for next loop
 				state = next_state
 
-		# 2. Now agent can be trained
+		# Now agent can be trained
 
 		print('\nTraining...\n')
 
