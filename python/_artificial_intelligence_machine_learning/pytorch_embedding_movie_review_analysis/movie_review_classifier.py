@@ -18,7 +18,7 @@ def plot_review_classifier(sequence_len, embedding_len, hidden_len):
 		{'layer_name': 'sequential', 'layer_type': 'Linear', 'output_shape': (hidden_len // 2,), 'activation': 'LeakyReLU'},
 		{'layer_name': 'sequential', 'layer_type': 'Linear', 'output_shape': (1,)}
 	]
-	plot_model_manual(nodes=nodes, out_file='./images/model_architecture')
+	plot_model_manual(nodes=nodes)
 
 
 class MovieReviewClf(nn.Module):

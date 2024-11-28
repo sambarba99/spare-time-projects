@@ -1,18 +1,18 @@
 """
-PyTorch MNIST convolutional neural network
+PyTorch CNN for handwritten letter classification
 
 Author: Sam Barba
-Created 30/10/2022
+Created 28/11/2024
 """
 
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pygame as pg
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -24,7 +24,6 @@ from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_fea
 from conv_net import CNN
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 torch.manual_seed(1)
 
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
@@ -35,21 +34,22 @@ DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/handwritten_letters.csv')
 
-	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
+	x, y = df.iloc[:, 1:].to_numpy(dtype=float), df.iloc[:, 0].to_numpy()
+
+	# Reshape images, normalise to [0,1], and add channel dim
+	x = x.reshape((-1, 28, 28)) / 255
 	x = np.expand_dims(x, 1)
 
 	# One-hot encode y
-	y = np.concatenate([y_train, y_test])
-	y = np.eye(10)[y]  # 10 classes (0-9)
+	y = np.eye(26)[y]  # 26 classes (A-Z)
 
 	x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
-	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
+	# Create train/validation/test sets (ratio 0.98:0.01:0.01)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.99, stratify=y, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.99, stratify=y_train_val, random_state=1)
 
 	train_set = CustomDataset(x_train, y_train)
 	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
+		_, axes = plt.subplots(nrows=8, ncols=8, figsize=(5, 5))
 		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
 		for idx, ax in enumerate(axes.flatten()):
 			sample = x_val[idx].squeeze()
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './model.pth')
 
 	# Plot the model's learned filters
-	plot_cnn_learned_filters(model, num_cols=4)
+	plot_cnn_learned_filters(model, num_cols=4, figsize=(9, 4))
 
 	# Test model
 
@@ -140,12 +140,13 @@ if __name__ == '__main__':
 
 	# Confusion matrix
 	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
-	plot_confusion_matrix(y_test.argmax(dim=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	labels = [chr(i) for i in range(65, 91)]
+	plot_confusion_matrix(y_test.argmax(dim=1), test_pred, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
-	# User draws a digit to predict
+	# User draws a letter to predict
 
 	pg.init()
-	pg.display.set_caption('Draw a digit!')
+	pg.display.set_caption('Draw a letter!')
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
 	font = pg.font.SysFont('consolas', 16)
 	user_drawing_coords = np.zeros((0, 2))
@@ -202,10 +203,11 @@ if __name__ == '__main__':
 					pg.Rect(x * DRAWING_CELL_SIZE, y * DRAWING_CELL_SIZE, DRAWING_CELL_SIZE, DRAWING_CELL_SIZE)
 				)
 
-		pred_lbl = font.render(f'{pred_probs.argmax()} ({(100 * pred_probs.max()):.1f}% sure)', True, 'green')
+		pred_letter = chr(65 + pred_probs.argmax().item())
+		pred_lbl = font.render(f'{pred_letter} ({(100 * pred_probs.max()):.1f}% sure)', True, 'green')
 		scene.blit(pred_lbl, (10, 10))
 
 		pg.display.update()
 
-	# Plot feature maps of user-drawn digit
-	plot_cnn_feature_maps(model, num_cols=4, input_img=model_input, title_append=' (user-drawn digit)')
+	# Plot feature maps of user-drawn letter
+	plot_cnn_feature_maps(model, num_cols=4, input_img=model_input, title_append=' (user-drawn letter)', figsize=(9, 4))

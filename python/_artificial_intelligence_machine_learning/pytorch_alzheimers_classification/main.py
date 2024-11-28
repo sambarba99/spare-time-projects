@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
 	model = CNN()
 	print(f'\nModel:\n{model}\n')
-	plot_model(model, (1, INPUT_H, INPUT_W), './images/model_architecture')
+	plot_model(model, (1, INPUT_H, INPUT_W))
 	model.to(DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()

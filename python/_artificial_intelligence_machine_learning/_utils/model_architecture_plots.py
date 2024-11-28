@@ -29,7 +29,7 @@ def make_node_label(layer_name, layer_type, input_shape, output_shape, activatio
 	return ''.join(elements)
 
 
-def plot_model(model, input_shape, out_file='./model_architecture'):
+def plot_model(model, input_shape, out_file='./images/model_architecture'):
 	assert issubclass(model.__class__, torch.nn.Module)
 	assert isinstance(input_shape, tuple)
 
@@ -125,7 +125,7 @@ def plot_model(model, input_shape, out_file='./model_architecture'):
 	g.render(out_file, view=True, cleanup=True, format='png')
 
 
-def plot_model_manual(*, nodes, edges=None, out_file='./model_architecture'):
+def plot_model_manual(*, nodes, edges=None, out_file='./images/model_architecture'):
 	def format_shape(shape_tuple):
 		shape_tuple = tuple([1] + list(shape_tuple))
 		shape_repr = str(shape_tuple).replace('(1', '(N')

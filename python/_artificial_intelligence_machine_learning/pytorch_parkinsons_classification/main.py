@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
 	model = CNN()
 	print(f'\nModel:\n{model}\n')
-	plot_model(model, (1, IMG_SIZE, IMG_SIZE), './images/model_architecture')
+	plot_model(model, (1, IMG_SIZE, IMG_SIZE))
 	model.to('cpu')
 
 	loss_func = torch.nn.BCEWithLogitsLoss()

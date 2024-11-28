@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
 	# print(model.state_dict())  # Model weights
 	print(f'Model:\n{model}')
-	plot_model(model, (num_features,), './images/model_architecture')
+	plot_model(model, (num_features,))
 	model.to('cpu')
 
 	# Training
