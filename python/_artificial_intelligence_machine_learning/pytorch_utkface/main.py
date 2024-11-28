@@ -21,8 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
 from conv_net import CNN
 
 
@@ -156,10 +155,9 @@ if __name__ == '__main__':
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
-	model = CNN()
+	model = CNN().to(DEVICE)
 	print(f'Model:\n{model}')
-	plot_model(model, (3, IMG_SIZE, IMG_SIZE))
-	model.to(DEVICE)
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./model_architecture')
 
 	loss_func_age = torch.nn.MSELoss()
 	loss_func_gender = torch.nn.BCEWithLogitsLoss()
@@ -167,7 +165,7 @@ if __name__ == '__main__':
 	mae_func_age = torch.nn.L1Loss()
 
 	if os.path.exists('./model.pth'):
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model
 
@@ -294,8 +292,8 @@ if __name__ == '__main__':
 	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
 	with torch.inference_mode():
 		age_test_pred, gender_test_logits, race_test_logits = model(x_test.to(DEVICE))
-	age_test_pred = age_test_pred.cpu()
-	gender_test_logits = gender_test_logits.cpu()
+	age_test_pred = age_test_pred.squeeze().cpu()
+	gender_test_logits = gender_test_logits.squeeze().cpu()
 	race_test_logits = race_test_logits.cpu()
 
 	print('Test age MAE:', mae_func_age(age_test_pred, y_test_age).item())

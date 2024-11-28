@@ -68,8 +68,7 @@ if __name__ == '__main__':
 		layers.append(nn.Tanh())
 	layers.append(nn.Linear(HIDDEN_LAYER_SIZE, 1))
 
-	model = nn.Sequential(*layers)
-	model.to('cpu')
+	model = nn.Sequential(*layers).cpu()
 	loss_func = nn.MSELoss()
 	optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 	print(f'\nModel:\n{model}\n')

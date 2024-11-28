@@ -21,8 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.model_plotting import plot_torch_model, plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 from conv_net import CNN
 
 
@@ -109,15 +108,14 @@ if __name__ == '__main__':
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
-	model = CNN()
+	model = CNN().to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_model(model, (1, INPUT_H, INPUT_W))
-	model.to(DEVICE)
+	plot_torch_model(model, (1, INPUT_H, INPUT_W), input_device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
 	if os.path.exists('./model.pth'):
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model
 
@@ -148,9 +146,8 @@ if __name__ == '__main__':
 
 			model.eval()
 			x_val, y_val = next(iter(val_loader))
-			x_val = x_val.to(DEVICE)
 			with torch.inference_mode():
-				y_val_logits = model(x_val).cpu()
+				y_val_logits = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
@@ -176,9 +173,8 @@ if __name__ == '__main__':
 
 	model.eval()
 	x_test, y_test = next(iter(test_loader))
-	x_test = x_test.to(DEVICE)
 	with torch.inference_mode():
-		y_test_logits = model(x_test).cpu()
+		y_test_logits = model(x_test.to(DEVICE)).cpu()
 
 	test_loss = loss_func(y_test_logits, y_test)
 	print('Test loss:', test_loss.item())

@@ -54,7 +54,7 @@ def transform(x, y, num_components):
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to use banknote dataset,'
+		'\nEnter 1 for banknote dataset,'
 		'\n2 for breast tumour dataset,'
 		'\n3 for glass dataset,'
 		'\n4 for iris dataset,'

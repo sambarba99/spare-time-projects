@@ -20,8 +20,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_torch_model, plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix, plot_roc_curve
 from conv_net import CNN
 
 
@@ -144,10 +143,9 @@ if __name__ == '__main__':
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
-	model = CNN()
+	model = CNN().cpu()
 	print(f'\nModel:\n{model}\n')
-	plot_model(model, (1, IMG_SIZE, IMG_SIZE))
-	model.to('cpu')
+	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE))
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
@@ -210,7 +208,7 @@ if __name__ == '__main__':
 	model.eval()
 	x_test, y_test = next(iter(test_loader))
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test).squeeze()
 	y_test_probs = torch.sigmoid(y_test_logits)
 	y_test_pred = y_test_probs.round()
 	test_loss = loss_func(y_test_logits, y_test)

@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
+from _utils.model_plotting import plot_torch_model
 from diffusion_controller import DiffusionController
 from model import DDPM
 
@@ -59,6 +60,7 @@ def create_train_loader():
 if __name__ == '__main__':
 	model = DDPM(num_timesteps=T, encoding_dim=T_ENCODING_DIM, device=DEVICE)
 	print(f'\nModel:\n\n{model}')
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), tuple(), input_device=DEVICE)
 
 	diffusion_controller = DiffusionController(num_timesteps=T, beta_min=BETA_MIN, beta_max=BETA_MAX, device=DEVICE)
 

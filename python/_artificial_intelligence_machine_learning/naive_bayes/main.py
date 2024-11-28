@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.metrics import f1_score
 
 from _utils.csv_data_loader import load_csv_classification_data
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
 from naive_bayes_classifier import NaiveBayesClassifier
 
 
@@ -21,7 +21,7 @@ pd.set_option('display.width', None)
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to use banknote dataset,'
+		'\nEnter 1 for banknote dataset,'
 		'\n2 for breast tumour dataset,'
 		'\n3 for glass dataset,'
 		'\n4 for iris dataset,'

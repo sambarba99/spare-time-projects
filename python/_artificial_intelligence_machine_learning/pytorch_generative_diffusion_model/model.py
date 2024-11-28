@@ -145,8 +145,7 @@ class DDPM(nn.Module):
 		self.encoder3 = DownBlock(128, 256)
 		self.encoder4 = DownBlock(256, 512)
 
-		# Bottleneck
-		self.middle = nn.Sequential(
+		self.bottleneck = nn.Sequential(
 			nn.Conv2d(512, 1024, kernel_size=3, padding=1),
 			nn.LeakyReLU(),
 			nn.Conv2d(1024, 1024, kernel_size=3, padding=1),
@@ -166,7 +165,7 @@ class DDPM(nn.Module):
 		self.to(device)
 
 	def forward(self, x, t):
-		t_enc = self.time_positional_encoding(self.pe_matrix[t])  # -> (N, encoding_dim)
+		t_enc = self.time_positional_encoding(self.pe_matrix[t.int()])  # -> (N, encoding_dim)
 
 		# Match spatial dimensions of the input, and concatenate to x along the feature dimension
 		_, _, h, w = x.shape
@@ -179,7 +178,7 @@ class DDPM(nn.Module):
 		skip3, enc3 = self.encoder3(enc2)  # -> (N, 256, 16, 16) (N, 256, 8, 8)
 		skip4, enc4 = self.encoder4(enc3)  # -> (N, 512, 8, 8) (N, 512, 4, 4)
 
-		mid = self.middle(enc4)            # -> (N, 1024, 4, 4)
+		mid = self.bottleneck(enc4)        # -> (N, 1024, 4, 4)
 
 		dec1 = self.decoder1(mid, skip4)   # -> (N, 512, 8, 8)
 		dec2 = self.decoder2(dec1, skip3)  # -> (N, 256, 16, 16)

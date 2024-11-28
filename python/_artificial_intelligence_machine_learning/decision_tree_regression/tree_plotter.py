@@ -80,4 +80,4 @@ def plot_tree(tree, features):
 
 	# Render graph
 
-	g.render('tree', view=True, cleanup=True, format='png')
+	g.render('./tree', view=True, cleanup=True, format='png')

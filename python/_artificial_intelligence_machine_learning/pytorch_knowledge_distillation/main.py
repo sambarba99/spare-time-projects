@@ -21,8 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.model_plotting import plot_torch_model, plot_confusion_matrix
 from conv_nets import Teacher, Student
 
 
@@ -30,11 +29,11 @@ torch.manual_seed(1)
 
 IMG_SIZE = 32
 BATCH_SIZE = 128
-LEARNING_RATE = 1e-3
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
 DISTILLATION_LOSS_WEIGHT = 0.6   # Contribution of distillation loss to KD training
 CROSS_ENTROPY_LOSS_WEIGHT = 0.4  # Contribution of cross-entropy loss to KD training
 TEMPERATURE = 2                  # Controls smoothness of output distributions
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders():
@@ -82,7 +81,7 @@ def train(model, save_path):
 	torch.manual_seed(1)  # Ensure equal training for all models
 
 	loss_func = torch.nn.CrossEntropyLoss()
-	optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 
 	for epoch in range(1, NUM_EPOCHS + 1):
@@ -92,6 +91,9 @@ def train(model, save_path):
 		for x_train, y_train in train_loader:
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
+			x_train = x_train.to(DEVICE)
+			y_train = y_train.to(DEVICE)
 
 			y_train_logits = model(x_train)
 			loss = loss_func(y_train_logits, y_train)
@@ -105,7 +107,7 @@ def train(model, save_path):
 		model.eval()
 		x_val, y_val = next(iter(val_loader))
 		with torch.inference_mode():
-			y_val_logits = model(x_val)
+			y_val_logits = model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(y_val_logits, y_val).item()
 		val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
@@ -124,7 +126,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 	torch.manual_seed(1)
 
 	loss_func = torch.nn.CrossEntropyLoss()
-	optimiser = torch.optim.Adam(student_model.parameters(), lr=LEARNING_RATE)
+	optimiser = torch.optim.Adam(student_model.parameters())
 	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 
 	teacher_model.eval()
@@ -136,6 +138,9 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 		for x_train, y_train in train_loader:
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
+
+			x_train = x_train.to(DEVICE)
+			y_train = y_train.to(DEVICE)
 
 			with torch.inference_mode():
 				teacher_logits = teacher_model(x_train)
@@ -167,7 +172,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 		student_model.eval()
 		x_val, y_val = next(iter(val_loader))
 		with torch.inference_mode():
-			y_val_logits = student_model(x_val)
+			y_val_logits = student_model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(y_val_logits, y_val).item()
 		val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
@@ -186,7 +191,7 @@ def test(model, plot_title):
 	model.eval()
 	x_test, y_test, y_labels = next(iter(test_loader))
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test.to(DEVICE)).cpu()
 
 	ordered_y_labels = sorted(set(y_labels))
 	y_test = y_test.argmax(dim=1)
@@ -248,22 +253,19 @@ if __name__ == '__main__':
 
 	# Define models
 
-	teacher_model = Teacher()
-	student_model_no_kd = Student()
-	student_model_with_kd = Student()
+	teacher_model = Teacher().to(DEVICE)
+	student_model_no_kd = Student().to(DEVICE)
+	student_model_with_kd = Student().to(DEVICE)
 	student_model_with_kd.load_state_dict(student_model_no_kd.state_dict())
 	print(f'\nTeacher model:\n{teacher_model}')
 	print(f'\nStudent model:\n{student_model_no_kd}')
-	plot_model(teacher_model, (3, IMG_SIZE, IMG_SIZE), './images/teacher_architecture')
-	plot_model(student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), './images/student_architecture')
-	teacher_model.to('cpu')
-	student_model_no_kd.to('cpu')
-	student_model_with_kd.to('cpu')
+	plot_torch_model(teacher_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/teacher_architecture')
+	plot_torch_model(student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/student_architecture')
 
 	teacher_params = sum(p.numel() for p in teacher_model.parameters())
 	student_params = sum(p.numel() for p in student_model_no_kd.parameters())
 	print(f'\nTeacher parameters: {teacher_params:,}')
-	print(f'Student parameters: {student_params:,} ({round(student_params / teacher_params, 2)}x)\n')
+	print(f'Student parameters: {student_params:,} ({round(student_params / teacher_params, 2)}x)')
 
 	# Load models, or train if they don't exist
 
@@ -272,33 +274,22 @@ if __name__ == '__main__':
 	student_model_with_kd_path = './student_model_with_kd.pth'
 
 	if os.path.exists(teacher_model_path):
-		teacher_model.load_state_dict(torch.load(teacher_model_path))
+		teacher_model.load_state_dict(torch.load(teacher_model_path, map_location=DEVICE))
 	else:
-		print('----- TRAINING TEACHER -----\n')
+		print('\n----- TRAINING TEACHER -----\n')
 		train(teacher_model, teacher_model_path)
 
 	if os.path.exists(student_model_no_kd_path):
-		student_model_no_kd.load_state_dict(torch.load(student_model_no_kd_path))
+		student_model_no_kd.load_state_dict(torch.load(student_model_no_kd_path, map_location=DEVICE))
 	else:
-		print('----- TRAINING STUDENT (NO KD) -----\n')
+		print('\n----- TRAINING STUDENT (NO KD) -----\n')
 		train(student_model_no_kd, student_model_no_kd_path)
 
 	if os.path.exists(student_model_with_kd_path):
-		student_model_with_kd.load_state_dict(torch.load(student_model_with_kd_path))
+		student_model_with_kd.load_state_dict(torch.load(student_model_with_kd_path, map_location=DEVICE))
 	else:
-		print('----- TRAINING STUDENT (WITH KD) -----\n')
+		print('\n----- TRAINING STUDENT (WITH KD) -----\n')
 		train_student_with_kd(teacher_model, student_model_with_kd, student_model_with_kd_path)
-
-	# Plot the models' learned filters, and corresponding feature maps of a sample image
-
-	x_val, _ = next(iter(val_loader))
-	for model, name in zip(
-		[teacher_model, student_model_no_kd, student_model_with_kd],
-		['teacher model', 'student model (no KD)', 'student model (with KD)']
-	):
-		print(f'{name.capitalize()}:')
-		plot_cnn_learned_filters(model, num_cols=16, title_append=f' ({name})')
-		plot_cnn_feature_maps(model, num_cols=16, input_img=x_val[0], title_append=f' ({name})')
 
 	# Test teacher, student without KD, student with KD
 

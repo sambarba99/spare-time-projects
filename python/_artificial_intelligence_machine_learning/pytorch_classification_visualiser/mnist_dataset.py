@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_evaluation_plots import plot_cnn_learned_filters
+from _utils.model_plotting import plot_cnn_learned_filters
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -105,8 +105,7 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = CNN()
-	model.to('cpu')
+	model = CNN().cpu()
 	print(f'\nModel:\n{model}\n')
 
 	if os.path.exists('./mnist_model.pth'):

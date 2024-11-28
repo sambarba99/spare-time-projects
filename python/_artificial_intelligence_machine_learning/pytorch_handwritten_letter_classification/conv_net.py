@@ -29,6 +29,6 @@ class CNN(nn.Module):
 
 	def forward(self, x):
 		conv_out = self.conv_block(x)
-		fc_out = self.fc_block(conv_out).squeeze()
+		fc_out = self.fc_block(conv_out)
 
 		return fc_out

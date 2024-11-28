@@ -47,7 +47,7 @@ def make_best_tree(x_train, y_train, x_test, y_test):
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter B to use Boston housing dataset,'
+		'\nEnter B for Boston housing dataset,'
 		'\nC for car value dataset,'
 		'\nM for medical insurance dataset,'
 		'\nP for Parkinson\'s dataset,'

@@ -13,7 +13,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
 from logistic_regressor import LogisticRegressor
 
 
@@ -61,7 +61,7 @@ def load_data(path, train_test_ratio=0.8):
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to use banknote dataset,'
+		'\nEnter 1 for banknote dataset,'
 		'\n2 for breast tumour dataset,'
 		'\nor 3 for mushroom dataset\n>>> '
 	)

@@ -19,8 +19,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.model_plotting import plot_torch_model, plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 from conv_net import CNN
 
 
@@ -64,10 +63,9 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = CNN()
+	model = CNN().cpu()
 	print(f'\nModel:\n{model}\n')
-	plot_model(model, INPUT_SHAPE)
-	model.to('cpu')
+	plot_torch_model(model, INPUT_SHAPE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 

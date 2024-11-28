@@ -79,8 +79,7 @@ def build_model():
 		nn.Linear(LAYER_SIZE, LAYER_SIZE),
 		nn.Tanh(),
 		nn.Linear(LAYER_SIZE, 1 if num_classes == 2 else num_classes)
-	)
-	model.to('cpu')
+	).cpu()
 
 
 def build_and_train_model(*_):

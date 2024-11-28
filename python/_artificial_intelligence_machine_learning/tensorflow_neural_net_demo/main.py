@@ -18,7 +18,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 
 from _utils.csv_data_loader import load_csv_classification_data, load_csv_regression_data
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam

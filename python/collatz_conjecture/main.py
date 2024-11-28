@@ -82,4 +82,4 @@ if __name__ == '__main__':
 		for src_node in src_nodes:
 			g.edge(str(src_node), str(dest_node))
 
-	g.render('trajectory_graph', view=True, cleanup=True, format='png')
+	g.render('./images/trajectory_graph', view=True, cleanup=True, format='png')

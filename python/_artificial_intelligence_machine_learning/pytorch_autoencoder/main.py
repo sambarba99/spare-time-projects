@@ -21,7 +21,7 @@ from tqdm import tqdm
 from _utils.csv_data_loader import load_csv_classification_data
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
+from _utils.model_plotting import plot_torch_model
 from mnist_autoencoder import MNISTAutoencoder
 from tabular_autoencoder import TabularAutoencoder
 
@@ -31,6 +31,7 @@ pd.set_option('display.width', None)
 torch.manual_seed(1)
 
 NUM_EPOCHS = 500
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'  # For MNISTAutoencoder
 
 # Mouse pointer x and y (for MNIST latent space visualisation)
 mx = my = last_mx = last_my = 0
@@ -44,19 +45,18 @@ def do_mnist():
 	# Normalise images to [0,1] and add channel dim
 	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
 	x = np.expand_dims(x, 1)
-	x = torch.tensor(x).float()
+	x = torch.tensor(x, device=DEVICE).float()
 
 	y = np.concatenate([y_train, y_test])
 
 	# Load or train model
 
-	model = MNISTAutoencoder()
-	plot_model(model, (1, 28, 28), './plots/mnist_autoencoder_architecture')
-	model.to('cpu')
+	model = MNISTAutoencoder().to(DEVICE)
+	plot_torch_model(model, (1, 28, 28), input_device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
 	model_path = './models/mnist_model.pth'
 
 	if os.path.exists(model_path):
-		model.load_state_dict(torch.load(model_path))
+		model.load_state_dict(torch.load(model_path, map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
 
@@ -108,7 +108,7 @@ def do_mnist():
 
 	# Visualise the latent space, controlled by the mouse
 
-	encodings = model.encoder_block(x).detach().numpy()
+	encodings = model.encoder_block(x).detach().cpu().numpy()
 
 	fig, (ax_latent, ax_decoded) = plt.subplots(ncols=2, figsize=(9, 5))
 	plt.subplots_adjust(wspace=0.1)
@@ -127,8 +127,8 @@ def do_mnist():
 	def update_plots(_):
 		mouse_scatter = ax_latent.scatter(mx, my, marker='x', color='black', linewidth=2, s=100)
 
-		latent_vector = torch.tensor([mx, my]).float().unsqueeze(dim=0)
-		decoded_img = model.decoder_block(latent_vector).detach().numpy().squeeze()
+		latent_vector = torch.tensor([mx, my], device=DEVICE).float().unsqueeze(dim=0)
+		decoded_img = model.decoder_block(latent_vector).detach().cpu().numpy().squeeze()
 		img_plot = ax_decoded.imshow(decoded_img, cmap='gray')
 
 		return mouse_scatter, img_plot
@@ -151,8 +151,8 @@ def do_mnist():
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to use MNIST dataset,'
-		'\n2 to use banknote dataset,'
+		'\nEnter 1 for MNIST dataset,'
+		'\n2 for banknote dataset,'
 		'\n3 for breast tumour dataset,'
 		'\n4 for glass dataset,'
 		'\n5 for iris dataset,'
@@ -191,8 +191,7 @@ if __name__ == '__main__':
 		model_name = f'{model_name}_model_{num_features_out}_latent_variables'
 		model_path = f'./models/{model_name}.pth'
 
-		model = TabularAutoencoder(num_features_in, num_features_out)
-		model.to('cpu')
+		model = TabularAutoencoder(num_features_in, num_features_out).cpu()
 
 		if os.path.exists(model_path):
 			model.load_state_dict(torch.load(model_path))

@@ -12,7 +12,7 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import f1_score
 
 from _utils.csv_data_loader import load_csv_classification_data
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
 from decision_tree import DecisionTree
 from tree_plotter import plot_tree
 
@@ -49,7 +49,7 @@ def make_best_tree(x_train, y_train, x_test, y_test, use_gini=True):
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to use banknote dataset,'
+		'\nEnter 1 for banknote dataset,'
 		'\n2 for breast tumour dataset,'
 		'\n3 for glass dataset,'
 		'\n4 for iris dataset,'

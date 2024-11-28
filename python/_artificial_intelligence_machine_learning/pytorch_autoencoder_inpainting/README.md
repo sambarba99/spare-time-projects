@@ -13,6 +13,12 @@ Visualising some of the latent space by linearly interpolating between 2 random 
 	<img src="images/latent_space_interpolation.webp"/>
 </p>
 
+Model architecture:
+
+<p align="center">
+	<img src="images/model_architecture.png"/>
+</p>
+
 Sources:
 - [From Autoencoder to Beta-VAE](https://lilianweng.github.io/posts/2018-08-12-vae/) (Weng 2018)
 - [Auto-Encoding Variational Bayes](https://arxiv.org/pdf/1312.6114) (Kingma, Welling 2022)

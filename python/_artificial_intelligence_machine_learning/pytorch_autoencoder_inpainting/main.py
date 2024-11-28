@@ -18,6 +18,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
+from _utils.model_plotting import plot_torch_model
 from model import VariationalAutoencoder
 
 
@@ -26,7 +27,6 @@ torch.manual_seed(1)
 IMG_SIZE = 128
 CORRUPTED_SQUARE_SIZE = 64
 BATCH_SIZE = 64
-LEARNING_RATE = 1e-3
 NUM_EPOCHS = 100
 
 
@@ -102,9 +102,9 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = VariationalAutoencoder()
-	model.to('cpu')
+	model = VariationalAutoencoder().cpu()
 	print(f'\nModel:\n{model}')
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE))
 
 	if os.path.exists('./model.pth'):
 		model.load_state_dict(torch.load('./model.pth'))
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(patience=20, min_delta=0, mode='min')
 
 		for epoch in range(1, NUM_EPOCHS + 1):

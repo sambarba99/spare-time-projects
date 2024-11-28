@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 
-from _utils.model_evaluation_plots import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.model_plotting import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam

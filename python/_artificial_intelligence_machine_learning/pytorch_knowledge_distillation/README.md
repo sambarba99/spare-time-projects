@@ -1,22 +1,22 @@
 ## PyTorch Knowledge Distillation demo with the CIFAR-10 dataset
 
-|          Model          | Test set F1 score |
-|:-----------------------:|:-----------------:|
-|         Teacher         |       0.770       |
-|     Student (no KD)     |       0.698       |
-| **_Student (with KD)_** |     **0.715**     |
+|          Model          |  Test set F1 score  |
+|:-----------------------:|:-------------------:|
+|         Teacher         |        0.805        |
+|     Student (no KD)     |        0.761        |
+| **_Student (with KD)_** | **0.782** (+ 0.021) |
 
 <p align="center">
 	<img src="images/kd_student_output.png"/>
 </p>
 
-Teacher architecture (17,140,266 parameters):
+Teacher architecture (4,532,378 parameters):
 
 <p align="center">
 	<img src="images/teacher_architecture.png"/>
 </p>
 
-Student architecture (2,105,066 parameters, 0.12x teacher):
+Student architecture (280,218 parameters, 0.06x teacher):
 
 <p align="center">
 	<img src="images/student_architecture.png"/>

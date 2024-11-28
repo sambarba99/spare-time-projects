@@ -23,12 +23,12 @@ def plot_graphical_model(rvs):
 
 	g.node(
 		'key',
-		label='<<table border="0" cellborder="1" cellspacing="0" cellpadding="5">'
-			f'<tr><td bgcolor="{FILL_COLOURS["D"]}">Diagnostic (observable)</td></tr>'
-			f'<tr><td bgcolor="{FILL_COLOURS["F"]}">Failures (observable)</td></tr>'
-			f'<tr><td bgcolor="{FILL_COLOURS["M"]}">Mechanism (unobservable)</td></tr></table>>',
-		shape='plain',
-		fillcolor='white'
+		label=f'''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5">
+				<TR><TD bgcolor="{FILL_COLOURS['D']}">Diagnostic (observable)</TD></TR>
+				<TR><TD bgcolor="{FILL_COLOURS['F']}">Failures (observable)</TD></TR>
+				<TR><TD bgcolor="{FILL_COLOURS['M']}">Mechanism (unobservable)</TD></TR>
+			</TABLE>>''',
+		shape='plain'
 	)
 
 	# Create nodes and edges
@@ -52,7 +52,7 @@ def plot_graphical_model(rvs):
 
 	# Render graph
 
-	g.render('coffee_machine_graphical_model', view=True, cleanup=True, format='png')
+	g.render('./coffee_machine_graphical_model', view=True, cleanup=True, format='png')
 
 
 def plot_factor_graph(edges, itn, rvs):
@@ -70,13 +70,13 @@ def plot_factor_graph(edges, itn, rvs):
 
 	g.node(
 		'key',
-		label='<<table border="0" cellborder="1" cellspacing="0" cellpadding="5">'
-			f'<tr><td bgcolor="{FILL_COLOURS["D"]}">Diagnostic (observable)</td></tr>'
-			f'<tr><td bgcolor="{FILL_COLOURS["F"]}">Failures (observable)</td></tr>'
-			f'<tr><td bgcolor="{FILL_COLOURS["M"]}">Mechanism (unobservable)</td></tr>'
-			'<tr><td bgcolor="white">Factor</td></tr></table>>',
-		shape='plain',
-		fillcolor='white'
+		label=f'''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5">
+				<TR><TD bgcolor="{FILL_COLOURS['D']}">Diagnostic (observable)</TD></TR>
+				<TR><TD bgcolor="{FILL_COLOURS['F']}">Failures (observable)</TD></TR>
+				<TR><TD bgcolor="{FILL_COLOURS['M']}">Mechanism (unobservable)</TD></TR>
+				<TR><TD bgcolor="white">Factor</TD></TR>
+			</TABLE>>''',
+		shape='plain'
 	)
 
 	# Create nodes and edges
@@ -97,4 +97,4 @@ def plot_factor_graph(edges, itn, rvs):
 
 	# Render graph
 
-	g.render('coffee_machine_factor_graph', view=True, cleanup=True, format='png')
+	g.render('./coffee_machine_factor_graph', view=True, cleanup=True, format='png')

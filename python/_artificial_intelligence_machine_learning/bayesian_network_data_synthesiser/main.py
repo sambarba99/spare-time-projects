@@ -68,7 +68,7 @@ def plot_bayes_net():
 		for child in children:
 			g.edge(node, child)
 
-	g.render('bayes_net', view=True, cleanup=True, format='png')
+	g.render('./bayes_net', view=True, cleanup=True, format='png')
 
 
 def generate_data(num_samples=1000):

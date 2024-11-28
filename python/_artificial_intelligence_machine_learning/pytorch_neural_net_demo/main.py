@@ -14,8 +14,7 @@ from torch import nn
 
 from _utils.csv_data_loader import load_csv_classification_data, load_csv_regression_data
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
+from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
 
 
 plt.rcParams['figure.figsize'] = (7, 5)
@@ -152,9 +151,9 @@ if __name__ == '__main__':
 			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.02)
 
 	# print(model.state_dict())  # Model weights
+	model.cpu()
 	print(f'Model:\n{model}')
-	plot_model(model, (num_features,))
-	model.to('cpu')
+	plot_torch_model(model, (num_features,))
 
 	# Training
 

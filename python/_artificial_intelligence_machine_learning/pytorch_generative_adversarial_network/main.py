@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_architecture_plots import plot_model
+from _utils.model_plotting import plot_torch_model
 from models import Generator, Discriminator
 
 
@@ -73,28 +73,25 @@ def plot_images(images, title, save_path=None):
 
 
 if __name__ == '__main__':
-	gen_model = Generator(latent_dim=GEN_LATENT_DIM)
-	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH)
+	gen_model = Generator(latent_dim=GEN_LATENT_DIM).to(DEVICE)
+	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH).to(DEVICE)
 
 	print(f'\nGenerator model:\n\n{gen_model}')
 	print(f'\nDiscriminator model:\n\n{disc_model}')
-	plot_model(gen_model, (GEN_LATENT_DIM, 1, 1), './images/generator_architecture')
-	plot_model(disc_model, (3, IMG_SIZE, IMG_SIZE), './images/discriminator_architecture')
-	gen_model.to(DEVICE)
-	disc_model.to(DEVICE)
+	plot_torch_model(gen_model, (GEN_LATENT_DIM, 1, 1), input_device=DEVICE, out_file='./images/generator_architecture')
+	plot_torch_model(disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture')
 
 	if os.path.exists('./gen_model.pth'):
 		gen_model.load_state_dict(torch.load('./gen_model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
 
+		fixed_noise = torch.randn(24, GEN_LATENT_DIM, 1, 1, device=DEVICE)
 		train_loader = create_train_loader()
 		loss_func = torch.nn.BCELoss()
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='min')
-
-		fixed_noise = torch.randn(24, GEN_LATENT_DIM, 1, 1, device=DEVICE)
 
 		gen_model.eval()
 		with torch.inference_mode():

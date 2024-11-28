@@ -21,8 +21,8 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_evaluation_plots import plot_confusion_matrix, plot_roc_curve
-from movie_review_classifier import MovieReviewClf, plot_review_classifier
+from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from model import MovieReviewClf
 
 # Un-comment if running for first time
 # nltk.download('punkt')
@@ -89,9 +89,12 @@ if __name__ == '__main__':
 
 	# Define and train model
 
-	model = MovieReviewClf(vocab_size=vocab_size, embedding_len=EMBEDDING_LEN, hidden_len=HIDDEN_LEN)
-	model.to('cpu')
-	plot_review_classifier(SEQUENCE_LEN, EMBEDDING_LEN, HIDDEN_LEN)
+	model = MovieReviewClf(
+		vocab_size=vocab_size,
+		embedding_len=EMBEDDING_LEN,
+		hidden_len=HIDDEN_LEN
+	).cpu()
+	plot_torch_model(model, (SEQUENCE_LEN,))
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
@@ -137,7 +140,7 @@ if __name__ == '__main__':
 	# Test model (plot confusion matrix and ROC curve)
 
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test).squeeze()
 	y_test_probs = torch.sigmoid(y_test_logits)
 	y_test_pred = y_test_probs.round().detach()
 

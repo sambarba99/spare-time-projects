@@ -56,28 +56,19 @@ class VariationalAutoencoder(nn.Module):
 			nn.Sigmoid()
 		)
 
-	def encode(self, x):
+	def forward(self, x):
+		# Encode
 		encoded = self.encoder_block(x)
 		mu = self.fc_mu(encoded)
 		log_var = self.fc_log_var(encoded)
 
-		return mu, log_var
-
-	def reparameterise(self, mu, log_var):
-		"""
-		Reparameterisation trick (section 2.4 in Auto-Encoding Variational Bayes):
-		samples from a Gaussian distribution N(μ, σ²), where N(0, I) is sampled and
-		transformed to match the desired mean and variance (mu and log_var)
-		"""
-
+		# Reparameterisation trick (section 2.4 in Auto-Encoding Variational Bayes):
+		# samples from a Gaussian distribution N(μ, σ²), where N(0, I) is sampled and
+		# transformed to match the desired mean and variance (mu and log_var)
 		std = torch.exp(0.5 * log_var)  # Standard deviation = root(variance)
-		eps = torch.randn_like(std)
+		eps = torch.randn_like(std)     # Gaussian noise
+		z = mu + std * eps
 
-		return mu + eps * std
-
-	def forward(self, x):
-		mu, log_var = self.encode(x)
-		z = self.reparameterise(mu, log_var)
 		reconstructed = self.decoder_block(z)
 
 		return reconstructed, mu, log_var

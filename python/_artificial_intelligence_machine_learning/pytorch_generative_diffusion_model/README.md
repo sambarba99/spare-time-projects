@@ -24,6 +24,12 @@ Where:
 - $\beta_t$ = beta value (noise variance added at each diffusion step) at $t$
 - $z_t$ = noise term sampled from a Gaussian distribution, added for stochasticity.
 
+Model architecture:
+
+<p align="center">
+	<img src="images/model_architecture.png"/>
+</p>
+
 Sources:
 - [Denoising Diffusion Probabilistic Models](https://arxiv.org/pdf/2006.11239) (Ho, Jain, Abbeel 2020)
 - [Attention Is All You Need](https://arxiv.org/pdf/1706.03762) (Vaswani et. al. 2023)
