@@ -165,11 +165,15 @@ def update_collage():
 		for cell in row:
 			if cell.is_collapsed:
 				tile_img = cell.tile_options[0].img
-				tile_img_rect = tile_img.get_rect(center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1))
+				tile_img_rect = tile_img.get_rect(
+					center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1)
+				)
 				scene.blit(tile_img, tile_img_rect)
 			# else:
 			# 	cell_lbl = font.render(str(cell.entropy), True, (255, 255, 255))
-			# 	lbl_rect = cell_lbl.get_rect(center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1))
+			# 	lbl_rect = cell_lbl.get_rect(
+			# 		center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1)
+			# 	)
 			# 	scene.blit(cell_lbl, lbl_rect)
 
 	pg.display.update()

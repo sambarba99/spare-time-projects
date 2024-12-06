@@ -12,7 +12,7 @@ from sklearn.metrics import f1_score
 from sklearn.preprocessing import MinMaxScaler
 
 from _utils.csv_data_loader import load_csv_classification_data
-from _utils.model_plotting import plot_confusion_matrix
+from _utils.plotting import plot_confusion_matrix
 from knn_classifier import KNN
 
 

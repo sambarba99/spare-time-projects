@@ -8,7 +8,10 @@ from torch import nn
 from .computation_node import NodeContainer
 from .computation_graph import ComputationGraph
 from .computation_node import TensorNode
-from .recorder_tensor import _orig_module_forward, collect_tensor_node, module_forward_wrapper, Recorder, RecorderTensor, reduce_data_info
+from .recorder_tensor import (
+	_orig_module_forward, collect_tensor_node, module_forward_wrapper,
+	Recorder, RecorderTensor, reduce_data_info
+)
 
 
 INPUT_DATA_TYPE = Union[torch.Tensor, Sequence[Any], Mapping[str, Any]]
@@ -17,7 +20,7 @@ INPUT_SIZE_TYPE = Sequence[Union[int, Sequence[Any], torch.Size]]
 CORRECTED_INPUT_SIZE_TYPE = List[Union[Sequence[Any], torch.Size]]
 
 
-def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, depth: int | float = 3, device: torch.device | str | None = None, **kwargs: Any):
+def draw_graph(model, input_data=None, depth=3, device=None, **kwargs):
 	# Create computation graph as usual
 
 	input_recorder_tensor, kwargs_record_tensor, input_nodes = process_input(
@@ -26,15 +29,42 @@ def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, dept
 
 	temp_digraph = Digraph()
 	computation_graph = ComputationGraph(temp_digraph, input_nodes, depth)
-	sequential_module_names = [
-		name for name, module in model.named_modules()
+
+	# Get the names of sequential modules, in the order in which they're executed
+
+	sequential_names_and_modules = [
+		(name, module) for name, module in model.named_modules()
 		if isinstance(module, nn.Sequential)
 	]
-	forward_prop(sequential_module_names, model, input_recorder_tensor, device, computation_graph, **kwargs_record_tensor)
+	if sequential_names_and_modules:
+		sequential_names, sequential_modules = zip(*sequential_names_and_modules)
+		ordered_sequential_names = []
+		hook_handles = []
+
+		def hook_func(module, input, output):
+			module_idx = sequential_modules.index(module)
+			ordered_sequential_names.append(sequential_names[module_idx])
+
+		for module in sequential_modules:
+			hook_handle = module.register_forward_hook(hook_func)
+			hook_handles.append(hook_handle)
+
+		_ = model(*input_data)  # Populate ordered_sequential_names
+
+		for h in hook_handles:
+			h.remove()  # Remove hook after use
+	else:
+		ordered_sequential_names = []
+
+	# Fill computation visual graph (temp_digraph) as usual
+
+	forward_prop(
+		ordered_sequential_names, model, input_recorder_tensor, device, computation_graph, **kwargs_record_tensor
+	)
 
 	computation_graph.fill_visual_graph()
 
-	# Modified section: start by defining new graph attributes
+	# Modified visual graph section: start by defining new graph attributes
 
 	model_digraph = Digraph(
 		graph_attr={'ordering': 'in', 'rankdir': 'TD', 'nodesep': '0.4', 'ranksep': '0.3', 'bgcolor': '#0d1117'},
@@ -110,13 +140,8 @@ def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, dept
 				for subgraph_id, subgraph_label in zip(node_info['subgraph_ids'], node_info['subgraph_labels']):
 					subgraph = stack.enter_context(current_subgraph.subgraph(name=subgraph_id))
 					subgraph.attr(
-						label=subgraph_label,
-						labeljust='l',
-						color='white',
-						style='dashed',
-						fontname='arial',
-						fontsize='10',
-						fontcolor='white'
+						label=subgraph_label, labeljust='l', color='white', style='dashed',
+						fontname='arial', fontsize='10', fontcolor='white'
 					)
 					subgraph.node(str(node_id), label=label)
 					current_subgraph = subgraph
@@ -131,7 +156,7 @@ def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, dept
 	return model_digraph
 
 
-def forward_prop(sequential_module_names, model: nn.Module, x: CORRECTED_INPUT_DATA_TYPE, device: torch.device | str, model_graph: ComputationGraph, **kwargs: Any) -> None:
+def forward_prop(sequential_module_names, model, x, device, model_graph, **kwargs) -> None:
 	"""
 	Performs forward propagation of model on RecorderTensor
 	inside context to use module_forward_wrapper
@@ -148,7 +173,6 @@ def forward_prop(sequential_module_names, model: nn.Module, x: CORRECTED_INPUT_D
 				elif isinstance(x, Mapping):
 					_ = model.to(device)(**x, **kwargs)
 				else:
-					# Should not reach this point, since process_input_data ensures x is either a list, tuple, or Mapping
 					raise ValueError('Unknown input type')
 	except Exception as e:
 		raise RuntimeError('Failed to run torchgraph see error message') from e
@@ -156,7 +180,7 @@ def forward_prop(sequential_module_names, model: nn.Module, x: CORRECTED_INPUT_D
 		model.train(saved_model_mode)
 
 
-def process_input(input_data: INPUT_DATA_TYPE | None, kwargs: Any, device: torch.device | str) -> tuple[CORRECTED_INPUT_DATA_TYPE, Any, NodeContainer[TensorNode]]:
+def process_input(input_data, kwargs, device):
 	"""Reads sample input data to get the input size."""
 
 	x = None
@@ -230,7 +254,7 @@ def get_recorder_tensor(input_tensor: torch.Tensor) -> RecorderTensor:
 	return input_recorder_tensor
 
 
-def get_input_tensor(input_size: CORRECTED_INPUT_SIZE_TYPE, dtypes: list[torch.dtype], device: torch.device | str) -> list[RecorderTensor]:
+def get_input_tensor(input_size, dtypes, device):
 	"""Get input_tensor for use in model.forward()"""
 
 	x = []

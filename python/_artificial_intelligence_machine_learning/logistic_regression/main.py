@@ -13,7 +13,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve
 from logistic_regressor import LogisticRegressor
 
 

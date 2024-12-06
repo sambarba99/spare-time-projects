@@ -159,13 +159,13 @@ if __name__ == '__main__':
 		'DESCRIBE employee;',
 		'SELECT * FROM employee;',
 		'SELECT forename, surname FROM employee LIMIT 4;',
-		'SELECT * FROM employee WHERE salary >= 75000 ORDER BY sex DESC, birthday;',   # Employees with at least 75k salary
+		'SELECT * FROM employee WHERE salary >= 75000 ORDER BY sex DESC, birthday;',   # Those who make at least 75k
 		'SELECT COUNT(employee_id) FROM employee;',                                    # Number of employees
 		'SELECT DISTINCT sex FROM employee;',                                          # Unique sex values
 		'SELECT sex, COUNT(sex) FROM employee GROUP BY sex;',                          # Counts of each unique sex
 		'SELECT sex, ROUND(AVG(salary), 2) FROM employee GROUP BY sex;',               # Average salary of each sex
 		'SELECT employee_id, SUM(total_sales) FROM works_with GROUP BY employee_id;',  # Total sales of each salesperson
-		'SELECT client_id, SUM(total_sales) FROM works_with GROUP BY client_id;',      # Total money spent by each client
+		'SELECT client_id, SUM(total_sales) FROM works_with GROUP BY client_id;',      # Total spent by each client
 		"SELECT * FROM client WHERE client_name LIKE '%LLC%';",                        # Clients that are LLCs
 		'SELECT forename FROM employee UNION SELECT branch_name FROM branch;'          # Employee and branch names
 	]

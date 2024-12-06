@@ -16,7 +16,10 @@ def plot_graphical_model(rvs):
 
 	g = Digraph(
 		name='graphical model',
-		graph_attr={'overlap': 'compress', 'splines': 'line', 'fontname': 'consolas', 'labelloc': 't', 'label': 'Graphical Model'},
+		graph_attr={
+			'overlap': 'compress', 'splines': 'line', 'fontname': 'consolas',
+			'labelloc': 't', 'label': 'Graphical Model'
+		},
 		node_attr={'style': 'filled,setlinewidth(0.5)', 'fontname': 'consolas'},
 		engine='neato'
 	)

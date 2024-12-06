@@ -472,8 +472,14 @@ class GameEnv:
 		"""Num. asteroids = level + 3"""
 
 		# Don't spawn asteroids around where the spaceship is (also considering wrap-around)
-		possible_x = [x for x in range(SCENE_WIDTH) if min(abs(x - self.spaceship.pos.x), SCENE_WIDTH - abs(x - self.spaceship.pos.x)) > 250]
-		possible_y = [y for y in range(SCENE_HEIGHT) if min(abs(y - self.spaceship.pos.y), SCENE_HEIGHT - abs(y - self.spaceship.pos.y)) > 250]
+		possible_x = [
+			x for x in range(SCENE_WIDTH)
+			if min(abs(x - self.spaceship.pos.x), SCENE_WIDTH - abs(x - self.spaceship.pos.x)) > 250
+		]
+		possible_y = [
+			y for y in range(SCENE_HEIGHT)
+			if min(abs(y - self.spaceship.pos.y), SCENE_HEIGHT - abs(y - self.spaceship.pos.y)) > 250
+		]
 
 		self.asteroids = []
 		for i in range(self.level + 3):

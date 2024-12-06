@@ -32,7 +32,7 @@ def transform(x, y, num_components):
 		sw += (x_c - mean_c).T.dot((x_c - mean_c))
 
 		n_c = x_c.shape[0]
-		mean_diff = (mean_c - mean_overall).reshape(n_features, 1)
+		mean_diff = (mean_c - mean_overall).reshape(num_features, 1)
 		sb += n_c * mean_diff.dot(mean_diff.T)
 
 	# Determine SW^-1 * SB

@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
 from conv_net import CNN
 
 
@@ -31,8 +31,8 @@ pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
 
 DATASET_DICT = {
-	'race_id': {'0': 'white', '1': 'black', '2': 'asian', '3': 'indian', '4': 'other'},
-	'gender_id': {'0': 'male', '1': 'female'}
+	'race': {0: 'white', 1: 'black', 2: 'asian', 3: 'indian', 4: 'other'},
+	'gender': {0: 'male', 1: 'female'}
 }
 IMG_SIZE = 128
 BATCH_SIZE = 32
@@ -48,10 +48,10 @@ RACE_LOSS_WEIGHT = 10
 
 
 def create_data_loaders(df):
-	x_path = df['img_path'].to_numpy()
+	x_path = df['img_path']
 	y_age = df['age'].to_numpy()
-	y_gender = pd.get_dummies(df['gender'], prefix='gender', drop_first=True, dtype=int).to_numpy().squeeze()
-	y_race = pd.get_dummies(df['race'], prefix='race', dtype=int).to_numpy()
+	y_gender = df['gender_id'].to_numpy()
+	y_race = df['race_id'].to_numpy()
 
 	# Preprocess images now instead of during training (faster pipeline overall)
 
@@ -66,7 +66,7 @@ def create_data_loaders(df):
 	]
 	y_age = torch.tensor(y_age).float()
 	y_gender = torch.tensor(y_gender).float()
-	y_race = torch.tensor(y_race).float()
+	y_race = torch.tensor(y_race).long()
 
 	# Create train/validation/test sets (ratio 0.95:0.04:0.01)
 	# Stratify based on binned age + gender + race
@@ -76,10 +76,14 @@ def create_data_loaders(df):
 	age_bin_indices = np.digitize(y_age, age_bins)
 	stratify_labels = np.array([
 		f'{age_bin_idx}_{gender}_{race}' for age_bin_idx, gender, race
-		in zip(age_bin_indices, df['gender'], df['race'])
+		in zip(age_bin_indices, y_gender, y_race)
 	])
-	train_val_idx, test_idx = train_test_split(indices, train_size=0.99, stratify=stratify_labels, random_state=1)
-	train_idx, val_idx = train_test_split(train_val_idx, train_size=0.96, stratify=stratify_labels[train_val_idx], random_state=1)
+	train_val_idx, test_idx = train_test_split(
+		indices, train_size=0.99, stratify=stratify_labels, random_state=1
+	)
+	train_idx, val_idx = train_test_split(
+		train_val_idx, train_size=0.96, stratify=stratify_labels[train_val_idx], random_state=1
+	)
 
 	x_train = [x[i] for i in train_idx]
 	x_val = [x[i] for i in val_idx]
@@ -111,14 +115,12 @@ if __name__ == '__main__':
 	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg'):
 		y = img_path.split('\\')[1]
 		age, gender, race = y.split('_')[:3]
-		data.append((
-			img_path,
-			int(age),
-			DATASET_DICT['gender_id'][gender],
-			DATASET_DICT['race_id'][race]
-		))
+		data.append((img_path, int(age), int(gender), int(race)))
 
-	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender', 'race'])
+	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender_id', 'race_id'])
+	df['gender_label'] = df['gender_id'].map(DATASET_DICT['gender'])
+	df['race_label'] = df['race_id'].map(DATASET_DICT['race'])
+
 	print(f'\nRaw data:\n{df}\n')
 
 	# Plot some examples
@@ -130,7 +132,7 @@ if __name__ == '__main__':
 		sample = Image.open(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
-		ax.set_title(f"{df['age'][idx]}, {df['gender'][idx]}, {df['race'][idx]}")
+		ax.set_title(f"{df['age'][idx]}, {df['gender_label'][idx]}, {df['race_label'][idx]}")
 	plt.suptitle('Data samples (age, gender, race)', y=0.96)
 	plt.show()
 
@@ -138,7 +140,7 @@ if __name__ == '__main__':
 
 	fig, axes = plt.subplots(nrows=3, figsize=(8, 6))
 	plt.subplots_adjust(hspace=0.4)
-	for ax, col in zip(axes, ['age', 'gender', 'race']):
+	for ax, col in zip(axes, ['age', 'gender_label', 'race_label']):
 		if col == 'age':
 			histogram_bins = list(range(0, 110, 10)) + [max(df[col])]
 			ax.hist(df[col], bins=histogram_bins)
@@ -146,7 +148,7 @@ if __name__ == '__main__':
 		else:
 			unique_values_counts = df[col].value_counts()
 			ax.bar(unique_values_counts.index, unique_values_counts.values)
-		ax.set_xlabel(col.capitalize())
+		ax.set_xlabel(col.removesuffix('_label').capitalize())
 	fig.supylabel('Count')
 	plt.suptitle('Output feature distributions', y=0.94)
 	plt.show()
@@ -190,12 +192,14 @@ if __name__ == '__main__':
 
 				age_pred, gender_logits, race_logits = model(x_train)
 
-				age_loss = loss_func_age(age_pred, y_train_age)
-				gender_loss = loss_func_gender(gender_logits, y_train_gender)
+				age_loss = loss_func_age(age_pred.squeeze(), y_train_age)
+				gender_loss = loss_func_gender(gender_logits.squeeze(), y_train_gender)
 				race_loss = loss_func_race(race_logits, y_train_race)
 
 				# Apply loss weights
-				weighted_loss = age_loss * AGE_LOSS_WEIGHT + gender_loss * GENDER_LOSS_WEIGHT + race_loss * RACE_LOSS_WEIGHT
+				weighted_loss = age_loss * AGE_LOSS_WEIGHT \
+					+ gender_loss * GENDER_LOSS_WEIGHT \
+					+ race_loss * RACE_LOSS_WEIGHT
 
 				optimiser.zero_grad()
 				weighted_loss.backward()
@@ -222,6 +226,8 @@ if __name__ == '__main__':
 					y_val_race = y_val_race.to(DEVICE)
 
 					age_val_pred, gender_val_logits, race_val_logits = model(x_val)
+					age_val_pred = age_val_pred.squeeze()
+					gender_val_logits = gender_val_logits.squeeze()
 
 					gender_val_probs = torch.sigmoid(gender_val_logits)
 					gender_val_pred = gender_val_probs.round()
@@ -230,7 +236,7 @@ if __name__ == '__main__':
 					all_gender_preds.append(gender_val_pred.cpu())
 					all_gender_labels.append(y_val_gender.cpu())
 					all_race_preds.append(race_val_pred.cpu())
-					all_race_labels.append(y_val_race.argmax(dim=1).cpu())
+					all_race_labels.append(y_val_race.cpu())
 
 					age_val_loss_total += loss_func_age(age_val_pred, y_val_age).item()
 					age_val_mae_total += mae_func_age(age_val_pred, y_val_age).item()
@@ -277,9 +283,9 @@ if __name__ == '__main__':
 		ax_age_val_mae.set_ylabel('MAE')
 		ax_gender_f1.set_ylabel('F1')
 		ax_race_f1.set_ylabel('F1')
-		ax_age_val_mae.set_title('Age val MAE', size=11)
-		ax_gender_f1.set_title('Gender val F1 score', size=11)
-		ax_race_f1.set_title('Race val F1 score', size=11)
+		ax_age_val_mae.set_title('Age val MAE', fontsize=11)
+		ax_gender_f1.set_title('Gender val F1 score', fontsize=11)
+		ax_race_f1.set_title('Race val F1 score', fontsize=11)
 		ax_race_f1.set_xlabel('Epoch')
 		plt.suptitle('Training metrics', x=0.505)
 		plt.show()
@@ -306,17 +312,17 @@ if __name__ == '__main__':
 	gender_test_pred = gender_test_probs.round()
 	race_test_pred = race_test_logits.argmax(dim=1)
 	f1_gender = f1_score(y_test_gender, gender_test_pred)
-	f1_race = f1_score(y_test_race.argmax(dim=1), race_test_pred, average='weighted')
+	f1_race = f1_score(y_test_race, race_test_pred, average='weighted')
 	plot_confusion_matrix(
 		y_test_gender,
 		gender_test_pred,
-		sorted(DATASET_DICT['gender_id'].values()),
+		sorted(DATASET_DICT['gender'].values()),
 		f'Test confusion matrix for gender classification\n(F1 score: {f1_gender:.3f})'
 	)
 	plot_confusion_matrix(
-		y_test_race.argmax(dim=1),
+		y_test_race,
 		race_test_pred,
-		sorted(DATASET_DICT['race_id'].values()),
+		sorted(DATASET_DICT['race'].values()),
 		f'Test confusion matrix for race classification\n(F1 score: {f1_race:.3f})'
 	)
 
@@ -330,18 +336,14 @@ if __name__ == '__main__':
 	for idx, ax in enumerate(axes.flatten()):
 		img, y_age, y_gender, y_race = x_test[idx], y_test_age[idx], y_test_gender[idx], y_test_race[idx]
 
-		# When doing get_dummies on the gender column in the data preparation step,
-		# 'male' is assigned 1 (but it is 0 in DATASET_DICT) so we must subtract it from 1
-		y_gender = 1 - int(y_gender)
-		y_gender_label = DATASET_DICT['gender_id'][str(y_gender)]
-		y_race = y_race.argmax().item()
-		y_race_label = DATASET_DICT['race_id'][str(y_race)]
+		y_gender_label = DATASET_DICT['gender'][int(y_gender.item())]
+		y_race_label = DATASET_DICT['race'][y_race.item()]
 
 		age_pred = round(age_test_pred[idx].item())
-		gender_pred = 1 - round(gender_test_pred[idx].item())
-		gender_pred_label = DATASET_DICT['gender_id'][str(gender_pred)]
+		gender_pred = int(gender_test_pred[idx].item())
 		race_pred = race_test_pred[idx].item()
-		race_pred_label = DATASET_DICT['race_id'][str(race_pred)]
+		gender_pred_label = DATASET_DICT['gender'][gender_pred]
+		race_pred_label = DATASET_DICT['race'][race_pred]
 
 		ax.imshow(pil_image_transform(img))
 		ax.axis('off')

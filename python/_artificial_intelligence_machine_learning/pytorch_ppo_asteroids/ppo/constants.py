@@ -9,7 +9,7 @@ Created 11/07/2024
 TOTAL_TRAIN_TIMESTEPS = int(1e7)  # Simulate this many environment timesteps/transitions for training
 MAX_EP_LENGTH = 8000              # Maximum no. timesteps of each training episode/trajectory
 BATCH_SIZE = 8192                 # No. transition samples to use per epoch
-# MINIBATCH_SIZE = 32             # Use minibatches of this size to perform a single PPO update (actor + critic networks)
+# MINIBATCH_SIZE = 32             # Use minibatches of this size for a single PPO update (actor + critic networks)
 GRAD_STEPS_PER_UPDATE = 100       # Max. gradient steps per PPO update
 ACTOR_LR = 1e-4                   # Learning rate for actor network
 CRITIC_LR = 4e-4                  # Learning rate for critic network

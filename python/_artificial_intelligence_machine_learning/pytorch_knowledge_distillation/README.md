@@ -2,12 +2,16 @@
 
 |          Model          |  Test set F1 score  |
 |:-----------------------:|:-------------------:|
-|         Teacher         |        0.805        |
-|     Student (no KD)     |        0.761        |
-| **_Student (with KD)_** | **0.782** (+ 0.021) |
+|         Teacher         |        0.847        |
+|     Student (no KD)     |        0.738        |
+| **_Student (with KD)_** | **0.782** (+ 0.044) |
+
+Student model (with KD) test set performance:
 
 <p align="center">
 	<img src="images/kd_student_output.png"/>
+	<br/>
+	<img src="images/test_confusion_matrix.png"/>
 </p>
 
 Teacher architecture (4,532,378 parameters):
@@ -24,5 +28,5 @@ Student architecture (280,218 parameters, 0.06x teacher):
 
 Sources:
 - [Distilling the Knowledge in a Neural Network](https://arxiv.org/pdf/1503.02531) (Hinton, Vinyals, Dean 2015)
-- [Knowledge Distillation Tutorial](https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html) (PyTorch tutorial)
+- [Knowledge Distillation Tutorial](https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html)
 - [CIFAR-10](https://www.kaggle.com/datasets/swaroopkml/cifar10-pngs-in-folders) (Kaggle dataset)
