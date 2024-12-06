@@ -12,7 +12,9 @@ from sklearn.preprocessing import LabelEncoder
 import torch
 
 
-def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, one_hot_y=False, tensor_device=None):
+def load_csv_classification_data(
+		path, train_size=1, val_size=0, test_size=0, x_transform=None, one_hot_y=False, tensor_device=None
+	):
 	assert np.isclose(train_size + val_size + test_size, 1) and train_size > 0
 
 	df = pd.read_csv(path)
@@ -54,7 +56,9 @@ def load_csv_classification_data(path, train_size=1, val_size=0, test_size=0, x_
 	if x_transform:
 		x = x_transform.fit_transform(x)
 	if tensor_device:
-		x, y = torch.tensor(x, device=tensor_device).float(), torch.tensor(y, device=tensor_device).float()
+		x = torch.tensor(x, device=tensor_device).float()
+		y = torch.tensor(y, device=tensor_device)
+		y = y.float() if len(labels) == 2 else y.long()
 
 	if val_size == test_size == 0:
 		return x, y, labels, features

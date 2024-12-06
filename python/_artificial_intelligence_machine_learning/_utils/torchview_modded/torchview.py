@@ -26,15 +26,40 @@ def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, dept
 
 	temp_digraph = Digraph()
 	computation_graph = ComputationGraph(temp_digraph, input_nodes, depth)
-	sequential_module_names = [
-		name for name, module in model.named_modules()
+
+	# Get the names of sequential modules, in the order in which they're executed
+
+	sequential_names_and_modules = [
+		(name, module) for name, module in model.named_modules()
 		if isinstance(module, nn.Sequential)
 	]
-	forward_prop(sequential_module_names, model, input_recorder_tensor, device, computation_graph, **kwargs_record_tensor)
+	if sequential_names_and_modules:
+		sequential_names, sequential_modules = zip(*sequential_names_and_modules)
+		ordered_sequential_names = []
+		hook_handles = []
+
+		def hook_func(module, input, output):
+			module_idx = sequential_modules.index(module)
+			ordered_sequential_names.append(sequential_names[module_idx])
+
+		for module in sequential_modules:
+			hook_handle = module.register_forward_hook(hook_func)
+			hook_handles.append(hook_handle)
+
+		_ = model(*input_data)  # Populate ordered_sequential_names
+
+		for h in hook_handles:
+			h.remove()  # Remove hook after use
+	else:
+		ordered_sequential_names = []
+
+	# Fill computation visual graph (temp_digraph) as usual
+
+	forward_prop(ordered_sequential_names, model, input_recorder_tensor, device, computation_graph, **kwargs_record_tensor)
 
 	computation_graph.fill_visual_graph()
 
-	# Modified section: start by defining new graph attributes
+	# Modified visual graph section: start by defining new graph attributes
 
 	model_digraph = Digraph(
 		graph_attr={'ordering': 'in', 'rankdir': 'TD', 'nodesep': '0.4', 'ranksep': '0.3', 'bgcolor': '#0d1117'},
@@ -110,13 +135,8 @@ def draw_graph(model: nn.Module, input_data: INPUT_DATA_TYPE | None = None, dept
 				for subgraph_id, subgraph_label in zip(node_info['subgraph_ids'], node_info['subgraph_labels']):
 					subgraph = stack.enter_context(current_subgraph.subgraph(name=subgraph_id))
 					subgraph.attr(
-						label=subgraph_label,
-						labeljust='l',
-						color='white',
-						style='dashed',
-						fontname='arial',
-						fontsize='10',
-						fontcolor='white'
+						label=subgraph_label, labeljust='l', color='white', style='dashed',
+						fontname='arial', fontsize='10', fontcolor='white'
 					)
 					subgraph.node(str(node_id), label=label)
 					current_subgraph = subgraph

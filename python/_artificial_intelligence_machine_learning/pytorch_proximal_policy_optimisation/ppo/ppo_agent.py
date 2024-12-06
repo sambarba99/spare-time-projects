@@ -195,7 +195,9 @@ class PPOAgent:
 						# An entropy value is used for regularisation, as it adds a penalty based on
 						# the entropy of the policy distribution. By maximising entropy, the agent is
 						# encouraged to explore different actions and avoid converging to local minima.
-						loss = (actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
+						loss = (
+							actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy
+						).mean()
 						self.optimiser.zero_grad()
 						loss.backward()
 						self.optimiser.step()

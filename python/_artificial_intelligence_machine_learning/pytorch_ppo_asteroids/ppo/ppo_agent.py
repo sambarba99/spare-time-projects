@@ -192,7 +192,9 @@ class PPOAgent:
 						# An entropy value is used for regularisation, as it adds a penalty based on
 						# the entropy of the policy distribution. By maximising entropy, the agent is
 						# encouraged to explore different actions and avoid converging to local minima.
-						loss = (actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
+						loss = (
+							actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy
+						).mean()
 						self.optimiser.zero_grad()
 						loss.backward()
 						self.optimiser.step()
@@ -241,7 +243,8 @@ class PPOAgent:
 		advantage = next_state_value = discounted_return = 0
 
 		for v, r, terminal in reversed(list(zip(batch_state_values, batch_returns, batch_terminals))):
-			# Temporal Difference error: difference between the value of s_t and the actual reward + estimated value of s_(t+1)
+			# Temporal Difference error:
+			# difference between the value of s_t and the actual reward + estimated value of s_(t+1)
 			td_error = r + (0 if terminal else GAMMA * next_state_value) - v
 			advantage = td_error + GAMMA * LAMBDA * advantage
 			next_state_value = v

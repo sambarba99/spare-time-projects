@@ -18,7 +18,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 
 from _utils.csv_data_loader import load_csv_classification_data, load_csv_regression_data
-from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -81,11 +81,13 @@ if __name__ == '__main__':
 
 	labels = None
 	if task_choice in 'BM':
-		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = \
-			load_csv_classification_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True)
+		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = load_csv_classification_data(
+			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True
+		)
 	else:
-		x_train, y_train, x_val, y_val, x_test, y_test, _ = \
-			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler())
+		x_train, y_train, x_val, y_val, x_test, y_test, _ = load_csv_regression_data(
+			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler()
+		)
 
 	# Build model
 
@@ -100,7 +102,7 @@ if __name__ == '__main__':
 			])
 			model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-		case 'B4':  # Titanic dataset
+		case 'B5':  # Titanic dataset
 			model = Sequential([
 				Dense(8, input_shape=(num_features,), activation='relu'),
 				Dropout(0.1),
@@ -129,7 +131,7 @@ if __name__ == '__main__':
 				Dropout(0.1),
 				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics='mae')
+			model.compile(loss='mse', metrics=['mae'])
 
 		case 'RC':  # Car value dataset
 			model = Sequential([
@@ -137,14 +139,14 @@ if __name__ == '__main__':
 				Dense(256, input_shape=(num_features,), activation='relu'),
 				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics='mae')
+			model.compile(loss='mse', metrics=['mae'])
 
 		case _:  # Medical insurance or Parkinson's dataset
 			model = Sequential([
 				Dense(4096, input_shape=(num_features,), activation='relu'),
 				Dense(num_targets, input_shape=(num_features,), activation='linear')
 			])
-			model.compile(loss='mse', metrics='mae')
+			model.compile(loss='mse', metrics=['mae'])
 
 	model.build(input_shape=(num_features,))
 	model.summary()

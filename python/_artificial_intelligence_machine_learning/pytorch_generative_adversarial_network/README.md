@@ -1,6 +1,6 @@
 ## PyTorch demo of a Deep Convolutional Generative Adversarial Network (DCGAN)
 
-Training progress on a fixed noise vector (up to the best epoch, 7):
+Training progress on a fixed noise vector (up to the best epoch, 8):
 
 <p align="center">
 	<img src="images/training_progress.webp"/>
