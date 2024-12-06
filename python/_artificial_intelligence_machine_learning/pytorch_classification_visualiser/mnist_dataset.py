@@ -8,7 +8,6 @@ Created 04/11/2024
 import os
 import sys
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
 from scipy import ndimage
@@ -22,7 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_cnn_learned_filters
+from _utils.plotting import get_cnn_learned_filters, plot_image_grid
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -83,11 +82,9 @@ def load_data():
 	x = np.concatenate([x_train, x_val], axis=0, dtype=float) / 255
 	x = np.expand_dims(x, 1)
 
-	# One-hot encode y
 	y = np.concatenate([y_train, y_val])
-	y = np.eye(10)[y]  # 10 classes (0-9)
 
-	x, y = torch.tensor(x).float(), torch.tensor(y).float()
+	x, y = torch.tensor(x).float(), torch.tensor(y).long()
 
 	# Create train/validation sets (ratio 0.98:0.02)
 	x_train, x_val, y_train, y_val = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
@@ -140,7 +137,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				*_, y_val_logits = model(x_val)
 			val_loss = loss_func(y_val_logits, y_val).item()
-			val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
+			val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
@@ -152,7 +149,13 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './mnist_model.pth')
 
 	# Plot the model's learned filters
-	plot_cnn_learned_filters(model, num_cols=8, figsize=(9, 2))
+	layer_filters = get_cnn_learned_filters(model)
+	for idx, filters in enumerate(layer_filters, start=1):
+		plot_image_grid(
+			filters, rows=1, cols=8, gap=15, scale_factor=20,
+			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
+			save_path=f'./images/conv{idx}_filters.png'
+		)
 
 	# Visualise activations with live drawing
 
@@ -218,7 +221,7 @@ if __name__ == '__main__':
 			# Map coords to range [0,27]
 			pixelated_coords = user_drawing_coords - np.array([DIGIT_CANVAS_TOP_LEFT_X, DIGIT_CANVAS_TOP_LEFT_Y])
 			pixelated_coords *= 27 / DIGIT_CANVAS_SIZE
-			pixelated_coords = np.unique(np.round(pixelated_coords), axis=0).astype(int)  # Keep only unique coords
+			pixelated_coords = np.unique(pixelated_coords.round(), axis=0).astype(int)  # Keep only unique coords
 			pixelated_coords = np.clip(pixelated_coords, 0, 27)
 
 			# Set these pixels as bright
@@ -378,11 +381,13 @@ if __name__ == '__main__':
 					'#e0e0e0',
 					(
 						CONV_LEFTS[0] + len(conv1_out[0]) * CONV_ZOOMS[0],
-						i * (len(conv1_out[0]) * CONV_ZOOMS[0] + CONV_SPACINGS[0]) + CONV_TOPS[0] + len(conv1_out[0]) - 1
+						i * (len(conv1_out[0]) * CONV_ZOOMS[0] + CONV_SPACINGS[0])
+						+ CONV_TOPS[0] + len(conv1_out[0]) - 1
 					),
 					(
 						CONV_LEFTS[1] - 1,
-						j * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1]) + CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
+						j * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1])
+						+ CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
 					)
 				)
 
@@ -394,7 +399,8 @@ if __name__ == '__main__':
 					'#e0e0e0',
 					(
 						CONV_LEFTS[1] + len(conv2_out[0]) * CONV_ZOOMS[1],
-						i * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1]) + CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
+						i * (len(conv2_out[0]) * CONV_ZOOMS[1] + CONV_SPACINGS[1])
+						+ CONV_TOPS[1] + len(conv2_out[0]) * CONV_ZOOMS[0] - 1
 					),
 					(
 						LINEAR_LEFTS[0] - LINEAR_NODE_RADII[0] - 1,

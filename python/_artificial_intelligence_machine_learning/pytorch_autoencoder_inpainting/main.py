@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model
+from _utils.plotting import plot_torch_model, plot_image_grid
 from model import VariationalAutoencoder
 
 
@@ -81,18 +81,6 @@ def create_data_loaders():
 	test_loader = DataLoader(test_dataset, batch_size=len(x_test_ground_truth))
 
 	return train_loader, val_loader, test_loader, test_corrupted_top_left
-
-
-def plot_images(images, pil_img_transform, title, save_path):
-	_, axes = plt.subplots(nrows=4, ncols=6, figsize=(8.4, 6))
-	plt.gcf().set_facecolor('black')
-	plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.03, wspace=0.03)
-	for idx, ax in enumerate(axes.flatten()):
-		ax.imshow(pil_img_transform(images[idx]))
-		ax.axis('off')
-	plt.suptitle(title, y=0.95, color='white')
-	plt.savefig(save_path)
-	plt.close()
 
 
 if __name__ == '__main__':
@@ -197,9 +185,10 @@ if __name__ == '__main__':
 	# 	noise_interp = z1 * t + z2 * (1 - t)
 	# 	with torch.inference_mode():
 	# 		latent_space_test = model.decoder_block(noise_interp)
-	# 	plot_images(
-	# 		latent_space_test,
-	# 		pil_image_transform,
-	# 		f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
-	# 		f'./images/{t:.2f}.png'
+	# 	plot_image_grid(
+	# 		latent_space_test, rows=4, cols=6, gap=4,
+	# 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+	# 		title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
+	# 		save_path=f'./images/{t:.2f}.png',
+	# 		show=False
 	# 	)

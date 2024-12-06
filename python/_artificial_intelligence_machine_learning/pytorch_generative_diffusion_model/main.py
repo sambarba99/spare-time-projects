@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model
+from _utils.plotting import plot_torch_model, plot_image_grid
 from diffusion_controller import DiffusionController
 from model import DDPM
 
@@ -72,22 +72,29 @@ if __name__ == '__main__':
 		train_loader = create_train_loader()
 		loss_func = torch.nn.MSELoss()
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5)
+		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
+		)
 		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 
 		# Visualise the forward diffusion process
 		first_24_imgs = next(iter(train_loader))[:24].to(DEVICE)
-		diffusion_controller.plot_images(first_24_imgs,
-			f'Forward diffusion process (t=0/{T})',
-			f'./images/forward_diffusion_step_0.png'
+		plot_image_grid(
+			first_24_imgs, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			title=f'Forward diffusion process (t=0/{T})',
+			save_path='./images/forward_diffusion_step_0.png',
+			show=False
 		)
 		for t in tqdm(range(T), desc='Iterating over forward timesteps', ascii=True):
 			t_tensor = torch.full((24,), t, device=DEVICE)
 			noisy_images, _ = diffusion_controller.add_noise(first_24_imgs, t_tensor)
-			diffusion_controller.plot_images(
-				torch.clamp(noisy_images, -1, 1),
-				f'Forward diffusion process (t={t + 1}/{T})',
-				f'./images/forward_diffusion_step_{(t + 1):0>4}.png'
+			plot_image_grid(
+				noisy_images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+				background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+				title=f'Forward diffusion process (t={t + 1}/{T})',
+				save_path=f'./images/forward_diffusion_step_{(t + 1):0>4}.png',
+				show=False
 			)
 
 		for epoch in range(1, NUM_EPOCHS + 1):

@@ -8,7 +8,6 @@ Created 01/07/2023
 import glob
 import os
 
-import matplotlib.pyplot as plt
 from PIL import Image
 import torch
 from torch.utils.data import DataLoader
@@ -17,7 +16,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model
+from _utils.plotting import plot_torch_model, plot_image_grid
 from models import Generator, Discriminator
 
 
@@ -55,31 +54,18 @@ def create_train_loader():
 	return train_loader
 
 
-def plot_images(images, title, save_path=None):
-	_, axes = plt.subplots(nrows=4, ncols=6, figsize=(6.16, 4.44))
-	plt.gcf().set_facecolor('black')
-	plt.subplots_adjust(left=0.04, right=0.96, bottom=0.04, hspace=0.03, wspace=0.03)
-	for idx, ax in enumerate(axes.flatten()):
-		img = (images[idx] + 1) * 127.5  # De-normalise
-		img = img.type(torch.uint8).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
-		ax.imshow(img.cpu())
-		ax.axis('off')
-	plt.suptitle(title, y=0.955, color='white')
-	if save_path:
-		plt.savefig(save_path)
-	else:
-		plt.show()
-	plt.close()
-
-
 if __name__ == '__main__':
 	gen_model = Generator(latent_dim=GEN_LATENT_DIM).to(DEVICE)
 	disc_model = Discriminator(noise_strength=DISC_NOISE_STRENGTH).to(DEVICE)
 
 	print(f'\nGenerator model:\n\n{gen_model}')
 	print(f'\nDiscriminator model:\n\n{disc_model}')
-	plot_torch_model(gen_model, (GEN_LATENT_DIM, 1, 1), input_device=DEVICE, out_file='./images/generator_architecture')
-	plot_torch_model(disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture')
+	plot_torch_model(
+		gen_model, (GEN_LATENT_DIM, 1, 1), input_device=DEVICE, out_file='./images/generator_architecture'
+	)
+	plot_torch_model(
+		disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture'
+	)
 
 	if os.path.exists('./gen_model.pth'):
 		gen_model.load_state_dict(torch.load('./gen_model.pth', map_location=DEVICE))
@@ -96,7 +82,12 @@ if __name__ == '__main__':
 		gen_model.eval()
 		with torch.inference_mode():
 			fake_images_test = gen_model(fixed_noise)
-		plot_images(fake_images_test, 'Start', './images/0_start.png')
+		plot_image_grid(
+			fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			title='Start', save_path='./images/0_start.png',
+			show=False
+		)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -143,10 +134,12 @@ if __name__ == '__main__':
 				gen_model.eval()
 				with torch.inference_mode():
 					fake_images_test = gen_model(fixed_noise)
-				plot_images(
-					fake_images_test,
-					f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}',
-					f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png'
+				plot_image_grid(
+					fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+					background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+					title=f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}',
+					save_path=f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png',
+					show=False
 				)
 
 			mean_gen_loss = total_gen_loss / len(train_loader)
@@ -166,7 +159,11 @@ if __name__ == '__main__':
 	gen_model.eval()
 	with torch.inference_mode():
 		fake_images_test = gen_model(noise)
-	plot_images(fake_images_test, 'Generator test on random noise')
+	plot_image_grid(
+		fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+		title='Generator test on random noise'
+	)
 
 	# Visualise some of the latent space by linearly interpolating between 2 random noise vectors
 
@@ -175,4 +172,10 @@ if __name__ == '__main__':
 	# 	noise_interp = noise * t + noise2 * (1 - t)
 	# 	with torch.inference_mode():
 	# 		latent_space_test = gen_model(noise_interp)
-	# 	plot_images(latent_space_test, f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)', f'./images/{t:.2f}.png')
+	# 	plot_image_grid(
+	# 		latent_space_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+	# 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+	# 		title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
+	# 		save_path=f'./images/{t:.2f}.png',
+	# 		show=False
+	# 	)

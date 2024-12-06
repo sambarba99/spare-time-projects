@@ -50,8 +50,14 @@ def plot_training_progress(epoch):
 		plt.colorbar(contour_plt)
 
 	for optimiser_name, vals in optimisers.items():
-		ax_3d.plot(*np.array(vals['x_history'][:epoch + 1]).T, vals['loss_history'][:epoch + 1], color=vals['plot_colour'], zorder=1)
-		ax_3d.scatter(*vals['x_history'][epoch], vals['loss_history'][epoch], color=vals['plot_colour'], s=8, zorder=1)
+		ax_3d.plot(
+			*np.array(vals['x_history'][:epoch + 1]).T, vals['loss_history'][:epoch + 1],
+			color=vals['plot_colour'], zorder=1
+		)
+		ax_3d.scatter(
+			*vals['x_history'][epoch], vals['loss_history'][epoch], color=vals['plot_colour'],
+			s=8, zorder=1
+		)
 
 		ax_2d.plot(*np.array(vals['x_history'][:epoch + 1]).T, color=vals['plot_colour'], zorder=1)
 		ax_2d.scatter(*vals['x_history'][epoch], color=vals['plot_colour'], s=8, label=optimiser_name, zorder=1)

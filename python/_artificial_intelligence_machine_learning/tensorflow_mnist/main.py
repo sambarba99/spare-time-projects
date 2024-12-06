@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 
-from _utils.model_plotting import plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.plotting import *
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
@@ -44,7 +44,9 @@ def load_data():
 
 	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
 	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
+	x_train, x_val, y_train, y_val = train_test_split(
+		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
+	)
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
@@ -84,14 +86,10 @@ if __name__ == '__main__':
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
-		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
-		for idx, ax in enumerate(axes.flatten()):
-			sample = x_train[idx].squeeze()
-			ax.imshow(sample, cmap='gray')
-			ax.axis('off')
-		plt.suptitle('Data samples', y=0.95)
-		plt.show()
+		plot_image_grid(
+			x_train[:32], rows=4, cols=8, gap=5, scale_factor=2,
+			title='Data samples', save_path='./images/data_samples.png'
+		)
 
 		# Define model
 
@@ -155,7 +153,15 @@ if __name__ == '__main__':
 	plot_confusion_matrix(y_test.argmax(axis=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 	# Plot the model's learned filters
-	plot_cnn_learned_filters(model, num_cols=4, model_type='tensorflow')
+	layer_filters = get_cnn_learned_filters(model, model_type='tensorflow')
+	for idx, (filters, gap) in enumerate(zip(layer_filters, (15, 10)), start=1):
+		cols = 8
+		rows = len(filters) // cols
+		plot_image_grid(
+			filters, rows, cols, gap=gap, scale_factor=20,
+			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
+			save_path=f'./images/conv{idx}_filters.png'
+		)
 
 	# User draws a digit to predict
 
@@ -192,7 +198,7 @@ if __name__ == '__main__':
 
 		# Map coords to range [0,27]
 		pixelated_coords = user_drawing_coords * 27 / DRAWING_SIZE
-		pixelated_coords = np.unique(np.round(pixelated_coords), axis=0).astype(int)  # Keep only unique coords
+		pixelated_coords = np.unique(pixelated_coords.round(), axis=0).astype(int)  # Keep only unique coords
 		pixelated_coords = np.clip(pixelated_coords, 0, 27)
 
 		# Set these pixels as bright
@@ -221,4 +227,12 @@ if __name__ == '__main__':
 		pg.display.update()
 
 	# Plot feature maps for user-drawn digit
-	plot_cnn_feature_maps(model, num_cols=4, model_type='tensorflow', input_img=model_input, title_append=' (user-drawn digit)')
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input, model_type='tensorflow')
+	for idx, (feature_map, gap, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
+		cols = 8
+		rows = len(feature_map) // cols
+		plot_image_grid(
+			feature_map, rows, cols, gap=gap, scale_factor=scale_factor,
+			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} (user-drawn digit)',
+			save_path=f'./images/conv{idx}_feature_map.png'
+		)

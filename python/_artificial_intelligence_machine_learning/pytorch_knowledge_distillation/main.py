@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_confusion_matrix
+from _utils.plotting import plot_torch_model, plot_confusion_matrix
 from conv_nets import Teacher, Student
 
 
@@ -48,10 +48,9 @@ def create_data_loaders():
 	]
 	y_labels = [img_path.split('\\')[-1].split('_')[0] for img_path in img_paths]
 
-	# One-hot encode y
-	one_hot_encoder = OneHotEncoder(sparse_output=False)
-	y = np.array(y_labels).reshape(-1, 1)
-	y = one_hot_encoder.fit_transform(y)
+	label_encoder = LabelEncoder()
+	y = label_encoder.fit_transform(y_labels)
+	y = torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.95:0.04:0.01)
 
@@ -110,7 +109,7 @@ def train(model, save_path):
 			y_val_logits = model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(y_val_logits, y_val).item()
-		val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
+		val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
@@ -175,7 +174,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 			y_val_logits = student_model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(y_val_logits, y_val).item()
-		val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
+		val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
@@ -194,7 +193,6 @@ def test(model, plot_title):
 		y_test_logits = model(x_test.to(DEVICE)).cpu()
 
 	ordered_y_labels = sorted(set(y_labels))
-	y_test = y_test.argmax(dim=1)
 	y_test_pred = y_test_logits.argmax(dim=1)
 
 	# Confusion matrix
@@ -221,8 +219,8 @@ def test(model, plot_title):
 	# Plot 16 test set images with outputs (this list contains at least 1 of every class)
 
 	test_indices = [
-		36, 4, 0, 18, 45, 7, 28, 15,
-		12, 1, 56, 8, 5, 25, 52, 10
+		1, 12, 15, 28, 7, 45, 18, 0,
+		4, 36, 2, 14, 38, 30, 10, 52
 	]
 
 	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 6))
@@ -259,8 +257,12 @@ if __name__ == '__main__':
 	student_model_with_kd.load_state_dict(student_model_no_kd.state_dict())
 	print(f'\nTeacher model:\n{teacher_model}')
 	print(f'\nStudent model:\n{student_model_no_kd}')
-	plot_torch_model(teacher_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/teacher_architecture')
-	plot_torch_model(student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/student_architecture')
+	plot_torch_model(
+		teacher_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/teacher_architecture'
+	)
+	plot_torch_model(
+		student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/student_architecture'
+	)
 
 	teacher_params = sum(p.numel() for p in teacher_model.parameters())
 	student_params = sum(p.numel() for p in student_model_no_kd.parameters())

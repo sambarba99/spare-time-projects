@@ -14,7 +14,7 @@ from torch import nn
 
 from _utils.csv_data_loader import load_csv_classification_data, load_csv_regression_data
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
 
 
 plt.rcParams['figure.figsize'] = (7, 5)
@@ -76,11 +76,13 @@ if __name__ == '__main__':
 
 	labels = None
 	if task_choice in 'BM':
-		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = \
-			load_csv_classification_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True, tensor_device='cpu')
+		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = load_csv_classification_data(
+			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), tensor_device='cpu'
+		)
 	else:
-		x_train, y_train, x_val, y_val, x_test, y_test, _ = \
-			load_csv_regression_data(path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), tensor_device='cpu')
+		x_train, y_train, x_val, y_val, x_test, y_test, _ = load_csv_regression_data(
+			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), tensor_device='cpu'
+		)
 
 	# Build model
 
@@ -206,7 +208,7 @@ if __name__ == '__main__':
 			# y_train_pred = y_train_logits.argmax(dim=1).detach()
 
 			loss = loss_func(y_train_logits, y_train)
-			metric = f1_score(y_train.argmax(dim=1), y_train_pred, average='weighted')
+			metric = f1_score(y_train, y_train_pred, average='weighted')
 
 			optimiser.zero_grad()
 			loss.backward()
@@ -217,7 +219,7 @@ if __name__ == '__main__':
 				y_val_logits = model(x_val).squeeze()
 			y_val_pred = y_val_logits.argmax(dim=1)  # Same as computing probs then rounding
 			val_loss = loss_func(y_val_logits, y_val).item()
-			val_metric = f1_score(y_val.argmax(dim=1), y_val_pred, average='weighted')
+			val_metric = f1_score(y_val, y_val_pred, average='weighted')
 
 		elif task_choice == 'R':
 			y_train_pred = model(x_train).squeeze()
@@ -242,9 +244,11 @@ if __name__ == '__main__':
 
 		if epoch % 10 == 0:
 			if task_choice in 'BM':
-				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  F1: {metric:.4f}  |  Val loss: {val_loss:.4f}  |  Val F1: {val_metric:.4f}')
+				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  F1: {metric:.4f}'
+					f'  |  Val loss: {val_loss:.4f}  |  Val F1: {val_metric:.4f}')
 			else:
-				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  MAE: {metric:.4f}  |  Val loss: {val_loss:.4f}  |  Val MAE: {val_metric:.4f}')
+				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  MAE: {metric:.4f}'
+					f'  |  Val loss: {val_loss:.4f}  |  Val MAE: {val_metric:.4f}')
 
 		if early_stopping(val_loss, model.state_dict()):
 			print('Early stopping at epoch', epoch)
@@ -304,9 +308,9 @@ if __name__ == '__main__':
 			print('Test loss:', test_loss.item())
 
 			# Confusion matrix
-			f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
+			f1 = f1_score(y_test, test_pred, average='weighted')
 			plot_confusion_matrix(
-				y_test.argmax(dim=1),
+				y_test,
 				test_pred,
 				labels,
 				f'Test confusion matrix\n(F1 score: {f1:.3f})',

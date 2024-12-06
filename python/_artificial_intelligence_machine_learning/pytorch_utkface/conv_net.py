@@ -1,5 +1,5 @@
 """
-CNN class
+VGG16-based CNN class
 
 Author: Sam Barba
 Created 30/10/2022

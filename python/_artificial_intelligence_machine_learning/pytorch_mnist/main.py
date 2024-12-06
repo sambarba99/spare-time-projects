@@ -7,7 +7,6 @@ Created 30/10/2022
 
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pygame as pg
 from sklearn.metrics import f1_score
@@ -19,7 +18,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix
+from _utils.plotting import *
 from conv_net import CNN
 
 
@@ -40,15 +39,17 @@ def load_data():
 	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
 	x = np.expand_dims(x, 1)
 
-	# One-hot encode y
 	y = np.concatenate([y_train, y_test])
-	y = np.eye(10)[y]  # 10 classes (0-9)
 
-	x, y = torch.tensor(x).float(), torch.tensor(y).float()
+	x, y = torch.tensor(x).float(), torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(
+		x, y, train_size=0.98, stratify=y, random_state=1
+	)
+	x_train, x_val, y_train, y_val = train_test_split(
+		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
+	)
 
 	train_set = CustomDataset(x_train, y_train)
 	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False)
@@ -74,14 +75,10 @@ if __name__ == '__main__':
 	else:
 		# Plot some example images
 
-		_, axes = plt.subplots(nrows=5, ncols=5, figsize=(5, 5))
-		plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.05, hspace=0.05, wspace=0.05)
-		for idx, ax in enumerate(axes.flatten()):
-			sample = x_val[idx].squeeze()
-			ax.imshow(sample, cmap='gray')
-			ax.axis('off')
-		plt.suptitle('Data samples', y=0.95)
-		plt.show()
+		plot_image_grid(
+			x_val[:32], rows=4, cols=8, gap=5, scale_factor=2,
+			title='Data samples', save_path='./images/data_samples.png'
+		)
 
 		# Train model
 
@@ -111,7 +108,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				y_val_logits = model(x_val)
 			val_loss = loss_func(y_val_logits, y_val).item()
-			val_f1 = f1_score(y_val.argmax(dim=1), y_val_logits.argmax(dim=1), average='weighted')
+			val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
@@ -123,7 +120,15 @@ if __name__ == '__main__':
 		torch.save(model.state_dict(), './model.pth')
 
 	# Plot the model's learned filters
-	plot_cnn_learned_filters(model, num_cols=4)
+	layer_filters = get_cnn_learned_filters(model)
+	for idx, (filters, gap) in enumerate(zip(layer_filters, (15, 10)), start=1):
+		cols = 8
+		rows = len(filters) // cols
+		plot_image_grid(
+			filters, rows, cols, gap=gap, scale_factor=20,
+			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
+			save_path=f'./images/conv{idx}_filters.png'
+		)
 
 	# Test model
 
@@ -137,8 +142,8 @@ if __name__ == '__main__':
 	print(f'Test loss: {test_loss.item()}\n')
 
 	# Confusion matrix
-	f1 = f1_score(y_test.argmax(dim=1), test_pred, average='weighted')
-	plot_confusion_matrix(y_test.argmax(dim=1), test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	f1 = f1_score(y_test, test_pred, average='weighted')
+	plot_confusion_matrix(y_test, test_pred, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 	# User draws a digit to predict
 
@@ -175,7 +180,7 @@ if __name__ == '__main__':
 
 		# Map coords to range [0,27]
 		pixelated_coords = user_drawing_coords * 27 / DRAWING_SIZE
-		pixelated_coords = np.unique(np.round(pixelated_coords), axis=0).astype(int)  # Keep only unique coords
+		pixelated_coords = np.unique(pixelated_coords.round(), axis=0).astype(int)  # Keep only unique coords
 		pixelated_coords = np.clip(pixelated_coords, 0, 27)
 
 		# Set these pixels as bright
@@ -205,5 +210,13 @@ if __name__ == '__main__':
 
 		pg.display.update()
 
-	# Plot feature maps of user-drawn digit
-	plot_cnn_feature_maps(model, num_cols=4, input_img=model_input, title_append=' (user-drawn digit)')
+	# Plot feature maps for user-drawn digit
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input)
+	for idx, (feature_map, gap, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
+		cols = 8
+		rows = len(feature_map) // cols
+		plot_image_grid(
+			feature_map, rows, cols, gap=gap, scale_factor=scale_factor,
+			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} (user-drawn digit)',
+			save_path=f'./images/conv{idx}_feature_map.png'
+		)

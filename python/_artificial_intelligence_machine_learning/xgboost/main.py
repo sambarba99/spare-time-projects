@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.metrics import f1_score
 
 from _utils.csv_data_loader import load_csv_classification_data
-from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve
 from xgboost import XGBoostClassifier
 
 

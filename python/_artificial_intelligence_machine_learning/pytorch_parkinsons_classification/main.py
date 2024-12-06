@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_cnn_learned_filters, plot_cnn_feature_maps, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import *
 from conv_net import CNN
 
 
@@ -92,8 +92,12 @@ def create_data_loaders(df):
 	y = torch.tensor(y).float()
 
 	# Create train/validation/test sets (ratio 0.7:0.2:0.1)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(
+		x, y, train_size=0.9, stratify=y, random_state=1
+	)
+	x_train, x_val, y_train, y_val = train_test_split(
+		x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1
+	)
 
 	train_set = CustomDataset(x_train, y_train)
 	val_set = CustomDataset(x_val, y_val)
@@ -124,8 +128,9 @@ if __name__ == '__main__':
 		sample = cv.imread(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
-		ax.set_title(df['class'][idx])
+		ax.set_title(df['class'][idx], fontsize=11)
 	plt.suptitle('Data samples', x=0.514, y=0.95)
+	plt.gcf().set_facecolor('#80b0f0')
 	plt.show()
 
 	# Plot output feature (class) distributions
@@ -167,7 +172,7 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_logits = model(x_train)
+				y_train_logits = model(x_train).squeeze()
 				loss = loss_func(y_train_logits, y_train)
 
 				optimiser.zero_grad()
@@ -179,7 +184,7 @@ if __name__ == '__main__':
 			model.eval()
 			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
-				y_val_logits = model(x_val)
+				y_val_logits = model(x_val).squeeze()
 			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round()
 			val_loss = loss_func(y_val_logits, y_val).item()
@@ -196,10 +201,26 @@ if __name__ == '__main__':
 
 	# Plot the model's learned filters, and corresponding feature maps of a sample image
 
-	plot_cnn_learned_filters(model, num_cols=16, figsize=(9, 3))
+	layer_filters = get_cnn_learned_filters(model)
+	for idx, (filters, gap, scale_factor) in enumerate(zip(layer_filters, (15, 10), (20, 15)), start=1):
+		cols = idx * 8
+		rows = len(filters) // cols
+		plot_image_grid(
+			filters, rows, cols, gap=gap, scale_factor=scale_factor,
+			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
+			save_path=f'./images/conv{idx}_filters.png'
+		)
 
 	x_val, _ = next(iter(val_loader))
-	plot_cnn_feature_maps(model, num_cols=16, input_img=x_val[0], title_append=' of a sample image', figsize=(9, 3))
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=x_val[0])
+	for idx, (feature_map, gap) in enumerate(zip(layer_feature_maps, (10, 5)), start=1):
+		cols = idx * 8
+		rows = len(feature_map) // cols
+		plot_image_grid(
+			feature_map, rows, cols, gap=gap,
+			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} of a sample image',
+			save_path=f'./images/conv{idx}_feature_map.png'
+		)
 
 	# Test model (plot confusion matrix and ROC curve)
 
@@ -215,6 +236,11 @@ if __name__ == '__main__':
 	print('Test loss:', test_loss.item())
 
 	f1 = f1_score(y_test, y_test_pred)
-	plot_confusion_matrix(y_test, y_test_pred, ['healthy', 'parkinsons'], f'Test confusion matrix\n(F1 score: {f1:.3f})')
+	plot_confusion_matrix(
+		y_test,
+		y_test_pred,
+		['healthy', 'parkinsons'],
+		f'Test confusion matrix\n(F1 score: {f1:.3f})'
+	)
 
 	plot_roc_curve(y_test, y_test_logits)

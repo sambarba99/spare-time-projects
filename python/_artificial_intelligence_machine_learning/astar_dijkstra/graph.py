@@ -15,7 +15,10 @@ from node import Node
 
 
 class Graph:
-	def __init__(self, graph_type, rows=None, cols=None, num_nodes=None, max_edges_per_node=None, x_max=None, y_max=None):
+	def __init__(
+		self, graph_type, rows=None, cols=None, num_nodes=None, max_edges_per_node=None,
+		x_max=None, y_max=None
+	):
 		assert graph_type in ('labyrinth', 'maze', 'graph')
 
 		if graph_type in ('labyrinth', 'maze'):

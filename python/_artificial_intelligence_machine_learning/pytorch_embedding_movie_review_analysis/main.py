@@ -8,7 +8,6 @@ Created 26/03/2024
 from collections import Counter
 import os
 
-import matplotlib.pyplot as plt
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -21,7 +20,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
 from model import MovieReviewClf
 
 # Un-comment if running for first time
@@ -49,7 +48,9 @@ def load_data():
 
 	stop_words = set(stopwords.words('english'))
 	df['tokens'] = df['review'].apply(word_tokenize)
-	df['tokens'] = df['tokens'].apply(lambda tokens: [t.lower() for t in tokens if t.isalnum() and t.lower() not in stop_words])
+	df['tokens'] = df['tokens'].apply(
+		lambda tokens: [t.lower() for t in tokens if t.isalnum() and t.lower() not in stop_words]
+	)
 
 	# Build vocabulary and assign indices to tokens
 
@@ -62,7 +63,9 @@ def load_data():
 	# Convert tokens to indices, and crop/pad sequences to length SEQUENCE_LEN
 
 	df['indexed_tokens'] = df['tokens'].apply(lambda tokens: [token_to_idx[t] for t in tokens])
-	df['padded_tokens'] = df['indexed_tokens'].apply(lambda indices: indices[:SEQUENCE_LEN] + [0] * (SEQUENCE_LEN - len(indices)))
+	df['padded_tokens'] = df['indexed_tokens'].apply(
+		lambda indices: indices[:SEQUENCE_LEN] + [0] * (SEQUENCE_LEN - len(indices))
+	)
 
 	print(f'\nPreprocessed reviews:\n{df}')
 
@@ -73,8 +76,12 @@ def load_data():
 	x, y = torch.tensor(x).int(), torch.tensor(y).float()
 	labels = sorted(df['sentiment'].unique())
 
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(
+		x, y, train_size=0.98, stratify=y, random_state=1
+	)
+	x_train, x_val, y_train, y_val = train_test_split(
+		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
+	)
 
 	train_dataset = CustomDataset(x_train, y_train)
 	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
@@ -112,7 +119,7 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_logits = model(x_train)
+				y_train_logits = model(x_train).squeeze()
 				loss = loss_func(y_train_logits, y_train)
 
 				optimiser.zero_grad()
@@ -122,7 +129,7 @@ if __name__ == '__main__':
 				progress_bar.set_postfix_str(f'loss={loss.item():.4f}')
 
 			with torch.inference_mode():
-				y_val_logits = model(x_val)
+				y_val_logits = model(x_val).squeeze()
 			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round().detach()
 			val_loss = loss_func(y_val_logits, y_val).item()

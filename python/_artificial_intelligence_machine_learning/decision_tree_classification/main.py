@@ -12,7 +12,7 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import f1_score
 
 from _utils.csv_data_loader import load_csv_classification_data
-from _utils.model_plotting import plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve
 from decision_tree import DecisionTree
 from tree_plotter import plot_tree
 
@@ -126,7 +126,9 @@ if __name__ == '__main__':
 				ax_classification.set_title(f'Max depth = {tree.depth}, F1 score = {f1:.4f}\n(converged)')
 				plt.show()
 	else:
-		x_train, y_train, x_test, y_test, labels, features = load_csv_classification_data(path, train_size=0.8, test_size=0.2)
+		x_train, y_train, x_test, y_test, labels, features = load_csv_classification_data(
+			path, train_size=0.8, test_size=0.2
+		)
 
 		tree = make_best_tree(x_train, y_train, x_test, y_test)
 		print(f'\nOptimal tree depth: {tree.depth}')

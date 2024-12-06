@@ -21,7 +21,7 @@ from tqdm import tqdm
 from _utils.csv_data_loader import load_csv_classification_data
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.model_plotting import plot_torch_model
+from _utils.plotting import plot_torch_model
 from mnist_autoencoder import MNISTAutoencoder
 from tabular_autoencoder import TabularAutoencoder
 

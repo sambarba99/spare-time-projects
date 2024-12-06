@@ -59,10 +59,9 @@ def gen_data(mode):
 			x, y = make_spirals()
 
 	num_classes = len(np.unique(y))
-	if num_classes > 2:
-		y = np.eye(num_classes)[y]  # One-hot encode
 
-	x, y = torch.tensor(x).float(), torch.tensor(y).float()
+	x = torch.tensor(x).float()
+	y = torch.tensor(y).float() if num_classes == 2 else torch.tensor(y).long()
 
 	build_model()
 	plot_decision_boundary()

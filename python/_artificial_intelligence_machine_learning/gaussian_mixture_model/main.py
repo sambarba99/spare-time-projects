@@ -42,9 +42,9 @@ if __name__ == '__main__':
 
 	gmm = GaussianMixtureModel(num_components=len(np.unique(y_train)))
 	gmm.fit(x_train)
-	predictions = gmm.predict(x_test)
+	predictions = gmm.predict(x_test).argmax(axis=1)
 
-	print('\nTest set stats:')
+	print('Test set stats:')
 	for label, count in zip(*np.unique(y_test, return_counts=True)):
 		print(f'\tLabel: {label} | count: {count}')
 

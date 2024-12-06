@@ -246,7 +246,9 @@ if __name__ == '__main__':
 		i = 1
 		while i <= MAX_ATTEMPTS:
 			print(f"\nAttempt {i}/{MAX_ATTEMPTS}: try '{attempt_word}'")
-			info = input(f"Enter the info (0/1/2 for grey/yellow/green) for '{attempt_word}' (or W if won)\n>>> ").upper()
+			info = input(
+				f"Enter the info (0/1/2 for grey/yellow/green) for '{attempt_word}' (or W if won)\n>>> "
+			).upper()
 
 			if info == 'W':
 				break

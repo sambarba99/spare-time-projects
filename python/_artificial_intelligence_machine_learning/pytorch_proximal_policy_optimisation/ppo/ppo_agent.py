@@ -46,7 +46,7 @@ class RolloutBuffer:
 
 
 class ActorCritic(nn.Module):
-	def __init__(self, training_mode):                                                                  # ALGORITHM STEP 1
+	def __init__(self, training_mode):                                                              # ALGORITHM STEP 1
 		super().__init__()
 		self.training_mode = training_mode
 
@@ -131,7 +131,7 @@ class PPOAgent:
 		timesteps_done = episode_num = 0
 		total_return_per_episode = []
 
-		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                                   # ALGORITHM STEP 2
+		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                               # ALGORITHM STEP 2
 			env.reset()
 			state = env.get_state()
 			t = total_episode_return = total_vel = 0
@@ -160,13 +160,13 @@ class PPOAgent:
 						self.save_model(model_path)
 
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs = \
-						self.buffer.rollout()                                                           # ALGORITHM STEP 3
+						self.buffer.rollout()                                                       # ALGORITHM STEP 3
 
-					returns = self.compute_returns_to_go(                                               # ALGORITHM STEP 4
+					returns = self.compute_returns_to_go(                                           # ALGORITHM STEP 4
 						self.buffer.returns, self.buffer.terminals
 					)
 
-					# Expected advantage: A(s,a) = Q(s,a) - V(s)                                          ALGORITHM STEP 5
+					# Expected advantage: A(s,a) = Q(s,a) - V(s)                                      ALGORITHM STEP 5
 					advantages = returns - batch_state_values
 
 					# Standardise for more stable training
@@ -187,7 +187,7 @@ class PPOAgent:
 						surr1 = ratios * advantages
 						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * advantages  # Clip
 
-						# Calculate losses and do backpropagation                                         ALGORITHM STEP 6/7
+						# Calculate losses and do backpropagation                                     ALGORITHM STEP 6/7
 						# Actor loss is negative because we want to maximise (gradient ascent)
 						actor_loss = -torch.min(surr1, surr2)
 						critic_loss = nn.MSELoss()(state_values, returns)
@@ -195,7 +195,9 @@ class PPOAgent:
 						# An entropy value is used for regularisation, as it adds a penalty based on
 						# the entropy of the policy distribution. By maximising entropy, the agent is
 						# encouraged to explore different actions and avoid converging to local minima.
-						loss = (actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
+						loss = (
+							actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy
+						).mean()
 						self.optimiser.zero_grad()
 						loss.backward()
 						self.optimiser.step()

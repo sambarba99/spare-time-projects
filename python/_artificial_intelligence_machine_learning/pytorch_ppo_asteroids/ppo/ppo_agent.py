@@ -46,7 +46,7 @@ class RolloutBuffer:
 
 
 class ActorCritic(nn.Module):
-	def __init__(self):                                                                                 # ALGORITHM STEP 1
+	def __init__(self):                                                                             # ALGORITHM STEP 1
 		super().__init__()
 
 		# Policy (actor) function:
@@ -127,7 +127,7 @@ class PPOAgent:
 		timesteps_done = episode_num = percent_done = 0
 		total_return_per_episode, mean_checkpoint_scores = [], []
 
-		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                                   # ALGORITHM STEP 2
+		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                               # ALGORITHM STEP 2
 			train_env.reset()
 			state = train_env.get_state()
 			t = total_episode_return = 0
@@ -147,9 +147,9 @@ class PPOAgent:
 					# ------------------------------ PPO update ------------------------------ #
 
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs, \
-						batch_returns, batch_terminals = self.buffer.rollout()                          # ALGORITHM STEP 3
+						batch_returns, batch_terminals = self.buffer.rollout()                      # ALGORITHM STEP 3
 
-					advantages, returns = self.compute_gae_and_returns(                                 # ALGORITHM STEP 4/5
+					advantages, returns = self.compute_gae_and_returns(                             # ALGORITHM STEP 4/5
 						batch_state_values, batch_returns, batch_terminals
 					)
 
@@ -184,7 +184,7 @@ class PPOAgent:
 						surr1 = ratios * advantages
 						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * advantages  # Clip
 
-						# Calculate losses and do backpropagation                                         ALGORITHM STEP 6/7
+						# Calculate losses and do backpropagation                                     ALGORITHM STEP 6/7
 						# Actor loss is negative because we want to maximise (gradient ascent)
 						actor_loss = -torch.min(surr1, surr2)
 						critic_loss = nn.MSELoss()(state_values, returns)
@@ -192,7 +192,9 @@ class PPOAgent:
 						# An entropy value is used for regularisation, as it adds a penalty based on
 						# the entropy of the policy distribution. By maximising entropy, the agent is
 						# encouraged to explore different actions and avoid converging to local minima.
-						loss = (actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy).mean()
+						loss = (
+							actor_loss + VALUE_FUNC_COEFF * critic_loss - ENTROPY_COEFF * action_dist_entropy
+						).mean()
 						self.optimiser.zero_grad()
 						loss.backward()
 						self.optimiser.step()
@@ -241,7 +243,8 @@ class PPOAgent:
 		advantage = next_state_value = discounted_return = 0
 
 		for v, r, terminal in reversed(list(zip(batch_state_values, batch_returns, batch_terminals))):
-			# Temporal Difference error: difference between the value of s_t and the actual reward + estimated value of s_(t+1)
+			# Temporal Difference error:
+			# difference between the value of s_t and the actual reward + estimated value of s_(t+1)
 			td_error = r + (0 if terminal else GAMMA * next_state_value) - v
 			advantage = td_error + GAMMA * LAMBDA * advantage
 			next_state_value = v

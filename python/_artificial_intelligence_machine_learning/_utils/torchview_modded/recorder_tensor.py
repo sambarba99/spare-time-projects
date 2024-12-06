@@ -160,7 +160,9 @@ class RecorderTensor(torch.Tensor):
 			self.tensor_nodes = tensor_node
 
 	@classmethod
-	def __torch_function__(cls: Any, func: Callable[..., Any] | ScriptMethod, types: Any, args: Any = (), kwargs: Any = None) -> Any:
+	def __torch_function__(
+		cls: Any, func: Callable[..., Any] | ScriptMethod, types: Any, args: Any = (), kwargs: Any = None
+	) -> Any:
 		"""
 		Calls torch functions for RecorderTensor subclass of torch.Tensor
 		Forward prop => Construct Function Node => Construct Output TensorNode
@@ -260,7 +262,9 @@ def traverse_data_inplace(recorded_data: Any, action_fn: Callable[..., Any], **k
 			traverse_data_inplace(r_d, action_fn, **kwargs)
 
 
-def attach_node(kwargs: dict[str, Any], tensor_to_node: dict[RecorderTensor, TensorNode] | None = None) -> Callable[..., Any]:
+def attach_node(
+	kwargs: dict[str, Any], tensor_to_node: dict[RecorderTensor, TensorNode] | None = None
+) -> Callable[..., Any]:
 	"""Creates the function to attach TensorNodes, needed for nested calls"""
 
 	def _func(recorded_tensor: RecorderTensor) -> None:
@@ -333,7 +337,9 @@ def pop_after_forward(r_in: RecorderTensor, recorded_output: OrderedSet[Recorder
 		r_in.tensor_nodes.pop(-2)
 
 
-def collect_tensor_node(recorded_data: RecorderTensor, collected: NodeContainer[TensorNode], is_pop: bool = False) -> None:
+def collect_tensor_node(
+	recorded_data: RecorderTensor, collected: NodeContainer[TensorNode], is_pop: bool = False
+) -> None:
 	if getattr(recorded_data, 'tensor_nodes', None):
 		if is_pop:
 			collected.add(recorded_data.tensor_nodes.pop())

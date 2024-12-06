@@ -118,8 +118,10 @@ class ComputationGraph:
 
 			display_nested = 1 <= k.depth < self.depth
 
-			with (cur_subgraph.subgraph(name=f'cluster_{self.subgraph_dict[k.node_id]}') if display_nested else nullcontext()) \
-				as cur_cont:
+			with (
+				cur_subgraph.subgraph(name=f'cluster_{self.subgraph_dict[k.node_id]}')
+				if display_nested else nullcontext()
+			) as cur_cont:
 				if display_nested:
 					cur_cont.attr(label=k.name)
 					new_kwargs = updated_dict(new_kwargs, 'subgraph', cur_cont)
@@ -301,7 +303,8 @@ class ComputationGraph:
 		assert node.node_id != 'null', f'wrong id {node} {type(node)}'
 		assert '-' not in node.node_id, 'No repetition of node recording is allowed'
 		assert node.depth <= self.depth, f'Exceeds display depth limit, {node}'
-		assert len(node.parents) in [0, 1] or not isinstance(node, TensorNode), f'tensor must have single input node {node}'
+		assert len(node.parents) in [0, 1] or not isinstance(node, TensorNode), \
+			f'tensor must have single input node {node}'
 
 
 def compact_list_repr(x: list[Any]) -> str:

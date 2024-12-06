@@ -31,12 +31,8 @@ def generate_graph():
 
 	graph = Graph(
 		graph_type=stringv_type.get(),
-		rows=ROWS,
-		cols=COLS,
-		num_nodes=NUM_NODES,
-		max_edges_per_node=MAX_EDGES_PER_NODE,
-		x_max=WIDTH,
-		y_max=HEIGHT
+		rows=ROWS, cols=COLS, num_nodes=NUM_NODES, max_edges_per_node=MAX_EDGES_PER_NODE,
+		x_max=WIDTH, y_max=HEIGHT
 	)
 
 	draw(open_set=[], closed_set=set(), is_solved=False)
@@ -183,8 +179,7 @@ def draw(open_set, closed_set, is_solved):
 			node = path[i]
 			next_node = path[i + 1]
 			pg.draw.line(
-				scene,
-				'black',
+				scene, 'black',
 				((node.x + 0.5) * CELL_SIZE - 1, (node.y + 0.5) * CELL_SIZE - 1),
 				((next_node.x + 0.5) * CELL_SIZE - 1, (next_node.y + 0.5) * CELL_SIZE - 1),
 				2
@@ -251,12 +246,21 @@ if __name__ == '__main__':
 	root.resizable(False, False)
 
 	stringv_type = tk.StringVar(value='labyrinth')
-	radio_btn_labyrinth = tk.Radiobutton(root, text='Labyrinth', font='consolas 10', variable=stringv_type, value='labyrinth',
-		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
-	radio_btn_maze = tk.Radiobutton(root, text='Maze', font='consolas 10', variable=stringv_type, value='maze',
-		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
-	radio_btn_graph = tk.Radiobutton(root, text='Graph', font='consolas 10', variable=stringv_type, value='graph',
-		background='#101010', foreground='white', activebackground='#101010', activeforeground='white', selectcolor='#101010')
+	radio_btn_labyrinth = tk.Radiobutton(
+		root, text='Labyrinth', font='consolas 10', variable=stringv_type, value='labyrinth',
+		background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010'
+	)
+	radio_btn_maze = tk.Radiobutton(
+		root, text='Maze', font='consolas 10', variable=stringv_type, value='maze',
+		background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010'
+	)
+	radio_btn_graph = tk.Radiobutton(
+		root, text='Graph', font='consolas 10', variable=stringv_type, value='graph',
+		background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010'
+	)
 
 	btn_generate = tk.Button(root, text='Generate', font='consolas', command=generate_graph)
 	btn_solve_astar = tk.Button(root, text='Solve with A*', font='consolas', command=astar)
