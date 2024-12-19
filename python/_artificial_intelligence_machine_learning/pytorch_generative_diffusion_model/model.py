@@ -74,16 +74,15 @@ class SelfAttention(nn.Module):
 		self.head_dim = num_channels // self.num_heads
 		self.scale = 1 / (self.head_dim ** 0.5)
 		self.softmax = nn.Softmax(dim=-1)
-		self.gamma = nn.Parameter(torch.zeros(1))
 
 	def forward(self, x):
-		b, c, h, w = x.shape
+		n, c, h, w = x.shape
 
 		if self.num_heads == 1:
 			# Generate query, key, value matrices
-			proj_query = self.query_conv(x).view(b, -1, h * w)
-			proj_key = self.key_conv(x).view(b, -1, h * w)
-			proj_value = self.value_conv(x).view(b, -1, h * w)
+			proj_query = self.query_conv(x).view(n, -1, h * w)
+			proj_key = self.key_conv(x).view(n, -1, h * w)
+			proj_value = self.value_conv(x).view(n, -1, h * w)
 
 			# Compute attention
 			energy = torch.bmm(proj_query.permute(0, 2, 1), proj_key) * self.scale
@@ -91,12 +90,12 @@ class SelfAttention(nn.Module):
 
 			# Apply attention to value matrix
 			out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-			out = out.view(b, c, h, w)
+			out = out.view(n, c, h, w)
 		else:
 			# Generate query, key, value matrices
-			proj_query = self.query_conv(x).view(b, self.num_heads, self.head_dim, h * w)
-			proj_key = self.key_conv(x).view(b, self.num_heads, self.head_dim, h * w)
-			proj_value = self.value_conv(x).view(b, self.num_heads, self.head_dim, h * w)
+			proj_query = self.query_conv(x).view(n, self.num_heads, self.head_dim, h * w)
+			proj_key = self.key_conv(x).view(n, self.num_heads, self.head_dim, h * w)
+			proj_value = self.value_conv(x).view(n, self.num_heads, self.head_dim, h * w)
 
 			# Compute attention
 			energy = torch.einsum('bnhd,bmhd->bhnm', proj_query, proj_key) * self.scale
@@ -104,9 +103,9 @@ class SelfAttention(nn.Module):
 
 			# Apply attention to value matrix
 			out = torch.einsum('bhnm,bmhd->bnhd', attention, proj_value)
-			out = out.contiguous().view(b, c, h, w)
+			out = out.contiguous().view(n, c, h, w)
 
-		out = self.gamma * out + x
+		out += x
 
 		return out
 
@@ -122,15 +121,15 @@ class DDPM(nn.Module):
 	def __init__(self, *, num_timesteps, encoding_dim, device):
 		super().__init__()
 
-		# Timestep positional encoding
+		# Timestep positional encoding (sinusoidal encoding)
 		assert encoding_dim % 2 == 0
 		even_indices = torch.arange(0, encoding_dim, 2)
-		log_term = torch.log(torch.tensor(10000)) / encoding_dim
+		log_term = torch.log(torch.tensor(1e4)) / encoding_dim
 		div_term = torch.exp(even_indices * -log_term)
 		timesteps = torch.arange(num_timesteps).unsqueeze(dim=1)
-		self.pe_matrix = torch.zeros(num_timesteps, encoding_dim, device=device)
-		self.pe_matrix[:, 0::2] = torch.sin(timesteps * div_term)
-		self.pe_matrix[:, 1::2] = torch.cos(timesteps * div_term)
+		self.pos_encoding = torch.zeros(num_timesteps, encoding_dim, device=device)
+		self.pos_encoding[:, 0::2] = torch.sin(timesteps * div_term)
+		self.pos_encoding[:, 1::2] = torch.cos(timesteps * div_term)
 
 		self.time_positional_encoding = nn.Sequential(
 			nn.Linear(encoding_dim, encoding_dim),
@@ -165,7 +164,7 @@ class DDPM(nn.Module):
 		self.to(device)
 
 	def forward(self, x, t):
-		t_enc = self.time_positional_encoding(self.pe_matrix[t.int()])  # -> (N, encoding_dim)
+		t_enc = self.time_positional_encoding(self.pos_encoding[t.int()])  # -> (N, encoding_dim)
 
 		# Match spatial dimensions of the input, and concatenate to x along the feature dimension
 		_, _, h, w = x.shape
@@ -173,18 +172,18 @@ class DDPM(nn.Module):
 		t_enc = t_enc.expand(-1, -1, h, w)  # -> (N, encoding_dim, 64, 64)
 		xt = torch.cat([x, t_enc], dim=1)   # -> (N, 3 + encoding_dim, 64, 64)
 
-		skip1, enc1 = self.encoder1(xt)    # -> (N, 64, 64, 64) (N, 64, 32, 32)
-		skip2, enc2 = self.encoder2(enc1)  # -> (N, 128, 32, 32) (N, 128, 16, 16)
-		skip3, enc3 = self.encoder3(enc2)  # -> (N, 256, 16, 16) (N, 256, 8, 8)
-		skip4, enc4 = self.encoder4(enc3)  # -> (N, 512, 8, 8) (N, 512, 4, 4)
+		skip1, enc1 = self.encoder1(xt)     # -> (N, 64, 64, 64) (N, 64, 32, 32)
+		skip2, enc2 = self.encoder2(enc1)   # -> (N, 128, 32, 32) (N, 128, 16, 16)
+		skip3, enc3 = self.encoder3(enc2)   # -> (N, 256, 16, 16) (N, 256, 8, 8)
+		skip4, enc4 = self.encoder4(enc3)   # -> (N, 512, 8, 8) (N, 512, 4, 4)
 
-		mid = self.bottleneck(enc4)        # -> (N, 1024, 4, 4)
+		mid = self.bottleneck(enc4)         # -> (N, 1024, 4, 4)
 
-		dec1 = self.decoder1(mid, skip4)   # -> (N, 512, 8, 8)
-		dec2 = self.decoder2(dec1, skip3)  # -> (N, 256, 16, 16)
-		dec3 = self.decoder3(dec2, skip2)  # -> (N, 128, 32, 32)
-		dec4 = self.decoder4(dec3, skip1)  # -> (N, 64, 64, 64)
+		dec1 = self.decoder1(mid, skip4)    # -> (N, 512, 8, 8)
+		dec2 = self.decoder2(dec1, skip3)   # -> (N, 256, 16, 16)
+		dec3 = self.decoder3(dec2, skip2)   # -> (N, 128, 32, 32)
+		dec4 = self.decoder4(dec3, skip1)   # -> (N, 64, 64, 64)
 
-		out = self.final_conv(dec4)        # -> (N, 3, 64, 64)
+		out = self.final_conv(dec4)         # -> (N, 3, 64, 64)
 
 		return out

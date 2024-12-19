@@ -9,6 +9,7 @@ import glob
 import os
 from time import sleep
 
+import matplotlib.pyplot as plt
 from PIL import Image
 import torch
 from torch.utils.data import DataLoader
@@ -17,7 +18,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid
+from _utils.plotting import plot_torch_model
 from diffusion_controller import DiffusionController
 from model import DDPM
 
@@ -32,8 +33,8 @@ T = 1000  # Diffusion timesteps
 BETA_MIN = 1e-4  # Min. noise variance
 BETA_MAX = 0.02  # Max. noise variance
 T_ENCODING_DIM = 128  # Timestep encoding dim
-BATCH_SIZE = 32
-LEARNING_RATE = 2e-4
+BATCH_SIZE = 64
+LEARNING_RATE = 5e-4
 NUM_EPOCHS = 200
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -78,24 +79,27 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 
 		# Visualise the forward diffusion process
-		first_24_imgs = next(iter(train_loader))[:24].to(DEVICE)
-		plot_image_grid(
-			first_24_imgs, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
-			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
-			title=f'Forward diffusion process (t=0/{T})',
-			save_path='./images/forward_diffusion_step_0.png',
-			show=False
-		)
-		for t in tqdm(range(T), desc='Iterating over forward timesteps', ascii=True):
-			t_tensor = torch.full((24,), t, device=DEVICE)
-			noisy_images, _ = diffusion_controller.add_noise(first_24_imgs, t_tensor)
-			plot_image_grid(
-				noisy_images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
-				background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
-				title=f'Forward diffusion process (t={t + 1}/{T})',
-				save_path=f'./images/forward_diffusion_step_{(t + 1):0>4}.png',
-				show=False
-			)
+		first_4_imgs = next(iter(train_loader))[:4].to(DEVICE)
+		noise_dict = dict.fromkeys(list(range(0, 501, 100)) + [1000])
+		noise_dict[0] = first_4_imgs
+		for t in list(noise_dict.keys())[1:]:
+			t_tensor = torch.full((4,), t - 1, device=DEVICE)
+			noisy_images, _ = diffusion_controller.add_noise(first_4_imgs, t_tensor)
+			noise_dict[t] = noisy_images
+
+		pil_image_transform = transforms.ToPILImage()
+
+		fig, axes = plt.subplots(nrows=4, ncols=len(noise_dict), figsize=(9, 5))
+		plt.subplots_adjust(top=0.84, bottom=0.06, hspace=0, wspace=0.1)
+		for idx, (t, noisy_imgs) in enumerate(noise_dict.items()):
+			fig.text(x=0.18 + idx / 9, y=0.85, s=f't={t}/1000', ha='center', fontsize=10)
+			for i in range(4):
+				normalised = (noisy_imgs[i] - noisy_imgs[i].min()) / (noisy_imgs[i].max() - noisy_imgs[i].min())
+				axes[i, idx].imshow(pil_image_transform(normalised))
+				axes[i, idx].axis('off')
+
+		plt.suptitle('Forward diffusion process', y=0.95)
+		plt.show()
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -147,4 +151,4 @@ if __name__ == '__main__':
 	print('\n----- TESTING -----\n')
 	model.eval()
 	with torch.inference_mode():
-		diffusion_controller.generate_images(model, 24, IMG_SIZE)
+		diffusion_controller.generate_images(model, IMG_SIZE)

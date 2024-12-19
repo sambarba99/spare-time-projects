@@ -32,8 +32,8 @@ pd.set_option('display.width', None)
 torch.manual_seed(1)
 
 SEQUENCE_LEN = 300
-EMBEDDING_LEN = 256
-HIDDEN_LEN = 128
+EMBEDDING_DIM = 256
+HIDDEN_DIM = 128
 BATCH_SIZE = 64
 LEARNING_RATE = 2e-4
 NUM_EPOCHS = 50
@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
 	model = MovieReviewClf(
 		vocab_size=vocab_size,
-		embedding_len=EMBEDDING_LEN,
-		hidden_len=HIDDEN_LEN
+		embedding_dim=EMBEDDING_DIM,
+		hidden_dim=HIDDEN_DIM
 	).cpu()
 	plot_torch_model(model, (SEQUENCE_LEN,))
 

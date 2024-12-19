@@ -1,12 +1,12 @@
 ## PyTorch demo of a Generative Denoising Diffusion Probabilistic Model (DDPM)
 
-Forward diffusion process (model learns to predict noise added at each step, effectively learning how to reverse the diffusion process):
+The model is trained on a forward diffusion process where it must predict the noise added at each step:
 
 <p align="center">
-	<img src="images/forward_process.webp"/>
+	<img src="images/forward_process.png"/>
 </p>
 
-Reverse diffusion process (using the model to iteratively denoise a purely random noise sample):
+This means the trained model can then be used to iteratively _denoise_ a purely random noise sample (a _reverse_ diffusion process):
 
 <p align="center">
 	<img src="images/reverse_process.webp"/>

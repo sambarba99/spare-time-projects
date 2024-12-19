@@ -20,7 +20,7 @@ INPUT_SIZE_TYPE = Sequence[Union[int, Sequence[Any], torch.Size]]
 CORRECTED_INPUT_SIZE_TYPE = List[Union[Sequence[Any], torch.Size]]
 
 
-def draw_graph(model, input_data=None, depth=3, device=None, **kwargs):
+def draw_graph(model, input_data=None, device=None, **kwargs):
 	# Create computation graph as usual
 
 	input_recorder_tensor, kwargs_record_tensor, input_nodes = process_input(
@@ -28,7 +28,7 @@ def draw_graph(model, input_data=None, depth=3, device=None, **kwargs):
 	)
 
 	temp_digraph = Digraph()
-	computation_graph = ComputationGraph(temp_digraph, input_nodes, depth)
+	computation_graph = ComputationGraph(temp_digraph, input_nodes)
 
 	# Get the names of sequential modules, in the order in which they're executed
 
@@ -53,6 +53,23 @@ def draw_graph(model, input_data=None, depth=3, device=None, **kwargs):
 
 		for h in hook_handles:
 			h.remove()  # Remove hook after use
+
+		# In case we get e.g. ['transformer.0.fc_block', 'transformer.1.fc_block', 'transformer']
+		# we want to sort it to get ['transformer', 'transformer.0.fc_block', 'transformer.1.fc_block']
+		# (i.e. for each subgroup starting with a certain prefix, put the prefix first)
+
+		try:
+			prefix_set = set(name.split('.')[0] for name in ordered_sequential_names)
+			prefix_set = sorted(prefix_set, key=ordered_sequential_names.index)
+			sorted_sub_groups = []
+			for name_prefix in prefix_set:
+				names_with_prefix = [name for name in ordered_sequential_names if name.startswith(name_prefix)]
+				sorted_sub_groups.extend(sorted(names_with_prefix))
+
+			ordered_sequential_names = sorted_sub_groups[:]
+		except:
+			# There is no node whose name is a prefix for other nodes, so can continue
+			pass
 	else:
 		ordered_sequential_names = []
 

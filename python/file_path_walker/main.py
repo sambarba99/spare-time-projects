@@ -7,7 +7,6 @@ Created 09/01/2019
 
 from math import log
 import os
-import sys
 from time import perf_counter
 import tkinter as tk
 from tkinter import filedialog, messagebox
