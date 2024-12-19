@@ -77,13 +77,13 @@ class SelfAttention(nn.Module):
 		self.gamma = nn.Parameter(torch.zeros(1))
 
 	def forward(self, x):
-		b, c, h, w = x.shape
+		n, c, h, w = x.shape
 
 		if self.num_heads == 1:
 			# Generate query, key, value matrices
-			proj_query = self.query_conv(x).view(b, -1, h * w)
-			proj_key = self.key_conv(x).view(b, -1, h * w)
-			proj_value = self.value_conv(x).view(b, -1, h * w)
+			proj_query = self.query_conv(x).view(n, -1, h * w)
+			proj_key = self.key_conv(x).view(n, -1, h * w)
+			proj_value = self.value_conv(x).view(n, -1, h * w)
 
 			# Compute attention
 			energy = torch.bmm(proj_query.permute(0, 2, 1), proj_key) * self.scale
@@ -91,12 +91,12 @@ class SelfAttention(nn.Module):
 
 			# Apply attention to value matrix
 			out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-			out = out.view(b, c, h, w)
+			out = out.view(n, c, h, w)
 		else:
 			# Generate query, key, value matrices
-			proj_query = self.query_conv(x).view(b, self.num_heads, self.head_dim, h * w)
-			proj_key = self.key_conv(x).view(b, self.num_heads, self.head_dim, h * w)
-			proj_value = self.value_conv(x).view(b, self.num_heads, self.head_dim, h * w)
+			proj_query = self.query_conv(x).view(n, self.num_heads, self.head_dim, h * w)
+			proj_key = self.key_conv(x).view(n, self.num_heads, self.head_dim, h * w)
+			proj_value = self.value_conv(x).view(n, self.num_heads, self.head_dim, h * w)
 
 			# Compute attention
 			energy = torch.einsum('bnhd,bmhd->bhnm', proj_query, proj_key) * self.scale
@@ -104,7 +104,7 @@ class SelfAttention(nn.Module):
 
 			# Apply attention to value matrix
 			out = torch.einsum('bhnm,bmhd->bnhd', attention, proj_value)
-			out = out.contiguous().view(b, c, h, w)
+			out = out.contiguous().view(n, c, h, w)
 
 		out = self.gamma * out + x
 

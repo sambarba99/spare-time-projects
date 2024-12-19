@@ -79,7 +79,7 @@ if __name__ == '__main__':
 		# Plot some example images
 
 		plot_image_grid(
-			x_val[:32], rows=4, cols=8, gap=5, scale_factor=2,
+			x_val[:32], rows=4, cols=8, padding=5, scale_factor=2,
 			title='Data samples', save_path='./images/data_samples.png'
 		)
 
@@ -124,11 +124,11 @@ if __name__ == '__main__':
 
 	# Plot the model's learned filters
 	layer_filters = get_cnn_learned_filters(model)
-	for idx, (filters, gap) in enumerate(zip(layer_filters, (15, 10)), start=1):
+	for idx, (filters, padding) in enumerate(zip(layer_filters, (15, 10)), start=1):
 		cols = 8
 		rows = len(filters) // cols
 		plot_image_grid(
-			filters, rows, cols, gap=gap, scale_factor=20,
+			filters, rows, cols, padding=padding, scale_factor=20,
 			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
 			save_path=f'./images/conv{idx}_filters.png'
 		)
@@ -219,11 +219,11 @@ if __name__ == '__main__':
 
 	# Plot feature maps for user-drawn digit
 	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input)
-	for idx, (feature_map, gap, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
+	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
 		cols = 8
 		rows = len(feature_map) // cols
 		plot_image_grid(
-			feature_map, rows, cols, gap=gap, scale_factor=scale_factor,
+			feature_map, rows, cols, padding=padding, scale_factor=scale_factor,
 			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} (user-drawn letter)',
 			save_path=f'./images/conv{idx}_feature_map.png'
 		)

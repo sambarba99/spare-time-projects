@@ -83,7 +83,7 @@ if __name__ == '__main__':
 		with torch.inference_mode():
 			fake_images_test = gen_model(fixed_noise)
 		plot_image_grid(
-			fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title='Start', save_path='./images/0_start.png',
 			show=False
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 				with torch.inference_mode():
 					fake_images_test = gen_model(fixed_noise)
 				plot_image_grid(
-					fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+					fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 					background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 					title=f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}',
 					save_path=f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png',
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 	with torch.inference_mode():
 		fake_images_test = gen_model(noise)
 	plot_image_grid(
-		fake_images_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+		fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 		title='Generator test on random noise'
 	)
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 	# 	with torch.inference_mode():
 	# 		latent_space_test = gen_model(noise_interp)
 	# 	plot_image_grid(
-	# 		latent_space_test, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+	# 		latent_space_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 	# 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 	# 		title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
 	# 		save_path=f'./images/{t:.2f}.png',

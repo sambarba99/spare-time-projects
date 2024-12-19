@@ -186,7 +186,7 @@ if __name__ == '__main__':
 	# 	with torch.inference_mode():
 	# 		latent_space_test = model.decoder_block(noise_interp)
 	# 	plot_image_grid(
-	# 		latent_space_test, rows=4, cols=6, gap=4,
+	# 		latent_space_test, rows=4, cols=6, padding=4,
 	# 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 	# 		title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
 	# 		save_path=f'./images/{t:.2f}.png',

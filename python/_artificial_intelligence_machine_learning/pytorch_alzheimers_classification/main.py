@@ -170,22 +170,22 @@ if __name__ == '__main__':
 	# Plot the model's learned filters, and corresponding feature maps of a sample image
 
 	layer_filters = get_cnn_learned_filters(model)
-	for idx, (filters, gap, scale_factor) in enumerate(zip(layer_filters, (15, 10), (20, 15)), start=1):
+	for idx, (filters, padding, scale_factor) in enumerate(zip(layer_filters, (15, 10), (20, 15)), start=1):
 		cols = idx * 8
 		rows = len(filters) // cols
 		plot_image_grid(
-			filters, rows, cols, gap=gap, scale_factor=scale_factor,
+			filters, rows, cols, padding=padding, scale_factor=scale_factor,
 			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
 			save_path=f'./images/conv{idx}_filters.png'
 		)
 
 	x_val, _ = next(iter(val_loader))
 	layer_feature_maps = get_cnn_feature_maps(model, input_img=x_val[0].to(DEVICE))
-	for idx, (feature_map, gap, scale_factor) in enumerate(zip(layer_feature_maps, (10, 5), (0.75, 1)), start=1):
+	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (10, 5), (0.75, 1)), start=1):
 		cols = idx * 8
 		rows = len(feature_map) // cols
 		plot_image_grid(
-			feature_map, rows, cols, gap=gap, scale_factor=scale_factor,
+			feature_map, rows, cols, padding=padding, scale_factor=scale_factor,
 			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} of a sample image',
 			save_path=f'./images/conv{idx}_feature_map.png'
 		)

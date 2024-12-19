@@ -21,7 +21,7 @@ INTERPOLATION_DICT = {'nearest': cv.INTER_NEAREST, 'cubic': cv.INTER_CUBIC, 'are
 
 
 def plot_image_grid(
-		images, rows, cols, gap, scale_factor=1, scale_interpolation='nearest',
+		images, rows, cols, padding, scale_factor=1, scale_interpolation='nearest',
 		outer_padding=20, background_rgb=(128, 176, 240), title_rgb=(0, 0, 0),
 		title='', save_path='', show=True
 	):
@@ -68,14 +68,14 @@ def plot_image_grid(
 			img = cv.resize(img, (new_w, new_h), interpolation=INTERPOLATION_DICT[scale_interpolation])
 
 		# Convert RGB to BGR for OpenCV
-		img = img[..., ::-1]
+		img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
 
 		images[idx] = img
 
 	# Create blank output image
 	img_h, img_w = images[0].shape[:2]
-	output_height = rows * img_h + (rows - 1) * gap + 2 * outer_padding + title_padding
-	output_width = cols * img_w + (cols - 1) * gap + 2 * outer_padding
+	output_height = rows * img_h + (rows - 1) * padding + 2 * outer_padding + title_padding
+	output_width = cols * img_w + (cols - 1) * padding + 2 * outer_padding
 	w_diff = 0
 	if output_width - title_width < 2 * outer_padding:
 		w_diff = 2 * outer_padding - output_width + title_width
@@ -85,8 +85,8 @@ def plot_image_grid(
 	for y in range(rows):
 		for x in range(cols):
 			img_idx = y * cols + x
-			img_y_pos = y * (img_h + gap) + outer_padding + title_padding
-			img_x_pos = x * (img_w + gap) + outer_padding + w_diff // 2
+			img_y_pos = y * (img_h + padding) + outer_padding + title_padding
+			img_x_pos = x * (img_w + padding) + outer_padding + w_diff // 2
 			output_img[
 				img_y_pos:img_y_pos + img_h,
 				img_x_pos:img_x_pos + img_w

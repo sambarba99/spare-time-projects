@@ -24,5 +24,5 @@ Discriminator architecture:
 	<img src="images/discriminator_architecture.png"/>
 </p>
 
-Sources:
+Source:
 - [CelebA-HQ resized (256x256)](https://www.kaggle.com/datasets/badasstechie/celebahq-resized-256x256) (Kaggle dataset)

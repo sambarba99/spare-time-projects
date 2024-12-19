@@ -80,7 +80,7 @@ if __name__ == '__main__':
 		# Visualise the forward diffusion process
 		first_24_imgs = next(iter(train_loader))[:24].to(DEVICE)
 		plot_image_grid(
-			first_24_imgs, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			first_24_imgs, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title=f'Forward diffusion process (t=0/{T})',
 			save_path='./images/forward_diffusion_step_0.png',
@@ -90,7 +90,7 @@ if __name__ == '__main__':
 			t_tensor = torch.full((24,), t, device=DEVICE)
 			noisy_images, _ = diffusion_controller.add_noise(first_24_imgs, t_tensor)
 			plot_image_grid(
-				noisy_images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+				noisy_images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 				background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 				title=f'Forward diffusion process (t={t + 1}/{T})',
 				save_path=f'./images/forward_diffusion_step_{(t + 1):0>4}.png',

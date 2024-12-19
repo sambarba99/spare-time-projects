@@ -35,7 +35,7 @@ class DiffusionController:
 		images = torch.randn(num_images, 3, img_size, img_size, device=self.device)
 
 		plot_image_grid(
-			images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title=f'Reverse diffusion process (t={self.T}/{self.T})',
 			save_path=f'./images/reverse_diffusion_step_{self.T}.png',
@@ -65,7 +65,7 @@ class DiffusionController:
 				images += beta_t.sqrt() * noise
 
 			plot_image_grid(
-				images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+				images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 				background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 				title=f'Reverse diffusion process (t={t}/{self.T})',
 				save_path=f'./images/reverse_diffusion_step_{t:0>4}.png',
@@ -73,7 +73,7 @@ class DiffusionController:
 			)
 
 		plot_image_grid(
-			images, rows=4, cols=6, gap=4, scale_factor=1.5, scale_interpolation='cubic',
+			images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
 			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title='Model test on random noise'
 		)

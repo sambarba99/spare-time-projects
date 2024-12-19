@@ -24,7 +24,7 @@ class CNN(nn.Module):
 			nn.Dropout(),  # 0.5
 			nn.Linear(400, 64),
 			nn.LeakyReLU(),
-			nn.Linear(64, 10)  # 10 classes
+			nn.Linear(64, 10)  # 10 classes (0-9)
 		)
 
 	def forward(self, x):

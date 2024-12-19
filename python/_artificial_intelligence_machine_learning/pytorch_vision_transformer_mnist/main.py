@@ -1,8 +1,8 @@
 """
-PyTorch MNIST convolutional neural network
+PyTorch Vision Transformer for MNIST classification
 
 Author: Sam Barba
-Created 30/10/2022
+Created 19/12/2024
 """
 
 import os
@@ -14,22 +14,30 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
+from torchvision.utils import make_grid
 from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
 from _utils.plotting import *
-from conv_net import CNN
+from model import imgs_to_patches, VisionTransformer
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 torch.manual_seed(1)
 
-INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
-BATCH_SIZE = 256
+IMG_SIZE = 28
+EMBEDDING_DIM = 64
+HIDDEN_DIM = EMBEDDING_DIM * 3
+NUM_ATTENTION_LAYERS = 3
+NUM_HEADS = 8
+PATCH_SIZE = 4
+NUM_PATCHES = (IMG_SIZE // PATCH_SIZE) ** 2
+BATCH_SIZE = 128
 NUM_EPOCHS = 50
 DRAWING_CELL_SIZE = 15
 DRAWING_SIZE = DRAWING_CELL_SIZE * 28
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
@@ -64,20 +72,39 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = CNN().cpu()
+	model = VisionTransformer(
+		embedding_dim=EMBEDDING_DIM,
+		hidden_dim=HIDDEN_DIM,
+		num_attention_layers=NUM_ATTENTION_LAYERS,
+		num_heads=NUM_HEADS,
+		patch_size=PATCH_SIZE,
+		num_patches=NUM_PATCHES
+	).to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, INPUT_SHAPE)
+	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), input_device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
 	if os.path.exists('./model.pth'):
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
-		# Plot some example images
+		# Plot some example images and how they are converted to sequences of patches
 
 		plot_image_grid(
 			x_val[:32], rows=4, cols=8, padding=5, scale_factor=2,
 			title='Data samples', save_path='./images/data_samples.png'
+		)
+
+		img_patches = imgs_to_patches(x_val[:5], PATCH_SIZE, flatten_channels=False)
+		img_grids = [
+			make_grid(
+				patched_img, nrow=IMG_SIZE // PATCH_SIZE, padding=1, normalize=True, pad_value=0.5
+			).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
+			for patched_img in img_patches
+		]
+		plot_image_grid(
+			img_grids, rows=1, cols=5, padding=20, scale_factor=3,
+			title='Images as input sequences of patches', save_path='./images/imgs_to_patches.png'
 		)
 
 		# Train model
@@ -95,6 +122,9 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
+				x_train = x_train.to(DEVICE)
+				y_train = y_train.to(DEVICE)
+
 				y_train_logits = model(x_train)
 				loss = loss_func(y_train_logits, y_train)
 
@@ -106,7 +136,7 @@ if __name__ == '__main__':
 
 			model.eval()
 			with torch.inference_mode():
-				y_val_logits = model(x_val)
+				y_val_logits = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
@@ -119,27 +149,16 @@ if __name__ == '__main__':
 		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
 		torch.save(model.state_dict(), './model.pth')
 
-	# Plot the model's learned filters
-	layer_filters = get_cnn_learned_filters(model)
-	for idx, (filters, padding) in enumerate(zip(layer_filters, (15, 10)), start=1):
-		cols = 8
-		rows = len(filters) // cols
-		plot_image_grid(
-			filters, rows, cols, padding=padding, scale_factor=20,
-			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
-			save_path=f'./images/conv{idx}_filters.png'
-		)
-
 	# Test model
 
 	print('\n----- TESTING -----\n')
 
 	model.eval()
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test.to(DEVICE)).cpu()
 	test_pred = y_test_logits.argmax(dim=1)
 	test_loss = loss_func(y_test_logits, y_test)
-	print(f'Test loss: {test_loss.item()}\n')
+	print(f'Test loss: {test_loss.item()}')
 
 	# Confusion matrix
 	f1 = f1_score(y_test, test_pred, average='weighted')
@@ -152,7 +171,7 @@ if __name__ == '__main__':
 	scene = pg.display.set_mode((DRAWING_SIZE, DRAWING_SIZE))
 	font = pg.font.SysFont('consolas', 16)
 	user_drawing_coords = np.zeros((0, 2))
-	model_input = torch.zeros(INPUT_SHAPE)
+	model_input = torch.zeros((1, IMG_SIZE, IMG_SIZE))
 	drawing = True
 	left_btn_down = False
 
@@ -193,7 +212,7 @@ if __name__ == '__main__':
 					model_input[:, y + dy, x + dx] = np.random.uniform(0.33, 1)
 
 		with torch.inference_mode():
-			pred_logits = model(model_input.unsqueeze(dim=0))
+			pred_logits = model(model_input.unsqueeze(dim=0).to(DEVICE))
 		pred_probs = torch.softmax(pred_logits, dim=-1)
 
 		for y in range(28):
@@ -210,13 +229,47 @@ if __name__ == '__main__':
 
 		pg.display.update()
 
-	# Plot feature maps for user-drawn digit
-	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input)
-	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
-		cols = 8
-		rows = len(feature_map) // cols
-		plot_image_grid(
-			feature_map, rows, cols, padding=padding, scale_factor=scale_factor,
-			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} (user-drawn digit)',
-			save_path=f'./images/conv{idx}_feature_map.png'
-		)
+	# Given this user input, plot the attention heatmap of the first attention block
+
+	# Convert to a sequence of patches
+	img_patches = imgs_to_patches(model_input.unsqueeze(0), patch_size=PATCH_SIZE).to(DEVICE)
+	# Pass this through the input layer to get a tensor of size EMBEDDING_DIM
+	input_layer_out = model.input_layer(img_patches)
+	# Attach the class token and add the position embedding
+	transformer_input = torch.cat([model.cls_token, input_layer_out], dim=1) + model.pos_embedding
+	# Pass the embedded image through the first attention block and squeeze the batch dimension (only using 1 image)
+	transformer_input_expanded = model.transformer[0].fc_block[0](transformer_input).squeeze(0)
+	# Reshape the output of the first attention block
+	qkv = transformer_input_expanded.reshape(NUM_PATCHES + 1, 3, NUM_HEADS, -1)  # Query, key, value
+	# Extract the query matrix and permute the dimensions to be (8 heads, 50 patches, 8 channels)
+	q = qkv[:, 0].permute(1, 0, 2)
+	# Do the same for the key matrix
+	k = qkv[:, 1].permute(1, 0, 2)
+	kT = k.permute(0, 2, 1)
+	# Multiplying q @ kT gives a 8x50x50 matrix showing how much each patch "pays attention" to every other patch
+	attention_matrix = q @ kT
+	# Average the attention weights across all heads by taking the mean along the first dimension
+	attention_matrix_mean = attention_matrix.mean(dim=0)  # 50x50
+	# To account for residual connections, we add an identity matrix
+	# to the attention matrix and re-normalise the weights (source: https://arxiv.org/abs/2005.00928)
+	residual_attention = torch.eye(attention_matrix_mean.shape[1]).to(DEVICE)
+	augmented_attention = attention_matrix_mean + residual_attention
+	augmented_attention = augmented_attention / augmented_attention.sum(dim=-1).unsqueeze(-1)
+	attention_heatmap = augmented_attention[0, 1:].reshape((IMG_SIZE // PATCH_SIZE, IMG_SIZE // PATCH_SIZE))
+	attention_heatmap_resized = torch.nn.functional.interpolate(
+		attention_heatmap.view(1, 1, *attention_heatmap.shape),
+		[IMG_SIZE, IMG_SIZE],
+		mode='bilinear'
+	)
+
+	_, (ax_digit, ax_heatmap, ax_heatmap_resized) = plt.subplots(ncols=3, figsize=(9, 3))
+	ax_digit.imshow(model_input.detach().cpu().numpy().squeeze(), cmap='gray')
+	ax_digit.set_title('User-drawn digit')
+	ax_digit.axis('off')
+	ax_heatmap.imshow(attention_heatmap.detach().cpu().numpy())
+	ax_heatmap.set_title('Attention map\n(attention per patch)')
+	ax_heatmap.axis('off')
+	ax_heatmap_resized.imshow(attention_heatmap_resized.detach().cpu().numpy().squeeze())
+	ax_heatmap_resized.set_title('Attention map\n(resized to image size)')
+	ax_heatmap_resized.axis('off')
+	plt.show()

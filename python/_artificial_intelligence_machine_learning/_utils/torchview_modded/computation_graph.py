@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Union, Any, Callable
 from collections import Counter
 from contextlib import nullcontext
+import re
 
 from graphviz import Digraph
 from torch.nn.modules import Identity
@@ -23,7 +24,7 @@ NODE_TYPES = {
 class ComputationGraph:
 	"""A class to represent a model's computational graph"""
 
-	def __init__(self, visual_graph: Digraph, root_container: NodeContainer[TensorNode], depth: int | float = 3):
+	def __init__(self, visual_graph: Digraph, root_container: NodeContainer[TensorNode], depth: int | float = 5):
 		"""
 		Resets the running_node_id, id_dict when a new ComputationGraph is initialized.
 		Otherwise, labels would depend on previous ComputationGraph runs
@@ -288,13 +289,32 @@ class ComputationGraph:
 		node_type = NODE_TYPES[type(node)]
 
 		if isinstance(node, TensorNode):
-			shape_repr = str(node.tensor_shape).replace('(1,', '(N,')  # Replace with N for batch size
+			shape_repr = str(node.tensor_shape)
+			# Replace 1 with 'N' (batch size)
+			shape_repr = re.sub(
+				r'\(1,|\s1,',
+				lambda match: '(N,' if match.group(0) == '(1,' else ' N,',
+				shape_repr,
+				count=shape_repr.count('), (') + 1
+			)
 			label = f'{node.name} {shape_repr}'
 
 			return label, self.id_dict[node.node_id], node.name, node_type, shape_repr
 		else:
-			input_shape_repr = compact_list_repr(node.input_shape).replace('(1,', '(N,')
-			output_shape_repr = compact_list_repr(node.output_shape).replace('(1,', '(N,')
+			input_shape_repr = compact_list_repr(node.input_shape)
+			output_shape_repr = compact_list_repr(node.output_shape)
+			input_shape_repr = re.sub(
+				r'\(1,|\s1,',
+				lambda match: '(N,' if match.group(0) == '(1,' else ' N,',
+				input_shape_repr,
+				count=input_shape_repr.count('), (') + 1
+			)
+			output_shape_repr = re.sub(
+				r'\(1,|\s1,',
+				lambda match: '(N,' if match.group(0) == '(1,' else ' N,',
+				output_shape_repr,
+				count=output_shape_repr.count('), (') + 1
+			)
 			label = f'{node.name} {input_shape_repr} {output_shape_repr}'
 
 			return label, self.id_dict[node.node_id], node.name, node_type, input_shape_repr, output_shape_repr

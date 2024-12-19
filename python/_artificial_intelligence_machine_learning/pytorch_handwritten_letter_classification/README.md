@@ -34,5 +34,5 @@ Model architecture:
 	<img src="images/model_architecture.png"/>
 </p>
 
-Sources:
+Source:
 - [Handwritten letters](https://www.kaggle.com/datasets/sachinpatel21/az-handwritten-alphabets-in-csv-format) (Kaggle dataset)
