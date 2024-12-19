@@ -23,7 +23,7 @@ NODE_TYPES = {
 class ComputationGraph:
 	"""A class to represent a model's computational graph"""
 
-	def __init__(self, visual_graph: Digraph, root_container: NodeContainer[TensorNode], depth: int | float = 3):
+	def __init__(self, visual_graph: Digraph, root_container: NodeContainer[TensorNode], depth: int | float = 5):
 		"""
 		Resets the running_node_id, id_dict when a new ComputationGraph is initialized.
 		Otherwise, labels would depend on previous ComputationGraph runs

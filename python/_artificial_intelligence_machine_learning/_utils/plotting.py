@@ -68,7 +68,7 @@ def plot_image_grid(
 			img = cv.resize(img, (new_w, new_h), interpolation=INTERPOLATION_DICT[scale_interpolation])
 
 		# Convert RGB to BGR for OpenCV
-		img = img[..., ::-1]
+		img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
 
 		images[idx] = img
 

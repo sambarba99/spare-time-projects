@@ -8,9 +8,9 @@ Created 04/11/2024
 import os
 import sys
 
+import cv2 as cv
 import numpy as np
 import pygame as pg
-from scipy import ndimage
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
@@ -59,7 +59,7 @@ class CNN(nn.Module):
 		self.max_pool = nn.MaxPool2d(2)
 		self.dropout = nn.Dropout(0.2)
 		self.linear1 = nn.Linear(200, 16)
-		self.linear2 = nn.Linear(16, 10)  # 10 classes
+		self.linear2 = nn.Linear(16, 10)  # 10 classes (0-9)
 		self.leaky_relu = nn.LeakyReLU()
 
 	def forward(self, x):
@@ -299,12 +299,13 @@ if __name__ == '__main__':
 				if max_min:
 					feature_map = (feature_map - feature_map.min()) / max_min
 				feature_map = (feature_map.numpy() * 255).astype(np.uint8)
-				feature_map = ndimage.zoom(feature_map, (zoom, zoom), order=0)
-				rgb_arr = np.stack((feature_map, feature_map, feature_map), axis=-1)
+				rgb_arr = np.stack([feature_map] * 3, axis=-1)
+				new_size = feature_map.shape[0] * zoom
+				rgb_arr = cv.resize(rgb_arr, (new_size, new_size), interpolation=cv.INTER_NEAREST)
 				surface = pg.surfarray.make_surface(rgb_arr)
 				surface = pg.transform.flip(surface, flip_x=True, flip_y=False)
 				surface = pg.transform.rotate(surface, 90)
-				scene.blit(surface, (layer_left_pos, layer_top_pos + idx * (len(feature_map) + spacing)))
+				scene.blit(surface, (layer_left_pos, layer_top_pos + idx * (new_size + spacing)))
 
 		# Activations of linear layers
 		for layer_out, layer_left_pos, layer_top_pos, node_radius, node_spacing \

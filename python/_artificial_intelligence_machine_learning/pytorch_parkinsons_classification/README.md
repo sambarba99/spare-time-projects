@@ -24,5 +24,5 @@ Model architecture:
 	<img src="images/model_architecture.png"/>
 </p>
 
-Sources:
+Source:
 - [Parkinson's Drawings](https://www.kaggle.com/datasets/kmader/parkinsons-drawings) (Kaggle dataset)

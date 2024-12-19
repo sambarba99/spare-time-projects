@@ -24,5 +24,5 @@ Model architecture:
 	<img src="images/model_architecture.png"/>
 </p>
 
-Sources:
+Source:
 - [Alzheimer's Dataset](https://www.kaggle.com/datasets/tourist55/alzheimers-dataset-4-class-of-images) (Kaggle dataset)
