@@ -159,16 +159,16 @@ if __name__ == '__main__':
 	root.resizable(False, False)
 
 	enter_exp_lbl = tk.Label(root, text='Enter an infix expression:',
-		font='consolas', background='#101010', foreground='white')
+		font='consolas 12', background='#101010', foreground='white')
 
 	sv = tk.StringVar(value='1+((23-4.5)*6/7)^0.89')
 	sv.trace_add(mode='write', callback=convert_and_solve)
-	entry_box = tk.Entry(root, textvariable=sv, font='consolas', justify='center')
+	entry_box = tk.Entry(root, textvariable=sv, font='consolas 12', justify='center')
 
-	rpn_result_lbl = tk.Label(root, text='In RPN:', font='consolas', background='#101010', foreground='white')
-	output_rpn = tk.Label(root, font='consolas', background='white')
-	evaluation_lbl = tk.Label(root, text='Evaluation:', font='consolas', background='#101010', foreground='white')
-	output_num = tk.Text(root, background='white', font='consolas', state='disabled')
+	rpn_result_lbl = tk.Label(root, text='In RPN:', font='consolas 12', background='#101010', foreground='white')
+	output_rpn = tk.Label(root, font='consolas 12', background='white')
+	evaluation_lbl = tk.Label(root, text='Evaluation:', font='consolas 12', background='#101010', foreground='white')
+	output_num = tk.Text(root, background='white', font='consolas 12', state='disabled')
 	output_num.tag_configure('center', justify='center')
 
 	enter_exp_lbl.place(width=400, height=24, relx=0.5, y=42, anchor='center')

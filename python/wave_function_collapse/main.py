@@ -51,7 +51,7 @@ def setup():
 
 	tiles = []
 	for img_path in glob.glob(f'./tile_imgs/{COLLAGE_TYPE}/*.png'):
-		img = pg.image.load(img_path).convert()
+		img = pg.image.load(img_path)
 		split = img_path.split('/')[-1].split('_')
 		edge_colour_codes = split[1:-1]
 		num_rotations = split[-1].removesuffix('.png')
@@ -170,7 +170,7 @@ def update_collage():
 				)
 				scene.blit(tile_img, tile_img_rect)
 			# else:
-			# 	cell_lbl = font.render(str(cell.entropy), True, (255, 255, 255))
+			# 	cell_lbl = font.render(str(cell.entropy), True, 'white')
 			# 	lbl_rect = cell_lbl.get_rect(
 			# 		center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1)
 			# 	)

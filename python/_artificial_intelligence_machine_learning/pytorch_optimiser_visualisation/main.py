@@ -120,12 +120,12 @@ if __name__ == '__main__':
 	x1_grid, x2_grid = np.meshgrid(x1_vals, x2_vals)
 	loss_grid = np.vectorize(loss_func)(x1_grid, x2_grid)
 
-	min_loss_index = np.unravel_index(np.argmin(loss_grid), loss_grid.shape)
+	min_loss_index = np.unravel_index(loss_grid.argmin(), loss_grid.shape)
 	global_minimum = x1_grid[min_loss_index], x2_grid[min_loss_index]
 	global_minimum_loss = loss_grid[min_loss_index]
 
 	# Start at highest point (max loss)
-	max_loss_index = np.unravel_index(np.argmax(loss_grid), loss_grid.shape)
+	max_loss_index = np.unravel_index(loss_grid.argmax(), loss_grid.shape)
 	global_maximum = x1_grid[max_loss_index], x2_grid[max_loss_index]
 	global_maximum_loss = loss_grid[max_loss_index]
 	x_init = torch.tensor(global_maximum).float()

@@ -1,14 +1,14 @@
 """
 Flocking simulator using boids
 
+Controls:
+	1/2/3: toggle separation/alignment/cohesion
+	Q/W: +/- perception radius
+	A/S: +/- max force
+	R: reset parameter values
+
 Author: Sam Barba
 Created 11/03/2022
-
-Controls:
-1/2/3: toggle separation/alignment/cohesion
-Q/W: +/- perception radius
-A/S: +/- max force
-R: reset parameter values
 """
 
 import sys

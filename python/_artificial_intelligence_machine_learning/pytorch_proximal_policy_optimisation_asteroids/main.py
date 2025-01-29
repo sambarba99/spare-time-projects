@@ -1,12 +1,12 @@
 """
 Driver code
 
-Author: Sam Barba
-Created 11/07/2024
-
 Controls:
 	Space: toggle animation (during testing)
 	Arrow keys/space: control spaceship (during manual playing)
+
+Author: Sam Barba
+Created 11/07/2024
 """
 
 import random

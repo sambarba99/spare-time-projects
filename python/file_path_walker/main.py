@@ -88,18 +88,18 @@ if __name__ == '__main__':
 	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
-	lbl_selected_path = tk.Label(root, text='Selected path: None', font='consolas',
+	lbl_selected_path = tk.Label(root, text='Selected path: None', font='consolas 12',
 		background='#101010', foreground='white'
 	)
-	button_select_path = tk.Button(root, text='Select path', font='consolas', command=select_path)
-	button_walk = tk.Button(root, text='Walk', font='consolas', command=file_walk)
+	button_select_path = tk.Button(root, text='Select path', font='consolas 12', command=select_path)
+	button_walk = tk.Button(root, text='Walk', font='consolas 12', command=file_walk)
 
-	discovered_files_lbl = tk.Label(root, text='Discovered files:', font='consolas',
+	discovered_files_lbl = tk.Label(root, text='Discovered files:', font='consolas 12',
 		background='#101010', foreground='white'
 	)
-	discovered_files_output_txt = tk.Text(root, background='white', font='consolas', state='disabled')
+	discovered_files_output_txt = tk.Text(root, background='white', font='consolas 12', state='disabled')
 	discovered_files_output_txt.tag_configure('center', justify='center')
-	path_size_output_lbl = tk.Label(root, font='consolas', background='white')
+	path_size_output_lbl = tk.Label(root, font='consolas 12', background='white')
 
 	lbl_selected_path.place(width=550, height=25, relx=0.5, y=30, anchor='center')
 	button_select_path.place(width=130, height=35, x=232, y=75, anchor='center')

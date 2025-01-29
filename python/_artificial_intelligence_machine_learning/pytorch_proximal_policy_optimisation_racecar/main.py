@@ -1,13 +1,13 @@
 """
 Driver code
 
-Author: Sam Barba
-Created 16/02/2023
-
 Controls:
 	M: toggle metadata rendering (gates/rays)
 	Space: toggle animation (during testing)
 	WASD: control car (during manual playing)
+
+Author: Sam Barba
+Created 16/02/2023
 """
 
 import random

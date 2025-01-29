@@ -159,7 +159,7 @@ if __name__ == '__main__':
 		result = minimize(objective_function, x0=initial_point, args=(lines,))
 		optimal_solution = result.x
 
-		if np.all((0 <= optimal_solution) & (optimal_solution <= 1)):
+		if (0 <= optimal_solution) & (optimal_solution <= 1)).all():
 			break
 
 	scipy_solution = ', '.join(f'{i:.3f}' for i in optimal_solution)

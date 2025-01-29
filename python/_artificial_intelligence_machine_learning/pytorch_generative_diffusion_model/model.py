@@ -59,6 +59,7 @@ class UpBlock(nn.Module):
 class SelfAttention(nn.Module):
 	"""
 	Self attention class (multi-headed if num_heads > 1)
+
 	Source: https://arxiv.org/pdf/1706.03762
 	"""
 

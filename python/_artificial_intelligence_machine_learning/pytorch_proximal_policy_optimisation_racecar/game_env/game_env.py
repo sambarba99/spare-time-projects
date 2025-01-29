@@ -102,6 +102,7 @@ class Car:
 		self.p4 = vec2(self.pos.x - CAR_WIDTH / 2 + 1, self.pos.y + CAR_HEIGHT / 2)
 
 		if self.do_rendering:
+			# .convert() makes blit operations a bit faster if you have to do them many times
 			self.original_img = pg.image.load('./game_env/car.png').convert()
 			self.img = self.original_img  # When steering, self.img will be a rotated version of self.original_img
 			self.img.set_colorkey((0, 0, 0))
