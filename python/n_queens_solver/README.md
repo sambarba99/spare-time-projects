@@ -3,7 +3,7 @@
 E.g. N = 12:
 
 <p align="center">
-	<img src="output.gif"/>
+	<img src="output.webp"/>
 	<br/>
 	<img src="backtracks.png"/>
 </p>

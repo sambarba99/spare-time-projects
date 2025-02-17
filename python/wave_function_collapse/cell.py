@@ -9,10 +9,10 @@ import random
 
 
 class Cell:
-	def __init__(self, x, y, tile_options):
-		self.x = x
+	def __init__(self, y, x, num_tile_options):
 		self.y = y
-		self.tile_options = tile_options
+		self.x = x
+		self.tile_options = list(range(num_tile_options))
 
 	@property
 	def entropy(self):
@@ -24,9 +24,8 @@ class Cell:
 
 	def observe(self):
 		"""
-		By observing a cell, we collapse it into 1 possible state.
-		A 'contradiction' boolean is returned (true if surrounding
-		tiles mean that there are no options left, false otherwise)
+		By observing a cell, we collapse it into 1 possible state. A 'contradiction' boolean is returned (true if
+		surrounding tiles mean that there are no options left, false otherwise).
 		"""
 
 		if self.entropy > 0:

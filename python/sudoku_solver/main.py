@@ -34,48 +34,50 @@ num_backtracks = 0
 
 
 def solve():
-	def is_full():
-		return board.all()
+	"""Non-recursive depth-first search with backtracking to solve the board"""
 
 	def find_free_square():
-		return next((y, x) for (y, x), val in np.ndenumerate(board) if val == 0)
+		return next(((y, x) for (y, x), val in np.ndenumerate(board) if val == 0), None)
 
-	def legal(n, y, x):
+	def is_legal(n, y, x):
 		# Top-left coords of big square
 		by = y - (y % 3)
 		bx = x - (x % 3)
 
 		# Check row + column + big square
-		return n not in board[y] \
-			and n not in board[:, x] \
-			and n not in board[by:by + 3, bx:bx + 3]
+		return n not in board[y] and n not in board[:, x] and n not in board[by:by + 3, bx:bx + 3]
 
-
-	if is_full():
-		return
 
 	global num_backtracks
 
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			sys.exit()
-
 	y, x = find_free_square()
-	for n in range(1, 10):
-		if legal(n, y, x):
+	stack = [(1, y, x)]  # Start checking numbers from 1
+
+	while stack:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				sys.exit()
+
+		n, y, x = stack.pop()
+
+		if n > 9:
+			# No possible number found for (y, x), backtrack
+			board[y, x] = 0
+			num_backtracks += 1
+			backtrack_grid[y, x] += 1
+			draw_grid(f'Solving ({num_backtracks} backtracks)')
+		elif is_legal(n, y, x):
 			board[y, x] = n
 			draw_grid(f'Solving ({num_backtracks} backtracks)')
-			solve()
-
-	if is_full(): return
-
-	# If we're here, no numbers were legal
-	# So the previous attempt in the loop must be invalid
-	# So we reset the square in order to backtrack, so next number is tried
-	board[y, x] = 0
-	num_backtracks += 1
-	backtrack_grid[y, x] += 1
-	draw_grid(f'Solving ({num_backtracks} backtracks)')
+			next_free = find_free_square()
+			if next_free:
+				# Append (n + 1, y, x) even though we've just placed n at (y,x) to prepare for possible backtracking
+				stack.append((n + 1, y, x))
+				stack.append((1, *next_free))
+			else:
+				return  # Solved
+		else:
+			stack.append((n + 1, y, x))  # Try the next number
 
 
 def draw_grid(status):
@@ -93,8 +95,9 @@ def draw_grid(status):
 		else:
 			cell_lbl = cell_font.render(str_val, True, FOREGROUND)
 
-		lbl_rect = cell_lbl.get_rect(center=((x + 0.5) * CELL_SIZE + GRID_OFFSET,
-			(y + 0.5) * CELL_SIZE + GRID_OFFSET + 1))
+		lbl_rect = cell_lbl.get_rect(
+			center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1)
+		)
 		scene.blit(cell_lbl, lbl_rect)
 
 	# Thin grid lines

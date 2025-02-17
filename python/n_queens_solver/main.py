@@ -17,33 +17,53 @@ N = 12
 BLANK = 0
 QUEEN = 1
 CELL_SIZE = 30
-GRID_OFFSET = 60
+GRID_OFFSET = 45
 
 board = np.zeros((N, N), dtype=int)
 backtrack_grid = np.zeros((N, N), dtype=int)  # For visualising backtracks
 
 
-def solve(row=0):
-	if row == N:  # If all queens placed
-		return True
+def solve():
+	"""Non-recursive depth-first search with backtracking to solve the board"""
 
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			sys.exit()
+	stack = []
+	row = col = 0  # Start from 0,0
 
-	for col in range(N):
-		if valid(row, col):
-			board[row, col] = QUEEN
+	while True:
+		for event in pg.event.get():
+			if event.type == pg.QUIT:
+				sys.exit()
+
+		if row == N:
+			return True  # All queens placed
+
+		placed = False
+		while col < N:
+			if valid(row, col):
+				board[row, col] = QUEEN
+				stack.append((row, col))  # Save state to stack in case of possible backtracking
+				draw_grid('Solving...')
+
+				# Move to next row
+				row += 1
+				col = 0
+				placed = True
+				break
+			else:
+				col += 1
+
+		# If no column was valid, backtrack
+		if not placed:
+			if not stack:
+				return False  # No more states to backtrack to means no solution
+
+			row, last_col = stack.pop()
+			board[row, last_col] = BLANK
+			backtrack_grid[row, last_col] += 1
 			draw_grid('Solving...')
-			if solve(row + 1):
-				return True
 
-		# Reset the square in order to backtrack
-		board[row, col] = BLANK
-		backtrack_grid[row, col] += 1
-		draw_grid('Solving...')
-
-	return False
+			# Try the next column in the same row
+			col = last_col + 1
 
 
 def valid(row, col):
@@ -67,7 +87,7 @@ def draw_grid(solve_status):
 	scene.fill('black')
 
 	status_lbl = status_font.render(f'{solve_status}', True, (224, 224, 224))
-	scene.blit(status_lbl, (GRID_OFFSET, 25))
+	scene.blit(status_lbl, (GRID_OFFSET, 20))
 
 	for i in range(N):
 		for j in range(N):
@@ -84,8 +104,9 @@ def draw_grid(solve_status):
 
 			if board[i, j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
-				lbl_rect = cell_lbl.get_rect(center=((j + 0.5) * CELL_SIZE + GRID_OFFSET,
-					(i + 0.5) * CELL_SIZE + GRID_OFFSET))
+				lbl_rect = cell_lbl.get_rect(
+					center=((j + 0.5) * CELL_SIZE + GRID_OFFSET, (i + 0.5) * CELL_SIZE + GRID_OFFSET)
+				)
 				scene.blit(cell_lbl, lbl_rect)
 
 	pg.display.update()
