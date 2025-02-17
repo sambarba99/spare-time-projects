@@ -1,6 +1,8 @@
 """
-Visualisation of Wave Function Collapse
+Visualisation of Wave Function Collapse (adjacent tiling algorithm)
 
+1. First, a set of tiles is loaded (./tile_imgs/circuit or ./tile_imgs/water)
+2.
 Consists of a grid of cells (Cell.py), each one initially having multiple possible states (Tile.py).
 This is their superposition. By iterating WFC, each cell will eventually have just 1 state/tile (its
 superposition is 'collapsed'), meaning its image can be visualised.
@@ -19,32 +21,29 @@ Author: Sam Barba
 Created 19/07/2023
 """
 
-import glob
 import random
 import sys
 
 import pygame as pg
 
 from cell import Cell
-from tile import Tile
+from adjacent.tile import Tile
 
 
-COLLAGE_TYPE = 'circuit'  # 'plain' or 'circuit'
+COLLAGE_TYPE = 'circuit'  # 'circuit' or 'water'
 COLLAGE_WIDTH = 80  # In tiles
 COLLAGE_HEIGHT = 50
-TILE_PX_SIZE = 15  # All images are 15px x 15px
+TILE_SIZE = 15  # All tile images are 15px x 15px
 
 tiles = grid = scene = font = None
 
 
 def setup():
-	assert COLLAGE_TYPE in ('plain', 'circuit')
-
 	global tiles, scene, font
 
 	pg.init()
 	pg.display.set_caption('Visualisation of Wave Function Collapse')
-	scene = pg.display.set_mode((TILE_PX_SIZE * COLLAGE_WIDTH, TILE_PX_SIZE * COLLAGE_HEIGHT))
+	scene = pg.display.set_mode((TILE_SIZE * COLLAGE_WIDTH, TILE_SIZE * COLLAGE_HEIGHT))
 	font = pg.font.SysFont('consolas', 11)
 
 	# Read files in tile_imgs; decode their names to get colour codes and rotations
@@ -166,7 +165,7 @@ def update_collage():
 			if cell.is_collapsed:
 				tile_img = cell.tile_options[0].img
 				tile_img_rect = tile_img.get_rect(
-					center=((cell.x + 0.5) * TILE_PX_SIZE - 1, (cell.y + 0.5) * TILE_PX_SIZE - 1)
+					center=((cell.x + 0.5) * TILE_SIZE - 1, (cell.y + 0.5) * TILE_SIZE - 1)
 				)
 				scene.blit(tile_img, tile_img_rect)
 			# else:
