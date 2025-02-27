@@ -59,18 +59,18 @@ if __name__ == '__main__':
 			raise ValueError('Bad choice')
 
 	match task_choice + dataset_choice:
-		case 'B1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authenticity.csv'
-		case 'B2': path = 'C:/Users/Sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
-		case 'B3': path = 'C:/Users/Sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
-		case 'B4': path = 'C:/Users/Sam/Desktop/projects/datasets/pulsar_identification.csv'
-		case 'B5': path = 'C:/Users/Sam/Desktop/projects/datasets/titanic_survivals.csv'
-		case 'MG': path = 'C:/Users/Sam/Desktop/projects/datasets/glass_classification.csv'
-		case 'MI': path = 'C:/Users/Sam/Desktop/projects/datasets/iris_classification.csv'
-		case 'MW': path = 'C:/Users/Sam/Desktop/projects/datasets/wine_classification.csv'
-		case 'RB': path = 'C:/Users/Sam/Desktop/projects/datasets/boston_housing.csv'
-		case 'RC': path = 'C:/Users/Sam/Desktop/projects/datasets/car_valuation.csv'
-		case 'RM': path = 'C:/Users/Sam/Desktop/projects/datasets/medical_costs.csv'
-		case 'RP': path = 'C:/Users/Sam/Desktop/projects/datasets/parkinsons_scale.csv'
+		case 'B1': path = 'C:/Users/sam/Desktop/projects/datasets/banknote_authenticity.csv'
+		case 'B2': path = 'C:/Users/sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
+		case 'B3': path = 'C:/Users/sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
+		case 'B4': path = 'C:/Users/sam/Desktop/projects/datasets/pulsar_identification.csv'
+		case 'B5': path = 'C:/Users/sam/Desktop/projects/datasets/titanic_survivals.csv'
+		case 'MG': path = 'C:/Users/sam/Desktop/projects/datasets/glass_classification.csv'
+		case 'MI': path = 'C:/Users/sam/Desktop/projects/datasets/iris_classification.csv'
+		case 'MW': path = 'C:/Users/sam/Desktop/projects/datasets/wine_classification.csv'
+		case 'RB': path = 'C:/Users/sam/Desktop/projects/datasets/boston_housing.csv'
+		case 'RC': path = 'C:/Users/sam/Desktop/projects/datasets/car_valuation.csv'
+		case 'RM': path = 'C:/Users/sam/Desktop/projects/datasets/medical_costs.csv'
+		case 'RP': path = 'C:/Users/sam/Desktop/projects/datasets/parkinsons_scale.csv'
 		case _:
 			raise ValueError('Bad choice')
 

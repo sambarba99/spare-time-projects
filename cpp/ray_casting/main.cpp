@@ -1,22 +1,21 @@
 /*
 Ray casting demo
 
+Controls:
+	WASD: move around
+	R: reset
+
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-WASD: move around
-R: reset
 */
 
-#include <algorithm>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 using std::min;
 using std::pair;
 using std::vector;
+
 
 // World constants
 const int WIDTH = 1400;
@@ -35,6 +34,7 @@ const double SCREEN_DIST = WIDTH * 0.5 / tan(FOV_ANGLE * 0.5);
 const int WALL_WIDTH = WIDTH / N_RAYS;  // Width (px) of each wall segment to render in 3D
 const int PROJ_HEIGHT_SCALE = 50;
 const double MINIMAP_SCALE = 0.2;
+const int FPS = 60;
 
 // Player constants
 const double MOVEMENT_SPEED = 5.0;
@@ -61,6 +61,7 @@ double playerX, playerY;
 double playerHeading;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Ray casting demo", sf::Style::Close);
 
+
 vector<Wall> makeBox(const int gridIdx) {
 	double xTopLeft = (gridIdx % GRID_COLS) * GRID_SQUARE_SIZE;
 	double yTopLeft = (gridIdx / GRID_COLS) * GRID_SQUARE_SIZE;
@@ -72,6 +73,7 @@ vector<Wall> makeBox(const int gridIdx) {
 	Wall w4 = {xTopLeft, yBottomRight, xTopLeft, yTopLeft};
 	return {w1, w2, w3, w4};
 }
+
 
 void generateWalls(const int nBoxes = 15) {
 	// Get random grid indices without replacement
@@ -98,6 +100,7 @@ void generateWalls(const int nBoxes = 15) {
 	walls.push_back(wb4);
 }
 
+
 vector<double> findIntersection(const Ray ray, const Wall wall) {
 	double rx1 = ray.x1, ry1 = ray.y1;
 	double rx2 = ray.x2, ry2 = ray.y2;
@@ -119,6 +122,7 @@ vector<double> findIntersection(const Ray ray, const Wall wall) {
 
 	return {-1, -1};
 }
+
 
 void generateRays() {
 	rayCastingResult.clear();
@@ -151,11 +155,13 @@ void generateRays() {
 	}
 }
 
+
 double mapRange(const double x, const double fromLo, const double fromHi, const double toLo, const double toHi) {
 	// Map x from [fromLo, fromHi] to [toLo, toHi]
 	if (fromHi - fromLo == 0) return toHi;
 	return (x - fromLo) / (fromHi - fromLo) * (toHi - toLo) + toLo;
 }
+
 
 void drawPovMode() {
 	// Draw sky and ground
@@ -181,6 +187,7 @@ void drawPovMode() {
 	}
 }
 
+
 void drawMiniMap() {
 	// 2D rays
 	for (int i = 0; i < rayCastingResult.size(); i++) {
@@ -196,7 +203,7 @@ void drawMiniMap() {
 
 	// Player
 	sf::CircleShape circle(4.f);
-	circle.setPosition(playerX * MINIMAP_SCALE - 2, playerY * MINIMAP_SCALE - 2);
+	circle.setPosition(playerX * MINIMAP_SCALE - 4, playerY * MINIMAP_SCALE - 4);
 	circle.setFillColor(sf::Color::Black);
 	window.draw(circle);
 
@@ -210,7 +217,10 @@ void drawMiniMap() {
 	}
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
+
 	// Start at top-left, looking towards centre
 	playerX = playerY = BORDER_LIM;
 	playerHeading = atan2(HEIGHT, WIDTH);
@@ -278,6 +288,5 @@ int main() {
 		drawPovMode();
 		drawMiniMap();
 		window.display();
-		sf::sleep(sf::milliseconds(10));
 	}
 }

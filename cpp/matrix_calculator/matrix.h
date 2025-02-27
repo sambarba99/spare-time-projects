@@ -2,12 +2,12 @@
 #define MATRIX
 
 #include <cmath>
-#include <string>
 #include <vector>
 
 using std::string;
 using std::to_string;
 using std::vector;
+
 
 class Matrix {
 	public:

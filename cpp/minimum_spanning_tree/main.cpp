@@ -1,17 +1,15 @@
 /*
 Minimum Spanning Tree demo
 
+Controls:
+	Left-click: add a node
+	Right-click: reset graph
+
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-Left-click: add a node
-Right-click: reset graph
 */
 
-#include <algorithm>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 #include "node.h"
 
@@ -19,10 +17,15 @@ using std::find;
 using std::remove;
 using std::vector;
 
+
 const int SIZE = 600;
+const int MAX_POINTS = 30;
+const float MAX_VEL_MAGNITUDE = 1.f;
+const int FPS = 60;
 
 vector<Node*> graph;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), "Minimum Spanning Tree", sf::Style::Close);
+
 
 vector<int> mst() {
 	// Prim's algorithm
@@ -60,6 +63,7 @@ vector<int> mst() {
 	return mstParents;
 }
 
+
 void drawMST() {
 	if (graph.empty()) return;
 
@@ -78,13 +82,14 @@ void drawMST() {
 
 	for (Node* node : graph) {
 		sf::CircleShape circle(5.f);
-		circle.setPosition(node->x - 2.5f, node->y - 2.5f);
+		circle.setPosition(node->x - 5.f, node->y - 5.f);
 		circle.setFillColor(sf::Color(230, 20, 20));
 		window.draw(circle);
 	}
 
 	window.display();
 }
+
 
 void movePoints() {
 	for (Node* node : graph) {
@@ -102,13 +107,16 @@ void movePoints() {
 	}
 }
 
+
 float randomFloat(const float a, const float b) {
     float diff = b - a;
     float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     return a + diff * r;
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
 	window.clear(sf::Color(20, 20, 20));
 	window.display();
 
@@ -121,11 +129,11 @@ int main() {
 					break;
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left) {
-						if (graph.size() < 30) {  // Stay within size limit
+						if (graph.size() < MAX_POINTS) {
 							sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 							int mouseX = mousePos.x, mouseY = mousePos.y;
-							float xVel = randomFloat(-0.02f, 0.02f);
-							float yVel = randomFloat(-0.02f, 0.02f);
+							float xVel = randomFloat(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
+							float yVel = randomFloat(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
 							Node* node = new Node(graph.size(), mouseX, mouseY, xVel, yVel);
 							graph.push_back(node);
 						}

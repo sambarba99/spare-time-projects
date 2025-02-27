@@ -1,33 +1,41 @@
 /*
-Double pendulum simulation
+Double Pendulum simulator
+
+Controls:
+	R: reset
+	Space: play/pause
 
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-R: reset
-Space: play/pause
 */
 
+#include <bits/stdc++.h>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
+using std::ostringstream;
 using std::pair;
+using std::setfill;
+using std::setw;
 using std::vector;
 
-const double R1 = 300;
-const double R2 = 300;
+
+const double R1 = 250;
+const double R2 = 250;
 const double M1 = 10;
 const double M2 = 10;
-const double G = 0.1;
+const double G = 0.3;
+const double DAMPING_FACTOR = 0.9999;
 const double COLOUR_DECAY = 0.998;
-const int WIDTH = 1300;
-const int HEIGHT = 800;
+const int WIDTH = 1000;
+const int HEIGHT = 600;
+const int FPS = 60;
 
 double a1, a2, vel1, vel2;
 vector<pair<int, int>> positions;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Double Pendulum", sf::Style::Close);
+int screenshotCounter;
+
 
 void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 	// Bresenham's algorithm
@@ -58,6 +66,7 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 		}
 	}
 }
+
 
 void draw() {
 	window.clear(sf::Color::Black);
@@ -91,8 +100,8 @@ void draw() {
 	};
 	sf::CircleShape circle1(10.f);
 	sf::CircleShape circle2(10.f);
-	circle1.setPosition(x1 - 5, y1 - 5);
-	circle2.setPosition(x2 - 5, y2 - 5);
+	circle1.setPosition(x1 - 10, y1 - 10);
+	circle2.setPosition(x2 - 10, y2 - 10);
 	circle1.setFillColor(sf::Color(220, 220, 220));
 	circle2.setFillColor(sf::Color(220, 220, 220));
 	window.draw(line1, 2, sf::Lines);
@@ -113,17 +122,29 @@ void draw() {
 
 	window.display();
 
+	// sf::Texture texture;
+	// sf::Image screenshot;
+	// texture.create(window.getSize().x, window.getSize().y);
+	// texture.update(window);
+	// screenshot = texture.copyToImage();
+	// ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// screenshot.saveToFile(filePath.str());
+	// screenshotCounter++;
+
 	vel1 += a1acc;
 	vel2 += a2acc;
 	a1 += vel1;
 	a2 += vel2;
 
-	// Damping
-	vel1 *= 0.9999;
-	vel2 *= 0.9999;
+	vel1 *= DAMPING_FACTOR;
+	vel2 *= DAMPING_FACTOR;
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
+
 	a1 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
 	a2 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
 	vel1 = vel2 = 0.0;
@@ -156,6 +177,5 @@ int main() {
 		if (paused) continue;
 
 		draw();
-		sf::sleep(sf::milliseconds(5));
 	}
 }

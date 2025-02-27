@@ -16,18 +16,22 @@ using std::map;
 using std::stack;
 using std::string;
 
+
 long double charToLongDouble(const char c) {
 	int value = c - '0';
 	return static_cast<long double>(value);
 }
 
+
 bool isOperator(const char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
 }
 
+
 bool isOperand(const char c) {
 	return c >= '0' && c <= '9';
 }
+
 
 long double operation(const long double a, const long double b, const char op) {
 	switch (op) {
@@ -39,6 +43,7 @@ long double operation(const long double a, const long double b, const char op) {
 		default: return -1;
 	}
 }
+
 
 string infixToPostfix(const string expression) {
 	map<char, int> precedence = {{'^', 3}, {'/', 2}, {'*', 2}, {'+', 1}, {'-', 1}};
@@ -71,6 +76,7 @@ string infixToPostfix(const string expression) {
 	return postfix;
 }
 
+
 long double evaluate(const string postfix) {
 	long double a, b;
 	stack<long double> stk;
@@ -89,6 +95,7 @@ long double evaluate(const string postfix) {
 
 	return stk.top();
 }
+
 
 int main() {
 	string expression;

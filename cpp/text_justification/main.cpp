@@ -7,13 +7,13 @@ Created 03/09/2022
 
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <vector>
 
 using std::cin;
 using std::cout;
 using std::string;
 using std::vector;
+
 
 vector<string> tokenise(const string text) {
 	char charArray[text.length()];
@@ -28,6 +28,7 @@ vector<string> tokenise(const string text) {
 
 	return words;
 }
+
 
 void justify(const vector<string> words, const int maxWidth) {
 	int nWords = words.size();
@@ -84,6 +85,7 @@ void justify(const vector<string> words, const int maxWidth) {
 	for (string line : res)
 		cout << line << '\n';
 }
+
 
 int main() {
 	string text;

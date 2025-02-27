@@ -1,5 +1,5 @@
 ## Text [Steganography](https://en.wikipedia.org/wiki/Steganography) demo
 
 <p align="center">
-	<img src="steg.png"/>
+	<img src="output.png"/>
 </p>

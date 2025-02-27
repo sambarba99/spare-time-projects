@@ -1,31 +1,33 @@
 /*
 Bézier curve demo
 
+Controls:
+	Right-click: add a point
+	Left-click and drag: move a point
+	R: reset
+
 Author: Sam Barba
 Created 19/11/2022
-
-Controls:
-Right-click: add a point
-Left-click and drag: move a point
-R: reset
 */
 
-#include <algorithm>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 using std::find;
 using std::min_element;
 using std::pair;
 using std::vector;
 
-const int SIZE = 800;
+
+const int SIZE = 600;
 const int MAX_POINTS = 5;
 const float POINT_RADIUS = 6.f;
+const int FPS = 60;
+
 
 vector<pair<float, float>> points;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), L"Bézier curve drawing", sf::Style::Close);
+
 
 void drawConnectiveLines() {
 	if (points.size() < 2) return;
@@ -39,6 +41,7 @@ void drawConnectiveLines() {
 	}
 }
 
+
 pair<float, float> linearInterpolate(const pair<float, float> a, const pair<float, float> b, const float t) {
 	// Linear interpolation between (ax,ay) and (bx,by) by amount t
 
@@ -48,6 +51,7 @@ pair<float, float> linearInterpolate(const pair<float, float> a, const pair<floa
 	float ly = ay + t * (by - ay);
 	return {lx, ly};
 }
+
 
 pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const float t) {
 	while (controlPoints.size() > 1) {
@@ -62,6 +66,7 @@ pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const f
 	return controlPoints[0];
 }
 
+
 void drawCurve() {
 	if (points.size() < 2) return;
 
@@ -74,14 +79,16 @@ void drawCurve() {
 	}
 }
 
+
 void drawPoints() {
 	for (pair<int, int> point : points) {
 		sf::CircleShape circle(POINT_RADIUS);
-		circle.setPosition(point.first - POINT_RADIUS / 2.f, point.second - POINT_RADIUS / 2.f);
+		circle.setPosition(point.first - POINT_RADIUS, point.second - POINT_RADIUS);
 		circle.setFillColor(sf::Color(230, 20, 20));
 		window.draw(circle);
 	}
 }
+
 
 void draw() {
 	window.clear(sf::Color::Black);
@@ -94,6 +101,7 @@ void draw() {
 	window.display();
 }
 
+
 vector<float> calcPointDistancesFromMouse(const int mouseX, const int mouseY) {
 	vector<float> distances;
 	for (pair<float, float> point : points)
@@ -101,8 +109,11 @@ vector<float> calcPointDistancesFromMouse(const int mouseX, const int mouseY) {
 	return distances;
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
 	window.display();
+
 	int clickedPointIdx = -1;
 	sf::Vector2i mousePos;
 	float mouseX, mouseY;

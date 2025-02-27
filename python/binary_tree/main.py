@@ -12,7 +12,7 @@ from tree_plotter import plot_tree
 
 
 def make_random_binary_tree(tree_size=31):
-	with open('C:/Users/Sam/Desktop/projects/datasets/people_names.txt', 'r') as file:
+	with open('C:/Users/sam/Desktop/projects/datasets/people_names.txt', 'r') as file:
 		names = file.read().splitlines()
 
 	assert tree_size <= len(names)

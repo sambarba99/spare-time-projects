@@ -7,14 +7,15 @@ Created 15/11/2022
 
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 using std::vector;
 
-const int GRID_SIZE = 999;  // Ensure odd
+
+const int GRID_SIZE = 899;  // Ensure odd
 const int CELL_SIZE = 1;
 
 sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Ulam's spiral", sf::Style::Close);
+
 
 vector<bool> primesLessThan(const int n) {
 	// Sieve of Eratosthenes
@@ -31,13 +32,11 @@ vector<bool> primesLessThan(const int n) {
 	return isPrime;
 }
 
+
 void draw() {
 	int x = (GRID_SIZE * CELL_SIZE) / 2;
 	int y = x;
-	int state = 0, nSteps = 1, turnCounter = 1;
-
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
+	int state = 0, numSteps = 1, turnCounter = 1;
 
 	int lim = GRID_SIZE * GRID_SIZE + 1;
 	vector<bool> isPrime = primesLessThan(lim);
@@ -63,15 +62,16 @@ void draw() {
 				break;
 		}
 
-		if (n % nSteps == 0) {
+		if (n % numSteps == 0) {
 			state = ++state % 4;
 			turnCounter++;
-			if (turnCounter % 2 == 0) nSteps++;
+			if (turnCounter % 2 == 0) numSteps++;
 		}
 	}
 
 	window.display();
 }
+
 
 int main() {
 	draw();

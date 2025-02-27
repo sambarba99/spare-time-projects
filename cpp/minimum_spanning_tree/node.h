@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+
 class Node {
 	public:
 		int idx;
@@ -20,7 +21,7 @@ class Node {
 		}
 
 		bool operator==(const Node* other) {
- 		   return this->idx == other->idx;
+			return this->idx == other->idx;
 		}
 
 		float euclideanDist(const Node* other) {

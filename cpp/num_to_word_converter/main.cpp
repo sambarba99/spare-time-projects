@@ -7,10 +7,7 @@ Created 06/09/2022
 
 #include <cmath>
 #include <iostream>
-#include <map>
 #include <regex>
-#include <string>
-#include <vector>
 
 using std::cin;
 using std::cout;
@@ -21,6 +18,7 @@ using std::regex_replace;
 using std::stold;
 using std::string;
 using std::vector;
+
 
 map<int, string> SMALL = {
 	{0, ""}, {1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {5, "five"}, {6, "six"}, {7, "seven"}, {8, "eight"},
@@ -37,6 +35,7 @@ const vector<pair<int, string>> BIG = {
 	{7, "sextillion"}, {8, "septillion"}, {9, "octillion"}, {10, "nonillion"}, {11, "decillion"}
 };
 
+
 string join(const vector<string> strings) {
 	string result = "";
 	for (vector<string>::const_iterator it = strings.begin(); it != strings.end(); it++)
@@ -45,6 +44,7 @@ string join(const vector<string> strings) {
 	result = regex_replace(result, regex(R"(\s\s)"), " ");  // Remove any duplicate spaces
 	return result;
 }
+
 
 string say_num_pos(const long double n) {
 	if (n < 20) return SMALL[n];
@@ -77,11 +77,13 @@ string say_num_pos(const long double n) {
 	}
 }
 
+
 string convert(const long double n) {
 	if (n < 0) return join({"minus", say_num_pos(-n)});
 	if (n == 0) return "zero";
 	return say_num_pos(n);
 }
+
 
 int main() {
 	string n;

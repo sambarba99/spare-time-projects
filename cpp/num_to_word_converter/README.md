@@ -1,5 +1,5 @@
 ## Number-to-Words Converter
 
 <p align="center">
-	<img src="num_to_words.png"/>
+	<img src="output.png"/>
 </p>

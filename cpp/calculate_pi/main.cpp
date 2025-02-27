@@ -10,14 +10,15 @@ Created 04/03/2019
 
 using std::cout;
 
-void calcPi(const int nDigits) {
+
+void calcPi(const int numDigits) {
 	long double a = 0, b = 1, c = 1, d = 1, e = 3, n = 3;
 	long double na, nn;
 	int count = 0;
 
-	cout << "First " << nDigits << " digits of pi: ";
+	cout << "First " << numDigits << " digits of pi: ";
 
-	while (count < nDigits) {
+	while (count < numDigits) {
 		if (4 * b + a - c < n * c) {
 			cout << n;
 			count++;
@@ -37,7 +38,8 @@ void calcPi(const int nDigits) {
 	}
 }
 
+
 int main() {
-	int nDigits = 100;
-	calcPi(nDigits);
+	int numDigits = 100;
+	calcPi(numDigits);
 }

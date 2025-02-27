@@ -1,5 +1,5 @@
 ## Ulam Spiral generator
 
 <p align="center">
-	<img src="ulam.png"/>
+	<img src="output.png"/>
 </p>

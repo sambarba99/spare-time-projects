@@ -5,12 +5,12 @@ Author: Sam Barba
 Created 08/09/2021
 */
 
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #include "tree.h"
 
 using std::setw;
+
 
 void displayTreeInfo(Tree* tree) {
 	cout << "Tree (height " << tree->getHeight() << "):\n\n";
@@ -42,6 +42,7 @@ void displayTreeInfo(Tree* tree) {
 	cout << (tree->isBalanced() ? " Yes" : " No");
 }
 
+
 Tree* makeBalancedBST(vector<string> data, int lo = 0, int hi = INT_MIN) {
 	sort(data.begin(), data.end());
 
@@ -58,6 +59,7 @@ Tree* makeBalancedBST(vector<string> data, int lo = 0, int hi = INT_MIN) {
 
 	return tree;
 }
+
 
 int main() {
 	vector<string> data = {"alice", "bob", "charlie", "david", "emily", "francis", "george",

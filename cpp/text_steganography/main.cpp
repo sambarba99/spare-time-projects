@@ -6,9 +6,6 @@ Created 01/10/2021
 */
 
 #include <bits/stdc++.h>
-#include <bitset>
-#include <iostream>
-#include <string>
 
 using std::bitset;
 using std::cin;
@@ -17,7 +14,9 @@ using std::setw;
 using std::string;
 using std::to_string;
 
+
 const string ALPHANUMERIC_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
 
 int setBit(const int n, const int idx, const int b) {
 	// Set (idx)th bit of int 'n' to 'b'
@@ -25,6 +24,7 @@ int setBit(const int n, const int idx, const int b) {
 	int mask = 1 << idx;
 	return (n & ~mask) | (b << idx);
 }
+
 
 string decodeHiddenMsg(const string stegMsg) {
 	uint8_t leastSignificantBits[stegMsg.length()];
@@ -42,6 +42,7 @@ string decodeHiddenMsg(const string stegMsg) {
 
 	return decodedMsg;
 }
+
 
 void hideMsg(const string msg) {
 	// 1. Convert msg to binary
@@ -80,6 +81,7 @@ void hideMsg(const string msg) {
 	cout << setw(35) << "Decoded steganographic message: ";
 	cout << decodeHiddenMsg(hiddenMsg) << "\n\n";
 }
+
 
 int main() {
 	string msg;

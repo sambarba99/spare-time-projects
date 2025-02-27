@@ -1,26 +1,24 @@
 /*
 Julia/Mandelbrot set visualiser
 
+Controls:
+	Click: select point to set as origin (0,0)
+	Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
+	T: toggle axes
+	R: reset
+
 Author: Sam Barba
 Created 18/11/2022
-
-Controls:
-Click: select point to set as origin (0,0)
-Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
-T: toggle axes
-R: reset
 */
 
-#include <cmath>
 #include <complex>
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <vector>
 
 using std::complex;
 using std::string;
 using std::to_string;
 using std::vector;
+
 
 const int WIDTH = 900;
 const int HEIGHT = 600;
@@ -50,6 +48,8 @@ int yAxis = HEIGHT / 2;
 int yOffset = yAxis;
 bool showAxes = true;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT + LABEL_HEIGHT), "Julia/Mandelbrot set visualiser", sf::Style::Close);
+sf::Font font;
+
 
 vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& colour2, const double t) {
 	int newR = colour1[0] + t * (colour2[0] - colour1[0]);
@@ -58,14 +58,13 @@ vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& col
 	return {newR, newG, newB};
 }
 
+
 void drawLabel(const string label) {
 	sf::RectangleShape lblArea(sf::Vector2f(WIDTH, LABEL_HEIGHT));
 	lblArea.setPosition(0, HEIGHT);
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(label, font, 14);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -74,6 +73,7 @@ void drawLabel(const string label) {
 	window.draw(text);
 	window.display();
 }
+
 
 void draw() {
 	window.clear(sf::Color::Black);
@@ -128,6 +128,7 @@ void draw() {
 	drawLabel("Click: set origin  |  2/4/8/0: magnify by 2/4/8/100x  |  T: toggle axes  |  R: reset");
 }
 
+
 void centreAroundOrigin() {
 	xOffset -= xAxis - WIDTH / 2;
 	yOffset -= yAxis - HEIGHT / 2;
@@ -135,15 +136,19 @@ void centreAroundOrigin() {
 	yAxis = HEIGHT / 2;
 }
 
+
 void magnify(const int factor) {
 	scale *= factor;
 	xOffset = factor * (xOffset - xAxis) + xAxis;
 	yOffset = factor * (yOffset - yAxis) + yAxis;
 }
 
+
 int main() {
-	draw();
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 	int factor;
+
+	draw();
 
 	while (window.isOpen()) {
 		sf::Event event;

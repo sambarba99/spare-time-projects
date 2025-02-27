@@ -6,9 +6,7 @@ Author: Sam Barba
 Created 03/09/2022
 */
 
-#include <algorithm>
 #include <iostream>
-#include <string>
 #include <vector>
 
 using std::cin;
@@ -17,6 +15,7 @@ using std::getline;
 using std::max;
 using std::string;
 using std::vector;
+
 
 int trap(const vector<int> heights) {
 	int l = 0, r = heights.size() - 1;
@@ -37,6 +36,7 @@ int trap(const vector<int> heights) {
 
 	return res;
 }
+
 
 int main() {
 	string input;

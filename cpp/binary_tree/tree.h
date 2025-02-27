@@ -1,17 +1,12 @@
 #ifndef TREE
 #define TREE
 
-#include <algorithm>
-#include <iostream>
-#include <queue>
-#include <string>
-#include <vector>
-
 using std::cout;
 using std::max;
 using std::queue;
 using std::string;
 using std::vector;
+
 
 class Tree {
 	public:
@@ -87,7 +82,7 @@ class Tree {
 			q.push(this);
 
 			while (!q.empty()) {
-				Tree* front = q.front(); 
+				Tree* front = q.front();
 				q.pop();
 
 				if (front->leftChild) {

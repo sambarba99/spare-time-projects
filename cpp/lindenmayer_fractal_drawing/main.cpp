@@ -1,23 +1,15 @@
 /*
 Fractal drawing using Lindenmayer systems (L-systems)
 
+Controls:
+	Click to cycle through drawings
+
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-Click to cycle through drawings
 */
 
-#include <algorithm>
-#include <cmath>
 #include <bits/stdc++.h>
-#include <exception>
-#include <map>
-#include <regex>
 #include <SFML/Graphics.hpp>
-#include <stack>
-#include <string>
-#include <vector>
 
 using std::exception;
 using std::map;
@@ -29,6 +21,7 @@ using std::stack;
 using std::string;
 using std::to_string;
 using std::vector;
+
 
 struct Fractal {
 	string name;
@@ -73,6 +66,8 @@ const int HEIGHT = 900;
 
 string nameLabel;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Drawing with L-systems", sf::Style::Close);
+sf::Font font;
+
 
 string generateInstructions(const string axiom, const map<char, string> ruleset, const int n) {
 	/*
@@ -98,6 +93,7 @@ string generateInstructions(const string axiom, const map<char, string> ruleset,
 	instructions = regex_replace(instructions, regex(R"(-\+)"), "");
 	return instructions;
 }
+
 
 vector<vector<double>> scaleAndCentreCoords(vector<vector<double>> coords) {
 	/*
@@ -143,6 +139,7 @@ vector<vector<double>> scaleAndCentreCoords(vector<vector<double>> coords) {
 	return coords;
 }
 
+
 vector<int> hsv2rgb(const float h, const float s, const float v) {
 	/*
 	HSV to RGB
@@ -156,11 +153,11 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 	float m = v - c;
 
 	float rf, gf, bf;
-	if (0 <= h && h < 60) rf = c, gf = x, bf = 0;
-	else if (60 <= h && h < 120) rf = x, gf = c, bf = 0;
-	else if (120 <= h && h < 180) rf = 0, gf = c, bf = x;
-	else if (180 <= h && h < 240) rf = 0, gf = x, bf = c;
-	else if (240 <= h && h < 300) rf = x, gf = 0, bf = c;
+	if (h < 60) rf = c, gf = x, bf = 0;
+	else if (h < 120) rf = x, gf = c, bf = 0;
+	else if (h < 180) rf = 0, gf = c, bf = x;
+	else if (h < 240) rf = 0, gf = x, bf = c;
+	else if (h < 300) rf = x, gf = 0, bf = c;
 	else rf = c, gf = 0, bf = x;
 
 	int r = (rf + m) * 255;
@@ -169,6 +166,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 
 	return {r, g, b};
 }
+
 
 bool executeInstructions(const string instructions, const double startHeading, const int turnAngle) {
 	// If there's no 'move forward' command, it means no drawing, so return
@@ -238,8 +236,6 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(nameLabel, font, 16);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -251,6 +247,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 
 	return true;
 }
+
 
 void waitForClick() {
 	while (true) {
@@ -267,7 +264,10 @@ void waitForClick() {
 	}
 }
 
+
 int main() {
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+
 	// Draw each fractal, each from iteration 0 to its max (i.e. computer won't crash) iteration
 	vector<Fractal> allFractals = {BINARY_TREE, H_FIGURE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE,
 		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE,
