@@ -58,9 +58,13 @@ def derivation():
 	f = lambda x: x ** 2 * np.sin(3 * x) * np.exp(-x)
 	x = np.linspace(0, 1, 100)
 
+	spline = scipy.interpolate.UnivariateSpline(x, f(x), s=0)
+	deriv1 = spline.derivative()
+	deriv2 = spline.derivative(n=2)
+
 	plt.plot(x, f(x), label='f(x)')
-	plt.plot(x, scipy.misc.derivative(f, x, 1e-6), label="f'(x)")
-	plt.plot(x, scipy.misc.derivative(f, x, 1e-6, n=2), label="f''(x)")
+	plt.plot(x, deriv1(x), label="f'(x)")
+	plt.plot(x, deriv2(x), label="f''(x)")
 	plt.legend()
 	plt.title('Derivation')
 	plt.show()
@@ -86,12 +90,10 @@ def curve_fitting():
 
 	# The following lab data is collected, to be used to determine A, w, phi:
 
-	t_data = np.array([0.0000, 0.3448, 0.6897, 1.0345, 1.3793, 1.7241, 2.0690, 2.4138, 2.7586,
-		3.1034, 3.4483, 3.7931, 4.1379, 4.4828, 4.8276, 5.1724, 5.5172, 5.8621, 6.2069, 6.5517,
-		6.8966, 7.2414, 7.5862, 7.9310, 8.2759, 8.6207, 8.9655, 9.3103, 9.6552, 10.0000])
-	y_data = np.array([4.3303, 1.6114, -2.1542, -3.9014, -1.6726, 2.1688, 3.8664, 1.8519, -1.8489,
-		-3.9656, -2.1339, 1.5943, 4.0615, 1.8930, -1.7687, -4.2679, -2.4687, 1.3702, 4.2495, 2.2704,
-		-1.5030, -3.4677, -2.5085, 1.2002, 3.8163, 2.9151, -1.2457, -3.7272, -2.5455, 0.8726])
+	t_data = np.array([0.00, 0.34, 0.69, 1.03, 1.38, 1.72, 2.07, 2.41, 2.76, 3.10, 3.45, 3.79, 4.14, 4.48, 4.83, 5.17,
+		5.52, 5.86, 6.21, 6.55, 6.90, 7.24, 7.59, 7.93, 8.28, 8.62, 8.97, 9.31, 9.66, 10.00])
+	y_data = np.array([4.33, 1.61, -2.15, -3.90, -1.67, 2.17, 3.87, 1.85, -1.85, -3.97, -2.13, 1.59, 4.06, 1.89, -1.77,
+		-4.27, -2.47, 1.37, 4.25, 2.27, -1.50, -3.47, -2.51, 1.20, 3.82, 2.92, -1.25, -3.73, -2.55, 0.87])
 
 	plt.plot(t_data, y_data, 'o--')
 	plt.xlabel(r'$t$')

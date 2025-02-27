@@ -11,7 +11,7 @@ import numpy as np
 import pygame as pg
 from scipy.optimize import fsolve
 
-from pytorch_ppo_asteroids.game_env.constants import *
+from pytorch_proximal_policy_optimisation_asteroids.game_env.constants import *
 
 
 vec2 = pg.math.Vector2
@@ -210,7 +210,7 @@ class GameEnv:
 		if do_rendering:
 			pg.init()
 			pg.display.set_caption('PPO Asteroids player')
-			self.font = pg.font.SysFont('lucidasanstypewriteroblique', 26)
+			self.font = pg.font.SysFont('consolas', 26)
 			self.scene = pg.display.set_mode((SCENE_WIDTH, SCENE_HEIGHT))
 			self.clock = pg.time.Clock()
 

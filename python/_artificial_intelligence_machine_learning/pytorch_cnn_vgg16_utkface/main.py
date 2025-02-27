@@ -112,7 +112,7 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg'):
+	for img_path in glob.iglob('C:/Users/sam/Desktop/projects/datasets/utkface/*.jpg'):
 		y = img_path.split('\\')[1]
 		age, gender, race = y.split('_')[:3]
 		data.append((img_path, int(age), int(gender), int(race)))

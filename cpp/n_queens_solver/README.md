@@ -3,5 +3,5 @@
 E.g. N = 24:
 
 <p align="center">
-	<img src="n_queens.png"/>
+	<img src="output.png"/>
 </p>

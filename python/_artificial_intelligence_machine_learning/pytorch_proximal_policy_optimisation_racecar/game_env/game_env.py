@@ -11,7 +11,7 @@ from math import pi, sin, cos, atan2, degrees, radians
 
 import pygame as pg
 
-from pytorch_proximal_policy_optimisation.game_env.constants import *
+from pytorch_proximal_policy_optimisation_racecar.game_env.constants import *
 
 
 # Lines crossed by the car that represent progress (reward for crossing)
@@ -244,7 +244,7 @@ class GameEnv:
 		if self.do_rendering:
 			pg.init()
 			pg.display.set_caption('Deep Reinforcement Learning self-driving car')
-			self.font = pg.font.SysFont('lucidasanstypewriteroblique', 26)
+			self.font = pg.font.SysFont('consolas', 26)
 			self.scene = pg.display.set_mode((TRACK_WIDTH, TRACK_HEIGHT))
 			self.clock = pg.time.Clock()
 			self.track_img = pg.image.load('./game_env/track.png').convert()

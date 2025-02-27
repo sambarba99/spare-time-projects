@@ -1,5 +1,5 @@
 ## Interactive Ray Casting demo
 
 <p align="center">
-	<img src="rays.png"/>
+	<img src="output.webp"/>
 </p>
