@@ -61,14 +61,14 @@ if __name__ == '__main__':
 	)
 
 	match choice:
-		case '1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authenticity.csv'
-		case '2': path = 'C:/Users/Sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
-		case '3': path = 'C:/Users/Sam/Desktop/projects/datasets/glass_classification.csv'
-		case '4': path = 'C:/Users/Sam/Desktop/projects/datasets/iris_classification.csv'
-		case '5': path = 'C:/Users/Sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
-		case '6': path = 'C:/Users/Sam/Desktop/projects/datasets/pulsar_identification.csv'
-		case '7': path = 'C:/Users/Sam/Desktop/projects/datasets/titanic_survivals.csv'
-		case '8': path = 'C:/Users/Sam/Desktop/projects/datasets/wine_classification.csv'
+		case '1': path = 'C:/Users/sam/Desktop/projects/datasets/banknote_authenticity.csv'
+		case '2': path = 'C:/Users/sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
+		case '3': path = 'C:/Users/sam/Desktop/projects/datasets/glass_classification.csv'
+		case '4': path = 'C:/Users/sam/Desktop/projects/datasets/iris_classification.csv'
+		case '5': path = 'C:/Users/sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
+		case '6': path = 'C:/Users/sam/Desktop/projects/datasets/pulsar_identification.csv'
+		case '7': path = 'C:/Users/sam/Desktop/projects/datasets/titanic_survivals.csv'
+		case '8': path = 'C:/Users/sam/Desktop/projects/datasets/wine_classification.csv'
 		case _: path = 'blobs'
 
 	if path == 'blobs':

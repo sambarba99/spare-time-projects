@@ -1,5 +1,5 @@
-## Ulam Spiral generator
+## [Ulam prime spiral](https://en.wikipedia.org/wiki/Ulam_spiral) generator
 
 <p align="center">
-	<img src="ulam.png"/>
+	<img src="output.png"/>
 </p>

@@ -1,33 +1,39 @@
 /*
-Double pendulum simulation
+Double Pendulum simulator
+
+Controls:
+	R: reset
+	Space: play/pause
 
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-R: reset
-Space: play/pause
 */
 
 #include <cmath>
+#include <iomanip>
+#include <random>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
-using std::pair;
-using std::vector;
 
-const double R1 = 300;
-const double R2 = 300;
+const double R1 = 250;
+const double R2 = 250;
 const double M1 = 10;
 const double M2 = 10;
-const double G = 0.1;
+const double G = 0.3;
+const double DAMPING_FACTOR = 0.9999;
 const double COLOUR_DECAY = 0.998;
-const int WIDTH = 1300;
-const int HEIGHT = 800;
+const int WIDTH = 1000;
+const int HEIGHT = 600;
+const int FPS = 60;
 
 double a1, a2, vel1, vel2;
-vector<pair<int, int>> positions;
+std::vector<std::pair<int, int>> positions;
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<float> dist(0, 2 * M_PI);
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Double Pendulum", sf::Style::Close);
+int screenshotCounter = 0;
+
 
 void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 	// Bresenham's algorithm
@@ -40,10 +46,8 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 	int e2;
 
 	while (true) {
-		sf::RectangleShape pix(sf::Vector2f(1, 1));
-		pix.setPosition(x1, y1);
-		pix.setFillColor(sf::Color(red, 0, 0));
-		window.draw(pix);
+		sf::Vertex pix(sf::Vector2f(x1, y1), sf::Color(red, 0, 0));
+		window.draw(&pix, 1, sf::Points);
 
 		if (x1 == x2 && y1 == y2) return;
 
@@ -59,16 +63,17 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 	}
 }
 
+
 void draw() {
 	window.clear(sf::Color::Black);
-	
+
 	double num1 = -G * (2 * M1 + M2) * sin(a1);
 	double num2 = -M2 * G * sin(a1 - 2 * a2);
 	double num3 = -2 * sin(a1 - a2) * M2;
 	double num4 = vel2 * vel2 * R2 + vel1 * vel1 * R1 * cos(a1 - a2);
 	double den = R1 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2));
 	double a1acc = (num1 + num2 + num3 * num4) / den;
-	
+
 	num1 = 2 * sin(a1 - a2);
 	num2 = vel1 * vel1 * R1 * (M1 + M2);
 	num3 = G * (M1 + M2) * cos(a1);
@@ -91,8 +96,8 @@ void draw() {
 	};
 	sf::CircleShape circle1(10.f);
 	sf::CircleShape circle2(10.f);
-	circle1.setPosition(x1 - 5, y1 - 5);
-	circle2.setPosition(x2 - 5, y2 - 5);
+	circle1.setPosition(x1 - 10, y1 - 10);
+	circle2.setPosition(x2 - 10, y2 - 10);
 	circle1.setFillColor(sf::Color(220, 220, 220));
 	circle2.setFillColor(sf::Color(220, 220, 220));
 	window.draw(line1, 2, sf::Lines);
@@ -113,24 +118,36 @@ void draw() {
 
 	window.display();
 
+	// sf::Texture texture;
+	// sf::Image screenshot;
+	// texture.create(window.getSize().x, window.getSize().y);
+	// texture.update(window);
+	// screenshot = texture.copyToImage();
+	// std::ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
+	// screenshot.saveToFile(filePath.str());
+	// screenshotCounter++;
+
 	vel1 += a1acc;
 	vel2 += a2acc;
 	a1 += vel1;
 	a2 += vel2;
 
-	// Damping
-	vel1 *= 0.9999;
-	vel2 *= 0.9999;
+	vel1 *= DAMPING_FACTOR;
+	vel2 *= DAMPING_FACTOR;
 }
 
+
 int main() {
-	a1 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
-	a2 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
+	window.setFramerateLimit(FPS);
+
+	a1 = dist(gen);
+	a2 = dist(gen);
 	vel1 = vel2 = 0.0;
 	bool paused = false;
+	sf::Event event;
 
 	while (window.isOpen()) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
@@ -139,8 +156,8 @@ int main() {
 				case sf::Event::KeyPressed:
 					switch (event.key.code) {
 						case sf::Keyboard::R:
-							a1 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
-							a2 = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 2 * M_PI;
+							a1 = dist(gen);
+							a2 = dist(gen);
 							vel1 = vel2 = 0.0;
 							positions.clear();
 							paused = false;
@@ -156,6 +173,7 @@ int main() {
 		if (paused) continue;
 
 		draw();
-		sf::sleep(sf::milliseconds(5));
 	}
+
+	return 0;
 }

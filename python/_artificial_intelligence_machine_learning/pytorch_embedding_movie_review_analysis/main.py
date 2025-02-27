@@ -40,7 +40,7 @@ NUM_EPOCHS = 50
 
 
 def load_data():
-	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/imdb_movie_reviews.csv')
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/imdb_movie_reviews.csv')
 	print(f'\nRaw data:\n{df}')
 	print('\nPreprocessing...')
 

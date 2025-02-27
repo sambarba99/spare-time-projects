@@ -1,5 +1,5 @@
 ## Matrix Calculator
 
 <p align="center">
-	<img src="matrix_calc.png"/>
+	<img src="output.png"/>
 </p>

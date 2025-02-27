@@ -1,5 +1,5 @@
 ## Interactive [Bézier Curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve) demo
 
 <p align="center">
-	<img src="bezier.gif"/>
+	<img src="bezier.webp"/>
 </p>

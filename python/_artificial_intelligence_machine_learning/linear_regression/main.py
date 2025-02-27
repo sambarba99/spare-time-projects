@@ -22,7 +22,7 @@ pd.set_option('display.width', None)
 
 
 def load_data(train_test_ratio=0.8):
-	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/boston_housing.csv')
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/boston_housing.csv')
 	print(f'\nRaw data:\n\n{df}')
 
 	x, y = df.iloc[:, :-1], df.iloc[:, -1]

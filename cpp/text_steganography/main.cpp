@@ -5,19 +5,23 @@ Author: Sam Barba
 Created 01/10/2021
 */
 
-#include <bits/stdc++.h>
 #include <bitset>
+#include <cstdint>
+#include <iomanip>
 #include <iostream>
-#include <string>
+#include <random>
 
-using std::bitset;
-using std::cin;
 using std::cout;
 using std::setw;
 using std::string;
-using std::to_string;
+
 
 const string ALPHANUMERIC_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<size_t> dist(0, ALPHANUMERIC_CHARS.length() - 1);
+
 
 int setBit(const int n, const int idx, const int b) {
 	// Set (idx)th bit of int 'n' to 'b'
@@ -25,6 +29,7 @@ int setBit(const int n, const int idx, const int b) {
 	int mask = 1 << idx;
 	return (n & ~mask) | (b << idx);
 }
+
 
 string decodeHiddenMsg(const string stegMsg) {
 	uint8_t leastSignificantBits[stegMsg.length()];
@@ -43,12 +48,13 @@ string decodeHiddenMsg(const string stegMsg) {
 	return decodedMsg;
 }
 
+
 void hideMsg(const string msg) {
 	// 1. Convert msg to binary
 
 	string binaryMsg = "";
-	for (char c : msg)
-		binaryMsg += bitset<8>(c).to_string();
+	for (const char c : msg)
+		binaryMsg += std::bitset<8>(c).to_string();
 
 	cout << setw(35) << "In binary: ";
 	cout << binaryMsg << '\n';
@@ -57,7 +63,7 @@ void hideMsg(const string msg) {
 
 	string containerTxt = "";
 	for (int i = 0; i < binaryMsg.length(); i++)
-		containerTxt += ALPHANUMERIC_CHARS[rand() % (ALPHANUMERIC_CHARS.length() - 1)];
+		containerTxt += ALPHANUMERIC_CHARS[dist(gen)];
 
 	cout << setw(35) << "Container text: ";
 	cout << containerTxt << '\n';
@@ -81,15 +87,18 @@ void hideMsg(const string msg) {
 	cout << decodeHiddenMsg(hiddenMsg) << "\n\n";
 }
 
+
 int main() {
 	string msg;
 
 	while (true) {
 		cout << "Input message to hide (or X to exit)\n>>> ";
-		getline(cin, msg);
+		getline(std::cin, msg);
 
 		if (msg.length() == 1 && toupper(msg[0]) == 'X') break;
 
 		hideMsg(msg);
 	}
+
+	return 0;
 }

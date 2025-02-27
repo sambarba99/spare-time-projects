@@ -67,9 +67,9 @@ if __name__ == '__main__':
 	)
 
 	match choice:
-		case '1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authenticity.csv'
-		case '2': path = 'C:/Users/Sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
-		case _: path = 'C:/Users/Sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
+		case '1': path = 'C:/Users/sam/Desktop/projects/datasets/banknote_authenticity.csv'
+		case '2': path = 'C:/Users/sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
+		case _: path = 'C:/Users/sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
 
 	x_train, y_train, x_test, y_test, labels = load_data(path)
 

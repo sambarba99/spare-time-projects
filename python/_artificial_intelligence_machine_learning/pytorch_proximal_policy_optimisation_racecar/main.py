@@ -18,9 +18,9 @@ import pygame as pg
 from scipy.signal import savgol_filter
 import torch
 
-from pytorch_proximal_policy_optimisation.ddqn.ddqn_agent import DDQNAgent
-from pytorch_proximal_policy_optimisation.ppo.ppo_agent import PPOAgent
-from pytorch_proximal_policy_optimisation.game_env.game_env import GameEnv
+from pytorch_proximal_policy_optimisation_racecar.ddqn.ddqn_agent import DDQNAgent
+from pytorch_proximal_policy_optimisation_racecar.ppo.ppo_agent import PPOAgent
+from pytorch_proximal_policy_optimisation_racecar.game_env.game_env import GameEnv
 
 
 plt.rcParams['figure.figsize'] = (10, 6)

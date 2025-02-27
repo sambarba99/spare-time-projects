@@ -1,5 +1,5 @@
-## Conway's Game of Life
+## [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
 <p align="center">
-	<img src="game_of_life.png"/>
+	<img src="output.png"/>
 </p>

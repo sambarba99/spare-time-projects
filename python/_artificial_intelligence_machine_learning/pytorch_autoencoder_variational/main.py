@@ -48,7 +48,7 @@ def create_data_loaders():
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
-	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/utkface/*.jpg')
+	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/utkface/*.jpg')
 	x_ground_truth = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)

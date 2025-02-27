@@ -1,17 +1,11 @@
 #ifndef TREE
 #define TREE
 
-#include <algorithm>
-#include <iostream>
 #include <queue>
-#include <string>
-#include <vector>
 
-using std::cout;
-using std::max;
-using std::queue;
 using std::string;
 using std::vector;
+
 
 class Tree {
 	public:
@@ -42,7 +36,7 @@ class Tree {
 
 		int getHeight() {
 			if (!this) return 0;
-			return max(leftChild->getHeight(), rightChild->getHeight()) + 1;
+			return std::max(leftChild->getHeight(), rightChild->getHeight()) + 1;
 		}
 
 		vector<string> inOrderTraversal() {
@@ -83,11 +77,11 @@ class Tree {
 
 		vector<string> breadthFirstTraversal() {
 			vector<string> result({data});
-			queue<Tree*> q;
+			std::queue<Tree*> q;
 			q.push(this);
 
 			while (!q.empty()) {
-				Tree* front = q.front(); 
+				Tree* front = q.front();
 				q.pop();
 
 				if (front->leftChild) {
@@ -128,7 +122,7 @@ class Tree {
 		void display(const bool isLeft = false, const string prefix = "") {
 			if (!this) return;
 
-			cout << prefix << (isLeft ? "├─" : "└─") << data << '\n';
+			std::cout << prefix << (isLeft ? "├─" : "└─") << data << '\n';
 			leftChild->display(true, prefix + (isLeft ? "│  " : "   "));
 			rightChild->display(false, prefix + (isLeft ? "│  " : "   "));
 		}

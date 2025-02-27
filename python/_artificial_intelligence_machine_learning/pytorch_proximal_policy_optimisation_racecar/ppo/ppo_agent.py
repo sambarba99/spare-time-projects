@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from pytorch_proximal_policy_optimisation.ppo.constants import *
+from pytorch_proximal_policy_optimisation_racecar.ppo.constants import *
 
 
 class RolloutBuffer:

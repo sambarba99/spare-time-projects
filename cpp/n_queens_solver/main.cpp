@@ -7,13 +7,12 @@ Created 08/02/2022
 
 #include <chrono>
 #include <SFML/Graphics.hpp>
-#include <string>
 
 using namespace std::chrono;
-using std::string;
 using std::to_string;
 
-const int N = 24;  // N > 3
+
+const int N = 12;
 const int BLANK = 0;
 const int QUEEN = 1;
 const int CELL_SIZE = 30;
@@ -23,8 +22,10 @@ const int WINDOW_SIZE = N * CELL_SIZE + 2 * GRID_OFFSET;
 int board[N][N];
 int nBacktracks;
 sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "N Queens Solver", sf::Style::Close);
+sf::Font font;
 
-void drawGrid(const string status) {
+
+void drawGrid(const std::string status) {
 	window.clear(sf::Color::Black);
 
 	sf::RectangleShape statusLblArea(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));
@@ -32,8 +33,6 @@ void drawGrid(const string status) {
 	statusLblArea.setFillColor(sf::Color::Black);
 	window.draw(statusLblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(status, font, 18);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -41,16 +40,16 @@ void drawGrid(const string status) {
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
+	for (int y = 0; y < N; y++) {
+		for (int x = 0; x < N; x++) {
 			sf::RectangleShape square(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-			square.setPosition(j * CELL_SIZE + GRID_OFFSET, i * CELL_SIZE + GRID_OFFSET);
-			square.setFillColor((i + j) % 2 ? sf::Color(20, 20, 20) : sf::Color(60, 60, 60));
+			square.setPosition(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET);
+			square.setFillColor((y + x) % 2 ? sf::Color(20, 20, 20) : sf::Color(60, 60, 60));
 			window.draw(square);
 
-			if (board[i][j] == QUEEN) {
+			if (board[y][x] == QUEEN) {
 				sf::Text cellText("Q", font, 20);
-				cellText.setPosition(int(float(j + 0.26f) * CELL_SIZE + GRID_OFFSET), int(float(i + 0.03f) * CELL_SIZE + GRID_OFFSET));
+				cellText.setPosition(int(float(x + 0.26f) * CELL_SIZE + GRID_OFFSET), int(float(y + 0.03f) * CELL_SIZE + GRID_OFFSET));
 				cellText.setFillColor(sf::Color(220, 150, 0));
 				window.draw(cellText);
 			}
@@ -60,21 +59,23 @@ void drawGrid(const string status) {
 	window.display();
 }
 
+
 bool valid(const int row, const int col) {
 	// Check if there is a queen above in this column
-	for (int i = 0; i < row; i++)
-		if (board[i][col]) return false;
+	for (int y = 0; y < row; y++)
+		if (board[y][col]) return false;
 	
 	// Check upper diagonal on left side
-	for (int i = row, j = col; i >= 0 && j >= 0; i--, j--)
-		if (board[i][j]) return false;
+	for (int y = row, x = col; y >= 0 && x >= 0; y--, x--)
+		if (board[y][x]) return false;
 	
 	// Check upper diagonal on right side
-	for (int i = row, j = col; i >= 0 && j < N; i--, j++)
-		if (board[i][j]) return false;
+	for (int y = row, x = col; y >= 0 && x < N; y--, x++)
+		if (board[y][x]) return false;
 
 	return true;
 }
+
 
 bool solve(int row = 0) {
 	if (row == N) return true;  // All queens placed
@@ -89,15 +90,19 @@ bool solve(int row = 0) {
 		// Reset square in order to backtrack
 		board[row][col] = BLANK;
 		nBacktracks++;
-		// drawGrid("Solving (" + to_string(nBacktracks) + " backtracks)");
+		drawGrid("Solving (" + to_string(nBacktracks) + " backtracks)");
 	}
 
 	return false;
 }
 
+
 int main() {
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 	nBacktracks = 0;
 	high_resolution_clock::time_point start = high_resolution_clock::now();
+	sf::Event event;
+
 	if (solve()) {
 		high_resolution_clock::time_point finish = high_resolution_clock::now();
 		auto millis = duration_cast<milliseconds>(finish - start);
@@ -106,13 +111,10 @@ int main() {
 		drawGrid("No solution");
 	}
 
-	while (window.isOpen()) {
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			switch (event.type) {
-				case sf::Event::Closed:
-					window.close();
-			}
-		}
-	}
+	while (window.isOpen())
+		while (window.pollEvent(event))
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+	return 0;
 }

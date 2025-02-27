@@ -1,5 +1,5 @@
 /*
-Drawing Ulam's spiral (of primes)
+Ulam prime spiral generator
 
 Author: Sam Barba
 Created 15/11/2022
@@ -7,14 +7,14 @@ Created 15/11/2022
 
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 using std::vector;
 
-const int GRID_SIZE = 999;  // Ensure odd
-const int CELL_SIZE = 1;
 
-sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Ulam's spiral", sf::Style::Close);
+const int GRID_SIZE = 899;  // Ensure odd
+
+sf::RenderWindow window(sf::VideoMode(GRID_SIZE, GRID_SIZE), "Ulam prime spiral", sf::Style::Close);
+
 
 vector<bool> primesLessThan(const int n) {
 	// Sieve of Eratosthenes
@@ -31,58 +31,44 @@ vector<bool> primesLessThan(const int n) {
 	return isPrime;
 }
 
-void draw() {
-	int x = (GRID_SIZE * CELL_SIZE) / 2;
-	int y = x;
-	int state = 0, nSteps = 1, turnCounter = 1;
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
+void draw() {
+	int x = GRID_SIZE / 2;
+	int y = x;
+	int state = 0, numSteps = 1, turnCounter = 1;
 
 	int lim = GRID_SIZE * GRID_SIZE + 1;
 	vector<bool> isPrime = primesLessThan(lim);
+	sf::VertexArray pixels(sf::Points, GRID_SIZE * GRID_SIZE);
 
 	for (int n = 1; n < lim; n++) {
-		sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-		rect.setPosition(x - CELL_SIZE / 2.f, y - CELL_SIZE / 2.f);
-		rect.setFillColor(isPrime[n] ? sf::Color::Red : sf::Color::Black);
-		window.draw(rect);
+		pixels[n - 1] = sf::Vertex(sf::Vector2f(x, y), isPrime[n] ? sf::Color::Red : sf::Color::Black);
 
-		switch (state) {
-			case 0:
-				x += CELL_SIZE;
-				break;
-			case 1:
-				y -= CELL_SIZE;
-				break;
-			case 2:
-				x -= CELL_SIZE;
-				break;
-			case 3:
-				y += CELL_SIZE;
-				break;
-		}
+		if (state == 0) x++;
+		else if (state == 1) y--;
+		else if (state == 2) x--;
+		else y++;
 
-		if (n % nSteps == 0) {
+		if (n % numSteps == 0) {
 			state = ++state % 4;
 			turnCounter++;
-			if (turnCounter % 2 == 0) nSteps++;
+			if (turnCounter % 2 == 0) numSteps++;
 		}
 	}
 
+	window.draw(pixels);
 	window.display();
 }
 
+
 int main() {
 	draw();
+	sf::Event event;
 
-	while (window.isOpen()) {
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			switch (event.type) {
-				case sf::Event::Closed:
-					window.close();
-			}
-		}
-	}
+	while (window.isOpen())
+		while (window.pollEvent(event))
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+	return 0;
 }

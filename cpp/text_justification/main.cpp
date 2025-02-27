@@ -7,13 +7,12 @@ Created 03/09/2022
 
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <vector>
 
-using std::cin;
 using std::cout;
 using std::string;
 using std::vector;
+
 
 vector<string> tokenise(const string text) {
 	char charArray[text.length()];
@@ -29,7 +28,8 @@ vector<string> tokenise(const string text) {
 	return words;
 }
 
-void justify(const vector<string> words, const int maxWidth) {
+
+void justify(const vector<string>& words, const int maxWidth) {
 	int nWords = words.size();
 	int startIdx = 0;
 	string line;
@@ -81,21 +81,24 @@ void justify(const vector<string> words, const int maxWidth) {
 		startIdx = counter;
 	}
 
-	for (string line : res)
+	for (const string line : res)
 		cout << line << '\n';
 }
+
 
 int main() {
 	string text;
 	int maxWidth;
 
 	cout << "Input text to justify\n>>> ";
-	getline(cin, text);
+	getline(std::cin, text);
 
 	cout << "Input max. width\n>>> ";
-	cin >> maxWidth;
+	std::cin >> maxWidth;
 
 	vector<string> words = tokenise(text);
 	cout << "\nJustified:\n";
 	justify(words, maxWidth);
+
+	return 0;
 }

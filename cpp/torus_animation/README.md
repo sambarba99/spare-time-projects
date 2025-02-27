@@ -1,5 +1,5 @@
-## Rendering a 3D ASCII Rotating Torus
+## Rendering a 3D ASCII Revolving Torus
 
 <p align="center">
-	<img src="rotating_torus.gif"/>
+	<img src="torus.webp"/>
 </p>

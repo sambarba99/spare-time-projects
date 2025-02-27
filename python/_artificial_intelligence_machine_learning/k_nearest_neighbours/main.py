@@ -32,12 +32,12 @@ if __name__ == '__main__':
 	)
 
 	match choice:
-		case '1': path = 'C:/Users/Sam/Desktop/projects/datasets/banknote_authenticity.csv'
-		case '2': path = 'C:/Users/Sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
-		case '3': path = 'C:/Users/Sam/Desktop/projects/datasets/glass_classification.csv'
-		case '4': path = 'C:/Users/Sam/Desktop/projects/datasets/iris_classification.csv'
-		case '5': path = 'C:/Users/Sam/Desktop/projects/datasets/titanic_survivals.csv'
-		case _: path = 'C:/Users/Sam/Desktop/projects/datasets/wine_classification.csv'
+		case '1': path = 'C:/Users/sam/Desktop/projects/datasets/banknote_authenticity.csv'
+		case '2': path = 'C:/Users/sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
+		case '3': path = 'C:/Users/sam/Desktop/projects/datasets/glass_classification.csv'
+		case '4': path = 'C:/Users/sam/Desktop/projects/datasets/iris_classification.csv'
+		case '5': path = 'C:/Users/sam/Desktop/projects/datasets/titanic_survivals.csv'
+		case _: path = 'C:/Users/sam/Desktop/projects/datasets/wine_classification.csv'
 
 	x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler())
 	best_f1 = best_k = -1

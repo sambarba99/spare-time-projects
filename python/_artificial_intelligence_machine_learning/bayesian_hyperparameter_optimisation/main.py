@@ -24,7 +24,7 @@ plt.rcParams['figure.figsize'] = (6, 4)
 pd.set_option('display.max_columns', 14)
 pd.set_option('display.width', None)
 
-DATASET_PATH = 'C:/Users/Sam/Desktop/projects/datasets/boston_housing.csv'
+DATASET_PATH = 'C:/Users/sam/Desktop/projects/datasets/boston_housing.csv'
 NUM_FEATURES = 13
 NUM_OUTPUTS = 1
 BATCH_SIZE = 32

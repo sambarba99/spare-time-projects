@@ -17,8 +17,8 @@ import pygame as pg
 from scipy.signal import savgol_filter
 import torch
 
-from pytorch_ppo_asteroids.game_env.game_env import GameEnv
-from pytorch_ppo_asteroids.ppo.ppo_agent import PPOAgent
+from pytorch_proximal_policy_optimisation_asteroids.game_env.game_env import GameEnv
+from pytorch_proximal_policy_optimisation_asteroids.ppo.ppo_agent import PPOAgent
 
 
 plt.rcParams['figure.figsize'] = (10, 6)

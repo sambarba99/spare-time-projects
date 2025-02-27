@@ -1,45 +1,32 @@
 /*
 Bézier curve demo
 
+Controls:
+	Right-click: add a point
+	Left-click and drag: move a point
+	R: reset
+
 Author: Sam Barba
 Created 19/11/2022
-
-Controls:
-Right-click: add a point
-Left-click and drag: move a point
-R: reset
 */
 
-#include <algorithm>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
-using std::find;
-using std::min_element;
 using std::pair;
 using std::vector;
 
-const int SIZE = 800;
-const int MAX_POINTS = 5;
+
+const int SIZE = 600;
+const int MAX_POINTS = 10;
 const float POINT_RADIUS = 6.f;
+const int FPS = 60;
 
 vector<pair<float, float>> points;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), L"Bézier curve drawing", sf::Style::Close);
 
-void drawConnectiveLines() {
-	if (points.size() < 2) return;
 
-	for (int i = 0; i < points.size() - 1; i++) {
-		sf::Vertex line[] = {
-			sf::Vertex(sf::Vector2f(points[i].first, points[i].second), sf::Color(80, 80, 80)),
-			sf::Vertex(sf::Vector2f(points[i + 1].first, points[i + 1].second), sf::Color(80, 80, 80))
-		};
-		window.draw(line, 2, sf::Lines);
-	}
-}
-
-pair<float, float> linearInterpolate(const pair<float, float> a, const pair<float, float> b, const float t) {
+pair<float, float> linearInterpolate(const pair<float, float>& a, const pair<float, float>& b, const float t) {
 	// Linear interpolation between (ax,ay) and (bx,by) by amount t
 
 	float ax = a.first, ay = a.second;
@@ -48,6 +35,7 @@ pair<float, float> linearInterpolate(const pair<float, float> a, const pair<floa
 	float ly = ay + t * (by - ay);
 	return {lx, ly};
 }
+
 
 pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const float t) {
 	while (controlPoints.size() > 1) {
@@ -62,54 +50,59 @@ pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const f
 	return controlPoints[0];
 }
 
-void drawCurve() {
-	if (points.size() < 2) return;
-
-	for (float t = 0; t < 1; t += 0.0005) {
-		pair<float, float> point = bezierPoint(points, t);
-		sf::RectangleShape pix(sf::Vector2f(1, 1));
-		pix.setPosition(point.first, point.second);
-		pix.setFillColor(sf::Color::White);
-		window.draw(pix);
-	}
-}
-
-void drawPoints() {
-	for (pair<int, int> point : points) {
-		sf::CircleShape circle(POINT_RADIUS);
-		circle.setPosition(point.first - POINT_RADIUS / 2.f, point.second - POINT_RADIUS / 2.f);
-		circle.setFillColor(sf::Color(230, 20, 20));
-		window.draw(circle);
-	}
-}
 
 void draw() {
 	window.clear(sf::Color::Black);
 
 	// Draw connective lines, then curve on top, then points on top
-	drawConnectiveLines();
-	drawCurve();
-	drawPoints();
+
+	if (points.size() > 1) {
+		for (int i = 0; i < points.size() - 1; i++) {
+			sf::Vertex line[] = {
+				sf::Vertex(sf::Vector2f(points[i].first, points[i].second), sf::Color(80, 80, 80)),
+				sf::Vertex(sf::Vector2f(points[i + 1].first, points[i + 1].second), sf::Color(80, 80, 80))
+			};
+			window.draw(line, 2, sf::Lines);
+		}
+
+		sf::VertexArray pixels(sf::Points);
+		for (float t = 0; t <= 1; t += 1e-4) {
+			pair<float, float> point = bezierPoint(points, t);
+			pixels.append(sf::Vertex(sf::Vector2f(point.first, point.second), sf::Color::White));
+		}
+		window.draw(pixels);
+	}
+
+	for (const auto& point : points) {
+		sf::CircleShape circle(POINT_RADIUS);
+		circle.setPosition(point.first - POINT_RADIUS, point.second - POINT_RADIUS);
+		circle.setFillColor(sf::Color(230, 20, 20));
+		window.draw(circle);
+	}
 
 	window.display();
 }
 
+
 vector<float> calcPointDistancesFromMouse(const int mouseX, const int mouseY) {
 	vector<float> distances;
-	for (pair<float, float> point : points)
+	for (const auto& point : points)
 		distances.push_back(sqrt(pow(point.first - mouseX, 2) + pow(point.second - mouseY, 2)));
 	return distances;
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
 	window.display();
+
 	int clickedPointIdx = -1;
 	sf::Vector2i mousePos;
 	float mouseX, mouseY;
 	bool leftBtnDown = false;
+	sf::Event event;
 
 	while (window.isOpen()) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
@@ -159,4 +152,6 @@ int main() {
 			draw();
 		}
 	}
+
+	return 0;
 }

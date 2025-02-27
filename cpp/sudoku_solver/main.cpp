@@ -5,22 +5,14 @@ Author: Sam Barba
 Created 07/09/2021
 */
 
-#include <algorithm>
 #include <chrono>
-#include <exception>
-#include <map>
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <vector>
 
 using namespace std::chrono;
-using std::exception;
-using std::find;
-using std::map;
 using std::pair;
 using std::string;
 using std::to_string;
-using std::vector;
+
 
 const int BOARD_SIZE = 9;
 const int CELL_SIZE = 50;
@@ -28,7 +20,7 @@ const int GRID_OFFSET = 75;
 const int WINDOW_SIZE = BOARD_SIZE * CELL_SIZE + 2 * GRID_OFFSET;
 
 // Puzzles in ascending order of difficulty
-const vector<pair<string, string>> PUZZLES = {
+const std::vector<pair<string, string>> PUZZLES = {
 	{"blank", "000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
 	{"easy", "000000000010020030000000000000000000040050060000000000000000000070080090000000000"},
 	{"medium", "100000000020000000003000000000400000000050000000006000000000700000000080000000009"},
@@ -37,9 +29,11 @@ const vector<pair<string, string>> PUZZLES = {
 };
 
 int board[BOARD_SIZE][BOARD_SIZE];
-vector<pair<int, int>> ijGiven;  // Store coords of numbers that are already given
-int nBacktracks;
+std::vector<pair<int, int>> yxGiven;  // Store coords of numbers that are already given
+int numBacktracks;
 sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Sudoku Solver", sf::Style::Close);
+sf::Font font;
+
 
 void drawGrid(const string status) {
 	window.clear(sf::Color(20, 20, 20));
@@ -49,8 +43,6 @@ void drawGrid(const string status) {
 	statusLblArea.setFillColor(sf::Color(20, 20, 20));
 	window.draw(statusLblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(status, font, 16);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -58,14 +50,14 @@ void drawGrid(const string status) {
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int i = 0; i < BOARD_SIZE; i++) {
-		for (int j = 0; j < BOARD_SIZE; j++) {
-			string strVal = board[i][j] ? to_string(board[i][j]) : "";
+	for (int y = 0; y < BOARD_SIZE; y++) {
+		for (int x = 0; x < BOARD_SIZE; x++) {
+			string strVal = board[y][x] ? to_string(board[y][x]) : "";
 			sf::Text cellText(strVal, font, 22);
 			// Draw already given numbers as green
-			pair<int, int> temp = {i, j};
-			bool isGiven = find(ijGiven.begin(), ijGiven.end(), temp) != ijGiven.end();
-			cellText.setPosition(int(float(j + 0.37f) * CELL_SIZE + GRID_OFFSET), int(float(i + 0.22f) * CELL_SIZE + GRID_OFFSET));
+			pair<int, int> temp = {y, x};
+			bool isGiven = find(yxGiven.begin(), yxGiven.end(), temp) != yxGiven.end();
+			cellText.setPosition(int(float(x + 0.37f) * CELL_SIZE + GRID_OFFSET), int(float(y + 0.22f) * CELL_SIZE + GRID_OFFSET));
 			cellText.setFillColor(isGiven ? sf::Color(0, 140, 0) : sf::Color(220, 220, 220));
 			window.draw(cellText);
 		}
@@ -100,50 +92,54 @@ void drawGrid(const string status) {
 	window.display();
 }
 
+
 bool isFull() {
-	for (int i = 0; i < BOARD_SIZE; i++)
-		for (int j = 0; j < BOARD_SIZE; j++)
-			if (!board[i][j]) return false;
+	for (int y = 0; y < BOARD_SIZE; y++)
+		for (int x = 0; x < BOARD_SIZE; x++)
+			if (!board[y][x]) return false;
 
 	return true;
 }
 
+
 pair<int, int> findFreeSquare() {
-	for (int i = 0; i < BOARD_SIZE; i++)
-		for (int j = 0; j < BOARD_SIZE; j++)
-			if (!board[i][j]) return {i, j};
+	for (int y = 0; y < BOARD_SIZE; y++)
+		for (int x = 0; x < BOARD_SIZE; x++)
+			if (!board[y][x]) return {y, x};
 
 	return {-1, -1};
 }
 
-bool isLegal(const int n, const int i, const int j) {
+
+bool isLegal(const int n, const int y, const int x) {
 	// Top-left coords of big square
-	int bi = i - (i % 3);
-	int bj = j - (j % 3);
+	int by = y - (y % 3);
+	int bx = x - (x % 3);
 
 	// Check row and column
-	for (int k = 0; k < BOARD_SIZE; k++) {
-		if (board[i][k] == n) return false;
-		if (board[k][j] == n) return false;
+	for (int i = 0; i < BOARD_SIZE; i++) {
+		if (board[y][i] == n) return false;
+		if (board[i][x] == n) return false;
 	}
 
 	// Check big square
-	for (int k = bi; k < bi + 3; k++)
-		for (int l = bj; l < bj + 3; l++)
-			if (board[k][l] == n) return false;
+	for (int i = by; i < by + 3; i++)
+		for (int j = bx; j < bx + 3; j++)
+			if (board[i][j] == n) return false;
 
 	return true;
 }
+
 
 void solve() {
 	if (isFull()) return;
 
 	pair<int, int> freeSquare = findFreeSquare();
-	int i = freeSquare.first, j = freeSquare.second;
+	int y = freeSquare.first, x = freeSquare.second;
 	for (int n = 1; n <= 9; n++) {
-		if (isLegal(n, i, j)) {
-			board[i][j] = n;
-			drawGrid("Solving (" + to_string(nBacktracks) + " backtracks)");
+		if (isLegal(n, y, x)) {
+			board[y][x] = n;
+			drawGrid("Solving (" + to_string(numBacktracks) + " backtracks)");
 			solve();
 		}
 	}
@@ -153,19 +149,21 @@ void solve() {
 	// If we're here, no numbers were legal
 	// So the previous attempt in the loop must be invalid
 	// So we reset the square in order to backtrack, so next number is tried
-	board[i][j] = 0;
-	nBacktracks++;
-	drawGrid("Solving (" + to_string(nBacktracks) + " backtracks)");
+	board[y][x] = 0;
+	numBacktracks++;
+	drawGrid("Solving (" + to_string(numBacktracks) + " backtracks)");
 }
 
+
 void waitForClick() {
+	sf::Event event;
+
 	while (true) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
-					throw exception();
+					throw std::exception();
 				case sf::Event::MouseButtonPressed:
 					return;
 			}
@@ -173,17 +171,20 @@ void waitForClick() {
 	}
 }
 
-int main() {
-	while (true) {
-		for (pair<string, string> item : PUZZLES) {
-			ijGiven.clear();
-			nBacktracks = 0;
 
-			for (int i = 0; i < 81; i++) {
-				int row = i / BOARD_SIZE, col = i % BOARD_SIZE;
-				board[row][col] = item.second[i] - '0';
+int main() {
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+
+	while (true) {
+		for (const auto& item : PUZZLES) {
+			yxGiven.clear();
+			numBacktracks = 0;
+
+			for (int y = 0; y < 81; y++) {
+				int row = y / BOARD_SIZE, col = y % BOARD_SIZE;
+				board[row][col] = item.second[y] - '0';
 				if (board[row][col])
-					ijGiven.push_back({row, col});
+					yxGiven.push_back({row, col});
 			}
 
 			drawGrid("Level: " + item.first + " (click to solve)");
@@ -192,8 +193,10 @@ int main() {
 			solve();
 			high_resolution_clock::time_point finish = high_resolution_clock::now();
 			auto millis = duration_cast<milliseconds>(finish - start);
-			drawGrid("Solved (" + to_string(nBacktracks) + " backtracks, " + to_string(millis.count()) + "ms) - click for next puzzle");
+			drawGrid("Solved (" + to_string(numBacktracks) + " backtracks, " + to_string(millis.count()) + "ms) - click for next puzzle");
 			waitForClick();
 		}
 	}
+
+	return 0;
 }

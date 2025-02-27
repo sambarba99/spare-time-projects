@@ -42,7 +42,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/celeba/*.jpg')
+	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/celeba/*.jpg')
 	x = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)

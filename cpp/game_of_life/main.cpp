@@ -1,89 +1,91 @@
 /*
 Conway's Game of Life
 
+Controls:
+	1: preset pattern 1 (glider gun)
+	2: preset pattern 2 (R pentomino)
+	D: toggle delay after each step (100ms)
+	R: randomise cells
+	Space: play/pause
+
 Author: Sam Barba
 Created 14/11/2022
-
-Controls:
-1: preset pattern 1 (glider gun)
-2: preset pattern 2 (R pentomino)
-D: toggle delay after each step (50ms)
-R: reset and randomise
-Space: play/pause
 */
 
-#include <algorithm>
+#include <random>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
-using std::copy;
-using std::fill;
 using std::pair;
 using std::vector;
 
-const int ROWS = 300;
-const int COLS = 600;
-const int CELL_SIZE = 3;
-const int LABEL_HEIGHT = 40;
 
-const vector<pair<int, int>> GLIDER_GUN = {{135, 275}, {135, 276}, {136, 275}, {136, 276}, {133, 287},
-	{133, 288}, {134, 286}, {134, 290}, {135, 285}, {135, 291}, {136, 285}, {136, 289}, {136, 291},
-	{136, 292}, {137, 285}, {137, 291}, {138, 286}, {138, 290}, {139, 287}, {139, 288}, {133, 295},
-	{133, 296}, {134, 295}, {134, 296}, {135, 295}, {135, 296}, {132, 297}, {136, 297}, {131, 299},
-	{132, 299}, {136, 299}, {137, 299}, {133, 309}, {133, 310}, {134, 309}, {134, 310}};
+const int ROWS = 170;
+const int COLS = 300;
+const int CELL_SIZE = 5;
+const int LABEL_HEIGHT = 30;
 
-const vector<pair<int, int>> R_PENTOMINO = {{138, 299}, {138, 300}, {139, 298}, {139, 299}, {140, 299}};
+const vector<pair<int, int>> GLIDER_GUN = {{85, 132}, {85, 133}, {86, 132}, {86, 133}, {83, 144}, {83, 145}, {84, 143},
+	{84, 147}, {85, 142}, {85, 148}, {86, 142}, {86, 146}, {86, 148}, {86, 149}, {87, 142}, {87, 148}, {88, 143},
+	{88, 147}, {89, 144}, {89, 145}, {83, 152}, {83, 153}, {84, 152}, {84, 153}, {85, 152}, {85, 153}, {82, 154},
+	{86, 154}, {81, 156}, {82, 156}, {86, 156}, {87, 156}, {83, 166}, {83, 167}, {84, 166}, {84, 167}};
+
+const vector<pair<int, int>> R_PENTOMINO = {{83, 149}, {83, 150}, {84, 148}, {84, 149}, {85, 149}};
 
 bool grid[ROWS][COLS];  // True = alive
 bool running = true;
 bool delay = true;
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<float> dist(0, 1);
 sf::RenderWindow window(sf::VideoMode(COLS * CELL_SIZE, ROWS * CELL_SIZE + LABEL_HEIGHT), "Game of Life", sf::Style::Close);
+sf::Font font;
+
 
 void randomiseLiveCells() {
-	float r;
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
-			r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-			grid[i][j] = r < 0.2;
-		}
-	}
+	for (int y = 0; y < ROWS; y++)
+		for (int x = 0; x < COLS; x++)
+			grid[y][x] = dist(gen) < 0.125;  // 1 in 8 chance of being alive
 }
 
-void setPattern(const vector<pair<int, int>> pattern) {
-	fill(&grid[0][0], &grid[0][0] + sizeof(grid) / sizeof(grid[0][0]), false);
-	for (pair<int, int> coords : pattern)
+
+void setPattern(const vector<pair<int, int>>& pattern) {
+	std::fill(&grid[0][0], &grid[0][0] + sizeof(grid) / sizeof(grid[0][0]), false);
+	for (const pair<int, int>& coords : pattern)
 		grid[coords.first][coords.second] = true;
 }
 
-int countLiveNeighbours(const int i, const int j) {
+
+int countLiveNeighbours(const int y, const int x) {
 	int n = 0;
-	for (int checki = i - 1; checki <= i + 1; checki++) {
-		for (int checkj = j - 1; checkj <= j + 1; checkj++) {
-			if (0 <= checki && checki < ROWS && 0 <= checkj && checkj < COLS)
-				if (grid[checki][checkj])
+	for (int check_y = y - 1; check_y <= y + 1; check_y++) {
+		for (int check_x = x - 1; check_x <= x + 1; check_x++) {
+			if (0 <= check_y && check_y < ROWS && 0 <= check_x && check_x < COLS)
+				if (grid[check_y][check_x])
 					n++;
 		}
 	}
 
-	return grid[i][j] ? n - 1 : n;
+	return grid[y][x] ? n - 1 : n;
 }
+
 
 void updateGrid() {
 	bool nextGenGrid[ROWS][COLS] = {{false}};
 	int n;
 
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
-			n = countLiveNeighbours(i, j);
+	for (int y = 0; y < ROWS; y++) {
+		for (int x = 0; x < COLS; x++) {
+			n = countLiveNeighbours(y, x);
 
-			if (n < 2 || n > 3) nextGenGrid[i][j] = false;
-			else if (n == 3) nextGenGrid[i][j] = true;
-			else nextGenGrid[i][j] = grid[i][j];
+			if (n < 2 || n > 3) nextGenGrid[y][x] = false;
+			else if (n == 3) nextGenGrid[y][x] = true;
+			else nextGenGrid[y][x] = grid[y][x];
 		}
 	}
 
-	copy(&nextGenGrid[0][0], &nextGenGrid[0][0] + ROWS * COLS , &grid[0][0]);
+	std::copy(&nextGenGrid[0][0], &nextGenGrid[0][0] + ROWS * COLS , &grid[0][0]);
 }
+
 
 void draw() {
 	window.clear(sf::Color(40, 40, 40));
@@ -93,20 +95,18 @@ void draw() {
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
-	sf::Text text("1: preset pattern 1 (glider gun)  |  2: preset pattern 2 (R pentomino)  |  D: toggle 50ms delay  |  R: reset/randomise  |  Space: play/pause", font, 16);
+	sf::Text text("1: preset pattern 1 (glider gun)  |  2: preset pattern 2 (R pentomino)  |  D: toggle 100ms delay  |  R: randomise cells  |  Space: play/pause", font, 16);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
 	text.setPosition(CELL_SIZE * COLS / 2, LABEL_HEIGHT / 2);
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
-			if (grid[i][j]) {
+	for (int y = 0; y < ROWS; y++) {
+		for (int x = 0; x < COLS; x++) {
+			if (grid[y][x]) {
 				sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-				rect.setPosition(j * CELL_SIZE, i * CELL_SIZE + LABEL_HEIGHT);
+				rect.setPosition(x * CELL_SIZE, y * CELL_SIZE + LABEL_HEIGHT);
 				rect.setFillColor(sf::Color(220, 140, 0));
 				window.draw(rect);
 			}
@@ -116,11 +116,13 @@ void draw() {
 	window.display();
 }
 
+
 int main() {
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 	randomiseLiveCells();
+	sf::Event event;
 
 	while (window.isOpen()) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
@@ -139,7 +141,6 @@ int main() {
 							break;
 						case sf::Keyboard::R:
 							randomiseLiveCells();
-							delay = running = true;
 							break;
 						case sf::Keyboard::Space:
 							running = !running;
@@ -152,7 +153,9 @@ int main() {
 		draw();
 		if (running) {
 			updateGrid();
-			if (delay) sf::sleep(sf::milliseconds(50));
+			if (delay) sf::sleep(sf::milliseconds(100));
 		}
 	}
+
+	return 0;
 }

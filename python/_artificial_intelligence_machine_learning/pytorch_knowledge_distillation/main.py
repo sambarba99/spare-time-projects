@@ -41,7 +41,7 @@ def create_data_loaders():
 
 	transform = transforms.ToTensor()  # Normalise to [0,1]
 
-	img_paths = glob.glob('C:/Users/Sam/Desktop/projects/datasets/cifar10/*.png')
+	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/cifar10/*.png')
 	x = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)

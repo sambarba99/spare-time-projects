@@ -206,7 +206,7 @@ def calculate_marginals(known, msg_order):
 if __name__ == '__main__':
 	# Get coffee machine data
 
-	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/coffee_machines.csv')
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/coffee_machines.csv')
 	print(f'\nRaw data:\n{df}\n')
 	data = df.to_numpy()
 

@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in glob.iglob('C:/Users/Sam/Desktop/projects/datasets/alzheimers/*/*.jpg'):
+	for img_path in glob.iglob('C:/Users/sam/Desktop/projects/datasets/alzheimers/*/*.jpg'):
 		class_name = img_path.split('\\')[1]
 		data.append((img_path, class_name))
 

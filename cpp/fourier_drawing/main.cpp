@@ -1,31 +1,30 @@
 /*
 Drawing with the Discrete Fourier Transform
 
+Controls:
+	Right-click: enter/exit drawing mode
+	Left-click [and drag]: draw freestyle
+	P/G/T: draw preset pi symbol/guitar/T. Rex
+	Up/down arrow: increase/decrease number of epicycles to draw with
+	Space: toggle animation
+
 Author: Sam Barba
 Created 18/11/2022
-
-Controls:
-Right-click: enter/exit drawing mode
-Left-click [and drag]: draw freestyle
-P/G/T: draw preset pi symbol/guitar/T. Rex
-Up/down arrow: increase/decrease number of epicycles to draw with
-Space: toggle animation
 */
 
-#include <algorithm>
-#include <cmath>
 #include <complex>
+#include <iomanip>
 #include <SFML/Graphics.hpp>
-#include <string>
 
 #include "presets.h"
 
 using std::complex;
-using std::max;
-using std::min;
-using std::string;
-using std::to_string;
 using std::vector;
+
+
+const int SIZE = 800;
+const int LABEL_HEIGHT = 30;
+const int FPS = 60;
 
 struct MyComplex {
 	double re;
@@ -34,12 +33,11 @@ struct MyComplex {
 	double ampltiude;
 	double phase;
 };
-
-const int SIZE = 800;
-const int LABEL_HEIGHT = 30;
-
-int nEpicycles;
+int numEpicycles;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE + LABEL_HEIGHT), "Drawing with the Discrete Fourier Transform", sf::Style::Close);
+sf::Font font;
+int screenshotCounter = 0;
+
 
 vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 	// Bresenham's algorithm
@@ -69,20 +67,22 @@ vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 	}
 }
 
-vector<pair<int, int>> interpolate(const vector<pair<int, int>> coords) {
+
+vector<pair<int, int>> interpolate(const vector<pair<int, int>>& coords) {
 	if (coords.size() < 2) return coords;
 
 	vector<pair<int, int>> interpolated;
 	for (int i = 0; i < coords.size() - 1; i++) {
 		vector<pair<int, int>> bresCoords = bresenham(coords[i].first, coords[i].second, coords[i + 1].first, coords[i + 1].second);
-		for (pair<int, int> c : bresCoords)
+		for (const pair<int, int>& c : bresCoords)
 			interpolated.push_back(c);
 	}
 
 	return interpolated;
 }
 
-vector<MyComplex> dft(const vector<complex<double>> x) {
+
+vector<MyComplex> dft(const vector<complex<double>>& x) {
 	// Discrete Fourier Transform (see https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition)
 
 	int N = x.size();
@@ -107,10 +107,11 @@ vector<MyComplex> dft(const vector<complex<double>> x) {
 	return X;
 }
 
-vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>> drawingCoords) {
+
+vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawingCoords) {
 	// Centre around origin
 	vector<pair<int, int>> centeredCoords;
-	for (pair<int, int> coords : drawingCoords)
+	for (const pair<int, int>& coords : drawingCoords)
 		centeredCoords.push_back({coords.first - SIZE / 2, coords.second - SIZE / 2});
 
 	// Fill any gaps
@@ -124,17 +125,18 @@ vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>> drawingC
 
 	// Convert to complex
 	vector<complex<double>> complexVector;
-	for (pair<int, int> coords : drawingPath)
+	for (const pair<int, int>& coords : drawingPath)
 		complexVector.push_back({double(coords.first), double(coords.second)});
-	
+
 	vector<MyComplex> fourier = dft(complexVector);
 
 	return fourier;
 }
 
-pair<double, double> epicycles(double x, double y, const vector<MyComplex> fourier, const double time) {
+
+pair<double, double> epicycles(double x, double y, const vector<MyComplex>& fourier, const double time) {
 	double prevX, prevY;
-	for (int i = 0; i < nEpicycles; i++) {
+	for (int i = 0; i < numEpicycles; i++) {
 		prevX = x;
 		prevY = y;
 		double freq = fourier[i].frequency;
@@ -160,14 +162,13 @@ pair<double, double> epicycles(double x, double y, const vector<MyComplex> fouri
 	return {x, y};
 }
 
-void drawLabel(const string label, const int pauseMilliseconds) {
+
+void drawLabel(const std::string label, const int pauseMilliseconds) {
 	sf::RectangleShape lblArea(sf::Vector2f(SIZE, LABEL_HEIGHT));
 	lblArea.setPosition(0, SIZE);
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(label, font, 14);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -181,7 +182,11 @@ void drawLabel(const string label, const int pauseMilliseconds) {
 	}
 }
 
+
 int main() {
+	window.setFramerateLimit(FPS);
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+
 	bool leftBtnDown = false;
 	bool userDrawingMode = true;
 	vector<pair<int, int>> userDrawingCoords;
@@ -190,9 +195,9 @@ int main() {
 	double time = 0;
 	double dt = 0;
 	bool paused = false;
+	sf::Event event;
 
 	while (window.isOpen()) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
@@ -214,8 +219,8 @@ int main() {
 								userDrawingMode = true;
 							} else {
 								fourier = computeFourierFromCoords(userDrawingCoords);
-								nEpicycles = fourier.size();
-								dt = 2 * M_PI / double(nEpicycles);
+								numEpicycles = fourier.size();
+								dt = 2 * M_PI / double(numEpicycles);
 								paused = false;
 							}
 						}
@@ -241,14 +246,14 @@ int main() {
 						case sf::Keyboard::Up: case sf::Keyboard::Down:
 							if (fourier.empty()) continue;
 							if (event.key.code == sf::Keyboard::Up) {
-								nEpicycles = min(nEpicycles * 2, int(fourier.size()));
+								numEpicycles = std::min(numEpicycles * 2, int(fourier.size()));
 							} else {
-								int pow2 = pow(2, int(log2(nEpicycles)));
-								nEpicycles = pow2 == nEpicycles ? pow2 / 2 : pow2;
-								nEpicycles = max(nEpicycles, 2);
+								int pow2 = pow(2, int(log2(numEpicycles)));
+								numEpicycles = pow2 == numEpicycles ? pow2 / 2 : pow2;
+								numEpicycles = std::max(numEpicycles, 2);
 							}
-							if (nEpicycles == fourier.size()) drawLabel("No. epicycles = " + to_string(nEpicycles) + " (max)", 500);
-							else drawLabel("No. epicycles = " + to_string(nEpicycles), 500);
+							if (numEpicycles == fourier.size()) drawLabel("No. epicycles = " + std::to_string(numEpicycles) + " (max)", 500);
+							else drawLabel("No. epicycles = " + std::to_string(numEpicycles), 500);
 							path.clear();
 							time = 0.0;
 							continue;
@@ -268,8 +273,8 @@ int main() {
 					userDrawingMode = paused = false;
 					path.clear();
 					time = 0.0;
-					nEpicycles = fourier.size();
-					dt = 2 * M_PI / double(nEpicycles);
+					numEpicycles = fourier.size();
+					dt = 2 * M_PI / double(numEpicycles);
 					break;
 			}
 		}
@@ -279,12 +284,10 @@ int main() {
 		window.clear(sf::Color::Black);
 
 		if (userDrawingMode) {
-			for (pair<int, int> coords : userDrawingCoords) {
-				sf::RectangleShape pix(sf::Vector2f(1, 1));
-				pix.setPosition(coords.first, coords.second);
-				pix.setFillColor(sf::Color::Red);
-				window.draw(pix);
-			}
+			sf::VertexArray pixels(sf::Points);
+			for (const pair<int, int>& coords : userDrawingCoords)
+				pixels.append(sf::Vertex(sf::Vector2f(coords.first, coords.second), sf::Color::Red));
+			window.draw(pixels);
 		} else {  // Draw Fourier result
 			pair<double, double> epicycleFinalPos = epicycles(SIZE / 2.0, SIZE / 2.0, fourier, time);
 			path.push_back({epicycleFinalPos.first, epicycleFinalPos.second});
@@ -305,6 +308,17 @@ int main() {
 
 		if (userDrawingMode) drawLabel("Draw something, or select a preset with P/G/T. Right-click to exit drawing mode.", 0);
 		window.display();
-		sf::sleep(sf::milliseconds(10));
+
+		// sf::Texture texture;
+		// sf::Image screenshot;
+		// texture.create(window.getSize().x, window.getSize().y);
+		// texture.update(window);
+		// screenshot = texture.copyToImage();
+		// std::ostringstream filePath;
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
+		// screenshot.saveToFile(filePath.str());
+		// screenshotCounter++;
 	}
+
+	return 0;
 }

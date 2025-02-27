@@ -33,7 +33,7 @@ DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 
 
 def load_data():
-	df = pd.read_csv('C:/Users/Sam/Desktop/projects/datasets/handwritten_letters.csv')
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/handwritten_letters.csv')
 
 	x, y = df.iloc[:, 1:].to_numpy(), df.iloc[:, 0]
 

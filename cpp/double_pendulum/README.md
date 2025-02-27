@@ -1,5 +1,5 @@
 ## Double Pendulum simulator
 
 <p align="center">
-	<img src="pendulum.gif"/>
+	<img src="double_pendulum.webp"/>
 </p>
