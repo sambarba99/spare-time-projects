@@ -1,33 +1,31 @@
 /*
 Julia/Mandelbrot set visualiser
 
+Controls:
+	Click: select point to set as origin (0,0)
+	Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
+	T: toggle axes
+	R: reset
+
 Author: Sam Barba
 Created 18/11/2022
-
-Controls:
-Click: select point to set as origin (0,0)
-Num keys 2,4,8,0: magnify around origin by 2/4/8/100 times, respectively
-T: toggle axes
-R: reset
 */
 
-#include <cmath>
 #include <complex>
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <vector>
 
 using std::complex;
+using std::map;
 using std::string;
 using std::to_string;
 using std::vector;
 
+
 const int WIDTH = 900;
 const int HEIGHT = 600;
-const int LABEL_HEIGHT = 30;
+const int LABEL_HEIGHT = 25;
 const int MAX_ITER = 200;
 const vector<vector<int>> RGB_PALETTE = {{0, 20, 100}, {30, 100, 200}, {230, 255, 255}, {255, 170, 0}};
-const double LOG2 = log(2.0);
 
 // Set to true if drawing Mandelbrot set...
 const bool drawingMandelbrot = true;
@@ -50,6 +48,8 @@ int yAxis = HEIGHT / 2;
 int yOffset = yAxis;
 bool showAxes = true;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT + LABEL_HEIGHT), "Julia/Mandelbrot set visualiser", sf::Style::Close);
+sf::Font font;
+
 
 vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& colour2, const double t) {
 	int newR = colour1[0] + t * (colour2[0] - colour1[0]);
@@ -58,14 +58,13 @@ vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& col
 	return {newR, newG, newB};
 }
 
+
 void drawLabel(const string label) {
 	sf::RectangleShape lblArea(sf::Vector2f(WIDTH, LABEL_HEIGHT));
 	lblArea.setPosition(0, HEIGHT);
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(label, font, 14);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -75,42 +74,41 @@ void drawLabel(const string label) {
 	window.display();
 }
 
+
 void draw() {
 	window.clear(sf::Color::Black);
+	sf::VertexArray pixels(sf::Points);
 
 	for (int y = 0; y < HEIGHT; y++) {
 		for (int x = 0; x < WIDTH; x++) {
 			double zReal = (x - xOffset) / scale;
 			double zImag = (y - yOffset) / scale;
 			complex<double> z(zReal, zImag);
+
 			if (drawingMandelbrot) c = z;
 
 			// Test, as we iterate z = z^2 + c, does z diverge?
 			int i = 0;
 			while (abs(z) < 2.0 && i < MAX_ITER) {
-				z = pow(z, 2) + c;
+				z = z * z + c;
 				i++;
 			}
 
 			if (i < MAX_ITER) {
 				// Apply smooth colouring
-				double logTemp = log(abs(z)) / 2.0;
-				double n = log(logTemp / LOG2) / LOG2;
-				double d = i + 1 - n;
-				double idx = double(i) / double(MAX_ITER) * RGB_PALETTE.size();
-				vector<int> colour1 = RGB_PALETTE[int(idx) % RGB_PALETTE.size()];
-				vector<int> colour2 = RGB_PALETTE[int(idx + 1) % RGB_PALETTE.size()];
-				double fractPart, intPart;
-				fractPart = modf(idx, &intPart);
-				vector<int> colour = linearInterpolate(colour1, colour2, fractPart);
-
-				sf::RectangleShape pix(sf::Vector2f(1, 1));
-				pix.setPosition(x, y);
-				pix.setFillColor(sf::Color(colour[0], colour[1], colour[2]));
-				window.draw(pix);
+				double mu = (abs(z) > 1) ? (i + 1 - log2(log2(abs(z)))) : i;
+				double muNorm = mu / (MAX_ITER + log2(log2(2.0)));
+				double muScaled = muNorm * (RGB_PALETTE.size() - 1);
+				int idx1 = int(muScaled);
+				int idx2 = idx1 + 1;
+				double fracPart = muScaled - idx1;
+				vector<int> colour = linearInterpolate(RGB_PALETTE[idx1], RGB_PALETTE[idx2], fracPart);
+				pixels.append(sf::Vertex(sf::Vector2f(x, y), sf::Color(colour[0], colour[1], colour[2])));
 			}
 		}
 	}
+
+	window.draw(pixels);
 
 	if (showAxes) {
 		sf::Vertex xAxisLine[] = {
@@ -128,6 +126,7 @@ void draw() {
 	drawLabel("Click: set origin  |  2/4/8/0: magnify by 2/4/8/100x  |  T: toggle axes  |  R: reset");
 }
 
+
 void centreAroundOrigin() {
 	xOffset -= xAxis - WIDTH / 2;
 	yOffset -= yAxis - HEIGHT / 2;
@@ -135,18 +134,22 @@ void centreAroundOrigin() {
 	yAxis = HEIGHT / 2;
 }
 
+
 void magnify(const int factor) {
 	scale *= factor;
 	xOffset = factor * (xOffset - xAxis) + xAxis;
 	yOffset = factor * (yOffset - yAxis) + yAxis;
 }
 
+
 int main() {
-	draw();
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 	int factor;
+	sf::Event event;
+
+	draw();
 
 	while (window.isOpen()) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:

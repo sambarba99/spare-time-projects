@@ -7,28 +7,24 @@ Created 06/09/2022
 
 #include <cmath>
 #include <iostream>
-#include <map>
 #include <regex>
-#include <string>
-#include <vector>
 
 using std::cin;
 using std::cout;
 using std::map;
 using std::pair;
 using std::regex;
-using std::regex_replace;
-using std::stold;
 using std::string;
 using std::vector;
 
-map<int, string> SMALL = {
+
+const map<int, string> SMALL = {
 	{0, ""}, {1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {5, "five"}, {6, "six"}, {7, "seven"}, {8, "eight"},
 	{9, "nine"}, {10, "ten"}, {11, "eleven"}, {12, "twelve"}, {13, "thirteen"}, {14, "fourteen"}, {15, "fifteen"},
 	{16, "sixteen"}, {17, "seventeen"}, {18, "eighteen"}, {19, "nineteen"}
 };
 
-map<int, string> TENS = {
+const map<int, string> TENS = {
 	{2, "twenty"}, {3, "thirty"}, {4, "forty"}, {5, "fifty"}, {6, "sixty"}, {7, "seventy"}, {8, "eighty"}, {9, "ninety"}
 };
 
@@ -36,6 +32,7 @@ const vector<pair<int, string>> BIG = {
 	{1, "thousand"}, {2, "million"}, {3, "billion"}, {4, "trillion"}, {5, "quadrillion"}, {6, "quintillion"},
 	{7, "sextillion"}, {8, "septillion"}, {9, "octillion"}, {10, "nonillion"}, {11, "decillion"}
 };
+
 
 string join(const vector<string> strings) {
 	string result = "";
@@ -46,13 +43,16 @@ string join(const vector<string> strings) {
 	return result;
 }
 
+
 string say_num_pos(const long double n) {
-	if (n < 20) return SMALL[n];
+	if (n < 20)
+		return SMALL.at(n);
 	else if (n < 100) {
 		// These nums should be hyphenated (unless ending with 0), e.g. 21 -> 'twenty-one'
 		int lastDigit = fmod(n, 10);
-		if (lastDigit == 0) return TENS[n / 10];
-		return join({TENS[n / 10], "-", SMALL[lastDigit]});
+		if (lastDigit == 0)
+			return TENS.at(n / 10);
+		return join({TENS.at(n / 10), "-", SMALL.at(lastDigit)});
 	} else if (n < 1000) {
 		return join({
 			say_num_pos(n / 100),
@@ -62,10 +62,10 @@ string say_num_pos(const long double n) {
 	} else {
 		int illionsNum;
 		string illionsName;
-		for (auto it : BIG) {
-			illionsNum = it.first;
+		for (const auto& entry : BIG) {
+			illionsNum = entry.first;
 			if (n < pow(1000, illionsNum + 1)) {
-				illionsName = it.second;
+				illionsName = entry.second;
 				break;
 			}
 		}
@@ -77,11 +77,13 @@ string say_num_pos(const long double n) {
 	}
 }
 
+
 string convert(const long double n) {
 	if (n < 0) return join({"minus", say_num_pos(-n)});
 	if (n == 0) return "zero";
 	return say_num_pos(n);
 }
+
 
 int main() {
 	string n;

@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+
 class Node {
 	public:
 		int idx;
@@ -19,12 +20,12 @@ class Node {
 			this->yVel = yVel;
 		}
 
-		bool operator==(const Node* other) {
- 		   return this->idx == other->idx;
+		bool operator==(const Node& other) {
+			return idx == other.idx;
 		}
 
-		float euclideanDist(const Node* other) {
-			return sqrt(pow(this->x - other->x, 2) + pow(this->y - other->y, 2));
+		float euclideanDist(const Node& other) {
+			return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2));
 		}
 };
 

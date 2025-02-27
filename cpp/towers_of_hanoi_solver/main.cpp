@@ -10,7 +10,9 @@ Created 20/09/2021
 using std::cin;
 using std::cout;
 
+
 int stepNum = 0;
+
 
 void solve(const int n, const int t1 = 1, const int t2 = 2, const int t3 = 3) {
 	if (!n) return;
@@ -21,9 +23,10 @@ void solve(const int n, const int t1 = 1, const int t2 = 2, const int t3 = 3) {
 	solve(n - 1, t2, t1, t3);
 }
 
+
 int main() {
-	int nDiscs;
+	int numDiscs;
 	cout << "Input no. discs\n>>> ";
-	cin >> nDiscs;
-	solve(nDiscs);
+	cin >> numDiscs;
+	solve(numDiscs);
 }

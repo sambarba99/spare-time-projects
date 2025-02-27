@@ -1,8 +1,6 @@
 #ifndef PRESETS
 #define PRESETS
 
-#include <vector>
-
 using std::pair;
 using std::vector;
 

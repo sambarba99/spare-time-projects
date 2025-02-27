@@ -18,5 +18,5 @@ Example: engineering project
 Output:
 
 <p align="center">
-	<img src="cpa_output.png"/>
+	<img src="output.png"/>
 </p>

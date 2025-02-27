@@ -1,34 +1,31 @@
 /*
 Fractal drawing using Lindenmayer systems (L-systems)
 
+Controls:
+	Click to cycle through drawings
+
 Author: Sam Barba
 Created 15/11/2022
-
-Controls:
-Click to cycle through drawings
 */
 
-#include <algorithm>
 #include <cmath>
-#include <bits/stdc++.h>
-#include <exception>
-#include <map>
+#include <iomanip>
 #include <regex>
 #include <SFML/Graphics.hpp>
-#include <stack>
-#include <string>
-#include <vector>
 
 using std::exception;
 using std::map;
 using std::min;
 using std::numeric_limits;
+using std::ostringstream;
 using std::regex;
-using std::regex_replace;
+using std::setfill;
+using std::setw;
 using std::stack;
 using std::string;
 using std::to_string;
 using std::vector;
+
 
 struct Fractal {
 	string name;
@@ -73,8 +70,11 @@ const int HEIGHT = 900;
 
 string nameLabel;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Drawing with L-systems", sf::Style::Close);
+sf::Font font;
+int screenshotCounter;
 
-string generateInstructions(const string axiom, const map<char, string> ruleset, const int n) {
+
+string generateInstructions(const string axiom, const map<char, string>& ruleset, const int n) {
 	/*
 	Generates instructions from a ruleset applied to an initial axiom
 	E.g. Lévy C curve rule {'F': "+F--F+"} applied to axiom "F" 3 times:
@@ -99,14 +99,15 @@ string generateInstructions(const string axiom, const map<char, string> ruleset,
 	return instructions;
 }
 
-vector<vector<double>> scaleAndCentreCoords(vector<vector<double>> coords) {
+
+vector<vector<double>> scaleAndCentreCoords(vector<vector<double>>& coords) {
 	/*
 	First calculate scale factor k: image must fill 85% of either screen's width or height,
 	depending on if the image is wider than it is tall or vice-versa.
 	*/
 	double xMin = numeric_limits<double>::max(), xMax = numeric_limits<double>::min();
 	double yMin = xMin, yMax = xMax;
-	for (vector<double> coordSet : coords) {
+	for (const vector<double>& coordSet : coords) {
 		if (coordSet[0] < xMin) xMin = coordSet[0];
 		if (coordSet[2] < xMin) xMin = coordSet[2];
 		if (coordSet[0] > xMax) xMax = coordSet[0];
@@ -143,6 +144,7 @@ vector<vector<double>> scaleAndCentreCoords(vector<vector<double>> coords) {
 	return coords;
 }
 
+
 vector<int> hsv2rgb(const float h, const float s, const float v) {
 	/*
 	HSV to RGB
@@ -152,15 +154,15 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 	*/
 
 	float c = s * v;
-	float x = c * (1 - abs(fmod(h / 60.0, 2) - 1));
+	float x = c * (1 - fabs(fmod(h / 60.0, 2) - 1));
 	float m = v - c;
 
 	float rf, gf, bf;
-	if (0 <= h && h < 60) rf = c, gf = x, bf = 0;
-	else if (60 <= h && h < 120) rf = x, gf = c, bf = 0;
-	else if (120 <= h && h < 180) rf = 0, gf = c, bf = x;
-	else if (180 <= h && h < 240) rf = 0, gf = x, bf = c;
-	else if (240 <= h && h < 300) rf = x, gf = 0, bf = c;
+	if (h < 60) rf = c, gf = x, bf = 0;
+	else if (h < 120) rf = x, gf = c, bf = 0;
+	else if (h < 180) rf = 0, gf = c, bf = x;
+	else if (h < 240) rf = 0, gf = x, bf = c;
+	else if (h < 300) rf = x, gf = 0, bf = c;
 	else rf = c, gf = 0, bf = x;
 
 	int r = (rf + m) * 255;
@@ -169,6 +171,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 
 	return {r, g, b};
 }
+
 
 bool executeInstructions(const string instructions, const double startHeading, const int turnAngle) {
 	// If there's no 'move forward' command, it means no drawing, so return
@@ -183,7 +186,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 
 	// Execute the 'program', one char (command) at a time
 	double x, y, heading, stepSize, nextX, nextY;
-	for (char cmd : instructions) {
+	for (const char cmd : instructions) {
 		x = state[0];
 		y = state[1];
 		heading = state[2];
@@ -215,7 +218,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 		}
 	}
 
-	coordsToDraw = scaleAndCentreCoords(coordsToDraw);
+	scaleAndCentreCoords(coordsToDraw);
 
 	// Draw with hue increasing from red (hue 0) to yellow (60)
 	window.clear(sf::Color::Black);
@@ -238,8 +241,6 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	lblArea.setFillColor(sf::Color::Black);
 	window.draw(lblArea);
 
-	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\consola.ttf");
 	sf::Text text(nameLabel, font, 16);
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
@@ -249,12 +250,24 @@ bool executeInstructions(const string instructions, const double startHeading, c
 
 	window.display();
 
+	// sf::Texture texture;
+	// sf::Image screenshot;
+	// texture.create(window.getSize().x, window.getSize().y);
+	// texture.update(window);
+	// screenshot = texture.copyToImage();
+	// ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// screenshot.saveToFile(filePath.str());
+	// screenshotCounter++;
+
 	return true;
 }
 
+
 void waitForClick() {
+	sf::Event event;
+
 	while (true) {
-		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 				case sf::Event::Closed:
@@ -267,13 +280,16 @@ void waitForClick() {
 	}
 }
 
+
 int main() {
-	// Draw each fractal, each from iteration 0 to its max (i.e. computer won't crash) iteration
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+
+	// Draw each fractal, each from iteration 0 to its max iteration
 	vector<Fractal> allFractals = {BINARY_TREE, H_FIGURE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE,
 		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE,
 		DRAGON_CURVE, ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3};
 
-	for (Fractal fract : allFractals) {
+	for (const Fractal& fract : allFractals) {
 		for (int i = 0; i <= fract.maxIters; i++) {
 			nameLabel = fract.name + " (iteration " + to_string(i) + '/' + to_string(fract.maxIters) + ')';
 			string instructions = generateInstructions(fract.axiom, fract.ruleset, i);
