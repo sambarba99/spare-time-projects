@@ -14,12 +14,6 @@ Created 15/11/2022
 #include <random>
 #include <SFML/Graphics.hpp>
 
-using std::ostringstream;
-using std::pair;
-using std::setfill;
-using std::setw;
-using std::vector;
-
 
 const double R1 = 250;
 const double R2 = 250;
@@ -33,7 +27,7 @@ const int HEIGHT = 600;
 const int FPS = 60;
 
 double a1, a2, vel1, vel2;
-vector<pair<int, int>> positions;
+std::vector<std::pair<int, int>> positions;
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<float> dist(0, 2 * M_PI);
@@ -129,8 +123,8 @@ void draw() {
 	// texture.create(window.getSize().x, window.getSize().y);
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
-	// ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// std::ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
 	// screenshot.saveToFile(filePath.str());
 	// screenshotCounter++;
 

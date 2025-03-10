@@ -9,10 +9,7 @@ Created 06/09/2022
 #include <iostream>
 #include <regex>
 
-using std::cin;
-using std::cout;
 using std::map;
-using std::pair;
 using std::regex;
 using std::string;
 using std::vector;
@@ -28,7 +25,7 @@ const map<int, string> TENS = {
 	{2, "twenty"}, {3, "thirty"}, {4, "forty"}, {5, "fifty"}, {6, "sixty"}, {7, "seventy"}, {8, "eighty"}, {9, "ninety"}
 };
 
-const vector<pair<int, string>> BIG = {
+const vector<std::pair<int, string>> BIG = {
 	{1, "thousand"}, {2, "million"}, {3, "billion"}, {4, "trillion"}, {5, "quadrillion"}, {6, "quintillion"},
 	{7, "sextillion"}, {8, "septillion"}, {9, "octillion"}, {10, "nonillion"}, {11, "decillion"}
 };
@@ -89,10 +86,10 @@ int main() {
 	string n;
 
 	while (true) {
-		cout << "Input a number (or X to exit)\n>>> ";
-		cin >> n;
+		std::cout << "Input a number (or X to exit)\n>>> ";
+		std::cin >> n;
 
 		if (toupper(n[0]) == 'X') break;
-		else cout << convert(stold(n)) << "\n\n";
+		else std::cout << convert(stold(n)) << "\n\n";
 	}
 }

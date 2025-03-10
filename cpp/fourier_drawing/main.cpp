@@ -19,12 +19,6 @@ Created 18/11/2022
 #include "presets.h"
 
 using std::complex;
-using std::max;
-using std::min;
-using std::ostringstream;
-using std::setfill;
-using std::setw;
-using std::string;
 using std::to_string;
 using std::vector;
 
@@ -170,7 +164,7 @@ pair<double, double> epicycles(double x, double y, const vector<MyComplex>& four
 }
 
 
-void drawLabel(const string label, const int pauseMilliseconds) {
+void drawLabel(const std::string label, const int pauseMilliseconds) {
 	sf::RectangleShape lblArea(sf::Vector2f(SIZE, LABEL_HEIGHT));
 	lblArea.setPosition(0, SIZE);
 	lblArea.setFillColor(sf::Color::Black);
@@ -253,11 +247,11 @@ int main() {
 						case sf::Keyboard::Up: case sf::Keyboard::Down:
 							if (fourier.empty()) continue;
 							if (event.key.code == sf::Keyboard::Up) {
-								numEpicycles = min(numEpicycles * 2, int(fourier.size()));
+								numEpicycles = std::min(numEpicycles * 2, int(fourier.size()));
 							} else {
 								int pow2 = pow(2, int(log2(numEpicycles)));
 								numEpicycles = pow2 == numEpicycles ? pow2 / 2 : pow2;
-								numEpicycles = max(numEpicycles, 2);
+								numEpicycles = std::max(numEpicycles, 2);
 							}
 							if (numEpicycles == fourier.size()) drawLabel("No. epicycles = " + to_string(numEpicycles) + " (max)", 500);
 							else drawLabel("No. epicycles = " + to_string(numEpicycles), 500);
@@ -321,8 +315,8 @@ int main() {
 		// texture.create(window.getSize().x, window.getSize().y);
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
-		// ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+		// std::ostringstream filePath;
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
 		// screenshot.saveToFile(filePath.str());
 		// screenshotCounter++;
 	}

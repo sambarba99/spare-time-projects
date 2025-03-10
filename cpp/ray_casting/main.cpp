@@ -13,8 +13,6 @@ Created 15/11/2022
 #include <random>
 #include <SFML/Graphics.hpp>
 
-using std::min;
-using std::pair;
 using std::vector;
 
 
@@ -38,8 +36,8 @@ const double MINIMAP_SCALE = 0.2;
 const int FPS = 60;
 
 // Player constants
-const double MOVEMENT_SPEED = 5.0;
-const double TURNING_SPEED = 1.2;
+const double MOVEMENT_SPEED = 4.0;
+const double TURNING_SPEED = 0.8;
 
 struct Wall {
 	double x1;
@@ -57,7 +55,7 @@ struct Ray {
 };
 
 vector<Wall> walls;
-vector<pair<Ray, double>> rayCastingResult;
+vector<std::pair<Ray, double>> rayCastingResult;
 double playerX, playerY;
 double playerHeading;
 std::random_device rd;
@@ -151,7 +149,7 @@ void generateRays() {
 		double correctDist = disortedDist * cos(playerHeading - rayAngle);  // Remove fish eye distortion
 		correctDist += 1e-6;  // Ensure nonzero
 		double projHeight = SCREEN_DIST / correctDist * PROJ_HEIGHT_SCALE;
-		projHeight = min(double(HEIGHT), projHeight);
+		projHeight = std::min(double(HEIGHT), projHeight);
 
 		rayCastingResult.push_back({ray, projHeight});
 		rayAngle += DELTA_ANGLE;

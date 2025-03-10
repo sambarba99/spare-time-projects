@@ -13,15 +13,10 @@ Created 15/11/2022
 #include <regex>
 #include <SFML/Graphics.hpp>
 
-using std::exception;
 using std::map;
-using std::min;
 using std::numeric_limits;
 using std::ostringstream;
 using std::regex;
-using std::setfill;
-using std::setw;
-using std::stack;
 using std::string;
 using std::to_string;
 using std::vector;
@@ -120,7 +115,7 @@ vector<vector<double>> scaleAndCentreCoords(vector<vector<double>>& coords) {
 
 	double kx = xMax > xMin ? (WIDTH * 0.85) / (xMax - xMin) : WIDTH * 0.85;
 	double ky = yMax > yMin ? (HEIGHT * 0.85) / (yMax - yMin) : HEIGHT * 0.85;
-	double k = min(kx, ky);
+	double k = std::min(kx, ky);
 
 	for (int i = 0; i < coords.size(); i++) {
 		coords[i][0] *= k;
@@ -181,7 +176,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	// State contains current x, y, heading, step size
 	// Start at 0,0 with step size 1
 	vector<double> state = {0.0, 0.0, startHeading, 1.0};
-	stack<vector<double>> savedStates;
+	std::stack<vector<double>> savedStates;
 	vector<vector<double>> coordsToDraw;
 
 	// Execute the 'program', one char (command) at a time
@@ -255,8 +250,8 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	// texture.create(window.getSize().x, window.getSize().y);
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
-	// ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// std::ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
 	// screenshot.saveToFile(filePath.str());
 	// screenshotCounter++;
 
@@ -272,7 +267,7 @@ void waitForClick() {
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
-					throw exception();
+					throw std::exception();
 				case sf::Event::MouseButtonPressed:
 					return;
 			}

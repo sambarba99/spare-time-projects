@@ -52,7 +52,7 @@ vector<vector<long double>> gridFromLine(const string line, const int rows, cons
 string getExample(const int length) {
 	string e = "";
 	for (int i = 1; i < length + 1; i++)
-		e += to_string(i) + ' ';
+		e += std::to_string(i) + ' ';
 	return e;
 }
 

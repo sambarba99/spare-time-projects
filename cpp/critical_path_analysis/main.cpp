@@ -28,7 +28,6 @@ Created 15/12/2021
 using std::cout;
 using std::setw;
 using std::string;
-using std::to_string;
 using std::vector;
 
 //                              0    1   2  3  4  5  6   7   8   9
@@ -42,7 +41,7 @@ string vecToString(const vector<int>& vec) {
 
 	string res = "";
 	for (int i : vec)
-		res += " " + to_string(i);
+		res += " " + std::to_string(i);
 	return res;
 }
 

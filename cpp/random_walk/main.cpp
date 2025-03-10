@@ -10,9 +10,6 @@ Created 18/10/2024
 #include <SFML/Graphics.hpp>
 
 using std::cout;
-using std::map;
-using std::pair;
-using std::vector;
 
 
 const int NUM_STEPS = 1e7;
@@ -28,7 +25,7 @@ int main() {
 
 	cout << "Walking...\n";
 
-	vector<pair<int, int>> walkCoords;
+	std::vector<std::pair<int, int>> walkCoords;
 	int y = 0, x = 0;
 	int dir;
 	int minY = NUM_STEPS, minX = NUM_STEPS, maxY = 0, maxX = 0;
@@ -61,7 +58,7 @@ int main() {
 
 	// 3. Count coord visit frequencies
 
-	map<pair<int, int>, int> visitCount;
+	std::map<std::pair<int, int>, int> visitCount;
 	for (const auto& coord : walkCoords)
 		visitCount[coord]++;
 

@@ -7,16 +7,11 @@ Created 03/09/2022
 */
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 
-using std::cin;
-using std::cout;
-using std::max;
-using std::string;
-using std::vector;
 
-
-int trap(const vector<int>& heights) {
+int trap(const std::vector<int>& heights) {
 	int l = 0, r = heights.size() - 1;
 	int leftMax = heights[l], rightMax = heights[r];
 	int res = 0;
@@ -24,11 +19,11 @@ int trap(const vector<int>& heights) {
 	while (l < r) {
 		if (leftMax < rightMax) {
 			l++;
-			leftMax = max(leftMax, heights[l]);
+			leftMax = std::max(leftMax, heights[l]);
 			res += leftMax - heights[l];
 		} else {
 			r--;
-			rightMax = max(rightMax, heights[r]);
+			rightMax = std::max(rightMax, heights[r]);
 			res += rightMax - heights[r];
 		}
 	}
@@ -38,14 +33,16 @@ int trap(const vector<int>& heights) {
 
 
 int main() {
-	string input;
-	vector<int> heights;
+	std::string input;
+	std::vector<int> heights;
 
-	cout << "Input wall heights e.g. 5,4,2,5\n>>> ";
-	getline(cin, input);
-	for (const char c : input)
-		if (c != ',') heights.push_back(c - '0');
+	std::cout << "Input wall heights e.g. 5,4,2,5\n>>> ";
+	getline(std::cin, input);
+	std::stringstream ss(input);
+	std::string temp;
+	while (getline(ss, temp, ','))
+		heights.push_back(std::stoi(temp));
 
 	int result = trap(heights);
-	cout << "\nThose heights can trap " << result << " units of water";
+	std::cout << "\nThose heights can trap " << result << " units of water";
 }

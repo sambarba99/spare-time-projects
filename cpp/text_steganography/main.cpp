@@ -11,8 +11,6 @@ Created 01/10/2021
 #include <iostream>
 #include <random>
 
-using std::bitset;
-using std::cin;
 using std::cout;
 using std::setw;
 using std::string;
@@ -56,7 +54,7 @@ void hideMsg(const string msg) {
 
 	string binaryMsg = "";
 	for (const char c : msg)
-		binaryMsg += bitset<8>(c).to_string();
+		binaryMsg += std::bitset<8>(c).to_string();
 
 	cout << setw(35) << "In binary: ";
 	cout << binaryMsg << '\n';
@@ -95,7 +93,7 @@ int main() {
 
 	while (true) {
 		cout << "Input message to hide (or X to exit)\n>>> ";
-		getline(cin, msg);
+		getline(std::cin, msg);
 
 		if (msg.length() == 1 && toupper(msg[0]) == 'X') break;
 

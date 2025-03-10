@@ -10,10 +10,7 @@ Created 11/09/2021
 #include <map>
 #include <stack>
 
-using std::cin;
 using std::cout;
-using std::map;
-using std::stack;
 using std::string;
 
 
@@ -46,8 +43,8 @@ long double operation(const long double a, const long double b, const char op) {
 
 
 string infixToPostfix(const string expression) {
-	map<char, int> precedence = {{'^', 3}, {'/', 2}, {'*', 2}, {'+', 1}, {'-', 1}};
-	stack<char> stk;
+	std::map<char, int> precedence = {{'^', 3}, {'/', 2}, {'*', 2}, {'+', 1}, {'-', 1}};
+	std::stack<char> stk;
     string postfix;
   
     for (const char c : expression) {
@@ -79,7 +76,7 @@ string infixToPostfix(const string expression) {
 
 long double evaluate(const string postfix) {
 	long double a, b;
-	stack<long double> stk;
+	std::stack<long double> stk;
 
 	for (const char c : postfix) {
 		if (isOperand(c)) {
@@ -102,7 +99,7 @@ int main() {
 
 	while (true) {
 		cout << "Input an expression e.g. 1+2/3 (or X to exit)\n>>> ";
-		cin >> expression;
+		std::cin >> expression;
 
 		if (toupper(expression[0]) == 'X') break;
 		else {

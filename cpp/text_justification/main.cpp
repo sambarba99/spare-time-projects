@@ -9,7 +9,6 @@ Created 03/09/2022
 #include <iostream>
 #include <vector>
 
-using std::cin;
 using std::cout;
 using std::string;
 using std::vector;
@@ -92,10 +91,10 @@ int main() {
 	int maxWidth;
 
 	cout << "Input text to justify\n>>> ";
-	getline(cin, text);
+	getline(std::cin, text);
 
 	cout << "Input max. width\n>>> ";
-	cin >> maxWidth;
+	std::cin >> maxWidth;
 
 	vector<string> words = tokenise(text);
 	cout << "\nJustified:\n";

@@ -9,13 +9,6 @@ Created 15/11/2022
 #include <iomanip>
 #include <SFML/Graphics.hpp>
 
-using std::fill;
-using std::max;
-using std::ostringstream;
-using std::setfill;
-using std::setw;
-using std::string;
-
 
 const int GRID_SIZE = 60;  // Rows and cols
 const int CELL_SIZE = 11;
@@ -37,7 +30,7 @@ which is at x = R1 + R2, z = 0. We want that to be displaced 3/8ths of the width
 */
 const double K1 = 100.0;  // Arbitrary distance from torus to viewer
 const double K2 = GRID_SIZE * K1 * 3 / (8 * (R1 + R2));
-const string CHARS = "@$#=*!;:~-,.";  // 'Brightest' to 'dimmest' chars
+const std::string CHARS = "@$#=*!;:~-,.";  // 'Brightest' to 'dimmest' chars
 
 char outputGrid[GRID_SIZE][GRID_SIZE];
 sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Revolving torus", sf::Style::Close);
@@ -64,8 +57,8 @@ void renderTorus() {
 	// texture.create(window.getSize().x, window.getSize().y);
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
-	// ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// std::ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
 	// screenshot.saveToFile(filePath.str());
 	// screenshotCounter++;
 }
@@ -103,8 +96,8 @@ int main() {
 		sinZrev = sin(zrev);
 		cosZrev = cos(zrev);
 
-		fill(&outputGrid[0][0], &outputGrid[0][0] + sizeof(outputGrid) / sizeof(outputGrid[0][0]), ' ');
-		fill(&zBuffer[0][0], &zBuffer[0][0] + sizeof(zBuffer) / sizeof(zBuffer[0][0]), 0.0);
+		std::fill(&outputGrid[0][0], &outputGrid[0][0] + sizeof(outputGrid) / sizeof(outputGrid[0][0]), ' ');
+		std::fill(&zBuffer[0][0], &zBuffer[0][0] + sizeof(zBuffer) / sizeof(zBuffer[0][0]), 0.0);
 
 		for (double theta = 0.0; theta < 2 * M_PI; theta += CHANGE_THETA) {
 			sinTheta = sin(theta);
@@ -136,7 +129,7 @@ int main() {
 					zBuffer[-yProj][xProj] = zr;
 					// Multiply by 8 to get idx in range 0 - 11 (8 * sqrt(2) = 11.31)
 					int lumIdx = lum * 8;
-					outputGrid[-yProj][xProj] = CHARS[max(lumIdx, 0)];
+					outputGrid[-yProj][xProj] = CHARS[std::max(lumIdx, 0)];
 				}
 			}
 		}

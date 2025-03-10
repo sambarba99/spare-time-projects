@@ -15,8 +15,6 @@ Created 14/11/2022
 #include <random>
 #include <SFML/Graphics.hpp>
 
-using std::copy;
-using std::fill;
 using std::pair;
 using std::vector;
 
@@ -51,7 +49,7 @@ void randomiseLiveCells() {
 
 
 void setPattern(const vector<pair<int, int>>& pattern) {
-	fill(&grid[0][0], &grid[0][0] + sizeof(grid) / sizeof(grid[0][0]), false);
+	std::fill(&grid[0][0], &grid[0][0] + sizeof(grid) / sizeof(grid[0][0]), false);
 	for (const pair<int, int>& coords : pattern)
 		grid[coords.first][coords.second] = true;
 }
@@ -85,7 +83,7 @@ void updateGrid() {
 		}
 	}
 
-	copy(&nextGenGrid[0][0], &nextGenGrid[0][0] + ROWS * COLS , &grid[0][0]);
+	std::copy(&nextGenGrid[0][0], &nextGenGrid[0][0] + ROWS * COLS , &grid[0][0]);
 }
 
 

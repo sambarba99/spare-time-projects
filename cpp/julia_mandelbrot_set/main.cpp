@@ -12,19 +12,19 @@ Created 18/11/2022
 */
 
 #include <complex>
+#include <iomanip>
 #include <SFML/Graphics.hpp>
 
 using std::complex;
-using std::map;
-using std::string;
 using std::to_string;
 using std::vector;
 
 
-const int WIDTH = 900;
-const int HEIGHT = 600;
-const int LABEL_HEIGHT = 25;
+const double WIDTH = 1200;
+const double HEIGHT = 750;
+const double ORIGINAL_SCALE = 300.0;
 const int MAX_ITER = 200;
+const int LABEL_HEIGHT = 25;
 const vector<vector<int>> RGB_PALETTE = {{0, 20, 100}, {30, 100, 200}, {230, 255, 255}, {255, 170, 0}};
 
 // Set to true if drawing Mandelbrot set...
@@ -41,13 +41,13 @@ Interesting values of c:
 // complex<double> c(-0.4, 0.595);
 complex<double> c(0.28, 0.008);
 
-double scale = 200.0;
-int xAxis = WIDTH / 2;
-int xOffset = xAxis;
-int yAxis = HEIGHT / 2;
-int yOffset = yAxis;
+double scale = ORIGINAL_SCALE;
+double xAxis = WIDTH / 2;
+double xOffset = xAxis;
+double yAxis = HEIGHT / 2;
+double yOffset = yAxis;
 bool showAxes = true;
-sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT + LABEL_HEIGHT), "Julia/Mandelbrot set visualiser", sf::Style::Close);
+sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT + LABEL_HEIGHT), "Julia/Mandelbrot set visualiser | Click: set origin | 2/4/8/0: magnify by 2/4/8/100x | T: toggle axes | R: reset", sf::Style::Close);
 sf::Font font;
 
 
@@ -59,7 +59,7 @@ vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& col
 }
 
 
-void drawLabel(const string label) {
+void drawLabel(const std::string label) {
 	sf::RectangleShape lblArea(sf::Vector2f(WIDTH, LABEL_HEIGHT));
 	lblArea.setPosition(0, HEIGHT);
 	lblArea.setFillColor(sf::Color::Black);
@@ -81,8 +81,8 @@ void draw() {
 
 	for (int y = 0; y < HEIGHT; y++) {
 		for (int x = 0; x < WIDTH; x++) {
-			double zReal = (x - xOffset) / scale;
-			double zImag = (y - yOffset) / scale;
+			double zReal = (double(x) - xOffset) / scale;
+			double zImag = (double(y) - yOffset) / scale;
 			complex<double> z(zReal, zImag);
 
 			if (drawingMandelbrot) c = z;
@@ -123,7 +123,11 @@ void draw() {
 		window.draw(yAxisLine, 2, sf::Lines);
 	}
 
-	drawLabel("Click: set origin  |  2/4/8/0: magnify by 2/4/8/100x  |  T: toggle axes  |  R: reset");
+	double zReal = (WIDTH / 2 - xOffset) / scale;
+	double zImaginary = -(HEIGHT / 2 - yOffset) / scale;
+	std::ostringstream zoomStr;
+	zoomStr << std::scientific << std::setprecision(4) << (scale / ORIGINAL_SCALE);
+	drawLabel("Current coords: (" + to_string(zReal) + ", " + to_string(zImaginary) + ") | Current zoom: " + zoomStr.str());
 }
 
 
@@ -135,7 +139,7 @@ void centreAroundOrigin() {
 }
 
 
-void magnify(const int factor) {
+void magnify(const double factor) {
 	scale *= factor;
 	xOffset = factor * (xOffset - xAxis) + xAxis;
 	yOffset = factor * (yOffset - yAxis) + yAxis;
@@ -144,7 +148,7 @@ void magnify(const int factor) {
 
 int main() {
 	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
-	int factor;
+	double factor;
 	sf::Event event;
 
 	draw();
@@ -171,11 +175,11 @@ int main() {
 						case sf::Keyboard::Num4:
 						case sf::Keyboard::Num8:
 						case sf::Keyboard::Num0:
-							factor = 2;
-							if (event.key.code == sf::Keyboard::Num4) factor = 4;
-							if (event.key.code == sf::Keyboard::Num8) factor = 8;
-							if (event.key.code == sf::Keyboard::Num0) factor = 100;
-							drawLabel("Magnifying by " + to_string(factor) + "x...");
+							factor = 2.0;
+							if (event.key.code == sf::Keyboard::Num4) factor = 4.0;
+							if (event.key.code == sf::Keyboard::Num8) factor = 8.0;
+							if (event.key.code == sf::Keyboard::Num0) factor = 100.0;
+							drawLabel("Magnifying by " + to_string(int(factor)) + "x...");
 							magnify(factor);
 							draw();
 							break;
@@ -186,7 +190,7 @@ int main() {
 							break;
 						case sf::Keyboard::R:
 							drawLabel("Resetting...");
-							scale = 200.0;
+							scale = ORIGINAL_SCALE;
 							xAxis = xOffset = WIDTH / 2;
 							yAxis = yOffset = HEIGHT / 2;
 							showAxes = true;

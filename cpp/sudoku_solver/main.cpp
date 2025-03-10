@@ -9,7 +9,6 @@ Created 07/09/2021
 #include <SFML/Graphics.hpp>
 
 using namespace std::chrono;
-using std::exception;
 using std::pair;
 using std::string;
 using std::to_string;
@@ -165,7 +164,7 @@ void waitForClick() {
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
-					throw exception();
+					throw std::exception();
 				case sf::Event::MouseButtonPressed:
 					return;
 			}

@@ -9,11 +9,10 @@ Created 08/02/2022
 #include <SFML/Graphics.hpp>
 
 using namespace std::chrono;
-using std::string;
 using std::to_string;
 
 
-const int N = 12;  // N > 3
+const int N = 12;
 const int BLANK = 0;
 const int QUEEN = 1;
 const int CELL_SIZE = 30;
@@ -26,7 +25,7 @@ sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "N Queens Solve
 sf::Font font;
 
 
-void drawGrid(const string status) {
+void drawGrid(const std::string status) {
 	window.clear(sf::Color::Black);
 
 	sf::RectangleShape statusLblArea(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));

@@ -5,7 +5,6 @@
 #include <vector>
 
 using std::string;
-using std::to_string;
 using std::vector;
 
 
@@ -259,7 +258,7 @@ class Matrix {
 			string s = "";
 			for (vector<long double> row : grid) {
 				for (long double n : row)
-					s += to_string(n) + ' ';
+					s += std::to_string(n) + ' ';
 				s += '\n';
 			}
 			return s;

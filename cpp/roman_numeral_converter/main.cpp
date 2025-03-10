@@ -9,15 +9,10 @@ Created 06/09/2021
 #include <iostream>
 #include <vector>
 
-using std::cin;
-using std::cout;
-using std::pair;
 using std::string;
-using std::to_string;
-using std::vector;
 
 
-const vector<pair<string, int>> NUMERAL_VALS = {
+const std::vector<std::pair<string, int>> NUMERAL_VALS = {
 	{"M", 1000}, {"CM", 900}, {"D", 500}, {"CD", 400}, {"C", 100}, {"XC", 90},
 	{"L", 50}, {"XL", 40}, {"X", 10}, {"IX", 9}, {"V", 5}, {"IV", 4}, {"I", 1}
 };
@@ -32,7 +27,7 @@ bool isStringNumeric(const string s) {
 
 
 string intToNumerals(int n) {
-	if (n <= 0) return to_string(n);
+	if (n <= 0) return std::to_string(n);
 
 	string numerals = "";
 	for (const auto& item : NUMERAL_VALS) {
@@ -77,7 +72,7 @@ int numeralsToInt(const string numerals) {
 string convert(const string input) {
 	if (isStringNumeric(input))
 		return intToNumerals(stoi(input));
-	return to_string(numeralsToInt(input));
+	return std::to_string(numeralsToInt(input));
 }
 
 
@@ -85,11 +80,11 @@ int main() {
 	string input;
 
 	while (true) {
-		cout << "Input a number or numeral (or Q to quit)\n>>> ";
-		cin >> input;
+		std::cout << "Input a number or numeral (or Q to quit)\n>>> ";
+		std::cin >> input;
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
 
 		if (input[0] == 'Q') break;
-		cout << "Result: " << convert(input) << "\n\n";
+		std::cout << "Result: " << convert(input) << "\n\n";
 	}
 }

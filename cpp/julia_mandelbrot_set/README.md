@@ -1,8 +1,11 @@
 ## Julia/Mandelbrot Set renderer
 
-Examples of 1x zoom and 100x zoom on the Mandelbrot set:
+Examples of different zoom levels on the Mandelbrot set:
 
 <p align="center">
 	<img src="mandelbrot_set_1x.png"/>
-	<img src="mandelbrot_set_100x.png"/>
+	<br/>
+	<img src="mandelbrot_set_512x.png"/>
+	<br/>
+	<img src="mandelbrot_set_16384x.png"/>
 </p>

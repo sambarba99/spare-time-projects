@@ -10,9 +10,6 @@ Created 28/08/2024
 #include <random>
 #include <SFML/Graphics.hpp>
 
-using std::ostringstream;
-using std::setfill;
-using std::setw;
 using std::vector;
 
 
@@ -152,8 +149,8 @@ void draw() {
 	// texture.create(window.getSize().x, window.getSize().y);
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
-	// ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << setw(4) << setfill('0') << screenshotCounter << ".png";
+	// std::ostringstream filePath;
+	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
 	// screenshot.saveToFile(filePath.str());
 	// screenshotCounter++;
 }
