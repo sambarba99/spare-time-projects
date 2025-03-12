@@ -99,4 +99,6 @@ int main() {
 
 		hideMsg(msg);
 	}
+
+	return 0;
 }

@@ -45,4 +45,6 @@ int main() {
 
 	int result = trap(heights);
 	std::cout << "\nThose heights can trap " << result << " units of water";
+
+	return 0;
 }

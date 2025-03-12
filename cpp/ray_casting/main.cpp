@@ -290,4 +290,6 @@ int main() {
 		drawMiniMap();
 		window.display();
 	}
+
+	return 0;
 }

@@ -165,4 +165,6 @@ int main() {
 		movePoints();
 		drawMST();
 	}
+
+	return 0;
 }

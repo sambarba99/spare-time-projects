@@ -90,4 +90,6 @@ int main() {
 		if (toupper(n[0]) == 'X') break;
 		else std::cout << convert(stold(n)) << "\n\n";
 	}
+
+	return 0;
 }

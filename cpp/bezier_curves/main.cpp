@@ -22,7 +22,6 @@ const int MAX_POINTS = 10;
 const float POINT_RADIUS = 6.f;
 const int FPS = 60;
 
-
 vector<pair<float, float>> points;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), L"Bézier curve drawing", sf::Style::Close);
 
@@ -153,4 +152,6 @@ int main() {
 			draw();
 		}
 	}
+
+	return 0;
 }

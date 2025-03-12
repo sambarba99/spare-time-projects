@@ -36,7 +36,7 @@ struct MyComplex {
 int numEpicycles;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE + LABEL_HEIGHT), "Drawing with the Discrete Fourier Transform", sf::Style::Close);
 sf::Font font;
-int screenshotCounter;
+int screenshotCounter = 0;
 
 
 vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
@@ -319,4 +319,6 @@ int main() {
 		// screenshot.saveToFile(filePath.str());
 		// screenshotCounter++;
 	}
+
+	return 0;
 }

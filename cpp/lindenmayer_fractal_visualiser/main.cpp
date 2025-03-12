@@ -61,7 +61,7 @@ const int HEIGHT = 900;
 string nameLabel;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Drawing with L-systems", sf::Style::Close);
 sf::Font font;
-int screenshotCounter;
+int screenshotCounter = 0;
 
 
 string generateInstructions(const string axiom, const std::map<char, string>& ruleset, const int n) {
@@ -289,4 +289,6 @@ int main() {
 	}
 
 	window.close();
+
+	return 0;
 }

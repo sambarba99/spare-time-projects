@@ -99,4 +99,6 @@ int main() {
 	vector<string> words = tokenise(text);
 	cout << "\nJustified:\n";
 	justify(words, maxWidth);
+
+	return 0;
 }

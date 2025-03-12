@@ -156,4 +156,6 @@ int main() {
 			if (delay) sf::sleep(sf::milliseconds(100));
 		}
 	}
+
+	return 0;
 }

@@ -82,4 +82,6 @@ int main() {
 	image.saveToFile("./rand_walk.png");
 
 	std::cout << "Image saved at ./rand_walk.png";
+
+	return 0;
 }

@@ -87,4 +87,6 @@ int main() {
 		if (input[0] == 'Q') break;
 		std::cout << "Result: " << convert(input) << "\n\n";
 	}
+
+	return 0;
 }

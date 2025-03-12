@@ -85,4 +85,6 @@ int main() {
 	cout << "\n\n-------------------- After balancing --------------------\n\n";
 
 	displayTreeInfo(tree);
+
+	return 0;
 }

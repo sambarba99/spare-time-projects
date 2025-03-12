@@ -135,4 +135,6 @@ void cpa() {
 
 int main() {
 	cpa();
+
+	return 0;
 }

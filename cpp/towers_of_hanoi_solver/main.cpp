@@ -26,4 +26,6 @@ int main() {
 	std::cout << "Input no. discs\n>>> ";
 	std::cin >> numDiscs;
 	solve(numDiscs);
+
+	return 0;
 }

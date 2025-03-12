@@ -35,7 +35,7 @@ const std::string CHARS = "@$#=*!;:~-,.";  // 'Brightest' to 'dimmest' chars
 char outputGrid[GRID_SIZE][GRID_SIZE];
 sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Revolving torus", sf::Style::Close);
 sf::Font font;
-int screenshotCounter;
+int screenshotCounter = 0;
 
 
 void renderTorus() {
@@ -138,4 +138,6 @@ int main() {
 		xrev += CHANGE_X_REV;
 		zrev += CHANGE_Z_REV;
 	}
+
+	return 0;
 }

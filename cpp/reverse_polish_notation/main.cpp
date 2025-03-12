@@ -108,4 +108,6 @@ int main() {
 			std::cout << "Result: " << result << "\n\n";
 		}
 	}
+
+	return 0;
 }

@@ -100,7 +100,7 @@ std::uniform_real_distribution<float> massDist(MIN_MASS, MAX_MASS);
 std::uniform_real_distribution<float> velDist(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
 vector<Particle> particles;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Elastic Collisions", sf::Style::Close);
-int screenshotCounter;
+int screenshotCounter = 0;
 
 
 vector<int> hsv2rgb(const float h, const float s, const float v) {
@@ -186,4 +186,6 @@ int main() {
 
 		draw();
 	}
+
+	return 0;
 }

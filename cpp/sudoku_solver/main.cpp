@@ -197,4 +197,6 @@ int main() {
 			waitForClick();
 		}
 	}
+
+	return 0;
 }

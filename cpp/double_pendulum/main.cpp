@@ -32,7 +32,7 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<float> dist(0, 2 * M_PI);
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Double Pendulum", sf::Style::Close);
-int screenshotCounter;
+int screenshotCounter = 0;
 
 
 void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
@@ -174,4 +174,6 @@ int main() {
 
 		draw();
 	}
+
+	return 0;
 }
