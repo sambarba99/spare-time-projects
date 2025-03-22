@@ -16,7 +16,7 @@ int trap(const std::vector<int>& heights) {
 	int leftMax = heights[l], rightMax = heights[r];
 	int res = 0;
 
-	while (l < r) {
+	while (l < r)
 		if (leftMax < rightMax) {
 			l++;
 			leftMax = std::max(leftMax, heights[l]);
@@ -26,7 +26,6 @@ int trap(const std::vector<int>& heights) {
 			rightMax = std::max(rightMax, heights[r]);
 			res += rightMax - heights[r];
 		}
-	}
 
 	return res;
 }

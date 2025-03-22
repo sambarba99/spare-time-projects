@@ -64,7 +64,7 @@ sf::Font font;
 int screenshotCounter = 0;
 
 
-string generateInstructions(const string axiom, const std::map<char, string>& ruleset, const int n) {
+string generateInstructions(const string& axiom, const std::map<char, string>& ruleset, const int n) {
 	/*
 	Generates instructions from a ruleset applied to an initial axiom
 	E.g. Lévy C curve rule {'F': "+F--F+"} applied to axiom "F" 3 times:
@@ -76,10 +76,11 @@ string generateInstructions(const string axiom, const std::map<char, string>& ru
 	string instructions = axiom, instructionsNew;
 	for (int i = 0; i < n; i++) {
 		instructionsNew = "";
-		for (char c : instructions) {
-			if (ruleset.count(c)) instructionsNew += ruleset.at(c);
-			else instructionsNew += c;
-		}
+		for (char c : instructions)
+			if (ruleset.count(c))
+				instructionsNew += ruleset.at(c);
+			else
+				instructionsNew += c;
 		instructions = instructionsNew;
 	}
 
@@ -97,7 +98,7 @@ vector<vector<double>> scaleAndCentreCoords(vector<vector<double>>& coords) {
 	*/
 	double xMin = std::numeric_limits<double>::max(), xMax = std::numeric_limits<double>::min();
 	double yMin = xMin, yMax = xMax;
-	for (const vector<double>& coordSet : coords) {
+	for (const auto& coordSet : coords) {
 		if (coordSet[0] < xMin) xMin = coordSet[0];
 		if (coordSet[2] < xMin) xMin = coordSet[2];
 		if (coordSet[0] > xMax) xMax = coordSet[0];
@@ -163,7 +164,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 }
 
 
-bool executeInstructions(const string instructions, const double startHeading, const int turnAngle) {
+bool executeInstructions(const string& instructions, const double startHeading, const int turnAngle) {
 	// If there's no 'move forward' command, it means no drawing, so return
 	if (instructions.find('F') == string::npos && instructions.find('G') == string::npos)
 		return false;
@@ -176,14 +177,15 @@ bool executeInstructions(const string instructions, const double startHeading, c
 
 	// Execute the 'program', one char (command) at a time
 	double x, y, heading, stepSize, nextX, nextY;
-	for (const char cmd : instructions) {
+	for (char cmd : instructions) {
 		x = state[0];
 		y = state[1];
 		heading = state[2];
 		stepSize = state[3];
 
 		switch (cmd) {
-			case 'F': case 'G':  // Move forward
+			case 'F':  // Move forward
+			case 'G':
 				nextX = stepSize * cos(heading * M_PI / 180.0) + x;
 				nextY = stepSize * sin(heading * M_PI / 180.0) + y;
 				state = {nextX, nextY, heading, stepSize};
@@ -211,7 +213,7 @@ bool executeInstructions(const string instructions, const double startHeading, c
 	scaleAndCentreCoords(coordsToDraw);
 
 	// Draw with hue increasing from red (hue 0) to yellow (60)
-	window.clear(sf::Color::Black);
+	window.clear();
 	for (int i = 0; i < coordsToDraw.size(); i++) {
 		vector<double> coordSet = coordsToDraw[i];
 		int startX = round(coordSet[0]), startY = round(coordSet[1]);
@@ -257,8 +259,8 @@ bool executeInstructions(const string instructions, const double startHeading, c
 void waitForClick() {
 	sf::Event event;
 
-	while (true) {
-		while (window.pollEvent(event)) {
+	while (true)
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -266,8 +268,6 @@ void waitForClick() {
 				case sf::Event::MouseButtonPressed:
 					return;
 			}
-		}
-	}
 }
 
 
@@ -279,14 +279,13 @@ int main() {
 		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE,
 		DRAGON_CURVE, ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3};
 
-	for (const Fractal& fract : allFractals) {
+	for (const Fractal& fract : allFractals)
 		for (int i = 0; i <= fract.maxIters; i++) {
 			nameLabel = fract.name + " (iteration " + std::to_string(i) + '/' + std::to_string(fract.maxIters) + ')';
 			string instructions = generateInstructions(fract.axiom, fract.ruleset, i);
 			bool drawingDone = executeInstructions(instructions, double(fract.startHeading), fract.turnAngle);
 			if (drawingDone) waitForClick();
 		}
-	}
 
 	window.close();
 

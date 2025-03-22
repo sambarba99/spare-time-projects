@@ -69,12 +69,13 @@ vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 
 
 vector<pair<int, int>> interpolate(const vector<pair<int, int>>& coords) {
-	if (coords.size() < 2) return coords;
+	if (coords.size() < 2)
+		return coords;
 
 	vector<pair<int, int>> interpolated;
 	for (int i = 0; i < coords.size() - 1; i++) {
 		vector<pair<int, int>> bresCoords = bresenham(coords[i].first, coords[i].second, coords[i + 1].first, coords[i + 1].second);
-		for (const pair<int, int>& c : bresCoords)
+		for (const auto& c : bresCoords)
 			interpolated.push_back(c);
 	}
 
@@ -86,7 +87,7 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 	// Discrete Fourier Transform (see https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition)
 
 	int N = x.size();
-	vector<MyComplex> X;
+	vector<MyComplex> X(N);
 
 	for (int k = 0; k < N; k++) {
 		complex<double> sum(0.0, 0.0);
@@ -96,8 +97,7 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 		}
 		sum /= double(N);  // Average the sum's contribution over N
 
-		MyComplex Xk = {sum.real(), sum.imag(), double(k), abs(sum), atan2(sum.imag(), sum.real())};
-		X.push_back(Xk);
+		X[k] = {sum.real(), sum.imag(), double(k), abs(sum), atan2(sum.imag(), sum.real())};
 	}
 
 	// Descending order of amplitude
@@ -111,8 +111,8 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawingCoords) {
 	// Centre around origin
 	vector<pair<int, int>> centeredCoords;
-	for (const pair<int, int>& coords : drawingCoords)
-		centeredCoords.push_back({coords.first - SIZE / 2, coords.second - SIZE / 2});
+	for (const auto& [x, y] : drawingCoords)
+		centeredCoords.push_back({x - SIZE / 2, y - SIZE / 2});
 
 	// Fill any gaps
 	vector<pair<int, int>> interpolated = interpolate(centeredCoords);
@@ -125,8 +125,8 @@ vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawing
 
 	// Convert to complex
 	vector<complex<double>> complexVector;
-	for (const pair<int, int>& coords : drawingPath)
-		complexVector.push_back({double(coords.first), double(coords.second)});
+	for (const auto& [x, y] : drawingPath)
+		complexVector.push_back({double(x), double(y)});
 
 	vector<MyComplex> fourier = dft(complexVector);
 
@@ -198,7 +198,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -277,16 +277,15 @@ int main() {
 					dt = 2 * M_PI / double(numEpicycles);
 					break;
 			}
-		}
 
 		if (paused && !userDrawingMode) continue;
 
-		window.clear(sf::Color::Black);
+		window.clear();
 
 		if (userDrawingMode) {
 			sf::VertexArray pixels(sf::Points);
-			for (const pair<int, int>& coords : userDrawingCoords)
-				pixels.append(sf::Vertex(sf::Vector2f(coords.first, coords.second), sf::Color::Red));
+			for (const auto& [x, y] : userDrawingCoords)
+				pixels.append(sf::Vertex(sf::Vector2f(x, y), sf::Color::Red));
 			window.draw(pixels);
 		} else {  // Draw Fourier result
 			pair<double, double> epicycleFinalPos = epicycles(SIZE / 2.0, SIZE / 2.0, fourier, time);
