@@ -17,7 +17,7 @@ using std::istream_iterator;
 using std::string;
 
 
-vector<int> getDimsFromStr(const string dimStr) {
+vector<int> getDimsFromStr(const string& dimStr) {
 	std::stringstream ss(dimStr);
 	auto start = istream_iterator<int>{ss};
 	auto end = istream_iterator<int>{};
@@ -26,7 +26,7 @@ vector<int> getDimsFromStr(const string dimStr) {
 }
 
 
-vector<long double> vectorFromLine(const string line) {
+vector<long double> vectorFromLine(const string& line) {
 	// Convert line to 1D vector of long doubles
 	std::stringstream ss(line);
 	auto start = istream_iterator<long double>{ss};
@@ -37,7 +37,7 @@ vector<long double> vectorFromLine(const string line) {
 }
 
 
-vector<vector<long double>> gridFromLine(const string line, const int rows, const int cols) {
+vector<vector<long double>> gridFromLine(const string& line, const int rows, const int cols) {
 	vector<long double> grid1d = vectorFromLine(line);
 	vector<vector<long double>> grid2d(rows, vector<long double>(cols));
 	for (int i = 0; i < rows * cols; i++) {
@@ -188,15 +188,16 @@ int main() {
 			getline(cin, geomChoice);
 
 			cout << "How many vertices?\n>>> ";
-			string nVertsStr;
-			getline(cin, nVertsStr);
+			string numVertsStr;
+			getline(cin, numVertsStr);
+			int numVerts = stoi(numVertsStr);
 
-			vector<vector<long double>> coords;
+			vector<vector<long double>> coords(numVerts);
 			string str;
-			for (int i = 0; i < stoi(nVertsStr); i++) {
-				cout << "Input x,y coords " << (i + 1) << '/' << nVertsStr << " e.g. " << getExample(2) << "\n>>> ";
+			for (int i = 0; i < numVerts; i++) {
+				cout << "Input x,y coords " << (i + 1) << '/' << numVerts << " e.g. " << getExample(2) << "\n>>> ";
 				getline(cin, str);
-				coords.push_back(vectorFromLine(str));
+				coords[i] = vectorFromLine(str);
 			}
 
 			Matrix mat(coords);

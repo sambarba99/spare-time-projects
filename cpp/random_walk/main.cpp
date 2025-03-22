@@ -10,7 +10,7 @@ Created 18/10/2024
 #include <SFML/Graphics.hpp>
 
 
-const int NUM_STEPS = 1e7;
+const int NUM_STEPS = 1e6;
 const int BORDER = 10;
 
 std::random_device rd;
@@ -23,13 +23,13 @@ int main() {
 
 	std::cout << "Walking...\n";
 
-	std::vector<std::pair<int, int>> walkCoords;
+	std::vector<std::pair<int, int>> walkCoords(NUM_STEPS + 1);
 	int y = 0, x = 0;
 	int dir;
 	int minY = NUM_STEPS, minX = NUM_STEPS, maxY = 0, maxX = 0;
 
 	for (int i = 0; i <= NUM_STEPS; i++) {
-		walkCoords.push_back({y, x});
+		walkCoords[i] = {y, x};
 
 		dir = dist(gen);
 
@@ -40,16 +40,17 @@ int main() {
 
 		// Keep track of min/max x/y for normalisation later
 		if (y < minY) minY = y;
-		if (y > maxY) maxY = y;
+		else if (y > maxY) maxY = y;
+
 		if (x < minX) minX = x;
-		if (x > maxX) maxX = x;
+		else if (x > maxX) maxX = x;
 	}
 
 	// 2. Normalise the walk coords
 
-	for (auto& coord : walkCoords) {
-		coord.first -= minY;
-		coord.second -= minX;
+	for (auto& [x, y] : walkCoords) {
+		x -= minY;
+		y -= minX;
 	}
 
 	std::cout << "Generating image...\n";
@@ -57,13 +58,12 @@ int main() {
 	// 3. Count coord visit frequencies
 
 	std::map<std::pair<int, int>, int> visitCount;
-	for (const auto& coord : walkCoords)
-		visitCount[coord]++;
-
 	int maxNumVisits = 0;
-	for (const auto& entry : visitCount)
-		if (entry.second > maxNumVisits)
-			maxNumVisits = entry.second;
+	for (const auto& coord : walkCoords) {
+		visitCount[coord]++;
+		if (visitCount[coord] > maxNumVisits)
+			maxNumVisits = visitCount[coord];
+	}
 
 	// 4. Create image based on normalised coords (making frequently visited coords brighter)
 

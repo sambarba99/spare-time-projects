@@ -67,8 +67,8 @@ int main() {
 	window.setTitle("Elementary Cellular Automata (rule " + std::to_string(RULES[i]) + ")");
 	sf::Event event;
 
-	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+	while (window.isOpen())
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -79,8 +79,6 @@ int main() {
 					generatePlot(getRuleset(RULES[i]));
 					break;
 			}
-		}
-	}
 
 	return 0;
 }

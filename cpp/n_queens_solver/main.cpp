@@ -26,7 +26,7 @@ sf::Font font;
 
 
 void drawGrid(const std::string status) {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	sf::RectangleShape statusLblArea(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));
 	statusLblArea.setPosition(0, 0);
@@ -40,7 +40,7 @@ void drawGrid(const std::string status) {
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int y = 0; y < N; y++) {
+	for (int y = 0; y < N; y++)
 		for (int x = 0; x < N; x++) {
 			sf::RectangleShape square(sf::Vector2f(CELL_SIZE, CELL_SIZE));
 			square.setPosition(x * CELL_SIZE + GRID_OFFSET, y * CELL_SIZE + GRID_OFFSET);
@@ -54,7 +54,6 @@ void drawGrid(const std::string status) {
 				window.draw(cellText);
 			}
 		}
-	}
 
 	window.display();
 }
