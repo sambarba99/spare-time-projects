@@ -68,10 +68,10 @@ sf::RenderWindow window(
 sf::Font font;
 
 
-vector<int> linearInterpolate(const vector<int>& colour1, const vector<int>& colour2, const double t) {
-	int newR = colour1[0] + t * (colour2[0] - colour1[0]);
-	int newG = colour1[1] + t * (colour2[1] - colour1[1]);
-	int newB = colour1[2] + t * (colour2[2] - colour1[2]);
+vector<int> linearInterpolate(const vector<int>& rgb1, const vector<int>& rgb2, const double t) {
+	int newR = rgb1[0] + t * (rgb2[0] - rgb1[0]);
+	int newG = rgb1[1] + t * (rgb2[1] - rgb1[1]);
+	int newB = rgb1[2] + t * (rgb2[2] - rgb1[2]);
 	return {newR, newG, newB};
 }
 
@@ -81,7 +81,7 @@ sf::VertexArray getPixels(const std::optional<complex<double>> cValue = std::nul
 
 	int i;
 	double real, imag, nu, t;
-	vector<int> colour1, colour2, colour;
+	vector<int> rgb1, rgb2, rgb;
 
 	for (int y = 0; y < HEIGHT; y++) {
 		for (int x = 0; x < WIDTH; x++) {
@@ -109,10 +109,10 @@ sf::VertexArray getPixels(const std::optional<complex<double>> cValue = std::nul
 				nu /= maxIters;  // Normalise
 				nu *= RGB_PALETTE.size();  // Scale
 				t = nu - int(nu);  // Fractional part
-				colour1 = RGB_PALETTE[int(nu) % RGB_PALETTE.size()];
-				colour2 = RGB_PALETTE[int(nu + 1) % RGB_PALETTE.size()];
-				colour = linearInterpolate(colour1, colour2, t);
-				pixels[y * WIDTH + x] = sf::Vertex(sf::Vector2f(x, y + LABEL_HEIGHT + 1), sf::Color(colour[0], colour[1], colour[2]));
+				rgb1 = RGB_PALETTE[int(nu) % RGB_PALETTE.size()];
+				rgb2 = RGB_PALETTE[int(nu + 1) % RGB_PALETTE.size()];
+				rgb = linearInterpolate(rgb1, rgb2, t);
+				pixels[y * WIDTH + x] = sf::Vertex(sf::Vector2f(x, y + LABEL_HEIGHT + 1), sf::Color(rgb[0], rgb[1], rgb[2]));
 			}
 		}
 	}
