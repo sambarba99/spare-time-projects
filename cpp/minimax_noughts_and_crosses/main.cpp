@@ -26,7 +26,7 @@ sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Noughts and Cr
 sf::Font font;
 
 
-void placePlayer(const int y, const int x, const string p) {
+void placePlayer(const int y, const int x, const string& p) {
 	board[y][x] = p;
 	squaresLeft--;
 }
@@ -46,13 +46,17 @@ bool isTie() {
 string findWinner() {
 	// Check rows and columns
 	for (int y = 0; y < 3; y++) {
-		if (board[y][0] != NONE && board[y][0] == board[y][1] && board[y][1] == board[y][2]) return board[y][0];
-		if (board[0][y] != NONE && board[0][y] == board[1][y] && board[1][y] == board[2][y]) return board[0][y];
+		if (board[y][0] != NONE && board[y][0] == board[y][1] && board[y][1] == board[y][2])
+			return board[y][0];
+		if (board[0][y] != NONE && board[0][y] == board[1][y] && board[1][y] == board[2][y])
+			return board[0][y];
 	}
 
 	// Check diagonals
-	if (board[0][0] != NONE && board[0][0] == board[1][1] && board[1][1] == board[2][2]) return board[1][1];
-	if (board[2][0] != NONE && board[2][0] == board[1][1] && board[1][1] == board[0][2]) return board[1][1];
+	if (board[0][0] != NONE && board[0][0] == board[1][1] && board[1][1] == board[2][2])
+		return board[1][1];
+	if (board[2][0] != NONE && board[2][0] == board[1][1] && board[1][1] == board[0][2])
+		return board[1][1];
 
 	return isTie() ? TIE : NONE;
 }
@@ -65,8 +69,8 @@ float minimax(const bool isMaximising, const float depth, float alpha, float bet
 
 	float score = isMaximising ? -2.f : 2.f;
 
-	for (int y = 0; y < 3; y++) {
-		for (int x = 0; x < 3; x++) {
+	for (int y = 0; y < 3; y++)
+		for (int x = 0; x < 3; x++)
 			if (board[y][x] == NONE) {
 				if (isMaximising) {
 					placePlayer(y, x, AI);
@@ -78,10 +82,9 @@ float minimax(const bool isMaximising, const float depth, float alpha, float bet
 					beta = std::min(beta, score);
 				}
 				removePlayer(y, x);
-				if (beta <= alpha) return score / depth;
+				if (beta <= alpha)
+					return score / depth;
 			}
-		}
-	}
 
 	// Prefer shallower results over deeper results
 	return score / depth;
@@ -92,8 +95,8 @@ void makeBestAIMove() {
 	float bestScore = -2.f;
 	int bestY, bestX;
 
-	for (int y = 0; y < BOARD_SIZE; y++) {
-		for (int x = 0; x < BOARD_SIZE; x++) {
+	for (int y = 0; y < BOARD_SIZE; y++)
+		for (int x = 0; x < BOARD_SIZE; x++)
 			if (board[y][x] == NONE) {
 				placePlayer(y, x, AI);
 				float score = minimax(false, 1, -2, 2);
@@ -104,8 +107,6 @@ void makeBestAIMove() {
 					bestX = x;
 				}
 			}
-		}
-	}
 
 	placePlayer(bestY, bestX, AI);
 	string result = findWinner();
@@ -130,7 +131,7 @@ void draw() {
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int y = 0; y < BOARD_SIZE; y++) {
+	for (int y = 0; y < BOARD_SIZE; y++)
 		for (int x = 0; x < BOARD_SIZE; x++) {
 			string token = board[y][x];
 			if (token == NONE) continue;
@@ -140,7 +141,6 @@ void draw() {
 			cellText.setFillColor(token == AI ? sf::Color(220, 20, 20) : sf::Color(20, 120, 220));
 			window.draw(cellText);
 		}
-	}
 
 	// Grid lines
 	for (int i = 0; i < 4; i++) {
@@ -192,8 +192,8 @@ int main() {
 	draw();
 	sf::Event event;
 
-	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+	while (window.isOpen())
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -220,8 +220,6 @@ int main() {
 					}
 					break;
 			}
-		}
-	}
 
 	return 0;
 }

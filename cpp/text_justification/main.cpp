@@ -14,7 +14,7 @@ using std::string;
 using std::vector;
 
 
-vector<string> tokenise(const string text) {
+vector<string> tokenise(const string& text) {
 	char charArray[text.length()];
 	strcpy(charArray, text.c_str());
 	char *ptr = strtok(charArray, " ");
@@ -81,7 +81,7 @@ void justify(const vector<string>& words, const int maxWidth) {
 		startIdx = counter;
 	}
 
-	for (const string line : res)
+	for (const string& line : res)
 		cout << line << '\n';
 }
 

@@ -13,14 +13,15 @@ class Tree {
 		Tree* leftChild;
 		Tree* rightChild;
 
-		Tree(const string data) {
+		Tree(const string& data) {
 			this->data = data;
 			leftChild = NULL;
 			rightChild = NULL;
 		}
 
-		void insert(const string newData) {
-			if (data == newData) return;  // No duplicates allowed
+		void insert(const string& newData) {
+			if (data == newData)
+				return;  // No duplicates allowed
 			else if (newData.compare(data) == -1) {
 				if (leftChild)
 					leftChild->insert(newData);
@@ -35,12 +36,14 @@ class Tree {
 		}
 
 		int getHeight() {
-			if (!this) return 0;
+			if (!this)
+				return 0;
 			return std::max(leftChild->getHeight(), rightChild->getHeight()) + 1;
 		}
 
 		vector<string> inOrderTraversal() {
-			if (!this) return vector<string>();
+			if (!this)
+				return vector<string>();
 
 			vector<string> leftTraversal = leftChild->inOrderTraversal();
 			vector<string> rightTraversal = rightChild->inOrderTraversal();
@@ -52,7 +55,8 @@ class Tree {
 		}
 
 		vector<string> preOrderTraversal() {
-			if (!this) return vector<string>();
+			if (!this)
+				return vector<string>();
 
 			vector<string> leftTraversal = leftChild->preOrderTraversal();
 			vector<string> rightTraversal = rightChild->preOrderTraversal();
@@ -64,7 +68,8 @@ class Tree {
 		}
 
 		vector<string> postOrderTraversal() {
-			if (!this) return vector<string>();
+			if (!this)
+				return vector<string>();
 
 			vector<string> leftTraversal = leftChild->postOrderTraversal();
 			vector<string> rightTraversal = rightChild->postOrderTraversal();
@@ -98,8 +103,8 @@ class Tree {
 		}
 
 		bool isBST(string prev = "0") {
-			if (!this) return true;
-
+			if (!this)
+				return true;
 			if (!leftChild->isBST(prev))
 				return false;
 			// Handle equal-valued nodes
@@ -110,7 +115,8 @@ class Tree {
 		}
 
 		bool isBalanced() {
-			if (!this) return true;
+			if (!this)
+				return true;
 
 			int leftHeight = leftChild->getHeight();
 			int rightHeight = rightChild->getHeight();
@@ -119,8 +125,9 @@ class Tree {
 				&& rightChild->isBalanced();
 		}
 
-		void display(const bool isLeft = false, const string prefix = "") {
-			if (!this) return;
+		void display(const bool isLeft = false, const string& prefix = "") {
+			if (!this)
+				return;
 
 			std::cout << prefix << (isLeft ? "├─" : "└─") << data << '\n';
 			leftChild->display(true, prefix + (isLeft ? "│  " : "   "));
