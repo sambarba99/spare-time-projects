@@ -69,12 +69,13 @@ vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 
 
 vector<pair<int, int>> interpolate(const vector<pair<int, int>>& coords) {
-	if (coords.size() < 2) return coords;
+	if (coords.size() < 2)
+		return coords;
 
 	vector<pair<int, int>> interpolated;
 	for (int i = 0; i < coords.size() - 1; i++) {
 		vector<pair<int, int>> bresCoords = bresenham(coords[i].first, coords[i].second, coords[i + 1].first, coords[i + 1].second);
-		for (const pair<int, int>& c : bresCoords)
+		for (const auto& c : bresCoords)
 			interpolated.push_back(c);
 	}
 
@@ -111,7 +112,7 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawingCoords) {
 	// Centre around origin
 	vector<pair<int, int>> centeredCoords;
-	for (const pair<int, int>& coords : drawingCoords)
+	for (const auto& coords : drawingCoords)
 		centeredCoords.push_back({coords.first - SIZE / 2, coords.second - SIZE / 2});
 
 	// Fill any gaps
@@ -125,7 +126,7 @@ vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawing
 
 	// Convert to complex
 	vector<complex<double>> complexVector;
-	for (const pair<int, int>& coords : drawingPath)
+	for (const auto& coords : drawingPath)
 		complexVector.push_back({double(coords.first), double(coords.second)});
 
 	vector<MyComplex> fourier = dft(complexVector);
@@ -198,7 +199,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -277,15 +278,14 @@ int main() {
 					dt = 2 * M_PI / double(numEpicycles);
 					break;
 			}
-		}
 
 		if (paused && !userDrawingMode) continue;
 
-		window.clear(sf::Color::Black);
+		window.clear();
 
 		if (userDrawingMode) {
 			sf::VertexArray pixels(sf::Points);
-			for (const pair<int, int>& coords : userDrawingCoords)
+			for (const auto& coords : userDrawingCoords)
 				pixels.append(sf::Vertex(sf::Vector2f(coords.first, coords.second), sf::Color::Red));
 			window.draw(pixels);
 		} else {  // Draw Fourier result

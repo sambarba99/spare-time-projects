@@ -17,7 +17,7 @@ using std::istream_iterator;
 using std::string;
 
 
-vector<int> getDimsFromStr(const string dimStr) {
+vector<int> getDimsFromStr(const string& dimStr) {
 	std::stringstream ss(dimStr);
 	auto start = istream_iterator<int>{ss};
 	auto end = istream_iterator<int>{};
@@ -26,7 +26,7 @@ vector<int> getDimsFromStr(const string dimStr) {
 }
 
 
-vector<long double> vectorFromLine(const string line) {
+vector<long double> vectorFromLine(const string& line) {
 	// Convert line to 1D vector of long doubles
 	std::stringstream ss(line);
 	auto start = istream_iterator<long double>{ss};
@@ -37,7 +37,7 @@ vector<long double> vectorFromLine(const string line) {
 }
 
 
-vector<vector<long double>> gridFromLine(const string line, const int rows, const int cols) {
+vector<vector<long double>> gridFromLine(const string& line, const int rows, const int cols) {
 	vector<long double> grid1d = vectorFromLine(line);
 	vector<vector<long double>> grid2d(rows, vector<long double>(cols));
 	for (int i = 0; i < rows * cols; i++) {

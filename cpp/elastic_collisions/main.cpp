@@ -132,7 +132,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	for (const Particle& p : particles) {
 		sf::CircleShape circle(p.radius);

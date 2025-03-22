@@ -141,7 +141,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -160,7 +160,6 @@ int main() {
 					}
 					break;
 			}
-		}
 
 		movePoints();
 		drawMST();

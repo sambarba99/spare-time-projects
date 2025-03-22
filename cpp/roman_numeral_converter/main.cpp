@@ -18,9 +18,9 @@ const std::vector<std::pair<string, int>> NUMERAL_VALS = {
 };
 
 
-bool isStringNumeric(const string s) {
+bool isStringNumeric(const string& s) {
 	for (char c : s)
-		if (c < '0' || c > '9') return false;
+		if (!isdigit(c)) return false;
 
 	return true;
 }
@@ -44,7 +44,7 @@ string intToNumerals(int n) {
 }
 
 
-int getValue(const string numeral) {
+int getValue(const string& numeral) {
 	for (const auto& item : NUMERAL_VALS)
 		if (item.first == numeral)
 			return item.second;
@@ -52,7 +52,7 @@ int getValue(const string numeral) {
 }
 
 
-int numeralsToInt(const string numerals) {
+int numeralsToInt(const string& numerals) {
 	int n = 0;
 
 	for (int i = 0; i < numerals.length(); i++) {
@@ -69,7 +69,7 @@ int numeralsToInt(const string numerals) {
 }
 
 
-string convert(const string input) {
+string convert(const string& input) {
 	if (isStringNumeric(input))
 		return intToNumerals(stoi(input));
 	return std::to_string(numeralsToInt(input));
@@ -84,7 +84,8 @@ int main() {
 		std::cin >> input;
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
 
-		if (input[0] == 'Q') break;
+		if (input[0] == 'Q')
+			break;
 		std::cout << "Result: " << convert(input) << "\n\n";
 	}
 

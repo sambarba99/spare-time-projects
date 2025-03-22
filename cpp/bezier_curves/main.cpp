@@ -52,7 +52,7 @@ pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const f
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	// Draw connective lines, then curve on top, then points on top
 
@@ -103,7 +103,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -145,7 +145,6 @@ int main() {
 					}
 					break;
 			}
-		}
 
 		if (leftBtnDown && clickedPointIdx != -1) {
 			points[clickedPointIdx] = {mouseX, mouseY};

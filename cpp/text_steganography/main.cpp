@@ -31,7 +31,7 @@ int setBit(const int n, const int idx, const int b) {
 }
 
 
-string decodeHiddenMsg(const string stegMsg) {
+string decodeHiddenMsg(const string& stegMsg) {
 	uint8_t leastSignificantBits[stegMsg.length()];
 	for (int i = 0; i < stegMsg.length(); i++)
 		leastSignificantBits[i] = int(stegMsg[i]) & 1;
@@ -49,11 +49,11 @@ string decodeHiddenMsg(const string stegMsg) {
 }
 
 
-void hideMsg(const string msg) {
+void hideMsg(const string& msg) {
 	// 1. Convert msg to binary
 
 	string binaryMsg = "";
-	for (const char c : msg)
+	for (char c : msg)
 		binaryMsg += std::bitset<8>(c).to_string();
 
 	cout << setw(35) << "In binary: ";
@@ -94,9 +94,8 @@ int main() {
 	while (true) {
 		cout << "Input message to hide (or X to exit)\n>>> ";
 		getline(std::cin, msg);
-
-		if (msg.length() == 1 && toupper(msg[0]) == 'X') break;
-
+		if (msg.length() == 1 && toupper(msg[0]) == 'X')
+			break;
 		hideMsg(msg);
 	}
 

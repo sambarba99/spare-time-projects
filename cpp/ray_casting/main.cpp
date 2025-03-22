@@ -102,7 +102,7 @@ void generateWalls(const int nBoxes = 15) {
 }
 
 
-vector<double> findIntersection(const Ray ray, const Wall wall) {
+vector<double> findIntersection(const Ray& ray, const Wall& wall) {
 	double rx1 = ray.x1, ry1 = ray.y1;
 	double rx2 = ray.x2, ry2 = ray.y2;
 	double wx1 = wall.x1, wy1 = wall.y1;
@@ -159,7 +159,8 @@ void generateRays() {
 
 double mapRange(const double x, const double fromLo, const double fromHi, const double toLo, const double toHi) {
 	// Map x from [fromLo, fromHi] to [toLo, toHi]
-	if (fromHi - fromLo == 0) return toHi;
+	if (fromHi - fromLo == 0)
+		return toHi;
 	return (x - fromLo) / (fromHi - fromLo) * (toHi - toLo) + toLo;
 }
 
@@ -236,7 +237,7 @@ int main() {
 	double dx, dy;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -254,7 +255,6 @@ int main() {
 					keyPressed = sf::Keyboard::Unknown;
 					break;
 			}
-		}
 
 		switch (keyPressed) {
 			case sf::Keyboard::W:  // Move forwards
