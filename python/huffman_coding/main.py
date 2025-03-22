@@ -20,7 +20,7 @@ from tree_plotter import plot_tree
 
 
 if __name__ == '__main__':
-	with open('lyrics.txt', 'r') as file:
+	with open('./lyrics.txt') as file:
 		STRING = file.read()[:-1].replace('\n', ';')
 
 	assert '_' not in STRING, "Cannot have '_' char in string due to tree rendering in tree_plotter.py"

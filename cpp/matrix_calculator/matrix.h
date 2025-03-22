@@ -93,13 +93,12 @@ class Matrix {
 		Matrix comatrix() {
 			vector<vector<long double>> result(rows, vector<long double>(cols));
 
-			for (int i = 0; i < rows; i++) {
+			for (int i = 0; i < rows; i++)
 				for (int j = 0; j < cols; j++) {
 					Matrix submatrix = removeRowAndCol(*this, i, j);
 					int sign = (i + j) % 2 == 0 ? 1 : -1;
 					result[i][j] = sign * submatrix.determinant();
 				}
-			}
 
 			return Matrix(result);
 		}
