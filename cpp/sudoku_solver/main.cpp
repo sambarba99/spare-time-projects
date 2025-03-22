@@ -35,7 +35,7 @@ sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Sudoku Solver"
 sf::Font font;
 
 
-void drawGrid(const string status) {
+void drawGrid(const string& status) {
 	window.clear(sf::Color(20, 20, 20));
 
 	sf::RectangleShape statusLblArea(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));
@@ -96,7 +96,8 @@ void drawGrid(const string status) {
 bool isFull() {
 	for (int y = 0; y < BOARD_SIZE; y++)
 		for (int x = 0; x < BOARD_SIZE; x++)
-			if (!board[y][x]) return false;
+			if (!board[y][x])
+				return false;
 
 	return true;
 }
@@ -105,9 +106,10 @@ bool isFull() {
 pair<int, int> findFreeSquare() {
 	for (int y = 0; y < BOARD_SIZE; y++)
 		for (int x = 0; x < BOARD_SIZE; x++)
-			if (!board[y][x]) return {y, x};
+			if (!board[y][x])
+				return {y, x};
 
-	return {-1, -1};
+	throw std::exception();  // Shouldn't ever get here (if there are no free squares, the sudoku is complete)
 }
 
 
@@ -125,7 +127,8 @@ bool isLegal(const int n, const int y, const int x) {
 	// Check big square
 	for (int i = by; i < by + 3; i++)
 		for (int j = bx; j < bx + 3; j++)
-			if (board[i][j] == n) return false;
+			if (board[i][j] == n)
+				return false;
 
 	return true;
 }
@@ -136,13 +139,12 @@ void solve() {
 
 	pair<int, int> freeSquare = findFreeSquare();
 	int y = freeSquare.first, x = freeSquare.second;
-	for (int n = 1; n <= 9; n++) {
+	for (int n = 1; n <= 9; n++)
 		if (isLegal(n, y, x)) {
 			board[y][x] = n;
 			drawGrid("Solving (" + to_string(numBacktracks) + " backtracks)");
 			solve();
 		}
-	}
 
 	if (isFull()) return;
 
@@ -158,8 +160,8 @@ void solve() {
 void waitForClick() {
 	sf::Event event;
 
-	while (true) {
-		while (window.pollEvent(event)) {
+	while (true)
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -167,15 +169,13 @@ void waitForClick() {
 				case sf::Event::MouseButtonPressed:
 					return;
 			}
-		}
-	}
 }
 
 
 int main() {
 	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 
-	while (true) {
+	while (true)
 		for (const auto& item : PUZZLES) {
 			yxGiven.clear();
 			numBacktracks = 0;
@@ -196,7 +196,6 @@ int main() {
 			drawGrid("Solved (" + to_string(numBacktracks) + " backtracks, " + to_string(millis.count()) + "ms) - click for next puzzle");
 			waitForClick();
 		}
-	}
 
 	return 0;
 }

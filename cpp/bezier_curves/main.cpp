@@ -39,10 +39,10 @@ pair<float, float> linearInterpolate(const pair<float, float>& a, const pair<flo
 
 pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const float t) {
 	while (controlPoints.size() > 1) {
-		vector<pair<float, float>> controlPointsTemp;
+		vector<pair<float, float>> controlPointsTemp(controlPoints.size() - 1);
 		for (int i = 0; i < controlPoints.size() - 1; i++) {
 			pair<float, float> lerp = linearInterpolate(controlPoints[i], controlPoints[i + 1], t);
-			controlPointsTemp.push_back(lerp);
+			controlPointsTemp[i] = lerp;
 		}
 		controlPoints = controlPointsTemp;
 	}
@@ -52,7 +52,7 @@ pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const f
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	// Draw connective lines, then curve on top, then points on top
 
@@ -103,7 +103,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -145,7 +145,6 @@ int main() {
 					}
 					break;
 			}
-		}
 
 		if (leftBtnDown && clickedPointIdx != -1) {
 			points[clickedPointIdx] = {mouseX, mouseY};
