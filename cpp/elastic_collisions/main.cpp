@@ -26,15 +26,15 @@ class Particle {
 		float mass;
 		float radius;
 		sf::Vector2f pos;
-        sf::Vector2f vel;
-        int hue;
+		sf::Vector2f vel;
+		int hue;
 
 		Particle(const float mass, const float radius, const sf::Vector2f& pos, const sf::Vector2f& vel) {
 			this->mass = mass;
-            this->radius = sqrt(mass);
-            this->pos = pos;
-            this->vel = vel;
-            this->hue = (1 - (mass - MIN_MASS) / (MAX_MASS - MIN_MASS)) * 60;
+			this->radius = sqrt(mass);
+			this->pos = pos;
+			this->vel = vel;
+			this->hue = (1 - (mass - MIN_MASS) / (MAX_MASS - MIN_MASS)) * 60;
 		}
 
 		void update() {
@@ -132,7 +132,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	for (const Particle& p : particles) {
 		sf::CircleShape circle(p.radius);

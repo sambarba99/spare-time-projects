@@ -29,10 +29,11 @@ const vector<std::pair<int, string>> BIG = {
 };
 
 
-string join(const vector<string> strings) {
+string join(const vector<string>& strings) {
 	string result = "";
 	for (vector<string>::const_iterator it = strings.begin(); it != strings.end(); it++)
-		if (*it != "") result += *it + " ";
+		if (*it != "")
+			result += *it + " ";
 	result = regex_replace(result, std::regex(R"(\s-\s)"), "-");  // twenty - one -> twenty-one
 	result = regex_replace(result, std::regex(R"(\s\s)"), " ");  // Remove any duplicate spaces
 	return result;
@@ -57,10 +58,10 @@ string sayNumPos(const long double n) {
 	} else {
 		int illionsNum;
 		string illionsName;
-		for (const auto& entry : BIG) {
-			illionsNum = entry.first;
+		for (const auto& [illionsNum_i, illionsName_i] : BIG) {
+			illionsNum = illionsNum_i;
 			if (n < pow(1000, illionsNum + 1)) {
-				illionsName = entry.second;
+				illionsName = illionsName_i;
 				break;
 			}
 		}
@@ -74,8 +75,10 @@ string sayNumPos(const long double n) {
 
 
 string convert(const long double n) {
-	if (n < 0) return join({"minus", sayNumPos(-n)});
-	if (n == 0) return "zero";
+	if (n < 0)
+		return join({"minus", sayNumPos(-n)});
+	if (n == 0)
+		return "zero";
 	return sayNumPos(n);
 }
 
@@ -87,8 +90,10 @@ int main() {
 		std::cout << "Input a number (or X to exit)\n>>> ";
 		std::cin >> n;
 
-		if (toupper(n[0]) == 'X') break;
-		else std::cout << convert(stold(n)) << "\n\n";
+		if (toupper(n[0]) == 'X')
+			break;
+		else
+			std::cout << convert(stold(n)) << "\n\n";
 	}
 
 	return 0;

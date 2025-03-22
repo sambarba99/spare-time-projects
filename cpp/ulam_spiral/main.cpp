@@ -22,11 +22,10 @@ vector<bool> primesLessThan(const int n) {
 	vector<bool> isPrime(n, true);
 	isPrime[0] = false;
 	isPrime[1] = false;
-	for (int i = 2; i <= sqrt(n) + 1; i++) {
+	for (int i = 2; i <= sqrt(n) + 1; i++)
 		if (isPrime[i])
 			for (int j = i * i; j < n; j += i)
 				isPrime[j] = false;
-	}
 
 	return isPrime;
 }

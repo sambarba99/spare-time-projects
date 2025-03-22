@@ -50,21 +50,20 @@ void randomiseLiveCells() {
 
 void setPattern(const vector<pair<int, int>>& pattern) {
 	std::fill(&grid[0][0], &grid[0][0] + sizeof(grid) / sizeof(grid[0][0]), false);
-	for (const pair<int, int>& coords : pattern)
-		grid[coords.first][coords.second] = true;
+	for (const auto& [x, y] : pattern)
+		grid[x][y] = true;
 }
 
 
 int countLiveNeighbours(const int y, const int x) {
 	int n = 0;
-	for (int check_y = y - 1; check_y <= y + 1; check_y++) {
-		for (int check_x = x - 1; check_x <= x + 1; check_x++) {
+	for (int check_y = y - 1; check_y <= y + 1; check_y++)
+		for (int check_x = x - 1; check_x <= x + 1; check_x++)
 			if (0 <= check_y && check_y < ROWS && 0 <= check_x && check_x < COLS)
 				if (grid[check_y][check_x])
 					n++;
-		}
-	}
 
+	// If this cell is alive, exclude it from the neighbour count
 	return grid[y][x] ? n - 1 : n;
 }
 
@@ -73,15 +72,17 @@ void updateGrid() {
 	bool nextGenGrid[ROWS][COLS] = {{false}};
 	int n;
 
-	for (int y = 0; y < ROWS; y++) {
+	for (int y = 0; y < ROWS; y++)
 		for (int x = 0; x < COLS; x++) {
 			n = countLiveNeighbours(y, x);
 
-			if (n < 2 || n > 3) nextGenGrid[y][x] = false;
-			else if (n == 3) nextGenGrid[y][x] = true;
-			else nextGenGrid[y][x] = grid[y][x];
+			if (n < 2 || n > 3)
+				nextGenGrid[y][x] = false;
+			else if (n == 3)
+				nextGenGrid[y][x] = true;
+			else
+				nextGenGrid[y][x] = grid[y][x];
 		}
-	}
 
 	std::copy(&nextGenGrid[0][0], &nextGenGrid[0][0] + ROWS * COLS , &grid[0][0]);
 }
@@ -102,16 +103,14 @@ void draw() {
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	for (int y = 0; y < ROWS; y++) {
-		for (int x = 0; x < COLS; x++) {
+	for (int y = 0; y < ROWS; y++)
+		for (int x = 0; x < COLS; x++)
 			if (grid[y][x]) {
 				sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
 				rect.setPosition(x * CELL_SIZE, y * CELL_SIZE + LABEL_HEIGHT);
 				rect.setFillColor(sf::Color(220, 140, 0));
 				window.draw(rect);
 			}
-		}
-	}
 
 	window.display();
 }
@@ -123,7 +122,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -148,7 +147,6 @@ int main() {
 					}
 					break;
 			}
-		}
 
 		draw();
 		if (running) {
