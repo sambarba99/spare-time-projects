@@ -4,6 +4,7 @@ ffmpeg
 graphviz
 imageio
 matplotlib
+mutagen
 nltk
 numpy
 opencv-python
@@ -25,3 +26,4 @@ torchvision
 torch-summary
 tqdm
 webptools
+yt-dlp

@@ -65,7 +65,7 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	double num1 = -G * (2 * M1 + M2) * sin(a1);
 	double num2 = -M2 * G * sin(a1 - 2 * a2);
@@ -114,7 +114,8 @@ void draw() {
 		}
 	}
 
-	if (positions.size() > 1000) positions.erase(positions.begin());
+	if (positions.size() > 1000)
+		positions.erase(positions.begin());
 
 	window.display();
 
@@ -148,7 +149,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -168,7 +169,6 @@ int main() {
 					}
 					break;
 			}
-		}
 
 		if (paused) continue;
 

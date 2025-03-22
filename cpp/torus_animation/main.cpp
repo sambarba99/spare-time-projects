@@ -39,16 +39,15 @@ int screenshotCounter = 0;
 
 
 void renderTorus() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
-	for (int y = 0; y < GRID_SIZE; y++) {
+	for (int y = 0; y < GRID_SIZE; y++)
 		for (int x = 0; x < GRID_SIZE; x++) {
 			sf::Text text(outputGrid[y][x], font, 14);
 			text.setPosition(int(x * CELL_SIZE), int(y * CELL_SIZE));
 			text.setFillColor(sf::Color::White);
 			window.draw(text);
 		}
-	}
 
 	window.display();
 
@@ -77,7 +76,7 @@ int main() {
 	sf::Event event;
 
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event))
 			switch (event.type) {
 				case sf::Event::Closed:
 					window.close();
@@ -87,7 +86,6 @@ int main() {
 						paused = !paused;
 					break;
 			}
-		}
 
 		if (paused) continue;
 

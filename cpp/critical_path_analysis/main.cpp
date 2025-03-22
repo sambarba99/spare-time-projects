@@ -54,7 +54,7 @@ void cpa() {
 	// Early start, early finish
 	vector<int> es(numTasks, 0);
 	vector<int> ef(numTasks, 0);
-	
+
 	for (int i = 0; i < numTasks; i++) {
 		if (PREDECESSORS[i][0] != -1) {
 			int maxEf = 0;
@@ -72,16 +72,14 @@ void cpa() {
 	vector<int> lf(numTasks, 0);
 	vector<vector<int>> successors(numTasks);
 
-	for (int i = numTasks - 1; i > -1; i--) {
-		if (PREDECESSORS[i][0] != -1) {
+	for (int i = numTasks - 1; i > -1; i--)
+		if (PREDECESSORS[i][0] != -1)
 			for (int taskCode : PREDECESSORS[i])
 				successors[taskCode].push_back(i);
-		}
-	}
 
 	for (int i = 0; i < numTasks; i++)
 		sort(successors[i].begin(), successors[i].end());
-	
+
 	for (int i = numTasks - 1; i > -1; i--) {
 		if (successors[i].empty())
 			lf[i] = *max_element(ef.begin(), ef.end());
@@ -95,13 +93,12 @@ void cpa() {
 	}
 
 	// 3. Compute slack
-	
-	vector<int> slack;
-	vector<string> isCritical;
+
+	vector<int> slack(numTasks);
+	vector<string> isCritical(numTasks);
 	for (int i = 0; i < numTasks; i++) {
-		int thisSlack = ls[i] - es[i];
-		slack.push_back(thisSlack);
-		isCritical.push_back(thisSlack == 0 ? "Yes" : "No");
+		slack[i] = ls[i] - es[i];
+		isCritical[i] = slack[i] == 0 ? "Yes" : "No";
 	}
 
 	// 4. Print task data
@@ -120,12 +117,11 @@ void cpa() {
 	vector<int> criticalPath;
 	int criticalDuration = 0;
 
-	for (int i = 0; i < numTasks; i++) {
+	for (int i = 0; i < numTasks; i++)
 		if (slack[i] == 0) {
 			criticalPath.push_back(i);  // i = task code
 			criticalDuration += DURATIONS[i];
 		}
-	}
 
 	cout << "\nCritical path (duration " << criticalDuration << "): ";
 	for (int i : criticalPath)
@@ -135,6 +131,5 @@ void cpa() {
 
 int main() {
 	cpa();
-
 	return 0;
 }
