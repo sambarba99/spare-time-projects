@@ -5,7 +5,7 @@ Controls:
 	Right-click: enter/exit drawing mode
 	Left-click [and drag]: draw freestyle
 	P/G/T: draw preset pi symbol/guitar/T. Rex
-	Up/down arrow: increase/decrease number of epicycles to draw with
+	Up/down arrows: increase/decrease number of epicycles to draw with
 	Space: toggle animation
 
 Author: Sam Barba
@@ -19,7 +19,6 @@ Created 18/11/2022
 #include "presets.h"
 
 using std::complex;
-using std::vector;
 
 
 const int SIZE = 800;
@@ -33,10 +32,9 @@ struct MyComplex {
 	double ampltiude;
 	double phase;
 };
-int numEpicycles;
+int num_epicycles;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE + LABEL_HEIGHT), "Drawing with the Discrete Fourier Transform", sf::Style::Close);
 sf::Font font;
-int screenshotCounter = 0;
 
 
 vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
@@ -51,7 +49,7 @@ vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 	int e2;
 
 	while (true) {
-		result.push_back({x1, y1});
+		result.emplace_back(x1, y1);
 
 		if (x1 == x2 && y1 == y2) return result;
 
@@ -69,13 +67,14 @@ vector<pair<int, int>> bresenham(int x1, int y1, const int x2, const int y2) {
 
 
 vector<pair<int, int>> interpolate(const vector<pair<int, int>>& coords) {
-	if (coords.size() < 2) return coords;
+	if (coords.size() < 2)
+		return coords;
 
 	vector<pair<int, int>> interpolated;
 	for (int i = 0; i < coords.size() - 1; i++) {
-		vector<pair<int, int>> bresCoords = bresenham(coords[i].first, coords[i].second, coords[i + 1].first, coords[i + 1].second);
-		for (const pair<int, int>& c : bresCoords)
-			interpolated.push_back(c);
+		vector<pair<int, int>> bres_coords = bresenham(coords[i].first, coords[i].second, coords[i + 1].first, coords[i + 1].second);
+		for (const auto& c : bres_coords)
+			interpolated.emplace_back(c);
 	}
 
 	return interpolated;
@@ -86,7 +85,7 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 	// Discrete Fourier Transform (see https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition)
 
 	int N = x.size();
-	vector<MyComplex> X;
+	vector<MyComplex> X(N);
 
 	for (int k = 0; k < N; k++) {
 		complex<double> sum(0.0, 0.0);
@@ -96,8 +95,7 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 		}
 		sum /= double(N);  // Average the sum's contribution over N
 
-		MyComplex Xk = {sum.real(), sum.imag(), double(k), abs(sum), atan2(sum.imag(), sum.real())};
-		X.push_back(Xk);
+		X[k] = {sum.real(), sum.imag(), double(k), abs(sum), atan2(sum.imag(), sum.real())};
 	}
 
 	// Descending order of amplitude
@@ -108,37 +106,37 @@ vector<MyComplex> dft(const vector<complex<double>>& x) {
 }
 
 
-vector<MyComplex> computeFourierFromCoords(const vector<pair<int, int>>& drawingCoords) {
+vector<MyComplex> compute_fourier_from_coords(const vector<pair<int, int>>& drawing_coords) {
 	// Centre around origin
-	vector<pair<int, int>> centeredCoords;
-	for (const pair<int, int>& coords : drawingCoords)
-		centeredCoords.push_back({coords.first - SIZE / 2, coords.second - SIZE / 2});
+	vector<pair<int, int>> centered_coords;
+	for (const auto& [x, y] : drawing_coords)
+		centered_coords.emplace_back(x - SIZE / 2, y - SIZE / 2);
 
 	// Fill any gaps
-	vector<pair<int, int>> interpolated = interpolate(centeredCoords);
+	vector<pair<int, int>> interpolated = interpolate(centered_coords);
 
 	// Skip 3 points at a time (don't need that much resolution)
-	vector<pair<int, int>> drawingPath;
+	vector<pair<int, int>> drawing_path;
 	for (int i = 0; i < interpolated.size(); i++)
 		if (i % 4 == 0)
-			drawingPath.push_back(interpolated[i]);
+			drawing_path.emplace_back(interpolated[i]);
 
 	// Convert to complex
-	vector<complex<double>> complexVector;
-	for (const pair<int, int>& coords : drawingPath)
-		complexVector.push_back({double(coords.first), double(coords.second)});
+	vector<complex<double>> complex_vector;
+	for (const auto& [x, y] : drawing_path)
+		complex_vector.emplace_back(double(x), double(y));
 
-	vector<MyComplex> fourier = dft(complexVector);
+	vector<MyComplex> fourier = dft(complex_vector);
 
 	return fourier;
 }
 
 
 pair<double, double> epicycles(double x, double y, const vector<MyComplex>& fourier, const double time) {
-	double prevX, prevY;
-	for (int i = 0; i < numEpicycles; i++) {
-		prevX = x;
-		prevY = y;
+	double prev_x, prev_y;
+	for (int i = 0; i < num_epicycles; i++) {
+		prev_x = x;
+		prev_y = y;
 		double freq = fourier[i].frequency;
 		double radius = fourier[i].ampltiude;
 		double phase = fourier[i].phase;
@@ -146,13 +144,13 @@ pair<double, double> epicycles(double x, double y, const vector<MyComplex>& four
 		y += radius * sin(freq * time + phase);
 
 		sf::CircleShape circle(radius);
-		circle.setPosition(prevX - radius, prevY - radius);
+		circle.setPosition(prev_x - radius, prev_y - radius);
 		circle.setFillColor(sf::Color(0, 0, 0, 0));
 		circle.setOutlineColor(sf::Color(60, 60, 60));
 		circle.setOutlineThickness(1.f);
 
 		sf::Vertex line[] = {
-			sf::Vertex(sf::Vector2f(prevX, prevY)),
+			sf::Vertex(sf::Vector2f(prev_x, prev_y)),
 			sf::Vertex(sf::Vector2f(x, y))
 		};
 		window.draw(circle);
@@ -163,39 +161,40 @@ pair<double, double> epicycles(double x, double y, const vector<MyComplex>& four
 }
 
 
-void drawLabel(const std::string label, const int pauseMilliseconds) {
-	sf::RectangleShape lblArea(sf::Vector2f(SIZE, LABEL_HEIGHT));
-	lblArea.setPosition(0, SIZE);
-	lblArea.setFillColor(sf::Color::Black);
-	window.draw(lblArea);
+void draw_label(const std::string label, const int pause_millisecs) {
+	sf::RectangleShape lbl_area(sf::Vector2f(SIZE, LABEL_HEIGHT));
+	lbl_area.setPosition(0, SIZE);
+	lbl_area.setFillColor(sf::Color::Black);
+	window.draw(lbl_area);
 
 	sf::Text text(label, font, 14);
-	sf::FloatRect textRect = text.getLocalBounds();
-	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
+	sf::FloatRect text_rect = text.getLocalBounds();
+	text.setOrigin(int(text_rect.left + text_rect.width / 2), int(text_rect.top + text_rect.height / 2));
 	text.setPosition(SIZE / 2, SIZE + LABEL_HEIGHT / 2);
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
-	if (pauseMilliseconds) {
+	if (pause_millisecs) {
 		window.display();
-		sf::sleep(sf::milliseconds(pauseMilliseconds));
+		sf::sleep(sf::milliseconds(pause_millisecs));
 	}
 }
 
 
 int main() {
-	window.setFramerateLimit(FPS);
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
-
-	bool leftBtnDown = false;
-	bool userDrawingMode = true;
-	vector<pair<int, int>> userDrawingCoords;
+	bool paused = false;
+	bool left_btn_down = false;
+	bool user_drawing_mode = true;
+	vector<pair<int, int>> user_drawing_coords;
 	vector<MyComplex> fourier;
 	vector<pair<double, double>> path;
-	double time = 0;
-	double dt = 0;
-	bool paused = false;
+	double time = 0, dt = 0;
+	int screenshot_counter = 0;
 	sf::Event event;
+	sf::Vector2i mouse_pos;
+
+	window.setFramerateLimit(FPS);
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {
@@ -204,93 +203,97 @@ int main() {
 					window.close();
 					break;
 				case sf::Event::MouseButtonPressed:
-					if (event.mouseButton.button == sf::Mouse::Left) {
-						if (userDrawingMode) leftBtnDown = true;
+					if (event.mouseButton.button == sf::Mouse::Left && user_drawing_mode) {
+						left_btn_down = true;
 					} else if (event.mouseButton.button == sf::Mouse::Right) {
-						userDrawingMode = !userDrawingMode;
-						if (userDrawingMode) {  // Start drawing
-							userDrawingCoords.clear();  // Clear for new drawing
+						user_drawing_mode = !user_drawing_mode;
+						if (user_drawing_mode) {  // Start drawing
+							user_drawing_coords.clear();  // Clear for new drawing
 							fourier.clear();  // Clear previous calculations
 							path.clear();  // Clear previous renders
 							time = 0.0;
 						} else {  // Finished drawing
-							if (userDrawingCoords.size() < 2) {
-								drawLabel("Need at least 2 points", 750);
-								userDrawingMode = true;
+							if (user_drawing_coords.size() < 2) {
+								draw_label("Need at least 2 points", 750);
+								user_drawing_mode = true;
 							} else {
-								fourier = computeFourierFromCoords(userDrawingCoords);
-								numEpicycles = fourier.size();
-								dt = 2 * M_PI / double(numEpicycles);
+								fourier = compute_fourier_from_coords(user_drawing_coords);
+								num_epicycles = fourier.size();
+								dt = 2 * M_PI / double(num_epicycles);
 								paused = false;
 							}
 						}
 					}
 					break;
 				case sf::Event::MouseMoved:
-					if (leftBtnDown && userDrawingMode) {
-						sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-						userDrawingCoords.push_back({mousePos.x, mousePos.y});
+					if (left_btn_down && user_drawing_mode) {
+						mouse_pos = sf::Mouse::getPosition(window);
+						user_drawing_coords.emplace_back(mouse_pos.x, mouse_pos.y);
 					}
 					break;
 				case sf::Event::MouseButtonReleased:
 					if (event.mouseButton.button == sf::Mouse::Left) {
-						if (leftBtnDown && userDrawingMode) {
-							sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-							userDrawingCoords.push_back({mousePos.x, mousePos.y});
-							leftBtnDown = false;
+						if (left_btn_down && user_drawing_mode) {
+							mouse_pos = sf::Mouse::getPosition(window);
+							user_drawing_coords.emplace_back(mouse_pos.x, mouse_pos.y);
+							left_btn_down = false;
 						}
 					}
 					break;
 				case sf::Event::KeyPressed:
 					switch (event.key.code) {
 						case sf::Keyboard::Up: case sf::Keyboard::Down:
-							if (fourier.empty()) continue;
+							if (fourier.empty())
+								continue;
 							if (event.key.code == sf::Keyboard::Up) {
-								numEpicycles = std::min(numEpicycles * 2, int(fourier.size()));
+								num_epicycles = std::min(num_epicycles * 2, int(fourier.size()));
 							} else {
-								int pow2 = pow(2, int(log2(numEpicycles)));
-								numEpicycles = pow2 == numEpicycles ? pow2 / 2 : pow2;
-								numEpicycles = std::max(numEpicycles, 2);
+								int pow2 = pow(2, int(log2(num_epicycles)));
+								num_epicycles = pow2 == num_epicycles ? pow2 / 2 : pow2;
+								num_epicycles = std::max(num_epicycles, 2);
 							}
-							if (numEpicycles == fourier.size()) drawLabel("No. epicycles = " + std::to_string(numEpicycles) + " (max)", 500);
-							else drawLabel("No. epicycles = " + std::to_string(numEpicycles), 500);
+							if (num_epicycles == fourier.size())
+								draw_label("No. epicycles = " + std::to_string(num_epicycles) + " (max)", 500);
+							else
+								draw_label("No. epicycles = " + std::to_string(num_epicycles), 500);
 							path.clear();
 							time = 0.0;
 							continue;
 						case sf::Keyboard::P:
-							fourier = computeFourierFromCoords(PI);
+							fourier = compute_fourier_from_coords(PI);
 							break;
 						case sf::Keyboard::G:
-							fourier = computeFourierFromCoords(GUITAR);
+							fourier = compute_fourier_from_coords(GUITAR);
 							break;
 						case sf::Keyboard::T:
-							fourier = computeFourierFromCoords(T_REX);
+							fourier = compute_fourier_from_coords(T_REX);
 							break;
 						case sf::Keyboard::Space:
 							paused = !paused;
 							continue;
 					}
-					userDrawingMode = paused = false;
+					user_drawing_mode = paused = false;
 					path.clear();
 					time = 0.0;
-					numEpicycles = fourier.size();
-					dt = 2 * M_PI / double(numEpicycles);
+					num_epicycles = fourier.size();
+					dt = 2 * M_PI / double(num_epicycles);
 					break;
 			}
 		}
 
-		if (paused && !userDrawingMode) continue;
+		if (paused && !user_drawing_mode)
+			continue;
 
-		window.clear(sf::Color::Black);
+		window.clear();
 
-		if (userDrawingMode) {
+		if (user_drawing_mode) {
 			sf::VertexArray pixels(sf::Points);
-			for (const pair<int, int>& coords : userDrawingCoords)
-				pixels.append(sf::Vertex(sf::Vector2f(coords.first, coords.second), sf::Color::Red));
+			for (const auto& [x, y] : user_drawing_coords)
+				pixels.append(sf::Vertex(sf::Vector2f(x, y), sf::Color::Red));
 			window.draw(pixels);
 		} else {  // Draw Fourier result
-			pair<double, double> epicycleFinalPos = epicycles(SIZE / 2.0, SIZE / 2.0, fourier, time);
-			path.push_back({epicycleFinalPos.first, epicycleFinalPos.second});
+			pair<double, double> epicycle_final_pos = epicycles(SIZE / 2.0, SIZE / 2.0, fourier, time);
+			path.emplace_back(epicycle_final_pos.first, epicycle_final_pos.second);
 			for (int i = 0; i < path.size() - 1; i++) {
 				sf::Vertex line[] = {
 					sf::Vertex(sf::Vector2f(path[i].first, path[i].second), sf::Color::Red),
@@ -306,7 +309,7 @@ int main() {
 			}
 		}
 
-		if (userDrawingMode) drawLabel("Draw something, or select a preset with P/G/T. Right-click to exit drawing mode.", 0);
+		if (user_drawing_mode) draw_label("Draw something, or select a preset with P/G/T. Right-click to exit drawing mode.", 0);
 		window.display();
 
 		// sf::Texture texture;
@@ -315,9 +318,9 @@ int main() {
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
 		// std::ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
 		// screenshot.saveToFile(filePath.str());
-		// screenshotCounter++;
+		// screenshot_counter++;
 	}
 
 	return 0;

@@ -55,7 +55,7 @@ def plot_graphical_model(rvs):
 
 	# Render graph
 
-	g.render('./coffee_machine_graphical_model', view=True, cleanup=True, format='png')
+	g.render('./images/coffee_machine_graphical_model', view=True, cleanup=True, format='png')
 
 
 def plot_factor_graph(edges, itn, rvs):
@@ -100,4 +100,4 @@ def plot_factor_graph(edges, itn, rvs):
 
 	# Render graph
 
-	g.render('./coffee_machine_factor_graph', view=True, cleanup=True, format='png')
+	g.render('./images/coffee_machine_factor_graph', view=True, cleanup=True, format='png')

@@ -32,18 +32,17 @@ const double K1 = 100.0;  // Arbitrary distance from torus to viewer
 const double K2 = GRID_SIZE * K1 * 3 / (8 * (R1 + R2));
 const std::string CHARS = "@$#=*!;:~-,.";  // 'Brightest' to 'dimmest' chars
 
-char outputGrid[GRID_SIZE][GRID_SIZE];
+char output_grid[GRID_SIZE][GRID_SIZE];
 sf::RenderWindow window(sf::VideoMode(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE), "Revolving torus", sf::Style::Close);
 sf::Font font;
-int screenshotCounter = 0;
 
 
-void renderTorus() {
-	window.clear(sf::Color::Black);
+void draw() {
+	window.clear();
 
 	for (int y = 0; y < GRID_SIZE; y++) {
 		for (int x = 0; x < GRID_SIZE; x++) {
-			sf::Text text(outputGrid[y][x], font, 14);
+			sf::Text text(output_grid[y][x], font, 14);
 			text.setPosition(int(x * CELL_SIZE), int(y * CELL_SIZE));
 			text.setFillColor(sf::Color::White);
 			window.draw(text);
@@ -51,30 +50,21 @@ void renderTorus() {
 	}
 
 	window.display();
-
-	// sf::Texture texture;
-	// sf::Image screenshot;
-	// texture.create(window.getSize().x, window.getSize().y);
-	// texture.update(window);
-	// screenshot = texture.copyToImage();
-	// std::ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
-	// screenshot.saveToFile(filePath.str());
-	// screenshotCounter++;
 }
 
 
 int main() {
-	window.setFramerateLimit(FPS);
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
-
 	// Revolution amounts about x and z axes (increased after each frame, to revolve the torus)
 	double xrev, zrev;
-	double sinXrev, cosXrev, sinZrev, cosZrev;
-	double sinTheta, cosTheta, sinPhi, cosPhi;
-	double zBuffer[GRID_SIZE][GRID_SIZE];
+	double sin_xrev, cos_xrev, sin_zrev, cos_zrev;
+	double sin_theta, cos_theta, sin_phi, cos_phi;
+	double z_buffer[GRID_SIZE][GRID_SIZE];
 	bool paused = false;
+	int screenshot_counter = 0;
 	sf::Event event;
+
+	window.setFramerateLimit(FPS);
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {
@@ -89,52 +79,63 @@ int main() {
 			}
 		}
 
-		if (paused) continue;
+		if (paused)
+			continue;
 
-		sinXrev = sin(xrev);
-		cosXrev = cos(xrev);
-		sinZrev = sin(zrev);
-		cosZrev = cos(zrev);
+		sin_xrev = sin(xrev);
+		cos_xrev = cos(xrev);
+		sin_zrev = sin(zrev);
+		cos_zrev = cos(zrev);
 
-		std::fill(&outputGrid[0][0], &outputGrid[0][0] + sizeof(outputGrid) / sizeof(outputGrid[0][0]), ' ');
-		std::fill(&zBuffer[0][0], &zBuffer[0][0] + sizeof(zBuffer) / sizeof(zBuffer[0][0]), 0.0);
+		std::fill(&output_grid[0][0], &output_grid[0][0] + sizeof(output_grid) / sizeof(output_grid[0][0]), ' ');
+		std::fill(&z_buffer[0][0], &z_buffer[0][0] + sizeof(z_buffer) / sizeof(z_buffer[0][0]), 0.0);
 
 		for (double theta = 0.0; theta < 2 * M_PI; theta += CHANGE_THETA) {
-			sinTheta = sin(theta);
-			cosTheta = cos(theta);
+			sin_theta = sin(theta);
+			cos_theta = cos(theta);
 
 			for (double phi = 0.0; phi < 2 * M_PI; phi += CHANGE_PHI) {
-				sinPhi = sin(phi);
-				cosPhi = cos(phi);
+				sin_phi = sin(phi);
+				cos_phi = cos(phi);
 
 				// x,y coords before revolution
-				double circleX = R2 + R1 * cosTheta;
-				double circleY = R1 * sinTheta;
+				double circle_x = R2 + R1 * cos_theta;
+				double circle_y = R1 * sin_theta;
 
 				// 3D coords after revolution
-				double x = circleX * (cosZrev * cosPhi + sinXrev * sinZrev * sinPhi) - circleY * cosXrev * sinZrev;
-				double y = circleX * (sinZrev * cosPhi - sinXrev * cosZrev * sinPhi) + circleY * cosXrev * cosZrev;
-				double z = K1 + cosXrev * circleX * sinPhi + circleY * sinXrev;
+				double x = circle_x * (cos_zrev * cos_phi + sin_xrev * sin_zrev * sin_phi) - circle_y * cos_xrev * sin_zrev;
+				double y = circle_x * (sin_zrev * cos_phi - sin_xrev * cos_zrev * sin_phi) + circle_y * cos_xrev * cos_zrev;
+				double z = K1 + cos_xrev * circle_x * sin_phi + circle_y * sin_xrev;
 				double zr = 1.0 / z;
 
 				// x, y projection (y is negated, as y goes up in 3D space but down on 2D displays)
-				int xProj = int(GRID_SIZE / 2 + K2 * zr * x);
-				int yProj = -int(GRID_SIZE / 2 + K2 * zr * y);
+				int x_proj = int(GRID_SIZE / 2 + K2 * zr * x);
+				int y_proj = -int(GRID_SIZE / 2 + K2 * zr * y);
 
 				// Luminance (ranges from -sqrt(2) to sqrt(2))
-				double lum = cosPhi * cosTheta * sinZrev - cosXrev * cosTheta * sinPhi - sinXrev * sinTheta + cosZrev * (cosXrev * sinTheta - cosTheta * sinXrev * sinPhi);
+				double lum = cos_phi * cos_theta * sin_zrev - cos_xrev * cos_theta * sin_phi - sin_xrev * sin_theta + cos_zrev * (cos_xrev * sin_theta - cos_theta * sin_xrev * sin_phi);
 
 				// Larger 1/z means the pixel is closer to the viewer than what's already rendered
-				if (zr > zBuffer[-yProj][xProj]) {
-					zBuffer[-yProj][xProj] = zr;
+				if (zr > z_buffer[-y_proj][x_proj]) {
+					z_buffer[-y_proj][x_proj] = zr;
 					// Multiply by 8 to get idx in range 0 - 11 (8 * sqrt(2) = 11.31)
-					int lumIdx = lum * 8;
-					outputGrid[-yProj][xProj] = CHARS[std::max(lumIdx, 0)];
+					int lum_idx = lum * 8;
+					output_grid[-y_proj][x_proj] = CHARS[std::max(lum_idx, 0)];
 				}
 			}
 		}
 
-		renderTorus();
+		draw();
+		// sf::Texture texture;
+		// sf::Image screenshot;
+		// texture.create(window.getSize().x, window.getSize().y);
+		// texture.update(window);
+		// screenshot = texture.copyToImage();
+		// std::ostringstream filePath;
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(filePath.str());
+		// screenshot_counter++;
+
 		xrev += CHANGE_X_REV;
 		zrev += CHANGE_Z_REV;
 	}

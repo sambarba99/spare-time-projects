@@ -10,72 +10,77 @@ using std::vector;
 class Tree {
 	public:
 		string data;
-		Tree* leftChild;
-		Tree* rightChild;
+		Tree* left_child;
+		Tree* right_child;
 
-		Tree(const string data) {
+		Tree(const string& data) {
 			this->data = data;
-			leftChild = NULL;
-			rightChild = NULL;
+			left_child = NULL;
+			right_child = NULL;
 		}
 
-		void insert(const string newData) {
-			if (data == newData) return;  // No duplicates allowed
-			else if (newData.compare(data) == -1) {
-				if (leftChild)
-					leftChild->insert(newData);
+		void insert(const string& new_data) {
+			if (data == new_data) {
+				return;  // No duplicates allowed
+			} else if (new_data.compare(data) == -1) {
+				if (left_child)
+					left_child->insert(new_data);
 				else
-					leftChild = new Tree(newData);
+					left_child = new Tree(new_data);
 			} else {
-				if (rightChild)
-					rightChild->insert(newData);
+				if (right_child)
+					right_child->insert(new_data);
 				else
-					rightChild = new Tree(newData);
+					right_child = new Tree(new_data);
 			}
 		}
 
-		int getHeight() {
-			if (!this) return 0;
-			return std::max(leftChild->getHeight(), rightChild->getHeight()) + 1;
+		int get_height() {
+			if (!this)
+				return 0;
+			return std::max(left_child->get_height(), right_child->get_height()) + 1;
 		}
 
-		vector<string> inOrderTraversal() {
-			if (!this) return vector<string>();
+		vector<string> in_order_traversal() {
+			if (!this)
+				return vector<string>();
 
-			vector<string> leftTraversal = leftChild->inOrderTraversal();
-			vector<string> rightTraversal = rightChild->inOrderTraversal();
+			vector<string> left_traversal = left_child->in_order_traversal();
+			vector<string> right_traversal = right_child->in_order_traversal();
 			vector<string> result;
-			result.insert(result.end(), leftTraversal.begin(), leftTraversal.end());
-			result.push_back(data);
-			result.insert(result.end(), rightTraversal.begin(), rightTraversal.end());
+			result.insert(result.end(), left_traversal.begin(), left_traversal.end());
+			result.emplace_back(data);
+			result.insert(result.end(), right_traversal.begin(), right_traversal.end());
 			return result;
 		}
 
-		vector<string> preOrderTraversal() {
-			if (!this) return vector<string>();
+		vector<string> pre_order_traversal() {
+			if (!this)
+				return vector<string>();
 
-			vector<string> leftTraversal = leftChild->preOrderTraversal();
-			vector<string> rightTraversal = rightChild->preOrderTraversal();
+			vector<string> left_traversal = left_child->pre_order_traversal();
+			vector<string> right_traversal = right_child->pre_order_traversal();
 			vector<string> result;
-			result.push_back(data);
-			result.insert(result.end(), leftTraversal.begin(), leftTraversal.end());
-			result.insert(result.end(), rightTraversal.begin(), rightTraversal.end());
+			result.emplace_back(data);
+			result.insert(result.end(), left_traversal.begin(), left_traversal.end());
+			result.insert(result.end(), right_traversal.begin(), right_traversal.end());
 			return result;
 		}
 
-		vector<string> postOrderTraversal() {
-			if (!this) return vector<string>();
+		vector<string> post_order_traversal() {
+			if (!this)
+				return vector<string>();
 
-			vector<string> leftTraversal = leftChild->postOrderTraversal();
-			vector<string> rightTraversal = rightChild->postOrderTraversal();
+			vector<string> left_traversal = left_child->post_order_traversal();
+			vector<string> right_traversal = right_child->post_order_traversal();
 			vector<string> result;
-			result.insert(result.end(), leftTraversal.begin(), leftTraversal.end());
-			result.insert(result.end(), rightTraversal.begin(), rightTraversal.end());
-			result.push_back(data);
+			result.insert(result.end(), left_traversal.begin(), left_traversal.end());
+			result.insert(result.end(), right_traversal.begin(), right_traversal.end());
+			result.emplace_back(data);
 			return result;
 		}
 
-		vector<string> breadthFirstTraversal() {
+		vector<string> breadth_first_traversal() {
 			vector<string> result({data});
 			std::queue<Tree*> q;
 			q.push(this);
@@ -84,47 +89,49 @@ class Tree {
 				Tree* front = q.front();
 				q.pop();
 
-				if (front->leftChild) {
-					q.push(front->leftChild);
-					result.push_back(front->leftChild->data);
+				if (front->left_child) {
+					q.push(front->left_child);
+					result.emplace_back(front->left_child->data);
 				}
-				if (front->rightChild) {
-					q.push(front->rightChild);
-					result.push_back(front->rightChild->data);
+				if (front->right_child) {
+					q.push(front->right_child);
+					result.emplace_back(front->right_child->data);
 				}
 			}
 
 			return result;
 		}
 
-		bool isBST(string prev = "0") {
-			if (!this) return true;
-
-			if (!leftChild->isBST(prev))
+		bool is_bst(string prev = "0") {
+			if (!this)
+				return true;
+			if (!left_child->is_bst(prev))
 				return false;
 			// Handle equal-valued nodes
 			if (data.compare(prev) == -1)
 				return false;
 			prev = data;
-			return rightChild->isBST(prev);
+			return right_child->is_bst(prev);
 		}
 
-		bool isBalanced() {
-			if (!this) return true;
+		bool is_balanced() {
+			if (!this)
+				return true;
 
-			int leftHeight = leftChild->getHeight();
-			int rightHeight = rightChild->getHeight();
-			return abs(leftHeight - rightHeight) <= 1
-				&& leftChild->isBalanced()
-				&& rightChild->isBalanced();
+			int left_height = left_child->get_height();
+			int right_height = right_child->get_height();
+			return abs(left_height - right_height) <= 1
+				&& left_child->is_balanced()
+				&& right_child->is_balanced();
 		}
 
-		void display(const bool isLeft = false, const string prefix = "") {
-			if (!this) return;
+		void display(const bool is_left = false, const string& prefix = "") {
+			if (!this)
+				return;
 
-			std::cout << prefix << (isLeft ? "├─" : "└─") << data << '\n';
-			leftChild->display(true, prefix + (isLeft ? "│  " : "   "));
-			rightChild->display(false, prefix + (isLeft ? "│  " : "   "));
+			std::cout << prefix << (is_left ? "├─" : "└─") << data << '\n';
+			left_child->display(true, prefix + (is_left ? "│  " : "   "));
+			right_child->display(false, prefix + (is_left ? "│  " : "   "));
 		}
 };
 

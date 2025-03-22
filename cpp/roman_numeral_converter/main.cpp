@@ -18,21 +18,20 @@ const std::vector<std::pair<string, int>> NUMERAL_VALS = {
 };
 
 
-bool isStringNumeric(const string s) {
+bool is_string_numeric(const string& s) {
 	for (char c : s)
-		if (c < '0' || c > '9') return false;
+		if (!isdigit(c))
+			return false;
 
 	return true;
 }
 
 
-string intToNumerals(int n) {
+string int_to_numerals(int n) {
 	if (n <= 0) return std::to_string(n);
 
 	string numerals = "";
-	for (const auto& item : NUMERAL_VALS) {
-		string k = item.first;
-		int v = item.second;
+	for (const auto& [k, v] : NUMERAL_VALS) {
 		while (n >= v) {
 			numerals += k;
 			n -= v;
@@ -44,22 +43,22 @@ string intToNumerals(int n) {
 }
 
 
-int getValue(const string numeral) {
-	for (const auto& item : NUMERAL_VALS)
-		if (item.first == numeral)
-			return item.second;
-	return -1;
+int get_value(const string& numeral) {
+	for (const auto& [k, v] : NUMERAL_VALS)
+		if (k == numeral)
+			return v;
+	throw std::exception();
 }
 
 
-int numeralsToInt(const string numerals) {
+int numerals_to_int(const string& numerals) {
 	int n = 0;
 
 	for (int i = 0; i < numerals.length(); i++) {
-		string charToString = string(1, numerals[i]);
-		int val = getValue(charToString);
+		string char_to_string = string(1, numerals[i]);
+		int val = get_value(char_to_string);
 
-		if (i + 1 < numerals.length() && getValue(string(1, numerals[i + 1])) > val)
+		if (i + 1 < numerals.length() && get_value(string(1, numerals[i + 1])) > val)
 			n -= val;
 		else
 			n += val;
@@ -69,10 +68,10 @@ int numeralsToInt(const string numerals) {
 }
 
 
-string convert(const string input) {
-	if (isStringNumeric(input))
-		return intToNumerals(stoi(input));
-	return std::to_string(numeralsToInt(input));
+string convert(const string& input) {
+	if (is_string_numeric(input))
+		return int_to_numerals(stoi(input));
+	return std::to_string(numerals_to_int(input));
 }
 
 
@@ -84,7 +83,8 @@ int main() {
 		std::cin >> input;
 		transform(input.begin(), input.end(), input.begin(), ::toupper);
 
-		if (input[0] == 'Q') break;
+		if (input[0] == 'Q')
+			break;
 		std::cout << "Result: " << convert(input) << "\n\n";
 	}
 
