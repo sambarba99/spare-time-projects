@@ -26,7 +26,7 @@ vector<pair<float, float>> points;
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), L"Bézier curve drawing", sf::Style::Close);
 
 
-pair<float, float> linearInterpolate(const pair<float, float>& a, const pair<float, float>& b, const float t) {
+pair<float, float> linear_interpolate(const pair<float, float>& a, const pair<float, float>& b, const float t) {
 	// Linear interpolation between (ax,ay) and (bx,by) by amount t
 
 	float ax = a.first, ay = a.second;
@@ -37,22 +37,22 @@ pair<float, float> linearInterpolate(const pair<float, float>& a, const pair<flo
 }
 
 
-pair<float, float> bezierPoint(vector<pair<float, float>> controlPoints, const float t) {
-	while (controlPoints.size() > 1) {
-		vector<pair<float, float>> controlPointsTemp;
-		for (int i = 0; i < controlPoints.size() - 1; i++) {
-			pair<float, float> lerp = linearInterpolate(controlPoints[i], controlPoints[i + 1], t);
-			controlPointsTemp.push_back(lerp);
+pair<float, float> bezier_point(vector<pair<float, float>> control_points, const float t) {
+	while (control_points.size() > 1) {
+		vector<pair<float, float>> control_points_temp(control_points.size() - 1);
+		for (int i = 0; i < control_points.size() - 1; i++) {
+			pair<float, float> lerp = linear_interpolate(control_points[i], control_points[i + 1], t);
+			control_points_temp[i] = lerp;
 		}
-		controlPoints = controlPointsTemp;
+		control_points = control_points_temp;
 	}
 
-	return controlPoints[0];
+	return control_points[0];
 }
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	// Draw connective lines, then curve on top, then points on top
 
@@ -67,15 +67,15 @@ void draw() {
 
 		sf::VertexArray pixels(sf::Points);
 		for (float t = 0; t <= 1; t += 1e-4) {
-			pair<float, float> point = bezierPoint(points, t);
+			pair<float, float> point = bezier_point(points, t);
 			pixels.append(sf::Vertex(sf::Vector2f(point.first, point.second), sf::Color::White));
 		}
 		window.draw(pixels);
 	}
 
-	for (const auto& point : points) {
+	for (const auto& [x, y] : points) {
 		sf::CircleShape circle(POINT_RADIUS);
-		circle.setPosition(point.first - POINT_RADIUS, point.second - POINT_RADIUS);
+		circle.setPosition(x - POINT_RADIUS, y - POINT_RADIUS);
 		circle.setFillColor(sf::Color(230, 20, 20));
 		window.draw(circle);
 	}
@@ -84,10 +84,10 @@ void draw() {
 }
 
 
-vector<float> calcPointDistancesFromMouse(const int mouseX, const int mouseY) {
-	vector<float> distances;
-	for (const auto& point : points)
-		distances.push_back(sqrt(pow(point.first - mouseX, 2) + pow(point.second - mouseY, 2)));
+vector<float> calc_point_distance_from_mouse(const int mouse_x, const int mouse_y) {
+	vector<float> distances(points.size());
+	for (const auto& [x, y] : points)
+		distances.emplace_back(sqrt(pow(x - mouse_x, 2) + pow(y - mouse_y, 2)));
 	return distances;
 }
 
@@ -96,10 +96,10 @@ int main() {
 	window.setFramerateLimit(FPS);
 	window.display();
 
-	int clickedPointIdx = -1;
-	sf::Vector2i mousePos;
-	float mouseX, mouseY;
-	bool leftBtnDown = false;
+	int clicked_point_idx = -1;
+	sf::Vector2i mouse_pos;
+	float mouse_x, mouse_y;
+	bool left_btn_down = false;
 	sf::Event event;
 
 	while (window.isOpen()) {
@@ -109,34 +109,34 @@ int main() {
 					window.close();
 					break;
 				case sf::Event::MouseButtonPressed:
-					mousePos = sf::Mouse::getPosition(window);
-					mouseX = mousePos.x;
-					mouseY = mousePos.y;
+					mouse_pos = sf::Mouse::getPosition(window);
+					mouse_x = mouse_pos.x;
+					mouse_y = mouse_pos.y;
 
 					if (event.mouseButton.button == sf::Mouse::Left) {  // Left-click to drag point
 						if (points.empty()) continue;
 
-						leftBtnDown = true;
-						vector<float> pointDistancesFromMouse = calcPointDistancesFromMouse(mouseX, mouseY);
-						float minDist = *min_element(pointDistancesFromMouse.begin(), pointDistancesFromMouse.end());
-						if (minDist <= POINT_RADIUS)  // Mouse is on a point
-							clickedPointIdx = find(pointDistancesFromMouse.begin(), pointDistancesFromMouse.end(), minDist) - pointDistancesFromMouse.begin();
+						left_btn_down = true;
+						vector<float> point_distance_from_mouse = calc_point_distance_from_mouse(mouse_x, mouse_y);
+						float min_dist = *min_element(point_distance_from_mouse.begin(), point_distance_from_mouse.end());
+						if (min_dist <= POINT_RADIUS)  // Mouse is on a point
+							clicked_point_idx = find(point_distance_from_mouse.begin(), point_distance_from_mouse.end(), min_dist) - point_distance_from_mouse.begin();
 						else
-							clickedPointIdx = -1;
+							clicked_point_idx = -1;
 					} else if (event.mouseButton.button == sf::Mouse::Right) {  // Right-click to add a point
 						if (points.size() < MAX_POINTS) {
-							points.push_back({mouseX, mouseY});
+							points.emplace_back(mouse_x, mouse_y);
 							draw();
 						}
 					}
 					break;
 				case sf::Event::MouseMoved:
-					mousePos = sf::Mouse::getPosition(window);
-					mouseX = mousePos.x;
-					mouseY = mousePos.y;
+					mouse_pos = sf::Mouse::getPosition(window);
+					mouse_x = mouse_pos.x;
+					mouse_y = mouse_pos.y;
 					break;
 				case sf::Event::MouseButtonReleased:
-					leftBtnDown = false;
+					left_btn_down = false;
 					break;
 				case sf::Event::KeyPressed:
 					if (event.key.code == sf::Keyboard::R) {  // Reset
@@ -147,8 +147,8 @@ int main() {
 			}
 		}
 
-		if (leftBtnDown && clickedPointIdx != -1) {
-			points[clickedPointIdx] = {mouseX, mouseY};
+		if (left_btn_down && clicked_point_idx != -1) {
+			points[clicked_point_idx] = {mouse_x, mouse_y};
 			draw();
 		}
 	}

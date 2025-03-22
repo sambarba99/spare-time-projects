@@ -16,7 +16,7 @@ const int RULES[] = {18, 30, 45, 54, 57, 73, 105, 151, 153, 161};  // Interestin
 sf::RenderWindow window(sf::VideoMode(IMG_SIZE, IMG_SIZE), "", sf::Style::Close);
 
 
-vector<int> getRuleset(int n) {
+vector<int> get_ruleset(int n) {
 	vector<int> ruleset(8, 0);
 	int i = 7;
 	while (n) {
@@ -29,7 +29,7 @@ vector<int> getRuleset(int n) {
 }
 
 
-void generatePlot(const vector<int>& ruleset) {
+void generate_plot(const vector<int>& ruleset) {
 	vector<int> gen(IMG_SIZE, 0);
 	gen[IMG_SIZE / 2] = 1;  // Turn on centre pixel of first generation
 	vector<vector<int>> plot(IMG_SIZE, vector<int>(IMG_SIZE, 0));
@@ -63,7 +63,7 @@ void generatePlot(const vector<int>& ruleset) {
 
 int main() {
 	int i = 0;
-	generatePlot(getRuleset(RULES[i]));
+	generate_plot(get_ruleset(RULES[i]));
 	window.setTitle("Elementary Cellular Automata (rule " + std::to_string(RULES[i]) + ")");
 	sf::Event event;
 
@@ -74,9 +74,11 @@ int main() {
 					window.close();
 					break;
 				case sf::Event::MouseButtonPressed:
-					i = ++i % (sizeof(RULES) / sizeof(int));
+					i++;
+					if (i >= sizeof(RULES) / sizeof(int))
+						i = 0;
 					window.setTitle("Elementary Cellular Automata (rule " + std::to_string(RULES[i]) + ")");
-					generatePlot(getRuleset(RULES[i]));
+					generate_plot(get_ruleset(RULES[i]));
 					break;
 			}
 		}

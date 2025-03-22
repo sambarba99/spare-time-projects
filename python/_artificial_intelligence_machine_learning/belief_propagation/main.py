@@ -11,7 +11,7 @@ import pandas as pd
 from graph_plotter import plot_graphical_model, plot_factor_graph
 
 
-pd.set_option('display.max_columns', 11)
+pd.set_option('display.max_columns', 8)
 pd.set_option('display.width', None)
 
 RV_TO_FACTOR = 17  # For converting variables to factors for factor graph
@@ -111,8 +111,8 @@ def calculate_edges():
 
 def calculate_message_order(edges):
 	"""
-	Convert list of edges into a valid message order (a message can only be sent from node A
-	to node B once A has received all of its messages, except for the message from B)
+	Convert list of edges into a valid message order (a message can only be sent from node A to node B once A has
+	received all of its messages, except for the message from B)
 	"""
 
 	flags = dict()  # Nested dict
@@ -140,14 +140,11 @@ def calculate_message_order(edges):
 
 def calculate_marginals(known, msg_order):
 	"""
-	Belief propagation - a trick is that if an RV is known (observed), then instead of using
-	rv_to_factor_msg whenever a message is sent from it, you send the known distribution instead
-	(i.e. [1, 0] for False or [0, 1] for True).
-	The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary
-	indicates that it has been observed. The value obtained using the key is the value the RV
-	has been observed as.
-	This function returns a 17x2 matrix, such that [rv, 0] is the probability of RV being False,
-	and [rv, 1] is the probability of being True.
+	Belief propagation - a trick is that if an RV is known (observed), then instead of using rv_to_factor_msg whenever a
+	message is sent from it, you send the known distribution instead (i.e. [1, 0] for False or [0, 1] for True).
+	The 'known' parameter is a dictionary, where an RV index existing as a key in the dictionary indicates that it has
+	been observed. The value obtained using the key is the value the RV has been observed as. This function returns a
+	17x2 matrix, such that [rv, 0] is the probability of RV being False, and [rv, 1] is the probability of being True.
 	"""
 
 	def rv_to_factor_msg(src, dest, msgs):

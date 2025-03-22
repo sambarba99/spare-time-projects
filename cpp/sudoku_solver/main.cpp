@@ -29,89 +29,91 @@ const std::vector<pair<string, string>> PUZZLES = {
 };
 
 int board[BOARD_SIZE][BOARD_SIZE];
-std::vector<pair<int, int>> yxGiven;  // Store coords of numbers that are already given
-int numBacktracks;
+std::vector<pair<int, int>> yx_given;  // Store coords of numbers that are already given
+int num_backtracks;
 sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Sudoku Solver", sf::Style::Close);
 sf::Font font;
 
 
-void drawGrid(const string status) {
+void draw_grid(const string& status) {
 	window.clear(sf::Color(20, 20, 20));
 
-	sf::RectangleShape statusLblArea(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));
-	statusLblArea.setPosition(0, 0);
-	statusLblArea.setFillColor(sf::Color(20, 20, 20));
-	window.draw(statusLblArea);
+	sf::RectangleShape status_lbl_area(sf::Vector2f(WINDOW_SIZE, GRID_OFFSET));
+	status_lbl_area.setPosition(0, 0);
+	status_lbl_area.setFillColor(sf::Color(20, 20, 20));
+	window.draw(status_lbl_area);
 
 	sf::Text text(status, font, 16);
-	sf::FloatRect textRect = text.getLocalBounds();
-	text.setOrigin(int(textRect.left + textRect.width / 2), int(textRect.top + textRect.height / 2));
+	sf::FloatRect text_rect = text.getLocalBounds();
+	text.setOrigin(int(text_rect.left + text_rect.width / 2), int(text_rect.top + text_rect.height / 2));
 	text.setPosition(WINDOW_SIZE / 2, GRID_OFFSET / 2);
 	text.setFillColor(sf::Color::White);
 	window.draw(text);
 
 	for (int y = 0; y < BOARD_SIZE; y++) {
 		for (int x = 0; x < BOARD_SIZE; x++) {
-			string strVal = board[y][x] ? to_string(board[y][x]) : "";
-			sf::Text cellText(strVal, font, 22);
+			string str_val = board[y][x] ? to_string(board[y][x]) : "";
+			sf::Text cell_text(str_val, font, 22);
 			// Draw already given numbers as green
 			pair<int, int> temp = {y, x};
-			bool isGiven = find(yxGiven.begin(), yxGiven.end(), temp) != yxGiven.end();
-			cellText.setPosition(int(float(x + 0.37f) * CELL_SIZE + GRID_OFFSET), int(float(y + 0.22f) * CELL_SIZE + GRID_OFFSET));
-			cellText.setFillColor(isGiven ? sf::Color(0, 140, 0) : sf::Color(220, 220, 220));
-			window.draw(cellText);
+			bool is_given = find(yx_given.begin(), yx_given.end(), temp) != yx_given.end();
+			cell_text.setPosition(int(float(x + 0.37f) * CELL_SIZE + GRID_OFFSET), int(float(y + 0.22f) * CELL_SIZE + GRID_OFFSET));
+			cell_text.setFillColor(is_given ? sf::Color(0, 140, 0) : sf::Color(220, 220, 220));
+			window.draw(cell_text);
 		}
 	}
 
 	// Thin grid lines
 	for (int i = 0; i < 10; i++) {
-		sf::Vertex lineHor[] = {
+		sf::Vertex line_horiz[] = {
 			sf::Vertex(sf::Vector2f(GRID_OFFSET, GRID_OFFSET + i * CELL_SIZE), sf::Color(220, 220, 220)),
 			sf::Vertex(sf::Vector2f(GRID_OFFSET + BOARD_SIZE * CELL_SIZE, GRID_OFFSET + i * CELL_SIZE), sf::Color(220, 220, 220))
 		};
-		sf::Vertex lineVer[] = {
+		sf::Vertex line_vert[] = {
 			sf::Vertex(sf::Vector2f(GRID_OFFSET + i * CELL_SIZE, GRID_OFFSET), sf::Color(220, 220, 220)),
 			sf::Vertex(sf::Vector2f(GRID_OFFSET + i * CELL_SIZE, GRID_OFFSET + BOARD_SIZE * CELL_SIZE), sf::Color(220, 220, 220))
 		};
-		window.draw(lineHor, 2, sf::Lines);
-		window.draw(lineVer, 2, sf::Lines);
+		window.draw(line_horiz, 2, sf::Lines);
+		window.draw(line_vert, 2, sf::Lines);
 	}
 
 	// Thick grid lines
 	for (int i = 3; i < BOARD_SIZE; i += 3) {
-		sf::RectangleShape lineHor(sf::Vector2f(BOARD_SIZE * CELL_SIZE, 5));
-		sf::RectangleShape lineVer(sf::Vector2f(5, BOARD_SIZE * CELL_SIZE));
-		lineHor.setPosition(GRID_OFFSET, GRID_OFFSET + CELL_SIZE * i);
-		lineVer.setPosition(GRID_OFFSET + CELL_SIZE * i, GRID_OFFSET);
-		lineHor.setFillColor(sf::Color(220, 220, 220));
-		lineVer.setFillColor(sf::Color(220, 220, 220));
-		window.draw(lineHor);
-		window.draw(lineVer);
+		sf::RectangleShape line_horiz(sf::Vector2f(BOARD_SIZE * CELL_SIZE, 5));
+		sf::RectangleShape line_vert(sf::Vector2f(5, BOARD_SIZE * CELL_SIZE));
+		line_horiz.setPosition(GRID_OFFSET, GRID_OFFSET + CELL_SIZE * i);
+		line_vert.setPosition(GRID_OFFSET + CELL_SIZE * i, GRID_OFFSET);
+		line_horiz.setFillColor(sf::Color(220, 220, 220));
+		line_vert.setFillColor(sf::Color(220, 220, 220));
+		window.draw(line_horiz);
+		window.draw(line_vert);
 	}
 
 	window.display();
 }
 
 
-bool isFull() {
+bool is_full() {
 	for (int y = 0; y < BOARD_SIZE; y++)
 		for (int x = 0; x < BOARD_SIZE; x++)
-			if (!board[y][x]) return false;
+			if (!board[y][x])
+				return false;
 
 	return true;
 }
 
 
-pair<int, int> findFreeSquare() {
+pair<int, int> find_free_square() {
 	for (int y = 0; y < BOARD_SIZE; y++)
 		for (int x = 0; x < BOARD_SIZE; x++)
-			if (!board[y][x]) return {y, x};
+			if (!board[y][x])
+				return {y, x};
 
-	return {-1, -1};
+	throw std::exception();  // Shouldn't ever get here (if there are no free squares, the sudoku is complete)
 }
 
 
-bool isLegal(const int n, const int y, const int x) {
+bool is_legal(const int n, const int y, const int x) {
 	// Top-left coords of big square
 	int by = y - (y % 3);
 	int bx = x - (x % 3);
@@ -125,37 +127,37 @@ bool isLegal(const int n, const int y, const int x) {
 	// Check big square
 	for (int i = by; i < by + 3; i++)
 		for (int j = bx; j < bx + 3; j++)
-			if (board[i][j] == n) return false;
+			if (board[i][j] == n)
+				return false;
 
 	return true;
 }
 
 
 void solve() {
-	if (isFull()) return;
+	if (is_full()) return;
 
-	pair<int, int> freeSquare = findFreeSquare();
-	int y = freeSquare.first, x = freeSquare.second;
-	for (int n = 1; n <= 9; n++) {
-		if (isLegal(n, y, x)) {
+	pair<int, int> free_square = find_free_square();
+	int y = free_square.first, x = free_square.second;
+	for (int n = 1; n <= 9; n++)
+		if (is_legal(n, y, x)) {
 			board[y][x] = n;
-			drawGrid("Solving (" + to_string(numBacktracks) + " backtracks)");
+			draw_grid("Solving (" + to_string(num_backtracks) + " backtracks)");
 			solve();
 		}
-	}
 
-	if (isFull()) return;
+	if (is_full()) return;
 
 	// If we're here, no numbers were legal
 	// So the previous attempt in the loop must be invalid
 	// So we reset the square in order to backtrack, so next number is tried
 	board[y][x] = 0;
-	numBacktracks++;
-	drawGrid("Solving (" + to_string(numBacktracks) + " backtracks)");
+	num_backtracks++;
+	draw_grid("Solving (" + to_string(num_backtracks) + " backtracks)");
 }
 
 
-void waitForClick() {
+void await_click() {
 	sf::Event event;
 
 	while (true) {
@@ -176,25 +178,25 @@ int main() {
 	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 
 	while (true) {
-		for (const auto& item : PUZZLES) {
-			yxGiven.clear();
-			numBacktracks = 0;
+		for (const auto& [level, flat_board] : PUZZLES) {
+			yx_given.clear();
+			num_backtracks = 0;
 
-			for (int y = 0; y < 81; y++) {
-				int row = y / BOARD_SIZE, col = y % BOARD_SIZE;
-				board[row][col] = item.second[y] - '0';
+			for (int i = 0; i < 81; i++) {
+				int row = i / BOARD_SIZE, col = i % BOARD_SIZE;
+				board[row][col] = flat_board[i] - '0';
 				if (board[row][col])
-					yxGiven.push_back({row, col});
+					yx_given.emplace_back(row, col);
 			}
 
-			drawGrid("Level: " + item.first + " (click to solve)");
-			waitForClick();
+			draw_grid("Level: " + level + " (click to solve)");
+			await_click();
 			high_resolution_clock::time_point start = high_resolution_clock::now();
 			solve();
 			high_resolution_clock::time_point finish = high_resolution_clock::now();
 			auto millis = duration_cast<milliseconds>(finish - start);
-			drawGrid("Solved (" + to_string(numBacktracks) + " backtracks, " + to_string(millis.count()) + "ms) - click for next puzzle");
-			waitForClick();
+			draw_grid("Solved (" + to_string(num_backtracks) + " backtracks, " + to_string(millis.count()) + "ms) - click for next puzzle");
+			await_click();
 		}
 	}
 

@@ -32,10 +32,9 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<float> dist(0, 2 * M_PI);
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Double Pendulum", sf::Style::Close);
-int screenshotCounter = 0;
 
 
-void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
+void draw_line(int x1, int y1, const int x2, const int y2, const int red_amount) {
 	// Bresenham's algorithm
 
 	int dx = abs(x1 - x2);
@@ -46,7 +45,7 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 	int e2;
 
 	while (true) {
-		sf::Vertex pix(sf::Vector2f(x1, y1), sf::Color(red, 0, 0));
+		sf::Vertex pix(sf::Vector2f(x1, y1), sf::Color(red_amount, 0, 0));
 		window.draw(&pix, 1, sf::Points);
 
 		if (x1 == x2 && y1 == y2) return;
@@ -65,21 +64,21 @@ void drawLine(int x1, int y1, const int x2, const int y2, const int red) {
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	double num1 = -G * (2 * M1 + M2) * sin(a1);
 	double num2 = -M2 * G * sin(a1 - 2 * a2);
 	double num3 = -2 * sin(a1 - a2) * M2;
 	double num4 = vel2 * vel2 * R2 + vel1 * vel1 * R1 * cos(a1 - a2);
 	double den = R1 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2));
-	double a1acc = (num1 + num2 + num3 * num4) / den;
+	double a1_acc = (num1 + num2 + num3 * num4) / den;
 
 	num1 = 2 * sin(a1 - a2);
 	num2 = vel1 * vel1 * R1 * (M1 + M2);
 	num3 = G * (M1 + M2) * cos(a1);
 	num4 = vel2 * vel2 * R2 * M2 * cos(a1 - a2);
 	den = R2 * (2 * M1 + M2 - M2 * cos(2 * a1 - 2 * a2));
-	double a2acc = num1 * (num2 + num3 + num4) / den;
+	double a2_acc = num1 * (num2 + num3 + num4) / den;
 
 	double x1 = R1 * sin(a1) + WIDTH / 2.0;
 	double y1 = R1 * cos(a1);
@@ -105,31 +104,22 @@ void draw() {
 	window.draw(circle1);
 	window.draw(circle2);
 
-	positions.push_back({int(x2), int(y2)});
+	positions.emplace_back(int(x2), int(y2));
 	if (positions.size() > 1) {
 		int n = positions.size();
 		for (int i = 0; i < n - 1; i++) {
-			double red = 255 * pow(COLOUR_DECAY, n - i);
-			drawLine(positions[i].first, positions[i].second, positions[i + 1].first, positions[i + 1].second, int(red));
+			double red_amount = 255 * pow(COLOUR_DECAY, n - i);
+			draw_line(positions[i].first, positions[i].second, positions[i + 1].first, positions[i + 1].second, int(red_amount));
 		}
 	}
 
-	if (positions.size() > 1000) positions.erase(positions.begin());
+	if (positions.size() > 1000)
+		positions.erase(positions.begin());
 
 	window.display();
 
-	// sf::Texture texture;
-	// sf::Image screenshot;
-	// texture.create(window.getSize().x, window.getSize().y);
-	// texture.update(window);
-	// screenshot = texture.copyToImage();
-	// std::ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
-	// screenshot.saveToFile(filePath.str());
-	// screenshotCounter++;
-
-	vel1 += a1acc;
-	vel2 += a2acc;
+	vel1 += a1_acc;
+	vel2 += a2_acc;
 	a1 += vel1;
 	a2 += vel2;
 
@@ -139,13 +129,14 @@ void draw() {
 
 
 int main() {
-	window.setFramerateLimit(FPS);
-
 	a1 = dist(gen);
 	a2 = dist(gen);
 	vel1 = vel2 = 0.0;
 	bool paused = false;
+	int screenshot_counter = 0;
 	sf::Event event;
+
+	window.setFramerateLimit(FPS);
 
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {
@@ -170,9 +161,19 @@ int main() {
 			}
 		}
 
-		if (paused) continue;
+		if (paused)
+			continue;
 
 		draw();
+		// sf::Texture texture;
+		// sf::Image screenshot;
+		// texture.create(window.getSize().x, window.getSize().y);
+		// texture.update(window);
+		// screenshot = texture.copyToImage();
+		// std::ostringstream filePath;
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
+		// screenshot.saveToFile(filePath.str());
+		// screenshotCounter++;
 	}
 
 	return 0;

@@ -1,20 +1,19 @@
 beautifulsoup4
-eyed3
 ffmpeg
 graphviz
 imageio
 matplotlib
+mutagen
 nltk
 numpy
 opencv-python
 pandas
 pyautogui
+pycurl
 pydot
 pydub
 pygame
 pyinstaller
-pytube
-pytubefix
 scikit-learn
 scikit-optimize
 tensorflow
@@ -25,3 +24,4 @@ torchvision
 torch-summary
 tqdm
 webptools
+yt-dlp

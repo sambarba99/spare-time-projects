@@ -38,65 +38,65 @@ class Node {
 		}
 
 		float euclideanDist(const Node& other) {
-			sf::Vector2f deltaPos = pos - other.pos;
-			return sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y);
+			sf::Vector2f delta_pos = pos - other.pos;
+			return sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
 		}
 };
 
 vector<Node> graph;
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_real_distribution<float> velDist(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
+std::uniform_real_distribution<float> vel_dist(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
 sf::RenderWindow window(sf::VideoMode(SIZE, SIZE), "Minimum Spanning Tree", sf::Style::Close);
 
 
 vector<int> mst() {
 	// Prim's algorithm
 
-	vector<Node> outTree = graph;  // Initially set all nodes as out of tree
-	vector<Node> inTree;
-	vector<int> mstParents(graph.size(), -1);
+	vector<Node> out_tree = graph;  // Initially set all nodes as out of tree
+	vector<Node> in_tree;
+	vector<int> mst_parents(graph.size(), -1);
 
-	inTree.push_back(outTree[0]);  // Node 0 (arbitrary start) is first in tree
-	outTree.erase(outTree.begin());
-	float minDist, dist;
+	in_tree.emplace_back(out_tree[0]);  // Node 0 (arbitrary start) is first in tree
+	out_tree.erase(out_tree.begin());
+	float min_dist, dist;
 
-	while (!outTree.empty()) {
-		Node nearestIn = inTree[0];
-		Node nearestOut = outTree[0];
-		minDist = nearestIn.euclideanDist(nearestOut);
+	while (!out_tree.empty()) {
+		Node nearest_in = in_tree[0];
+		Node nearest_out = out_tree[0];
+		min_dist = nearest_in.euclideanDist(nearest_out);
 
 		// Find nearest outside node to tree
-		for (Node& nodeOut : outTree) {
-			for (const Node& nodeIn : inTree) {
+		for (Node& nodeOut : out_tree) {
+			for (const Node& nodeIn : in_tree) {
 				dist = nodeOut.euclideanDist(nodeIn);
-				if (dist < minDist) {
-					minDist = dist;
-					nearestOut = nodeOut;
-					nearestIn = nodeIn;
+				if (dist < min_dist) {
+					min_dist = dist;
+					nearest_out = nodeOut;
+					nearest_in = nodeIn;
 				}
 			}
 		}
 
-		mstParents[nearestOut.idx] = nearestIn.idx;
-		inTree.push_back(nearestOut);
-		outTree.erase(find(outTree.begin(), outTree.end(), nearestOut));
+		mst_parents[nearest_out.idx] = nearest_in.idx;
+		in_tree.emplace_back(nearest_out);
+		out_tree.erase(find(out_tree.begin(), out_tree.end(), nearest_out));
 	}
 
-	return mstParents;
+	return mst_parents;
 }
 
 
-void drawMST() {
+void draw_mst() {
 	if (graph.empty()) return;
 
 	window.clear(sf::Color(20, 20, 20));
-	vector<int> mstParents = mst();
+	vector<int> mst_parents = mst();
 
-	for (int i = 1; i < graph.size(); i++) {  // Start from 1 because mstParents[0] = -1
+	for (int i = 1; i < graph.size(); i++) {  // Start from 1 because mst_parents[0] = -1
 		sf::Vertex line[] = {
 			sf::Vertex(graph[i].pos),
-			sf::Vertex(graph[mstParents[i]].pos)
+			sf::Vertex(graph[mst_parents[i]].pos)
 		};
 		window.draw(line, 2, sf::Lines);
 	}
@@ -112,7 +112,7 @@ void drawMST() {
 }
 
 
-void movePoints() {
+void move_points() {
 	for (Node& node : graph) {
 		node.pos += node.vel;
 
@@ -150,8 +150,8 @@ int main() {
 					if (event.mouseButton.button == sf::Mouse::Left) {
 						if (graph.size() < MAX_POINTS) {
 							sf::Vector2f pos(sf::Mouse::getPosition(window));
-							sf::Vector2f vel(velDist(gen), velDist(gen));
-							graph.push_back(Node(graph.size(), pos, vel));
+							sf::Vector2f vel(vel_dist(gen), vel_dist(gen));
+							graph.emplace_back(Node(graph.size(), pos, vel));
 						}
 					} else if (event.mouseButton.button == sf::Mouse::Right) {
 						graph.clear();
@@ -162,8 +162,8 @@ int main() {
 			}
 		}
 
-		movePoints();
-		drawMST();
+		move_points();
+		draw_mst();
 	}
 
 	return 0;

@@ -20,10 +20,10 @@ const string ALPHANUMERIC_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_int_distribution<size_t> dist(0, ALPHANUMERIC_CHARS.length() - 1);
+std::uniform_int_distribution<int> dist(0, ALPHANUMERIC_CHARS.length() - 1);
 
 
-int setBit(const int n, const int idx, const int b) {
+int set_bit(const int n, const int idx, const int b) {
 	// Set (idx)th bit of int 'n' to 'b'
 
 	int mask = 1 << idx;
@@ -31,60 +31,60 @@ int setBit(const int n, const int idx, const int b) {
 }
 
 
-string decodeHiddenMsg(const string stegMsg) {
-	uint8_t leastSignificantBits[stegMsg.length()];
-	for (int i = 0; i < stegMsg.length(); i++)
-		leastSignificantBits[i] = int(stegMsg[i]) & 1;
+string decode_hidden_msg(const string& steg_msg) {
+	uint8_t least_significant_bits[steg_msg.length()];
+	for (int i = 0; i < steg_msg.length(); i++)
+		least_significant_bits[i] = int(steg_msg[i]) & 1;
 
 	// Read LSB array in chunks of size 8
-	string decodedMsg = "";
-	for (int i = 0; i < sizeof(leastSignificantBits); i += 8) {
+	string decoded_msg = "";
+	for (int i = 0; i < sizeof(least_significant_bits); i += 8) {
 		int ascii = 0;
 		for (int j = i; j < i + 8; j++)
-			ascii = (ascii << 1) | leastSignificantBits[j];
-		decodedMsg += char(ascii);
+			ascii = (ascii << 1) | least_significant_bits[j];
+		decoded_msg += char(ascii);
 	}
 
-	return decodedMsg;
+	return decoded_msg;
 }
 
 
-void hideMsg(const string msg) {
+void hide_msg(const string& msg) {
 	// 1. Convert msg to binary
 
-	string binaryMsg = "";
-	for (const char c : msg)
-		binaryMsg += std::bitset<8>(c).to_string();
+	string binary_msg = "";
+	for (char c : msg)
+		binary_msg += std::bitset<8>(c).to_string();
 
 	cout << setw(35) << "In binary: ";
-	cout << binaryMsg << '\n';
+	cout << binary_msg << '\n';
 
 	// 2. Generate random container text
 
-	string containerTxt = "";
-	for (int i = 0; i < binaryMsg.length(); i++)
-		containerTxt += ALPHANUMERIC_CHARS[dist(gen)];
+	string container_txt = "";
+	for (int i = 0; i < binary_msg.length(); i++)
+		container_txt += ALPHANUMERIC_CHARS[dist(gen)];
 
 	cout << setw(35) << "Container text: ";
-	cout << containerTxt << '\n';
+	cout << container_txt << '\n';
 
 	// 3. Hide message
 
-	string hiddenMsg = "";
-	for (int i = 0; i < containerTxt.length(); i++) {
-		int ascii = int(containerTxt[i]);
-		int bit = int(binaryMsg[i] - '0');
-		int asciiNew = setBit(ascii, 0, bit);
-		hiddenMsg += char(asciiNew);
+	string hidden_msg = "";
+	for (int i = 0; i < container_txt.length(); i++) {
+		int ascii = int(container_txt[i]);
+		int bit = int(binary_msg[i] - '0');
+		int ascii_new = set_bit(ascii, 0, bit);
+		hidden_msg += char(ascii_new);
 	}
 
 	cout << setw(35) << "Message hidden in container text: ";
-	cout << hiddenMsg << '\n';
+	cout << hidden_msg << '\n';
 
 	// 4. Decode it back
 
 	cout << setw(35) << "Decoded steganographic message: ";
-	cout << decodeHiddenMsg(hiddenMsg) << "\n\n";
+	cout << decode_hidden_msg(hidden_msg) << "\n\n";
 }
 
 
@@ -94,10 +94,9 @@ int main() {
 	while (true) {
 		cout << "Input message to hide (or X to exit)\n>>> ";
 		getline(std::cin, msg);
-
-		if (msg.length() == 1 && toupper(msg[0]) == 'X') break;
-
-		hideMsg(msg);
+		if (msg.length() == 1 && toupper(msg[0]) == 'X')
+			break;
+		hide_msg(msg);
 	}
 
 	return 0;

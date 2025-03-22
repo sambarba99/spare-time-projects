@@ -17,8 +17,8 @@ using std::istream_iterator;
 using std::string;
 
 
-vector<int> getDimsFromStr(const string dimStr) {
-	std::stringstream ss(dimStr);
+vector<int> get_dims_from_str(const string& dim_str) {
+	std::stringstream ss(dim_str);
 	auto start = istream_iterator<int>{ss};
 	auto end = istream_iterator<int>{};
 	vector<int> dims(start, end); 
@@ -26,7 +26,7 @@ vector<int> getDimsFromStr(const string dimStr) {
 }
 
 
-vector<long double> vectorFromLine(const string line) {
+vector<long double> vector_from_line(const string& line) {
 	// Convert line to 1D vector of long doubles
 	std::stringstream ss(line);
 	auto start = istream_iterator<long double>{ss};
@@ -37,19 +37,19 @@ vector<long double> vectorFromLine(const string line) {
 }
 
 
-vector<vector<long double>> gridFromLine(const string line, const int rows, const int cols) {
-	vector<long double> grid1d = vectorFromLine(line);
-	vector<vector<long double>> grid2d(rows, vector<long double>(cols));
+vector<vector<long double>> grid_from_line(const string& line, const int rows, const int cols) {
+	vector<long double> grid_1d = vector_from_line(line);
+	vector<vector<long double>> grid_2d(rows, vector<long double>(cols));
 	for (int i = 0; i < rows * cols; i++) {
 		int row = i / cols, col = i % cols;
-		grid2d[row][col] = grid1d[i];
+		grid_2d[row][col] = grid_1d[i];
 	}
 
-	return grid2d;
+	return grid_2d;
 }
 
 
-string getExample(const int length) {
+string get_example(const int length) {
 	string e = "";
 	for (int i = 1; i < length + 1; i++)
 		e += std::to_string(i) + ' ';
@@ -59,7 +59,7 @@ string getExample(const int length) {
 
 int main() {
 	char choice;
-	string dimStrMatA, dimStrMatB, matAstr, matBstr;
+	string dim_str_mat_a, dim_str_mat_b, mat_a_str, mat_b_str;
 
 	while (true) {
 		cout << "Enter: A to add/subtract matrices,\n";
@@ -78,153 +78,154 @@ int main() {
 
 		if (choice == 'A') {
 			cout << "Input the number of rows & columns for the matrices e.g. 2 3\n>>> ";
-			getline(cin, dimStrMatA);
-			vector<int> dims = getDimsFromStr(dimStrMatA);
+			getline(cin, dim_str_mat_a);
+			vector<int> dims = get_dims_from_str(dim_str_mat_a);
 			int rows = dims[0], cols = dims[1];
 
-			cout << "Input matrix A (" << (rows * cols) << " entries) e.g. " << getExample(rows * cols) << "\n>>> ";
-			getline(cin, matAstr);
-			cout << "Input matrix B (" << (rows * cols) << " entries) e.g. " << getExample(rows * cols) << "\n>>> ";
-			getline(cin, matBstr);
+			cout << "Input matrix A (" << (rows * cols) << " entries) e.g. " << get_example(rows * cols) << "\n>>> ";
+			getline(cin, mat_a_str);
+			cout << "Input matrix B (" << (rows * cols) << " entries) e.g. " << get_example(rows * cols) << "\n>>> ";
+			getline(cin, mat_b_str);
 
-			Matrix matA(gridFromLine(matAstr, rows, cols));
-			Matrix matB(gridFromLine(matBstr, rows, cols));
+			Matrix matA(grid_from_line(mat_a_str, rows, cols));
+			Matrix matB(grid_from_line(mat_b_str, rows, cols));
 
-			cout << "\nA + B =\n" << matA.addSubtract(matB, true).toString();
-			cout << "\nA - B =\n" << matA.addSubtract(matB, false).toString() << '\n';
+			cout << "\nA + B =\n" << matA.add_subtract(matB, true).to_string();
+			cout << "\nA - B =\n" << matA.add_subtract(matB, false).to_string() << '\n';
 
 		} else if (choice == 'M') {
 			cout << "Input the number of rows & columns for matrix A e.g. 2 3\n>>> ";
-			getline(cin, dimStrMatA);
-			vector<int> dimsA = getDimsFromStr(dimStrMatA);
-			int rowsA = dimsA[0], colsA = dimsA[1];
+			getline(cin, dim_str_mat_a);
+			vector<int> dims_a = get_dims_from_str(dim_str_mat_a);
+			int rows_a = dims_a[0], cols_a = dims_a[1];
 
-			cout << "Input the number of columns for matrix B (rows = " << colsA << ")\n>>> ";
-			getline(cin, dimStrMatB);
-			vector<int> dimsB = getDimsFromStr(dimStrMatB);
-			int rowsB = colsA, colsB = dimsB[0];
+			cout << "Input the number of columns for matrix B (rows = " << cols_a << ")\n>>> ";
+			getline(cin, dim_str_mat_b);
+			vector<int> dims_b = get_dims_from_str(dim_str_mat_b);
+			int rows_b = cols_a, cols_b = dims_b[0];
 
-			cout << "Input matrix A (" << (rowsA * colsA) << " entries) e.g. " << getExample(rowsA * colsA) << "\n>>> ";
-			getline(cin, matAstr);
-			cout << "Input matrix B (" << (rowsB * colsB) << " entries) e.g. " << getExample(rowsB * colsB) << "\n>>> ";
-			getline(cin, matBstr);
+			cout << "Input matrix A (" << (rows_a * cols_a) << " entries) e.g. " << get_example(rows_a * cols_a) << "\n>>> ";
+			getline(cin, mat_a_str);
+			cout << "Input matrix B (" << (rows_b * cols_b) << " entries) e.g. " << get_example(rows_b * cols_b) << "\n>>> ";
+			getline(cin, mat_b_str);
 
-			Matrix matA(gridFromLine(matAstr, rowsA, colsA));
-			Matrix matB(gridFromLine(matBstr, rowsB, colsB));
+			Matrix matA(grid_from_line(mat_a_str, rows_a, cols_a));
+			Matrix matB(grid_from_line(mat_b_str, rows_b, cols_b));
 
-			cout << "\nA x B =\n" << matA.mult(matB).toString() << '\n';
+			cout << "\nA x B =\n" << matA.mult(matB).to_string() << '\n';
 
 		} else if (choice == 'D') {
 			cout << "Input the number of rows & columns for matrix A e.g. 2 3\n>>> ";
-			getline(cin, dimStrMatA);
-			vector<int> dimsA = getDimsFromStr(dimStrMatA);
-			int rowsA = dimsA[0], colsA = dimsA[1];
-			int rowsB = colsA, colsB = colsA;
-			cout << "B is " << rowsB << 'x' << colsB << "\n\n";
+			getline(cin, dim_str_mat_a);
+			vector<int> dims_a = get_dims_from_str(dim_str_mat_a);
+			int rows_a = dims_a[0], cols_a = dims_a[1];
+			int rows_b = cols_a, cols_b = cols_a;
+			cout << "B is " << rows_b << 'x' << cols_b << "\n\n";
 
-			cout << "Input matrix A (" << (rowsA * colsA) << " entries) e.g. " << getExample(rowsA * colsA) << "\n>>> ";
-			getline(cin, matAstr);
-			cout << "Input matrix B (" << (rowsB * colsB) << " entries) e.g. " << getExample(rowsB * colsB) << "\n>>> ";
-			getline(cin, matBstr);
+			cout << "Input matrix A (" << (rows_a * cols_a) << " entries) e.g. " << get_example(rows_a * cols_a) << "\n>>> ";
+			getline(cin, mat_a_str);
+			cout << "Input matrix B (" << (rows_b * cols_b) << " entries) e.g. " << get_example(rows_b * cols_b) << "\n>>> ";
+			getline(cin, mat_b_str);
 
-			Matrix matA(gridFromLine(matAstr, rowsA, colsA));
-			Matrix matB(gridFromLine(matBstr, rowsB, colsB));
+			Matrix matA(grid_from_line(mat_a_str, rows_a, cols_a));
+			Matrix matB(grid_from_line(mat_b_str, rows_b, cols_b));
 
 			if (matB.determinant() == 0)
 				cout << "\nCan't divide (determinant of B = 0)\n";
 			else
-				cout << "\nA / B =\n" << matA.mult(matB.inverse()).toString() << '\n';
+				cout << "\nA / B =\n" << matA.mult(matB.inverse()).to_string() << '\n';
 
 		} else if (choice == 'P') {
 			cout << "Input the size of the square matrix e.g. 2\n>>> ";
-			getline(cin, dimStrMatA);
-			int size = stoi(dimStrMatA);
+			getline(cin, dim_str_mat_a);
+			int size = stoi(dim_str_mat_a);
 			cout << "Input the power\n>>> ";
-			string pStr;
-			getline(cin, pStr);
-			int p = stoi(pStr);
+			string p_str;
+			getline(cin, p_str);
+			int p = stoi(p_str);
 
-			cout << "Input matrix M (" << (size * size) << " entries) e.g. " << getExample(size * size) << "\n>>> ";
-			getline(cin, matAstr);
+			cout << "Input matrix M (" << (size * size) << " entries) e.g. " << get_example(size * size) << "\n>>> ";
+			getline(cin, mat_a_str);
 
-			Matrix mat(gridFromLine(matAstr, size, size));
+			Matrix mat(grid_from_line(mat_a_str, size, size));
 
-			cout << "\nM^" << p << "=\n" << mat.power(p).toString() << '\n';
+			cout << "\nM^" << p << "=\n" << mat.power(p).to_string() << '\n';
 
 		} else if (choice == 'R') {
 			cout << "Input the number of rows & columns for the matrix e.g. 2 3\n>>> ";
-			getline(cin, dimStrMatA);
-			vector<int> dims = getDimsFromStr(dimStrMatA);
+			getline(cin, dim_str_mat_a);
+			vector<int> dims = get_dims_from_str(dim_str_mat_a);
 			int rows = dims[0], cols = dims[1];
 
-			cout << "Input matrix M (" << (rows * cols) << " entries) e.g. " << getExample(rows * cols) << "\n>>> ";
-			getline(cin, matAstr);
+			cout << "Input matrix M (" << (rows * cols) << " entries) e.g. " << get_example(rows * cols) << "\n>>> ";
+			getline(cin, mat_a_str);
 
-			Matrix mat(gridFromLine(matAstr, rows, cols));
+			Matrix mat(grid_from_line(mat_a_str, rows, cols));
 
-			cout << "\nRREF(M) =\n" << mat.rref().toString() << '\n';
+			cout << "\nRREF(M) =\n" << mat.rref().to_string() << '\n';
 
 		} else if (choice == 'I') {
 			cout << "Input the size of the square matrix e.g. 2\n>>> ";
-			getline(cin, dimStrMatA);
-			int size = stoi(dimStrMatA);
+			getline(cin, dim_str_mat_a);
+			int size = stoi(dim_str_mat_a);
 
-			cout << "Input matrix M (" << (size * size) << " entries) e.g. " << getExample(size * size) << "\n>>> ";
-			getline(cin, matAstr);
+			cout << "Input matrix M (" << (size * size) << " entries) e.g. " << get_example(size * size) << "\n>>> ";
+			getline(cin, mat_a_str);
 
-			Matrix mat(gridFromLine(matAstr, size, size));
+			Matrix mat(grid_from_line(mat_a_str, size, size));
 
-			cout << "\nComatrix =\n" << mat.comatrix().toString() << '\n';
+			cout << "\nComatrix =\n" << mat.comatrix().to_string() << '\n';
 
 			long double det = mat.determinant();
 			if (det == 0)
 				cout << "No inverse (determinant = 0)\n";
 			else
-				cout << "Inverse:\n" << mat.inverse().toString() << "\nDeterminant: " << det << "\n\n";
+				cout << "Inverse:\n" << mat.inverse().to_string() << "\nDeterminant: " << det << "\n\n";
 
 		} else if (choice == 'G') {
 			cout << "Enter 1 for translation, 2 for enlargement, 3 for reflection, or 4 for rotation\n>>> ";
-			string geomChoice;
-			getline(cin, geomChoice);
+			string geom_choice;
+			getline(cin, geom_choice);
 
 			cout << "How many vertices?\n>>> ";
-			string nVertsStr;
-			getline(cin, nVertsStr);
+			string num_verts_str;
+			getline(cin, num_verts_str);
+			int num_verts = stoi(num_verts_str);
 
-			vector<vector<long double>> coords;
+			vector<vector<long double>> coords(num_verts);
 			string str;
-			for (int i = 0; i < stoi(nVertsStr); i++) {
-				cout << "Input x,y coords " << (i + 1) << '/' << nVertsStr << " e.g. " << getExample(2) << "\n>>> ";
+			for (int i = 0; i < num_verts; i++) {
+				cout << "Input x,y coords " << (i + 1) << '/' << num_verts << " e.g. " << get_example(2) << "\n>>> ";
 				getline(cin, str);
-				coords.push_back(vectorFromLine(str));
+				coords[i] = vector_from_line(str);
 			}
 
 			Matrix mat(coords);
 
-			if (geomChoice == "1") {
-				cout << "Input the change in x and change in y e.g. " << getExample(2) << "\n>>> ";
+			if (geom_choice == "1") {
+				cout << "Input the change in x and change in y e.g. " << get_example(2) << "\n>>> ";
 				getline(cin, str);
-				vector<long double> v = vectorFromLine(str);
+				vector<long double> v = vector_from_line(str);
 				long double dx = v[0], dy = v[1];
-				cout << "\nResultant coords:\n" << mat.translate(dx, dy).toString() << '\n';
-			} else if (geomChoice == "2") {
+				cout << "\nResultant coords:\n" << mat.translate(dx, dy).to_string() << '\n';
+			} else if (geom_choice == "2") {
 				cout << "Input the enlargement factor and x, y e.g. 2 3 4\n>>> ";
 				getline(cin, str);
-				vector<long double> v = vectorFromLine(str);
+				vector<long double> v = vector_from_line(str);
 				long double k = v[0], x = v[1], y = v[2];
-				cout << "\nResultant coords:\n" << mat.enlarge(k, x, y).toString() << '\n';
-			} else if (geomChoice == "3") {
+				cout << "\nResultant coords:\n" << mat.enlarge(k, x, y).to_string() << '\n';
+			} else if (geom_choice == "3") {
 				cout << "Input m, c for reflection line y = mx + c e.g. 2 3\n>>> ";
 				getline(cin, str);
-				vector<long double> v = vectorFromLine(str);
+				vector<long double> v = vector_from_line(str);
 				long double m = v[0], c = v[1];
-				cout << "\nResultant coords:\n" << mat.reflect(m, c).toString() << '\n';
-			} else if (geomChoice == "4") {
+				cout << "\nResultant coords:\n" << mat.reflect(m, c).to_string() << '\n';
+			} else if (geom_choice == "4") {
 				cout << "Input the clockwise rotation angle (deg) and x, y e.g. 90 0 2\n>>> ";
 				getline(cin, str);
-				vector<long double> v = vectorFromLine(str);
+				vector<long double> v = vector_from_line(str);
 				long double a = v[0], x = v[1], y = v[2];
-				cout << "\nResultant coords:\n" << mat.rotate(a, x, y).toString() << '\n';
+				cout << "\nResultant coords:\n" << mat.rotate(a, x, y).to_string() << '\n';
 			}
 
 		} else if (choice == 'X') {

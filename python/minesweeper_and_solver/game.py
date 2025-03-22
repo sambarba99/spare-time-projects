@@ -7,6 +7,7 @@ Created 28/01/2025
 
 from dataclasses import dataclass, field
 import random
+import sys
 
 import pygame as pg
 
@@ -15,8 +16,8 @@ from solver import Solver
 
 NUM_IMGS = [pg.image.load(f'./imgs/{i}.png') for i in range(9)]
 FLAG_IMG = pg.image.load('./imgs/flag.png')
+FLAG_INCORRECT_IMG = pg.image.load('./imgs/flag_incorrect.png')
 MINE_IMG = pg.image.load('./imgs/mine.png')
-MINE_INCORRECT_FLAG_IMG = pg.image.load('./imgs/mine_incorrect_flag.png')
 MINE_RED_IMG = pg.image.load('./imgs/mine_red.png')
 UNOPENED_IMG = pg.image.load('./imgs/unopened.png')
 IMG_PX_SIZE = 30
@@ -71,6 +72,11 @@ class Game:
 		self.font18 = pg.font.SysFont('consolas', 18)
 		self.font14 = pg.font.SysFont('consolas', 14)
 
+	def __iter__(self):
+		for row in self.grid:
+			for cell in row:
+				yield cell
+
 	def setup(self):
 		if self.seed is not None:
 			random.seed(self.seed)
@@ -84,7 +90,9 @@ class Game:
 		self.solver = Solver(self)
 		self.show_solver_probs = False
 
-	def handle_click(self, y, x, is_left_click, is_screen_coords=False):
+	def handle_click(self, y, x, mouse_button, is_screen_coords=False, render=True):
+		assert mouse_button in ('left', 'right')
+
 		if is_screen_coords:
 			# Convert screen coords to grid coords
 			y = (y - PAD_TOP) // IMG_PX_SIZE
@@ -94,7 +102,7 @@ class Game:
 			# Ignore mouse clicks that are outside the minefield
 			return
 
-		if is_left_click and not self.done_first_click:
+		if mouse_button == 'left' and not self.done_first_click:
 			possible_mine_coords = self.all_coords[:]
 			possible_mine_coords.remove((y, x))  # First clicked cell can't be a mine
 			mine_coords = random.sample(possible_mine_coords, self.num_mines)
@@ -103,29 +111,28 @@ class Game:
 			self.done_first_click = True
 
 			# Precompute some things
-			for row in self.grid:
-				for cell in row:
-					cell.neighbours = self.get_neighbours(cell)
-					cell.num_surrounding_mines = sum(neighbour.is_mine for neighbour in cell.neighbours)
+			for cell in self:
+				cell.neighbours = self.get_neighbours(cell)
+				cell.num_surrounding_mines = sum(neighbour.is_mine for neighbour in cell.neighbours)
 
 		clicked_cell = self.grid[y][x]
 		if clicked_cell.is_open:
 			return
 
-		if is_left_click and not clicked_cell.is_flagged:
+		if mouse_button == 'left' and not clicked_cell.is_flagged:
 			if clicked_cell.is_mine:
 				self.clicked_mine_coords = (y, x)
 			else:
 				self.open(clicked_cell)
-		elif not is_left_click:
-			# Right click (toggle flag)
+		elif mouse_button == 'right':
+			# Toggle flag
 			if clicked_cell.is_flagged:
-				self.flags_used -= 1
 				clicked_cell.is_flagged = False
+				self.flags_used -= 1
 			elif self.flags_used < self.num_mines:
 				# If there are flags left to use
-				self.flags_used += 1
 				clicked_cell.is_flagged = True
+				self.flags_used += 1
 			self.status = str(self.num_mines - self.flags_used)
 
 		if self.check_game_over():
@@ -136,8 +143,11 @@ class Game:
 		if self.game_over:
 			self.show_solver_probs = False
 
-		if is_left_click and self.show_solver_probs:
+		if mouse_button == 'left' and self.show_solver_probs and render:
 			self.solver.calculate_mine_probs()
+
+		if render:
+			self.render()
 
 	def get_neighbours(self, cell):
 		neighbours = []
@@ -182,67 +192,52 @@ class Game:
 
 		return False
 
-	def auto_play(self):
+	def solver_step(self):
 		self.show_solver_probs = True
-		self.solver.calculate_mine_probs()
 
 		# Unflag any incorrectly flagged cells
-		for row in self.grid:
-			for cell in row:
-				if cell.is_flagged and cell.mine_prob != 100:
-					self.handle_click(cell.y, cell.x, is_left_click=False)
+		for cell in self:
+			if cell.is_flagged and cell.mine_prob != 100:
+				self.handle_click(cell.y, cell.x, mouse_button='right', render=False)
 
 		if not self.done_first_click:
-			self.handle_click(1, 1, is_left_click=True)  # Start near corner
-			self.solver.calculate_mine_probs()
-		self.render()
-
-		if self.game_over:
-			# Edge case: bot has revealed all non-mine cells, so won on first click
+			self.handle_click(1, 1, mouse_button='left')  # Start near corner
 			return
 
-		while True:
-			for row in self.grid:
-				for cell in row:
-					# Flag a cell only if it's guaranteed to be a mine
-					if cell.mine_prob == 100 and not cell.is_flagged:
-						self.handle_click(cell.y, cell.x, is_left_click=False)
-						self.render()
+		self.solver.calculate_mine_probs()
 
-			# Open the cell with the minimum prob of being a mine
-			cell = min(
-				(
-					cell for row in self.grid for cell in row
-					if cell.is_edge and not (cell.is_flagged or cell.mine_prob is None)
-				),
-				key=lambda cell: (cell.mine_prob, cell.y + cell.x, cell.y),
-				default=None
-			)
-			if cell is None:
-				# If all edge cells are flagged, choose a random other cell
-				cell = random.choice([
-					cell for row in self.grid for cell in row
-					if cell.mine_prob is None and not (cell.is_open or cell.is_flagged)
-				])
-			self.handle_click(cell.y, cell.x, is_left_click=True)
-			self.render()
-			if self.game_over:
-				break
+		# Find the cell with minimum probability of being a mine
+		cell = min(
+			(cell for cell in self if cell.mine_prob is not None),
+			key=lambda cell: (cell.mine_prob, cell.y, cell.x)
+		)
+		self.handle_click(cell.y, cell.x, mouse_button='left')
+
+		# Flag cells guaranteed to be mines
+		for cell in self:
+			if cell.mine_prob == 100 and not cell.is_flagged:
+				self.handle_click(cell.y, cell.x, mouse_button='right')
+
+	def auto_play(self):
+		while not self.game_over:
+			self.solver_step()
+
+			for event in pg.event.get():
+				if event.type == pg.QUIT:
+					sys.exit()
 
 	def render(self):
 		self.scene.fill('black')
 
 		if self.status.startswith('YOU WIN'):
-			for row in self.grid:
-				for cell in row:
-					if cell.is_mine:
-						cell.is_flagged = True
+			for cell in self:
+				if cell.is_mine:
+					cell.is_flagged = True
 			status_colour = 'green'
 		elif self.status.startswith('GAME OVER'):
-			for row in self.grid:
-				for cell in row:
-					if cell.is_mine:
-						cell.is_open = True
+			for cell in self:
+				if cell.is_mine:
+					cell.is_open = True
 			status_colour = 'red'
 			y, x = self.clicked_mine_coords
 			self.scene.blit(MINE_RED_IMG, (x * IMG_PX_SIZE, y * IMG_PX_SIZE + PAD_TOP))
@@ -258,26 +253,25 @@ class Game:
 			self.scene.blit(FLAG_IMG, (self.scene_width // 2 - 30, PAD_TOP // 2 - IMG_PX_SIZE // 2))
 			self.scene.blit(status_lbl, (self.scene_width // 2 + 10, PAD_TOP // 2 - 8))
 
-		for row in self.grid:
-			for cell in row:
-				if (cell.y, cell.x) == self.clicked_mine_coords:
-					continue  # Already drew the red mine on screen
-				if cell.is_open:
-					img = MINE_IMG if cell.is_mine else NUM_IMGS[cell.num_surrounding_mines]
+		for cell in self:
+			if (cell.y, cell.x) == self.clicked_mine_coords:
+				continue  # Already drew the red mine on screen
+			if cell.is_open:
+				img = MINE_IMG if cell.is_mine else NUM_IMGS[cell.num_surrounding_mines]
+			else:
+				if cell.is_flagged:
+					img = FLAG_INCORRECT_IMG if self.game_over and not cell.is_mine else FLAG_IMG
 				else:
-					if cell.is_flagged:
-						img = MINE_INCORRECT_FLAG_IMG if self.game_over and not cell.is_mine else FLAG_IMG
-					else:
-						img = UNOPENED_IMG
+					img = UNOPENED_IMG
 
-				self.scene.blit(img, (cell.x * IMG_PX_SIZE, cell.y * IMG_PX_SIZE + PAD_TOP))
+			self.scene.blit(img, (cell.x * IMG_PX_SIZE, cell.y * IMG_PX_SIZE + PAD_TOP))
 
-				if self.show_solver_probs and cell.mine_prob is not None:
-					prob_lbl = self.font14.render(str(cell.mine_prob), True, 'black')
-					lbl_rect = prob_lbl.get_rect(
-						center=((cell.x + 0.5) * IMG_PX_SIZE, (cell.y + 0.5) * IMG_PX_SIZE + PAD_TOP)
-					)
-					self.scene.blit(prob_lbl, lbl_rect)
+			if self.show_solver_probs and cell.mine_prob is not None:
+				prob_lbl = self.font14.render(str(cell.mine_prob), True, 'black')
+				lbl_rect = prob_lbl.get_rect(
+					center=((cell.x + 0.5) * IMG_PX_SIZE, (cell.y + 0.5) * IMG_PX_SIZE + PAD_TOP)
+				)
+				self.scene.blit(prob_lbl, lbl_rect)
 
 		pg.display.update()
 		self.clock.tick(FPS)

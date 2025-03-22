@@ -26,15 +26,15 @@ class Particle {
 		float mass;
 		float radius;
 		sf::Vector2f pos;
-        sf::Vector2f vel;
-        int hue;
+		sf::Vector2f vel;
+		int hue;
 
 		Particle(const float mass, const float radius, const sf::Vector2f& pos, const sf::Vector2f& vel) {
 			this->mass = mass;
-            this->radius = sqrt(mass);
-            this->pos = pos;
-            this->vel = vel;
-            this->hue = (1 - (mass - MIN_MASS) / (MAX_MASS - MIN_MASS)) * 60;
+			this->radius = sqrt(mass);
+			this->pos = pos;
+			this->vel = vel;
+			this->hue = (1 - (mass - MIN_MASS) / (MAX_MASS - MIN_MASS)) * 60;
 		}
 
 		void update() {
@@ -56,51 +56,50 @@ class Particle {
 		}
 
 		void collide(Particle& other) {
-			sf::Vector2f deltaPos = other.pos - pos;
-			float dist = std::sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y);
+			sf::Vector2f delta_pos = other.pos - pos;
+			float dist = std::sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
 
 			if (dist > radius + other.radius) return;
 
-			sf::Vector2f impactVector = other.pos - pos;
+			sf::Vector2f impact_vector = other.pos - pos;
 
 			// Push particles apart so they aren't overlapping
 			float overlap = dist - (radius + other.radius);
 			dist += 1e-6;  // Avoid division by 0
 			float factor = overlap * 0.5f / dist;  // Vector multiplication factor = (desired length) / (current length)
-			deltaPos *= factor;
-			pos += deltaPos;
-			other.pos -= deltaPos;
+			delta_pos *= factor;
+			pos += delta_pos;
+			other.pos -= delta_pos;
 
 			// Correct the distance
 			dist = radius + other.radius;
-			float currentLength = std::sqrt(impactVector.x * impactVector.x + impactVector.y * impactVector.y);
-			factor = dist / currentLength;
-			impactVector *= factor;
+			float current_length = std::sqrt(impact_vector.x * impact_vector.x + impact_vector.y * impact_vector.y);
+			factor = dist / current_length;
+			impact_vector *= factor;
 
 			// Numerators for updating this particle (A) and other particle (B), and denominator for both
-			sf::Vector2f relativeVel = other.vel - vel;
-			float dotProd = relativeVel.x * impactVector.x + relativeVel.y * impactVector.y;
-			float numA = dotProd * 2 * other.mass;
-			float numB = dotProd * -2 * mass;
+			sf::Vector2f relative_vel = other.vel - vel;
+			float dot_prod = relative_vel.x * impact_vector.x + relative_vel.y * impact_vector.y;
+			float numA = dot_prod * 2 * other.mass;
+			float numB = dot_prod * -2 * mass;
 			float den = (mass + other.mass) * dist * dist;
 
 			// Update this particle (A)
-			sf::Vector2f deltaVelA = impactVector * numA / den;
-			vel += deltaVelA;
+			sf::Vector2f delta_vel_a = impact_vector * numA / den;
+			vel += delta_vel_a;
 
 			// Update other particle (B)
-			sf::Vector2f deltaVelB = impactVector * numB / den;
-			other.vel += deltaVelB;
+			sf::Vector2f delta_vel_b = impact_vector * numB / den;
+			other.vel += delta_vel_b;
 		}
 };
 
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_real_distribution<float> massDist(MIN_MASS, MAX_MASS);
-std::uniform_real_distribution<float> velDist(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
+std::uniform_real_distribution<float> mass_dist(MIN_MASS, MAX_MASS);
+std::uniform_real_distribution<float> vel_dist(-MAX_VEL_MAGNITUDE, MAX_VEL_MAGNITUDE);
 vector<Particle> particles;
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Elastic Collisions", sf::Style::Close);
-int screenshotCounter = 0;
 
 
 vector<int> hsv2rgb(const float h, const float s, const float v) {
@@ -132,7 +131,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 
 
 void draw() {
-	window.clear(sf::Color::Black);
+	window.clear();
 
 	for (const Particle& p : particles) {
 		sf::CircleShape circle(p.radius);
@@ -143,31 +142,23 @@ void draw() {
 	}
 
 	window.display();
-
-	// sf::Texture texture;
-	// sf::Image screenshot;
-	// texture.create(window.getSize().x, window.getSize().y);
-	// texture.update(window);
-	// screenshot = texture.copyToImage();
-	// std::ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
-	// screenshot.saveToFile(filePath.str());
-	// screenshotCounter++;
 }
 
 
 int main() {
+	int screenshot_counter = 0;
+
 	window.setFramerateLimit(FPS);
 
 	for (int i = 0; i < NUM_PARTICLES; i++) {
-		float mass = massDist(gen);
+		float mass = mass_dist(gen);
 		float radius = sqrt(mass);
-		std::uniform_real_distribution<float> xPosDist(radius, WIDTH - radius);
-		std::uniform_real_distribution<float> yPosDist(radius, HEIGHT - radius);
-		sf::Vector2f pos(xPosDist(gen), yPosDist(gen));
-		sf::Vector2f vel(velDist(gen), velDist(gen));
+		std::uniform_real_distribution<float> x_pos_dist(radius, WIDTH - radius);
+		std::uniform_real_distribution<float> y_pos_dist(radius, HEIGHT - radius);
+		sf::Vector2f pos(x_pos_dist(gen), y_pos_dist(gen));
+		sf::Vector2f vel(vel_dist(gen), vel_dist(gen));
 
-		particles.push_back(Particle(mass, radius, pos, vel));
+		particles.emplace_back(Particle(mass, radius, pos, vel));
 	}
 
 	sf::Event event;
@@ -185,6 +176,15 @@ int main() {
 				particles[i].collide(particles[j]);
 
 		draw();
+		// sf::Texture texture;
+		// sf::Image screenshot;
+		// texture.create(window.getSize().x, window.getSize().y);
+		// texture.update(window);
+		// screenshot = texture.copyToImage();
+		// std::ostringstream filePath;
+		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(filePath.str());
+		// screenshot_counter++;
 	}
 
 	return 0;
