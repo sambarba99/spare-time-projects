@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	# game = Game(rows=9, cols=9, num_mines=10)  # Beginner (~12.3% mine density)
 	# game = Game(rows=16, cols=16, num_mines=40)  # Intermediate (~15.6% mine density)
 	# game = Game(rows=16, cols=30, num_mines=99)  # Expert (~20.6% mine density)
-	game = Game(rows=25, cols=40, num_mines=150)  # Custom
+	game = Game(rows=28, cols=40, num_mines=175)  # Custom
 	game.render()
 
 	while True:

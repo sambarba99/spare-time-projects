@@ -7,6 +7,7 @@ Created 28/01/2025
 
 from dataclasses import dataclass, field
 import random
+import sys
 
 import pygame as pg
 
@@ -215,7 +216,7 @@ class Game:
 					cell for row in self.grid for cell in row
 					if cell.is_edge and not (cell.is_flagged or cell.mine_prob is None)
 				),
-				key=lambda cell: (cell.mine_prob, cell.y + cell.x, cell.y),
+				key=lambda cell: (cell.mine_prob, cell.y, cell.x),
 				default=None
 			)
 			if cell is None:
@@ -228,6 +229,10 @@ class Game:
 			self.render()
 			if self.game_over:
 				break
+
+			for event in pg.event.get():
+				if event.type == pg.QUIT:
+					sys.exit()
 
 	def render(self):
 		self.scene.fill('black')
