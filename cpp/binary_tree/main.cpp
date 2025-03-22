@@ -26,23 +26,23 @@ void displayTreeInfo(Tree* tree) {
 
 	cout << '\n';
 	cout << setw(24) << "In-order traversal:";
-	for (const string name : tree->inOrderTraversal())
+	for (const string& name : tree->inOrderTraversal())
 		cout << ' ' << name;
-	
+
 	cout << '\n';
 	cout << setw(24) << "Pre-order traversal:";
-	for (const string name : tree->preOrderTraversal())
+	for (const string& name : tree->preOrderTraversal())
 		cout << ' ' << name;
-	
+
 	cout << '\n';
 	cout << setw(24) << "Post-order traversal:";
-	for (const string name : tree->postOrderTraversal())
+	for (const string& name : tree->postOrderTraversal())
 		cout << ' ' << name;
-	
+
 	cout << "\nBreadth-first traversal:";
-	for (const string name : tree->breadthFirstTraversal())
+	for (const string& name : tree->breadthFirstTraversal())
 		cout << ' ' << name;
-	
+
 	cout << '\n';
 	cout << setw(24) << "Is Binary Search Tree:";
 	cout << (tree->isBST() ? " Yes\n" : " No\n");
