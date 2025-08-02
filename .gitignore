@@ -25,6 +25,7 @@ python/*/.idea/
 datasets/alzheimers/
 datasets/celeba/
 datasets/cifar10/
+datasets/hand_digit_gestures/
 datasets/parkinsons/
 datasets/utkface/
 datasets/handwritten_letters.csv

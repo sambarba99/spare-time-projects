@@ -5,6 +5,9 @@ Author: Sam Barba
 Created 26/03/2024
 """
 
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Hide "oneDNN custom operations are on" warning
+
 import cv2 as cv
 from keras.layers import Conv2D
 from keras.models import Model
