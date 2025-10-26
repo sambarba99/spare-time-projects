@@ -26,7 +26,7 @@ from tile import Tile
 
 
 SRC_IMG_NAME = 'flowers'  # flowers, island, link, skyline, spirals, or waves
-TILE_SIZE = 3
+SAMPLE_TILE_SIZE = 3
 COLLAGE_WIDTH = 41  # In tiles
 COLLAGE_HEIGHT = 25
 CELL_SIZE = 20
@@ -46,8 +46,8 @@ def generate_tiles():
 	tile_imgs = []
 	for y in range(h):
 		for x in range(w):
-			y_indices = np.arange(y, y + TILE_SIZE) % h
-			x_indices = np.arange(x, x + TILE_SIZE) % w
+			y_indices = np.arange(y, y + SAMPLE_TILE_SIZE) % h
+			x_indices = np.arange(x, x + SAMPLE_TILE_SIZE) % w
 			tile = src_img[np.ix_(y_indices, x_indices)]
 			tile_imgs.append(tile)
 	tiles = [Tile(tile_img) for tile_img in tile_imgs]
@@ -59,18 +59,18 @@ def generate_tiles():
 	src_img_zoomed = cv.resize(src_img, (new_w, new_h), interpolation=cv.INTER_NEAREST)
 	cv.imshow(f'{SRC_IMG_NAME}.png ({w}x{h})', cv.cvtColor(src_img_zoomed, cv.COLOR_RGB2BGR))
 
-	collage_h = h * TILE_SIZE + h - 1
-	collage_w = w * TILE_SIZE + w - 1
+	collage_h = h * SAMPLE_TILE_SIZE + h - 1
+	collage_w = w * SAMPLE_TILE_SIZE + w - 1
 	collage = np.full((collage_h, collage_w, 3), (13, 17, 23), dtype=np.uint8)
 	for idx, tile_img in enumerate(tile_imgs):
 		row = idx // w
 		col = idx % w
-		y = row * (TILE_SIZE + 1)  # Space tiles by 1px
-		x = col * (TILE_SIZE + 1)
-		collage[y:y + TILE_SIZE, x:x + TILE_SIZE] = tile_img
+		y = row * (SAMPLE_TILE_SIZE + 1)  # Space tiles by 1px
+		x = col * (SAMPLE_TILE_SIZE + 1)
+		collage[y:y + SAMPLE_TILE_SIZE, x:x + SAMPLE_TILE_SIZE] = tile_img
 
 	collage_zoomed = cv.resize(collage, (collage_w * 8, collage_h * 8), interpolation=cv.INTER_NEAREST)
-	cv.imshow(f'All {TILE_SIZE}x{TILE_SIZE} tiles', cv.cvtColor(collage_zoomed, cv.COLOR_RGB2BGR))
+	cv.imshow(f'All {SAMPLE_TILE_SIZE}x{SAMPLE_TILE_SIZE} tiles', cv.cvtColor(collage_zoomed, cv.COLOR_RGB2BGR))
 	cv.waitKey()
 	cv.destroyAllWindows()
 

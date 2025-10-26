@@ -14,38 +14,111 @@ Author: Sam Barba
 Created 15/02/2025
 */
 
+#ifndef OVERLAPPING_MAIN
+#define OVERLAPPING_MAIN
+
+#include <filesystem>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <random>
 #include <SFML/Graphics.hpp>
-#include <vector>
+
+#include "../cell.h"
+
+using std::string;
+using std::vector;
+
+
+namespace overlapping {
+	const int COLLAGE_WIDTH = 41;  // In tiles
+	const int COLLAGE_HEIGHT = 25;
+	const int SAMPLE_TILE_SIZE = 3;
+	const int CELL_SIZE = 20;
+	const int MAX_DEPTH = 20;
+	const bool RENDER_ENTROPY_VALUES = true;
+	const int FPS = 60;
+};
+
+class OverlappingModeTile {
+	public:
+		sf::Texture texture;
+		string north_edge, east_edge, south_edge, west_edge;
+		std::map<string, vector<int>> neighbour_options;
+
+		OverlappingModeTile(const sf::Texture& texture, const vector<string>& edge_colour_codes) {
+			this->texture = texture;
+			north_edge = edge_colour_codes[0];
+			east_edge = edge_colour_codes[1];
+			south_edge = edge_colour_codes[2];
+			west_edge = edge_colour_codes[3];
+			neighbour_options["north"] = {};
+			neighbour_options["east"] = {};
+			neighbour_options["south"] = {};
+			neighbour_options["west"] = {};
+		}
+
+		void generate_adjacency_rules(const vector<OverlappingModeTile>& tiles) {
+			for (int idx = 0; idx < tiles.size(); idx++) {
+				OverlappingModeTile other = tiles[idx];
+				if (std::equal(north_edge.begin(), north_edge.end(), other.south_edge.rbegin()))
+					neighbour_options["north"].push_back(idx);
+				if (std::equal(east_edge.begin(), east_edge.end(), other.west_edge.rbegin()))
+					neighbour_options["east"].push_back(idx);
+				if (std::equal(south_edge.begin(), south_edge.end(), other.north_edge.rbegin()))
+					neighbour_options["south"].push_back(idx);
+				if (std::equal(west_edge.begin(), west_edge.end(), other.east_edge.rbegin()))
+					neighbour_options["west"].push_back(idx);
+			}
+		}
+};
 
 
 int overlapping_tiling(const std::string collage_type) {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Image Rendering");
-	sf::Event event;
+	generate_tiles(collage_type);
+	tile_size = tiles[0].texture.getSize().x;
 
-	sf::Texture texture;
-	texture.loadFromFile("./adjacent/tile_imgs/circuit/bridge_aba_aca_aba_aca_2.png");
+	sf::RenderWindow window(
+		sf::VideoMode(overlapping::COLLAGE_WIDTH * tile_size, overlapping::COLLAGE_HEIGHT * tile_size),
+		"Wave Function Collapse (overlapping tiling algorithm)"
+	);
+	window.setFramerateLimit(overlapping::FPS);
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
 
-	int widthTiles = window.getSize().x / 20;
-	int heightTiles = window.getSize().y / 20;
-	std::vector<sf::Sprite> tiles(widthTiles * heightTiles);
-	for (int y = 0; y < heightTiles; y++)
-		for (int x = 0; x < widthTiles; x++) {
-			sf::Sprite sprite;
-			sprite.setTexture(texture);
-			sprite.setPosition(x * 20, y * 20);
-			tiles[y * widthTiles + x] = sprite;
-		}
+	vector<vector<Cell>> grid(overlapping::COLLAGE_HEIGHT, vector<Cell>(overlapping::COLLAGE_WIDTH));
+	bool starting = true;
 
 	while (window.isOpen()) {
 		while (window.pollEvent(event))
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-		window.clear();
-		for (const sf::Sprite& tile : tiles)
-			window.draw(tile);
-		window.display();
+		if (starting) {
+			for (int y = 0; y < overlapping::COLLAGE_HEIGHT; y++)
+				for (int x = 0; x < overlapping::COLLAGE_WIDTH; x++)
+					grid[y][x] = Cell(y, x, tiles.size());
+
+			draw(window, grid);
+			sf::sleep(sf::milliseconds(1000));
+			wave_function_collapse(window, grid, true);
+			starting = false;
+		} else {
+			string result = wave_function_collapse(window, grid);
+			if (result == "contradiction" || result == "all cells collapsed") {
+				// sf::Texture texture;
+				// sf::Image screenshot;
+				// texture.create(window.getSize().x, window.getSize().y);
+				// texture.update(window);
+				// screenshot = texture.copyToImage();
+				// string file_path = "./" + collage_type + ".png";
+				// screenshot.saveToFile(file_path);
+
+				sf::sleep(sf::milliseconds(2000));
+				starting = true;
+			}
+		}
 	}
 
 	return 0;
 }
+
+#endif

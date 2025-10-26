@@ -9,11 +9,11 @@ Created 19/07/2023
 #include "overlapping/overlapping_main.h"
 
 
-const bool ADJACENT_MODE = true;  // Set to true to demo the adjacent algorithm, false for overlapping algorithm
+const bool ADJACENT_MODE = true;  // Set to true to demo adjacent tiling, false for overlapping tiling
 
 // If ADJACENT_MODE, choose a dir from /adjacent/tile_imgs.
 // Otherwise, choose a source image from /overlapping/src_imgs.
-const string COLLAGE_TYPE = "water";
+const string COLLAGE_TYPE = "circuit";
 
 
 int main() {
