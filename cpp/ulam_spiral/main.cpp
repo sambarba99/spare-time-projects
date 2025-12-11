@@ -51,7 +51,8 @@ void draw() {
 		if (n % num_steps == 0) {
 			state = ++state % 4;
 			turn_counter++;
-			if (turn_counter % 2 == 0) num_steps++;
+			if (turn_counter % 2 == 0)
+				num_steps++;
 		}
 	}
 

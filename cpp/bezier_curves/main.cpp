@@ -84,10 +84,11 @@ void draw() {
 }
 
 
-vector<float> calc_point_distance_from_mouse(const int mouse_x, const int mouse_y) {
-	vector<float> distances(points.size());
+vector<float> calc_point_distances_from_mouse(const int mouse_x, const int mouse_y) {
+	vector<float> distances;
+	distances.reserve(points.size());
 	for (const auto& [x, y] : points)
-		distances.emplace_back(sqrt(pow(x - mouse_x, 2) + pow(y - mouse_y, 2)));
+		distances.push_back(std::hypot(x - mouse_x, y - mouse_y));
 	return distances;
 }
 
@@ -97,9 +98,8 @@ int main() {
 	window.display();
 
 	int clicked_point_idx = -1;
-	sf::Vector2i mouse_pos;
-	float mouse_x, mouse_y;
 	bool left_btn_down = false;
+	sf::Vector2i mouse_pos;
 	sf::Event event;
 
 	while (window.isOpen()) {
@@ -108,36 +108,37 @@ int main() {
 				case sf::Event::Closed:
 					window.close();
 					break;
+
 				case sf::Event::MouseButtonPressed:
 					mouse_pos = sf::Mouse::getPosition(window);
-					mouse_x = mouse_pos.x;
-					mouse_y = mouse_pos.y;
 
 					if (event.mouseButton.button == sf::Mouse::Left) {  // Left-click to drag point
-						if (points.empty()) continue;
+						if (points.empty())
+							continue;
 
 						left_btn_down = true;
-						vector<float> point_distance_from_mouse = calc_point_distance_from_mouse(mouse_x, mouse_y);
-						float min_dist = *min_element(point_distance_from_mouse.begin(), point_distance_from_mouse.end());
+						vector<float> point_distances_from_mouse = calc_point_distances_from_mouse(mouse_pos.x, mouse_pos.y);
+						float min_dist = *min_element(point_distances_from_mouse.begin(), point_distances_from_mouse.end());
 						if (min_dist <= POINT_RADIUS)  // Mouse is on a point
-							clicked_point_idx = find(point_distance_from_mouse.begin(), point_distance_from_mouse.end(), min_dist) - point_distance_from_mouse.begin();
+							clicked_point_idx = find(point_distances_from_mouse.begin(), point_distances_from_mouse.end(), min_dist) - point_distances_from_mouse.begin();
 						else
 							clicked_point_idx = -1;
 					} else if (event.mouseButton.button == sf::Mouse::Right) {  // Right-click to add a point
 						if (points.size() < MAX_POINTS) {
-							points.emplace_back(mouse_x, mouse_y);
+							points.emplace_back(mouse_pos.x, mouse_pos.y);
 							draw();
 						}
 					}
 					break;
+
 				case sf::Event::MouseMoved:
 					mouse_pos = sf::Mouse::getPosition(window);
-					mouse_x = mouse_pos.x;
-					mouse_y = mouse_pos.y;
 					break;
+
 				case sf::Event::MouseButtonReleased:
 					left_btn_down = false;
 					break;
+
 				case sf::Event::KeyPressed:
 					if (event.key.code == sf::Keyboard::R) {  // Reset
 						points.clear();
@@ -148,7 +149,7 @@ int main() {
 		}
 
 		if (left_btn_down && clicked_point_idx != -1) {
-			points[clicked_point_idx] = {mouse_x, mouse_y};
+			points[clicked_point_idx] = {mouse_pos.x, mouse_pos.y};
 			draw();
 		}
 	}

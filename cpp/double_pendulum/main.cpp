@@ -48,7 +48,8 @@ void draw_line(int x1, int y1, const int x2, const int y2, const int red_amount)
 		sf::Vertex pix(sf::Vector2f(x1, y1), sf::Color(red_amount, 0, 0));
 		window.draw(&pix, 1, sf::Points);
 
-		if (x1 == x2 && y1 == y2) return;
+		if (x1 == x2 && y1 == y2)
+			return;
 
 		e2 = 2 * err;
 		if (e2 >= dy) {

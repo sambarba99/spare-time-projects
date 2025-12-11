@@ -88,7 +88,8 @@ vector<int> mst() {
 
 
 void draw_mst() {
-	if (graph.empty()) return;
+	if (graph.empty())
+		return;
 
 	window.clear(sf::Color(20, 20, 20));
 	vector<int> mst_parents = mst();

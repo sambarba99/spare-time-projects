@@ -40,7 +40,7 @@ $-1.479892325756 + 0.00063343092\mathbf{i}$ ($10^{9} \times$ magnification)
 	<img src="images/mandelbrot_set_1e9x.webp"/>
 </p>
 
-$-0.77468056281905 - 0.13741669895407\mathbf{i}$ ($10^{12} \times$ magnification)
+$0.452360620009609 + 0.396152988222595\mathbf{i}$ ($10^{12} \times$ magnification)
 
 <p align="center">
 	<img src="images/mandelbrot_set_1e12x.webp"/>
