@@ -63,9 +63,12 @@ string find_winner() {
 
 
 float minimax(const bool is_maximising, const float depth, float alpha, float beta) {
-	if (find_winner() == AI) return 1.f;
-	if (find_winner() == HUMAN) return -1.f;
-	if (is_tie()) return 0.f;
+	if (find_winner() == AI)
+		return 1.f;
+	if (find_winner() == HUMAN)
+		return -1.f;
+	if (is_tie())
+		return 0.f;
 
 	float score = is_maximising ? -2.f : 2.f;
 
@@ -114,9 +117,12 @@ void make_best_ai_move() {
 
 	place_player(best_y, best_x, AI);
 	string result = find_winner();
-	if (result == AI) status_text = "AI wins! Click to reset";
-	if (result == TIE) status_text = "It's a tie! Click to reset";
-	if (result == NONE) status_text = "Your turn (o)";
+	if (result == AI)
+		status_text = "AI wins! Click to reset";
+	if (result == TIE)
+		status_text = "It's a tie! Click to reset";
+	if (result == NONE)
+		status_text = "Your turn (o)";
 }
 
 
@@ -138,7 +144,8 @@ void draw() {
 	for (int y = 0; y < BOARD_SIZE; y++) {
 		for (int x = 0; x < BOARD_SIZE; x++) {
 			string token = board[y][x];
-			if (token == NONE) continue;
+			if (token == NONE)
+				continue;
 
 			sf::Text cell_text(token, font, 140);
 			cell_text.setPosition(int(float(x + 0.19f) * CELL_SIZE + GRID_OFFSET), int(float(y - 0.37f) * CELL_SIZE + GRID_OFFSET));
@@ -175,8 +182,10 @@ void handle_click(const int mouse_x, const int mouse_y) {
 
 	string result = find_winner();
 	// No point checking if human wins...
-	if (result == TIE) status_text = "It's a tie! Click to reset";
-	if (result == NONE) status_text = "AI's turn (x)";
+	if (result == TIE)
+		status_text = "It's a tie! Click to reset";
+	if (result == NONE)
+		status_text = "AI's turn (x)";
 
 	draw();
 
@@ -203,6 +212,7 @@ int main() {
 				case sf::Event::Closed:
 					window.close();
 					break;
+
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left) {
 						if (find_winner() != NONE) {  // Click to reset if game over
@@ -216,6 +226,7 @@ int main() {
 						}
 					}
 					break;
+
 				case sf::Event::KeyPressed:
 					if (event.key.code == sf::Keyboard::A) {  // Make AI play first
 						if (squares_left == 9) {  // If no moves have been played yet

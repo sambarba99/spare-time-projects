@@ -202,6 +202,7 @@ int main() {
 				case sf::Event::Closed:
 					window.close();
 					break;
+
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left && user_drawing_mode) {
 						left_btn_down = true;
@@ -225,12 +226,14 @@ int main() {
 						}
 					}
 					break;
+
 				case sf::Event::MouseMoved:
 					if (left_btn_down && user_drawing_mode) {
 						mouse_pos = sf::Mouse::getPosition(window);
 						user_drawing_coords.emplace_back(mouse_pos.x, mouse_pos.y);
 					}
 					break;
+
 				case sf::Event::MouseButtonReleased:
 					if (event.mouseButton.button == sf::Mouse::Left) {
 						if (left_btn_down && user_drawing_mode) {
@@ -240,6 +243,7 @@ int main() {
 						}
 					}
 					break;
+
 				case sf::Event::KeyPressed:
 					switch (event.key.code) {
 						case sf::Keyboard::Up: case sf::Keyboard::Down:
@@ -309,7 +313,8 @@ int main() {
 			}
 		}
 
-		if (user_drawing_mode) draw_label("Draw something, or select a preset with P/G/T. Right-click to exit drawing mode.", 0);
+		if (user_drawing_mode)
+			draw_label("Draw something, or select a preset with P/G/T. Right-click to exit drawing mode.", 0);
 		window.display();
 
 		// sf::Texture texture;

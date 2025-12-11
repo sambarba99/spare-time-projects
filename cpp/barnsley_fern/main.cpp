@@ -46,8 +46,9 @@ int main() {
 	std::mt19937 gen(rd());
 	std::discrete_distribution<> dist(PROBS.begin(), PROBS.end());
 
-	vector<std::pair<double, double>> points(NUM_STEPS + 1);
-	points.emplace_back(0.0, 0.0);  // Start at origin
+	vector<std::pair<double, double>> points;
+	points.reserve(NUM_STEPS + 1);
+	points.push_back({0.0, 0.0});  // Start at origin
 
 	double min_x = std::numeric_limits<double>::max(), max_x = std::numeric_limits<double>::min();
 	double min_y = min_x, max_y = max_x;
@@ -55,8 +56,8 @@ int main() {
 		int idx = dist(gen);
 		auto [x, y] = points.back();
 		auto [next_x, next_y] = TRANSFORMS[idx](x, y);
-		points.emplace_back(next_x, next_y);
-		
+		points.push_back({next_x, next_y});
+
 		// Keep track of min/max x/y for normalisation later
 		if (y < min_y) min_y = y;
 		if (y > max_y) max_y = y;
@@ -71,7 +72,7 @@ int main() {
 	for (const auto& p : points) {
 		int sx = static_cast<int>((p.first - min_x) * scale);
 		int sy = static_cast<int>((p.second - min_y) * scale);
-		scaled.emplace_back(sx, sy);
+		scaled.push_back({sx, sy});
 	}
 
 	int max_sx = INT_MIN, max_sy = INT_MIN;

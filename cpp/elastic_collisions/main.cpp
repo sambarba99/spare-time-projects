@@ -53,13 +53,17 @@ class Particle {
 				vel.y *= -1;
 				pos.y = HEIGHT - radius;
 			}
+			// Damping
+			// vel.x *= 0.999;
+			// vel.y *= 0.999;
 		}
 
 		void collide(Particle& other) {
 			sf::Vector2f delta_pos = other.pos - pos;
 			float dist = std::sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
 
-			if (dist > radius + other.radius) return;
+			if (dist > radius + other.radius)
+				return;
 
 			sf::Vector2f impact_vector = other.pos - pos;
 
@@ -146,8 +150,9 @@ void draw() {
 
 
 int main() {
-	int screenshot_counter = 0;
+	particles.reserve(NUM_PARTICLES);
 
+	int screenshot_counter = 0;
 	window.setFramerateLimit(FPS);
 
 	for (int i = 0; i < NUM_PARTICLES; i++) {
@@ -158,7 +163,7 @@ int main() {
 		sf::Vector2f pos(x_pos_dist(gen), y_pos_dist(gen));
 		sf::Vector2f vel(vel_dist(gen), vel_dist(gen));
 
-		particles.emplace_back(Particle(mass, radius, pos, vel));
+		particles.push_back(Particle(mass, radius, pos, vel));
 	}
 
 	sf::Event event;

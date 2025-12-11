@@ -64,7 +64,7 @@ sf::RenderWindow window(sf::VideoMode(SIZE_PX * 2, SIZE_PX), "Ray casting demo",
 sf::Font font;
 
 
-vector<Line> makeBox(const int grid_idx) {
+vector<Line> make_box(const int grid_idx) {
 	double x1 = (grid_idx % SIZE_GRID) * GRID_SQUARE_SIZE;
 	double y1 = (grid_idx / SIZE_GRID) * GRID_SQUARE_SIZE;
 	double x2 = x1 + GRID_SQUARE_SIZE;
@@ -85,7 +85,7 @@ void generate_obstacles(const int num_boxes = 5, const int num_circles = 5) {
 
 	walls.clear();
 	for (int i = 0; i < num_boxes; i++) {
-		vector<Line> box_walls = makeBox(all_grid_indices[i]);
+		vector<Line> box_walls = make_box(all_grid_indices[i]);
 		for (const Line& wall : box_walls)
 			walls.emplace_back(wall);
 	}
@@ -229,7 +229,7 @@ void draw() {
 	window.draw(ground_2d);
 
 	// 2D rays
-	for (int i = 0; i < rays.size(); i++)
+	for (int i = 0; i < rays.size(); i++) {
 		if (i % 20 == 0) {
 			Line ray = rays[i];
 			sf::Vertex line[] = {
@@ -238,6 +238,7 @@ void draw() {
 			};
 			window.draw(line, 2, sf::Lines);
 		}
+	}
 
 	// Player
 	sf::CircleShape circle(POINT_RADIUS);
@@ -304,15 +305,15 @@ void draw() {
 
 	sf::Text left_text("2D bird's-eye view", font, 18);
 	sf::FloatRect left_text_rect = left_text.getLocalBounds();
-	left_text.setOrigin(left_text_rect.left + left_text_rect.width / 2, left_text_rect.top + left_text_rect.height / 2);
-	left_text.setPosition(SIZE_PX * 0.5, 15);
+	left_text.setOrigin(int(left_text_rect.left + left_text_rect.width / 2), int(left_text_rect.top + left_text_rect.height / 2));
+	left_text.setPosition(int(SIZE_PX * 0.5), 15);
 	left_text.setFillColor(sf::Color::Black);
 	window.draw(left_text);
 
 	sf::Text right_text("3D POV", font, 18);
 	sf::FloatRect right_text_rect = right_text.getLocalBounds();
-	right_text.setOrigin(right_text_rect.left + right_text_rect.width / 2, right_text_rect.top + right_text_rect.height / 2);
-	right_text.setPosition(SIZE_PX * 1.5, 15);
+	right_text.setOrigin(int(right_text_rect.left + right_text_rect.width / 2), int(right_text_rect.top + right_text_rect.height / 2));
+	right_text.setPosition(int(SIZE_PX * 1.5), 15);
 	right_text.setFillColor(sf::Color::Black);
 	window.draw(right_text);
 
@@ -371,13 +372,16 @@ int main() {
 				player_heading += TURNING_SPEED * M_PI / 180.0;
 				break;
 		}
-		if (dx != 0.0 || dy != 0.0)
-			if (POINT_RADIUS + 1 <= player_x + dx && player_x + dx <= SIZE_PX - POINT_RADIUS - 1)
+
+		if (dx != 0.0 || dy != 0.0) {
+			if (POINT_RADIUS + 1 <= player_x + dx && player_x + dx <= SIZE_PX - POINT_RADIUS - 1) {
 				if (POINT_RADIUS + 1 <= player_y + dy && player_y + dy <= SIZE_PX - POINT_RADIUS - 1) {
 					player_x += dx;
 					player_y += dy;
 					dx = dy = 0.0;
 				}
+			}
+		}
 
 		generate_rays();
 		draw();

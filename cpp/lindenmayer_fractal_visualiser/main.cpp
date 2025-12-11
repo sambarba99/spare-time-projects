@@ -77,11 +77,12 @@ string generate_instructions(const string& axiom, const std::unordered_map<char,
 	string instructions = axiom, instructions_new;
 	for (int i = 0; i < n; i++) {
 		instructions_new = "";
-		for (char c : instructions)
+		for (char c : instructions) {
 			if (ruleset.count(c))
 				instructions_new += ruleset.at(c);
 			else
 				instructions_new += c;
+		}
 		instructions = instructions_new;
 	}
 
@@ -282,7 +283,7 @@ int main() {
 		KOCH_ISLAND, KOCH_RING, PENTAPLEXITY, TRIANGLES, PENROSE, PEANO_GOSPER_CURVE, HILBERT_CURVE, LEVY_C_CURVE,
 		DRAGON_CURVE, ASYMMETRIC_TREE_1, ASYMMETRIC_TREE_2, ASYMMETRIC_TREE_3};
 
-	for (const Fractal& fract : all_fractals)
+	for (const Fractal& fract : all_fractals) {
 		for (int i = 0; i <= fract.max_iters; i++) {
 			name_label = fract.name + " (iteration " + std::to_string(i) + '/' + std::to_string(fract.max_iters) + ')';
 			string instructions = generate_instructions(fract.axiom, fract.ruleset, i);
@@ -290,6 +291,7 @@ int main() {
 			if (drawing_done)
 				await_click();
 		}
+	}
 
 	window.close();
 
