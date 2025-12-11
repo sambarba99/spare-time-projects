@@ -38,17 +38,17 @@ std::unordered_map<Cell, int, CellHash> live_neighbour_counts;
 std::unordered_set<Cell, CellHash> new_cells;
 Cell neighbour_cell;
 
-std::random_device rd;
-std::mt19937 gen(rd());
-sf::RenderWindow window(sf::VideoMode(GRID_WIDTH, GRID_HEIGHT + LABEL_HEIGHT), "Game of Life", sf::Style::Close);
-sf::Font font;
-sf::Vector2f view_offset;
 int cell_size_idx = 4;  // Start with 5px cell size
 int delay_idx = 1;
 int pattern_idx = -1;
 int generation_num;
 int num_removed_cells;
 bool show_info = true;
+sf::Vector2f view_offset;
+std::random_device rd;
+std::mt19937 gen(rd());
+sf::RenderWindow window(sf::VideoMode(GRID_WIDTH, GRID_HEIGHT + LABEL_HEIGHT), "Game of Life", sf::Style::Close);
+sf::Font font;
 
 
 void randomise_live_cells() {
@@ -190,6 +190,7 @@ int main() {
 				case sf::Event::Closed:
 					window.close();
 					break;
+
 				case sf::Event::KeyPressed:
 					switch (event.key.code) {
 						case sf::Keyboard::P:
@@ -234,20 +235,24 @@ int main() {
 							break;
 					}
 					break;
+
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left) {
 						left_btn_down = true;
 						drag_origin = sf::Vector2f(sf::Mouse::getPosition(window)) - view_offset;
 					}
 					break;
+
 				case sf::Event::MouseMoved:
 					if (left_btn_down)
 						view_offset = sf::Vector2f(sf::Mouse::getPosition(window)) - drag_origin;
 					break;
+
 				case sf::Event::MouseButtonReleased:
 					if (event.mouseButton.button == sf::Mouse::Left)
 						left_btn_down = false;
 					break;
+
 				case sf::Event::MouseWheelScrolled:
 					if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
 						// Zoom in/out about the mouse position

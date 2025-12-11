@@ -2,11 +2,11 @@
 Mandelbrot/Julia set visualiser
 
 Controls:
-	Click: select point to set as origin (0,0)
-	Num keys 2,5,1,0: magnify around origin by 2/5/10/100 times, respectively
-	S: screenshot
-	T: toggle axes
+	Drag: move around
+	Scroll: zoom in/out
 	Z/X: change max iterations per pixel (resolution)
+	A: toggle axes
+	S: screenshot
 	R: reset
 
 Author: Sam Barba
@@ -32,6 +32,7 @@ const int ITER_LIMIT_MAX = 3200;
 const int LABEL_HEIGHT = 30;
 const double ORIGINAL_SCALE = 250.0;
 const double BAILOUT_RADIUS = 128.0;
+const double ZOOM_FACTOR = 2.0;
 const vector<vector<int>> RGB_PALETTE = {{0, 0, 90}, {20, 60, 170}, {70, 160, 230}, {230, 255, 255}, {255, 200, 50}, {140, 60, 30}, {50, 0, 50}};
 
 // Set to true if rendering the Mandelbrot set...
@@ -52,20 +53,27 @@ double x_offset = x_axis;
 double y_axis = HEIGHT / 2;
 double y_offset = y_axis;
 bool show_axes = true;
+sf::VertexArray fractal_image(sf::Points, WIDTH * HEIGHT), temp;  // Holds the static Mandelbrot/Julia set
+sf::Vector2i view_offset;
 sf::Vertex x_axis_line[] = {
-	sf::Vertex(sf::Vector2f(x_axis - 10, y_axis + LABEL_HEIGHT)),
-	sf::Vertex(sf::Vector2f(x_axis + 10, y_axis + LABEL_HEIGHT))
+	sf::Vertex(sf::Vector2f(x_axis - 12, y_axis)),
+	sf::Vertex(sf::Vector2f(x_axis + 11, y_axis))
 };
 sf::Vertex y_axis_line[] = {
-	sf::Vertex(sf::Vector2f(x_axis, y_axis - 10 + LABEL_HEIGHT)),
-	sf::Vertex(sf::Vector2f(x_axis, y_axis + 10 + LABEL_HEIGHT))
+	sf::Vertex(sf::Vector2f(x_axis, y_axis - 11)),
+	sf::Vertex(sf::Vector2f(x_axis, y_axis + 12))
 };
 sf::RenderWindow window(
 	sf::VideoMode(WIDTH, HEIGHT + LABEL_HEIGHT),
-	"Click: set origin | 2/5/1/0: magnify by 2/5/10/100x | S: screenshot | T: toggle axes | Z/X: change max_iters | R: reset",
+	"Drag: move around  |  Scroll: zoom  |  Z/X: change max_iters  |  A: toggle axes  |  S: screenshot  |  R: reset",
 	sf::Style::Close
 );
 sf::Font font;
+
+// Zoom preview variables
+bool zoom_preview_active = false;
+double zoom_preview_scale = 1.0;
+sf::RectangleShape zoom_preview;
 
 
 vector<int> linear_interpolate(const vector<int>& rgb1, const vector<int>& rgb2, const double t) {
@@ -76,18 +84,28 @@ vector<int> linear_interpolate(const vector<int>& rgb1, const vector<int>& rgb2,
 }
 
 
-sf::VertexArray get_pixels(const std::optional<complex<double>>& c_value = std::nullopt) {
-	sf::VertexArray pixels(sf::Points, WIDTH * HEIGHT);
-
+void compute_region(
+	const int x_start = 0,
+	const int y_start = 0,
+	const int w = WIDTH,
+	const int h = HEIGHT,
+	const std::optional<complex<double>>& c_value = std::nullopt
+) {
 	int i;
 	double real, imag, nu, t;
 	vector<int> rgb1, rgb2, rgb;
 
-	for (int y = 0; y < HEIGHT; y++) {
-		for (int x = 0; x < WIDTH; x++) {
+	for (int x = x_start; x < x_start + w; x++) {
+		if (x < 0 || x >= WIDTH)
+			continue;
+
+		for (int y = y_start; y < y_start + h; y++) {
+			if (y < 0 || y >= HEIGHT)
+				continue;
+
 			real = (double(x) - x_offset) / scale;  // x represents the real axis
 			imag = (double(y) - y_offset) / scale;  // y represents the imaginary axis
-			complex<double> z, c;
+			complex<double> z = 0, c;
 
 			if (RENDER_MANDELBROT && c_value == std::nullopt) {
 				// z is fixed (0 + 0i), and c is being varied and tested
@@ -97,6 +115,7 @@ sf::VertexArray get_pixels(const std::optional<complex<double>>& c_value = std::
 				z = {real, imag};
 				c = c_value.value_or(C_JULIA);
 			}
+
 			i = 0;
 			while (abs(z) < BAILOUT_RADIUS && i < max_iters) {
 				z = z * z + c;
@@ -112,16 +131,34 @@ sf::VertexArray get_pixels(const std::optional<complex<double>>& c_value = std::
 				rgb1 = RGB_PALETTE[int(nu) % RGB_PALETTE.size()];
 				rgb2 = RGB_PALETTE[int(nu + 1) % RGB_PALETTE.size()];
 				rgb = linear_interpolate(rgb1, rgb2, t);
-				pixels[y * WIDTH + x] = sf::Vertex(sf::Vector2f(x, y + LABEL_HEIGHT + 1), sf::Color(rgb[0], rgb[1], rgb[2]));
+				fractal_image[y * WIDTH + x] = sf::Vertex(sf::Vector2f(x, y), sf::Color(rgb[0], rgb[1], rgb[2]));
+			} else {
+				fractal_image[y * WIDTH + x] = sf::Vertex(sf::Vector2f(x, y), sf::Color::Black);
 			}
 		}
 	}
-
-	return pixels;
 }
 
 
-void draw_label(const std::string label_text) {
+void centre_around_origin() {
+	x_offset -= x_axis - WIDTH / 2;
+	y_offset -= y_axis - HEIGHT / 2;
+	x_axis = WIDTH / 2;
+	y_axis = HEIGHT / 2;
+}
+
+
+void magnify(const double mag_factor) {
+	scale *= mag_factor;
+	x_offset = mag_factor * (x_offset - x_axis) + x_axis;
+	y_offset = mag_factor * (y_offset - y_axis) + y_axis;
+}
+
+
+void draw_label(const std::string label_text, const bool clear_window = true) {
+	if (clear_window)
+		window.clear();
+
 	sf::RectangleShape lbl_area(sf::Vector2f(WIDTH, LABEL_HEIGHT));
 	lbl_area.setPosition(0, 0);
 	lbl_area.setFillColor(sf::Color::Black);
@@ -139,37 +176,35 @@ void draw_label(const std::string label_text) {
 
 void draw() {
 	window.clear();
-	window.draw(get_pixels());
+
+	// Apply transformation during view dragging (also offset for label height)
+	sf::RenderStates states1, states2;
+	states1.transform.translate(view_offset.x, view_offset.y + LABEL_HEIGHT + 1);
+	states2.transform.translate(0, LABEL_HEIGHT);
+
+	window.draw(fractal_image, states1);
+
+	if (zoom_preview_active)
+		window.draw(zoom_preview);
 
 	if (show_axes) {
-		window.draw(x_axis_line, 2, sf::Lines);
-		window.draw(y_axis_line, 2, sf::Lines);
+		window.draw(x_axis_line, 2, sf::Lines, states2);
+		window.draw(y_axis_line, 2, sf::Lines, states2);
 	}
 
-	double z_real = (WIDTH / 2 - x_offset) / scale;
-	double z_imag = -(HEIGHT / 2 - y_offset) / scale;
-	std::ostringstream z_real_str;
-	std::ostringstream z_imag_str;
-	std::ostringstream scale_str;
+	double z_real = (WIDTH / 2 - x_offset - view_offset.x) / scale;
+	double z_imag = -(HEIGHT / 2 - y_offset - view_offset.y) / scale;
+	std::ostringstream z_real_str, z_imag_str, scale_str;
 	z_real_str << std::setprecision(15) << z_real;
 	z_imag_str << std::setprecision(15) << z_imag;
 	scale_str << std::scientific << std::setprecision(4) << (scale / ORIGINAL_SCALE);
-	draw_label("Current coords: (" + z_real_str.str() + ", " + z_imag_str.str() + ") | Current scale: " + scale_str.str());
-}
+	std::string re_str = z_real_str.str() == "-0" ? "0" : z_real_str.str();
+	std::string im_str = z_imag_str.str() == "-0" ? "0" : z_imag_str.str();
+	std::string label = "Coords: (" + re_str + ", " + im_str + ")  |  Scale: " + scale_str.str() + "  |  Zoom preview: ";
+	std::string zoom_preview_scale_str = std::to_string(zoom_preview_scale > 1.0 ? int(zoom_preview_scale) : int(-1.0 / zoom_preview_scale)) + "x";
+	label += zoom_preview_active ? zoom_preview_scale_str : "None";
 
-
-void centre_around_origin() {
-	x_offset -= x_axis - WIDTH / 2;
-	y_offset -= y_axis - HEIGHT / 2 - LABEL_HEIGHT;
-	x_axis = WIDTH / 2;
-	y_axis = HEIGHT / 2;
-}
-
-
-void magnify(const double factor) {
-	scale *= factor;
-	x_offset = factor * (x_offset - x_axis) + x_axis;
-	y_offset = factor * (y_offset - y_axis) + y_axis;
+	draw_label(label, false);
 }
 
 
@@ -181,7 +216,7 @@ void plot_mandelbrot_zoom(const complex<double> c, const int num_steps, const do
 	double delta_x = c.real();
 	double delta_y = -c.imag();  // y axis normally increases upwards, but does so downwards on a display
 	x_offset -= delta_x * scale;
-	y_offset -= delta_y * scale + LABEL_HEIGHT;
+	y_offset -= delta_y * scale;
 	centre_around_origin();
 
 	// Scaling by step_scale_factor, num_steps times, will give us a magnification of final_scale_factor
@@ -197,18 +232,18 @@ void plot_mandelbrot_zoom(const complex<double> c, const int num_steps, const do
 
 		sf::Image image;
 		image.create(WIDTH, HEIGHT);
-		sf::VertexArray pixels = get_pixels();
-		for (int i = 0; i < pixels.getVertexCount(); i++) {
-			sf::Vector2f pos = pixels[i].position;
-			sf::Color colour = pixels[i].color;
-			if (pos.y >= LABEL_HEIGHT)  // Don't care about rendering the label
-				image.setPixel(static_cast<unsigned int>(pos.x), static_cast<unsigned int>(pos.y - LABEL_HEIGHT - 1), colour);
+		compute_region();
+		for (int i = 0; i < fractal_image.getVertexCount(); i++) {
+			sf::Vector2f pos = fractal_image[i].position;
+			sf::Color colour = fractal_image[i].color;
+			image.setPixel(static_cast<unsigned int>(pos.x), static_cast<unsigned int>(pos.y), colour);
 		}
 		std::ostringstream file_path;
 		file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << i << ".png";
 		image.saveToFile(file_path.str());
 
-		if (i == num_steps) break;
+		if (i == num_steps)
+			break;
 
 		magnify(step_scale_factor);
 	}
@@ -226,12 +261,11 @@ void plot_julia_rotation(const double r, const int num_steps) {
 		sf::Image image;
 		image.create(WIDTH, HEIGHT);
 		complex<double> c = r * complex<double>(cos(a), sin(a));
-		sf::VertexArray pixels = get_pixels(c);
-		for (int i = 0; i < pixels.getVertexCount(); i++) {
-			sf::Vector2f pos = pixels[i].position;
-			sf::Color colour = pixels[i].color;
-			if (pos.y >= LABEL_HEIGHT)  // Don't care about rendering the label
-				image.setPixel(static_cast<unsigned int>(pos.x), static_cast<unsigned int>(pos.y - LABEL_HEIGHT - 1), colour);
+		compute_region(0, 0, WIDTH, HEIGHT, c);
+		for (int i = 0; i < fractal_image.getVertexCount(); i++) {
+			sf::Vector2f pos = fractal_image[i].position;
+			sf::Color colour = fractal_image[i].color;
+			image.setPixel(static_cast<unsigned int>(pos.x), static_cast<unsigned int>(pos.y), colour);
 		}
 		std::ostringstream file_path;
 		file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
@@ -246,16 +280,19 @@ int main() {
 	// plot_mandelbrot_zoom(complex<double>(-0.74453952, 0.12172412), 450, 5e4, 50, 1200);
 	// plot_mandelbrot_zoom(complex<double>(0.360147036, 0.641212176), 600, 1e6, 50, 300);
 	// plot_mandelbrot_zoom(complex<double>(-1.479892325756, 0.00063343092), 900, 1e9, 50, 2000);
-	// plot_mandelbrot_zoom(complex<double>(-0.77468056281905, -0.13741669895407), 900, 1e12, 50, 1600);
+	// plot_mandelbrot_zoom(complex<double>(0.452381477367726, 0.39613094667835), 900, 1e12, 50, 1600);
 	// plot_julia_rotation(0.77, 600);
 
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
-	double factor;
+	bool left_btn_down = false;
+	sf::Vector2i drag_origin, mouse_pos;
 	sf::Texture texture;
 	texture.create(window.getSize().x, window.getSize().y);
 	sf::Image screenshot;
 	sf::Event event;
+	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	zoom_preview.setFillColor(sf::Color(255, 0, 128, 64));  // Translucent pink
 
+	compute_region();
 	draw();
 
 	while (window.isOpen()) {
@@ -264,41 +301,149 @@ int main() {
 				case sf::Event::Closed:
 					window.close();
 					break;
+
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left) {
-						sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
-						int mouse_x = mouse_pos.x, mouse_y = mouse_pos.y;
-						if (mouse_y > LABEL_HEIGHT) {
-							draw_label("Setting origin...");
-							x_axis = mouse_x;
-							y_axis = mouse_y;
-							centre_around_origin();
+						mouse_pos = sf::Mouse::getPosition(window);
+
+						if (mouse_pos.y < LABEL_HEIGHT)
+							continue;
+
+						if (zoom_preview_active) {
+							sf::Vector2f zoom_box_centre = zoom_preview.getPosition();
+
+							// Convert screen coordinates to complex plane coordinates
+							double real_centre = (zoom_box_centre.x - x_offset) / scale;
+							double imag_centre = (zoom_box_centre.y - y_offset - LABEL_HEIGHT) / scale;
+
+							// Update scale so the preview fills the window
+							scale *= WIDTH / zoom_preview.getSize().x;
+
+							// Apply new scale and adjust offsets so the preview centre stays in the same complex position
+							x_offset = WIDTH / 2 - real_centre * scale;
+							y_offset = HEIGHT / 2 - imag_centre * scale;
+
+							// Reset zoom preview
+							zoom_preview_active = false;
+							zoom_preview_scale = 1.0;
+
+							compute_region();
 							draw();
+						} else {
+							left_btn_down = true;
+							drag_origin = mouse_pos - view_offset;
 						}
 					}
 					break;
+
+				case sf::Event::MouseMoved:
+					if (event.mouseMove.y < LABEL_HEIGHT)
+						continue;
+
+					if (left_btn_down) {
+						// Dragging view
+						view_offset = sf::Mouse::getPosition(window) - drag_origin;
+						draw();
+					} else if (zoom_preview_active) {
+						// Moving the zoom preview
+						zoom_preview.setPosition(
+							static_cast<float>(event.mouseMove.x),
+							static_cast<float>(event.mouseMove.y)
+						);
+						draw();
+					}
+					break;
+
+				case sf::Event::MouseButtonReleased:
+					if (event.mouseButton.button == sf::Mouse::Left) {
+						left_btn_down = false;
+
+						// Amount the view has moved in pixels
+						int dx = view_offset.x;
+						int dy = view_offset.y;
+
+						if (dx == 0 && dy == 0)
+							continue;
+
+						// Shift the current image by dx, dy
+						temp = fractal_image;
+						for (int x = 0; x < WIDTH; x++) {
+							for (int y = 0; y < HEIGHT; y++) {
+								int orig_x = x - dx;
+								int orig_y = y - dy;
+
+								if (orig_x >= 0 && orig_x < WIDTH && orig_y >= 0 && orig_y < HEIGHT)
+									fractal_image[y * WIDTH + x].color = temp[orig_y * WIDTH + orig_x].color;
+
+								fractal_image[y * WIDTH + x].position = sf::Vector2f(x, y);
+							}
+						}
+
+						// Now compute the newly appeared regions
+						x_offset += dx;
+						y_offset += dy;
+
+						if (dx > 0)
+							compute_region(0, 0, dx, HEIGHT);
+						else if (dx < 0)
+							compute_region(WIDTH + dx, 0, -dx, HEIGHT);
+
+						if (dy > 0)
+							compute_region(0, 0, WIDTH, dy);
+						else if (dy < 0)
+							compute_region(0, HEIGHT + dy, WIDTH, -dy);
+
+						view_offset = {0, 0};
+						draw();
+					}
+					break;
+
+				case sf::Event::MouseWheelScrolled:
+					if (event.mouseWheelScroll.delta > 0) {
+						// Scroll up = zoom in
+						zoom_preview_scale = std::min(zoom_preview_scale * ZOOM_FACTOR, 64.0);
+					} else if (event.mouseWheelScroll.delta < 0) {
+						// Scroll down = zoom out
+						zoom_preview_scale = std::max(zoom_preview_scale / ZOOM_FACTOR, 1.0 / 64.0);
+					}
+
+					zoom_preview_active = zoom_preview_scale != 1.0;
+					if (zoom_preview_active) {
+						mouse_pos = sf::Mouse::getPosition(window);
+						double preview_w = WIDTH / zoom_preview_scale;
+						double preview_h = HEIGHT / zoom_preview_scale;
+						zoom_preview.setSize(sf::Vector2f(preview_w, preview_h));
+						zoom_preview.setOrigin(preview_w / 2, preview_h / 2);
+						zoom_preview.setPosition(
+							static_cast<float>(mouse_pos.x),
+							static_cast<float>(mouse_pos.y)
+						);
+					}
+					draw();
+					break;
+
 				case sf::Event::KeyPressed:
 					switch (event.key.code) {
-						case sf::Keyboard::Num2:
-						case sf::Keyboard::Num5:
-						case sf::Keyboard::Num1:
-						case sf::Keyboard::Num0:
-							if (event.key.code == sf::Keyboard::Num2) factor = 2.0;
-							else if (event.key.code == sf::Keyboard::Num5) factor = 5.0;
-							else if (event.key.code == sf::Keyboard::Num1) factor = 10.0;
-							else factor = 100.0;
-
-							draw_label("Magnifying by " + to_string(int(factor)) + "x...");
-							magnify(factor);
-							draw();
+						case sf::Keyboard::Z:
+							if (max_iters > ITER_LIMIT_MIN) {
+								draw_label("Halving max_iters...");
+								max_iters = std::max(max_iters / 2, ITER_LIMIT_MIN);
+								compute_region();
+								draw();
+								std::cout << "max_iters = " << max_iters << '\n';
+							}
 							break;
-						case sf::Keyboard::R:
-							draw_label("Resetting...");
-							max_iters = ORIGINAL_MAX_ITERS;
-							scale = ORIGINAL_SCALE;
-							x_axis = x_offset = WIDTH / 2;
-							y_axis = y_offset = HEIGHT / 2;
-							show_axes = true;
+						case sf::Keyboard::X:
+							if (max_iters < ITER_LIMIT_MAX) {
+								draw_label("Doubling max_iters...");
+								max_iters = std::min(max_iters * 2, ITER_LIMIT_MAX);
+								compute_region();
+								draw();
+								std::cout << "max_iters = " << max_iters << '\n';
+							}
+							break;
+						case sf::Keyboard::A:
+							show_axes = !show_axes;
 							draw();
 							break;
 						case sf::Keyboard::S:
@@ -309,30 +454,18 @@ int main() {
 							std::cout << "Screenshot saved at ./images/screenshot.png\n";
 							window.display();
 							break;
-						case sf::Keyboard::T:
-							draw_label("Toggling axes...");
-							show_axes = !show_axes;
+						case sf::Keyboard::R:
+							draw_label("Resetting...");
+							max_iters = ORIGINAL_MAX_ITERS;
+							scale = ORIGINAL_SCALE;
+							x_axis = x_offset = WIDTH / 2;
+							y_axis = y_offset = HEIGHT / 2;
+							show_axes = true;
+							zoom_preview_active = false;
+							zoom_preview_scale = 1.0;
+							view_offset = {0, 0};
+							compute_region();
 							draw();
-							break;
-						case sf::Keyboard::X:
-							if (max_iters < ITER_LIMIT_MAX) {
-								draw_label("Doubling max_iters...");
-								max_iters *= 2;
-								if (max_iters > ITER_LIMIT_MAX)
-									max_iters = ITER_LIMIT_MAX;
-								draw();
-								std::cout << "max_iters = " << max_iters << '\n';
-							}
-							break;
-						case sf::Keyboard::Z:
-							if (max_iters > ITER_LIMIT_MIN) {
-								draw_label("Halving max_iters...");
-								max_iters /= 2;
-								if (max_iters < ITER_LIMIT_MIN)
-									max_iters = ITER_LIMIT_MIN;
-								draw();
-								std::cout << "max_iters = " << max_iters << '\n';
-							}
 							break;
 					}
 					break;
