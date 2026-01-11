@@ -9,7 +9,6 @@ Author: Sam Barba
 Created 15/11/2022
 */
 
-#include <cmath>
 #include <optional>
 #include <random>
 #include <SFML/Graphics.hpp>
@@ -24,7 +23,7 @@ const int GRID_SQUARE_SIZE = SIZE_PX / SIZE_GRID;
 
 // Ray/rendering constants
 const int NUM_RAYS = SIZE_PX;
-const double MAX_RAY_LENGTH = sqrt(2 * SIZE_PX * SIZE_PX);
+const double MAX_RAY_LENGTH = std::sqrt(2 * SIZE_PX * SIZE_PX);
 const double FOV_ANGLE = M_PI / 3.0;  // Field of view angle = 60 deg
 const double DELTA_ANGLE = FOV_ANGLE / NUM_RAYS;
 const double SCREEN_DIST = SIZE_PX * 0.5 / tan(FOV_ANGLE * 0.5);
@@ -149,7 +148,7 @@ std::optional<vector<double>> find_ray_circle_intersection(const Line& ray, cons
 	if (discriminant < 0)
 		return std::nullopt;
 
-	double sqrt_d = sqrt(discriminant);
+	double sqrt_d = std::sqrt(discriminant);
 	double t1 = (-b - sqrt_d) / (2 * a);
 	double t2 = (-b + sqrt_d) / (2 * a);
 
@@ -197,7 +196,7 @@ void generate_rays() {
 			}
 		}
 
-		ray.length = sqrt(pow(ray.x1 - ray.x2, 2) + pow(ray.y1 - ray.y2, 2));
+		ray.length = std::sqrt(std::pow(ray.x1 - ray.x2, 2) + std::pow(ray.y1 - ray.y2, 2));
 		corrected_dist = ray.length * cos(player_heading - ray_angle);  // Remove fisheye distortion
 		corrected_dist += 1e-6;  // Avoid division by 0
 		proj_height = SCREEN_DIST / corrected_dist * PROJ_HEIGHT_SCALE;
@@ -241,10 +240,10 @@ void draw() {
 	}
 
 	// Player
-	sf::CircleShape circle(POINT_RADIUS);
-	circle.setPosition(player_x - POINT_RADIUS, player_y - POINT_RADIUS);
-	circle.setFillColor(sf::Color::Black);
-	window.draw(circle);
+	sf::CircleShape player_circle(POINT_RADIUS);
+	player_circle.setPosition(player_x - POINT_RADIUS, player_y - POINT_RADIUS);
+	player_circle.setFillColor(sf::Color::Black);
+	window.draw(player_circle);
 
 	// 2D boxes
 	for (int i = 0; i + 3 < walls.size() - 4; i += 4) {
@@ -295,7 +294,7 @@ void draw() {
 	for (int i = 0; i < rays.size(); i++) {
 		Line ray = rays[i];
 		// The shorter/further away the wall, the darker its colour
-		int c = map_range(sqrt(ray.length), 0, sqrt(MAX_RAY_LENGTH), 255, 128);
+		int c = map_range(std::sqrt(ray.length), 0, std::sqrt(MAX_RAY_LENGTH), 255, 128);
 		int y = (SIZE_PX - ray.proj_height) / 2;  // Centre wall vertically
 		sf::RectangleShape wall_segment(sf::Vector2f(WALL_WIDTH, ray.proj_height));
 		wall_segment.setPosition(i * WALL_WIDTH + SIZE_PX, y);

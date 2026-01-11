@@ -252,7 +252,7 @@ int main() {
 							if (event.key.code == sf::Keyboard::Up) {
 								num_epicycles = std::min(num_epicycles * 2, int(fourier.size()));
 							} else {
-								int pow2 = pow(2, int(log2(num_epicycles)));
+								int pow2 = std::pow(2, int(log2(num_epicycles)));
 								num_epicycles = pow2 == num_epicycles ? pow2 / 2 : pow2;
 								num_epicycles = std::max(num_epicycles, 2);
 							}
@@ -322,9 +322,9 @@ int main() {
 		// texture.create(window.getSize().x, window.getSize().y);
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
-		// std::ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
-		// screenshot.saveToFile(filePath.str());
+		// std::ostringstream file_path;
+		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(file_path.str());
 		// screenshot_counter++;
 	}
 

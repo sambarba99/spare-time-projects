@@ -180,7 +180,7 @@ void compute_region_threaded(
 		threads.emplace_back(compute_region, x_start, y0, w, h0, c_value);
 	}
 
-	for (auto &t : threads)
+	for (auto& t : threads)
 		t.join();
 }
 
@@ -267,7 +267,7 @@ void plot_mandelbrot_zoom(const complex<double> c, const int num_steps, const do
 	centre_around_origin();
 
 	// Scaling by step_scale_factor, num_steps times, will give us a magnification of final_scale_factor
-	double step_scale_factor = pow(final_scale_factor, 1.0 / num_steps);
+	double step_scale_factor = std::pow(final_scale_factor, 1.0 / num_steps);
 
 	double iter_step = double(max_pixel_iters - min_pixel_iters) / num_steps;
 	std::vector<int> pixel_iters(num_steps + 1);

@@ -109,7 +109,7 @@ void draw() {
 	if (positions.size() > 1) {
 		int n = positions.size();
 		for (int i = 0; i < n - 1; i++) {
-			double red_amount = 255 * pow(COLOUR_DECAY, n - i);
+			double red_amount = 255 * std::pow(COLOUR_DECAY, n - i);
 			draw_line(positions[i].first, positions[i].second, positions[i + 1].first, positions[i + 1].second, int(red_amount));
 		}
 	}
@@ -171,10 +171,10 @@ int main() {
 		// texture.create(window.getSize().x, window.getSize().y);
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
-		// std::ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshotCounter << ".png";
-		// screenshot.saveToFile(filePath.str());
-		// screenshotCounter++;
+		// std::ostringstream file_path;
+		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(file_path.str());
+		// screenshot_counter++;
 	}
 
 	return 0;

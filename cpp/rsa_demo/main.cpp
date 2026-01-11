@@ -6,7 +6,6 @@ Created 14/06/2025
 */
 
 #include <iostream>
-#include <math.h>
 #include <random>
 #include <tuple>
 #include <vector>
@@ -34,7 +33,7 @@ bool is_prime(const int n) {
 		return true;
 	if (n % 2 == 0 || n % 3 == 0)
 		return false;
-	int limit = static_cast<int>(sqrt(n));
+	int limit = static_cast<int>(std::sqrt(n));
 	for (int i = 5; i <= limit; i += 6)
 		if (n % i == 0 || n % (i + 2) == 0)
 			return false;

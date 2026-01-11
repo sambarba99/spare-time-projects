@@ -147,7 +147,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 	*/
 
 	float c = s * v;
-	float x = c * (1 - fabs(fmod(h / 60.0, 2) - 1));
+	float x = c * (1 - std::abs(fmod(h / 60.0, 2) - 1));
 	float m = v - c;
 
 	float rf, gf, bf;
@@ -249,9 +249,9 @@ bool execute_instructions(const string& instructions, const double start_heading
 	// texture.create(window.getSize().x, window.getSize().y);
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
-	// std::ostringstream filePath;
-	// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
-	// screenshot.saveToFile(filePath.str());
+	// std::ostringstream file_path;
+	// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+	// screenshot.saveToFile(file_path.str());
 	// screenshot_counter++;
 
 	return true;

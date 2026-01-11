@@ -131,9 +131,9 @@ int main() {
 		// texture.create(window.getSize().x, window.getSize().y);
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
-		// std::ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
-		// screenshot.saveToFile(filePath.str());
+		// std::ostringstream file_path;
+		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(file_path.str());
 		// screenshot_counter++;
 
 		xrev += CHANGE_X_REV;

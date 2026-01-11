@@ -73,11 +73,13 @@ void draw() {
 		window.draw(pixels);
 	}
 
+	sf::CircleShape point(POINT_RADIUS);
+	point.setOrigin(POINT_RADIUS, POINT_RADIUS);
+	point.setFillColor(sf::Color(230, 20, 20));
+
 	for (const auto& [x, y] : points) {
-		sf::CircleShape circle(POINT_RADIUS);
-		circle.setPosition(x - POINT_RADIUS, y - POINT_RADIUS);
-		circle.setFillColor(sf::Color(230, 20, 20));
-		window.draw(circle);
+		point.setPosition(x, y);
+		window.draw(point);
 	}
 
 	window.display();

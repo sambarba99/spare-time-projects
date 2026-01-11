@@ -50,39 +50,43 @@ int main() {
 	points.reserve(NUM_STEPS + 1);
 	points.push_back({0.0, 0.0});  // Start at origin
 
-	double min_x = std::numeric_limits<double>::max(), max_x = std::numeric_limits<double>::min();
-	double min_y = min_x, max_y = max_x;
+	double min_x = std::numeric_limits<double>::max();
+	double max_x = std::numeric_limits<double>::min();
+	double min_y = min_x;
+	double max_y = max_x;
+
 	for (int i = 0; i < NUM_STEPS; i++) {
-		int idx = dist(gen);
+		int transform_idx = dist(gen);  // Choose a random transform, weighted by PROBS
 		auto [x, y] = points.back();
-		auto [next_x, next_y] = TRANSFORMS[idx](x, y);
+		auto [next_x, next_y] = TRANSFORMS[transform_idx](x, y);
 		points.push_back({next_x, next_y});
 
 		// Keep track of min/max x/y for normalisation later
-		if (y < min_y) min_y = y;
-		if (y > max_y) max_y = y;
 		if (x < min_x) min_x = x;
 		if (x > max_x) max_x = x;
+		if (y < min_y) min_y = y;
+		if (y > max_y) max_y = y;
 	}
 
 	double size_x = max_x - min_x;
 	double size_y = max_y - min_y;
 	double scale = (IMG_SIZE - 1) / std::max(size_x, size_y);
-	vector<cv::Point> scaled(points.size());
+	vector<cv::Point> scaled_points(points.size());
+
 	for (const auto& p : points) {
 		int sx = static_cast<int>((p.first - min_x) * scale);
 		int sy = static_cast<int>((p.second - min_y) * scale);
-		scaled.push_back({sx, sy});
+		scaled_points.push_back({sx, sy});
 	}
 
 	int max_sx = INT_MIN, max_sy = INT_MIN;
-	for (const auto& p : scaled) {
+	for (const auto& p : scaled_points) {
 		if (p.x > max_sx) max_sx = p.x;
 		if (p.y > max_sy) max_sy = p.y;
 	}
 
 	cv::Mat img(max_sy + 1, max_sx + 1, CV_8UC3, cv::Scalar(255, 255, 255));
-	for (const auto& p : scaled)
+	for (const auto& p : scaled_points)
 		img.at<cv::Vec3b>(p.y, p.x) = cv::Vec3b(0, 128, 0);  // Set fern points to green
 	cv::flip(img, img, 0);  // Flip (y-axis)
 	cv::imwrite("./fern.png", img);

@@ -5,7 +5,6 @@ Author: Sam Barba
 Created 28/08/2024
 */
 
-#include <cmath>
 #include <iomanip>
 #include <random>
 #include <SFML/Graphics.hpp>
@@ -31,7 +30,7 @@ class Particle {
 
 		Particle(const float mass, const float radius, const sf::Vector2f& pos, const sf::Vector2f& vel) {
 			this->mass = mass;
-			this->radius = sqrt(mass);
+			this->radius = std::sqrt(mass);
 			this->pos = pos;
 			this->vel = vel;
 			this->hue = (1 - (mass - MIN_MASS) / (MAX_MASS - MIN_MASS)) * 60;
@@ -115,7 +114,7 @@ vector<int> hsv2rgb(const float h, const float s, const float v) {
 	*/
 
 	float c = s * v;
-	float x = c * (1 - fabs(fmod(h / 60.0, 2) - 1));
+	float x = c * (1 - std::abs(fmod(h / 60.0, 2) - 1));
 	float m = v - c;
 
 	float rf, gf, bf;
@@ -157,7 +156,7 @@ int main() {
 
 	for (int i = 0; i < NUM_PARTICLES; i++) {
 		float mass = mass_dist(gen);
-		float radius = sqrt(mass);
+		float radius = std::sqrt(mass);
 		std::uniform_real_distribution<float> x_pos_dist(radius, WIDTH - radius);
 		std::uniform_real_distribution<float> y_pos_dist(radius, HEIGHT - radius);
 		sf::Vector2f pos(x_pos_dist(gen), y_pos_dist(gen));
@@ -186,9 +185,9 @@ int main() {
 		// texture.create(window.getSize().x, window.getSize().y);
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
-		// std::ostringstream filePath;
-		// filePath << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
-		// screenshot.saveToFile(filePath.str());
+		// std::ostringstream file_path;
+		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// screenshot.saveToFile(file_path.str());
 		// screenshot_counter++;
 	}
 

@@ -37,9 +37,9 @@ class Node {
 			return idx == other.idx;
 		}
 
-		float euclideanDist(const Node& other) {
-			sf::Vector2f delta_pos = pos - other.pos;
-			return sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
+		float euclidean_dist(const Node& other) {
+			sf::Vector2f delta = pos - other.pos;
+			return delta.x * delta.x + delta.y * delta.y;
 		}
 };
 
@@ -64,16 +64,16 @@ vector<int> mst() {
 	while (!out_tree.empty()) {
 		Node nearest_in = in_tree[0];
 		Node nearest_out = out_tree[0];
-		min_dist = nearest_in.euclideanDist(nearest_out);
+		min_dist = nearest_in.euclidean_dist(nearest_out);
 
 		// Find nearest outside node to tree
-		for (Node& nodeOut : out_tree) {
-			for (const Node& nodeIn : in_tree) {
-				dist = nodeOut.euclideanDist(nodeIn);
+		for (Node& node_out : out_tree) {
+			for (const Node& node_in : in_tree) {
+				dist = node_out.euclidean_dist(node_in);
 				if (dist < min_dist) {
 					min_dist = dist;
-					nearest_out = nodeOut;
-					nearest_in = nodeIn;
+					nearest_out = node_out;
+					nearest_in = node_in;
 				}
 			}
 		}
@@ -102,11 +102,13 @@ void draw_mst() {
 		window.draw(line, 2, sf::Lines);
 	}
 
+	sf::CircleShape point(POINT_RADIUS);
+	point.setOrigin(POINT_RADIUS, POINT_RADIUS);
+	point.setFillColor(sf::Color(230, 20, 20));
+
 	for (const Node& node : graph) {
-		sf::CircleShape circle(POINT_RADIUS);
-		circle.setPosition(node.pos.x - POINT_RADIUS, node.pos.y - POINT_RADIUS);
-		circle.setFillColor(sf::Color(230, 20, 20));
-		window.draw(circle);
+		point.setPosition(node.pos.x, node.pos.y);
+		window.draw(point);
 	}
 
 	window.display();
