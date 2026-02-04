@@ -13,6 +13,7 @@ class Polynomial:
 		"""
 		Parameters:
 			coefficients: Define the polynomial in the form a_n, a_(n-1), ..., a_0
+			i.e. f(x) = a_n(x^n) + a_(n-1)(x^(n-1)) + ... + a_1(x) + a_0
 		"""
 
 		self.coefficients = coefficients
@@ -32,7 +33,7 @@ class Polynomial:
 			if dfxn == 0:
 				return 'Zero derivative: no solution'
 
-			xn = xn - fxn / dfxn
+			xn -= fxn / dfxn
 			fxn = self(xn)
 
 			if abs(fxn) < converge_threshold:
@@ -54,34 +55,36 @@ class Polynomial:
 
 	def __repr__(self):
 		def expr(degree):
-			if degree == 0: return ''
-			if degree == 1: return 'x'
+			if degree == 0:
+				return ''
+			if degree == 1:
+				return 'x'
 			return f'x^{degree}'
 
 
 		degree = len(self.coefficients) - 1
-		result = ''
+		ret = ''
 
 		for i in range(degree + 1):
 			c = self.coefficients[i]
 
 			if abs(c) == 1 and i < degree:
-				result += ' +' if c > 0 else ' -'
+				ret += ' +' if c > 0 else ' -'
 				if i > 0:
-					result += ' '
-				result += expr(degree - i)
+					ret += ' '
+				ret += expr(degree - i)
 			elif c != 0:
-				if c % 1 == 0:
-					c = int(c)
+				if c == (int_c := int(c)):
+					c = int_c
 
 				if c > 0:
-					result += ' + '
+					ret += ' + '
 				else:
-					result += ' -' if i == 0 else ' - '
+					ret += ' -' if i == 0 else ' - '
 
-				result += f'{abs(c)}{expr(degree - i)}'
+				ret += f'{abs(c)}{expr(degree - i)}'
 
-		return result.lstrip(' + ')
+		return ret.lstrip(' + ')
 
 	# Evaluate polynomial at x
 	def __call__(self, x):
