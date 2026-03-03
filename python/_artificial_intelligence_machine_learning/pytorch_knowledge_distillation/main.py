@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 29/09/2024
 """
 
-import glob
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,7 +40,7 @@ def create_data_loaders():
 
 	transform = transforms.ToTensor()  # Normalise to [0,1]
 
-	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/cifar10/*.png')
+	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/cifar10').glob('*.png')]
 	x = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
@@ -275,19 +274,19 @@ if __name__ == '__main__':
 	student_model_no_kd_path = './student_model_no_kd.pth'
 	student_model_with_kd_path = './student_model_with_kd.pth'
 
-	if os.path.exists(teacher_model_path):
+	if Path(teacher_model_path).exists():
 		teacher_model.load_state_dict(torch.load(teacher_model_path, map_location=DEVICE))
 	else:
 		print('\n----- TRAINING TEACHER -----\n')
 		train(teacher_model, teacher_model_path)
 
-	if os.path.exists(student_model_no_kd_path):
+	if Path(student_model_no_kd_path).exists():
 		student_model_no_kd.load_state_dict(torch.load(student_model_no_kd_path, map_location=DEVICE))
 	else:
 		print('\n----- TRAINING STUDENT (NO KD) -----\n')
 		train(student_model_no_kd, student_model_no_kd_path)
 
-	if os.path.exists(student_model_with_kd_path):
+	if Path(student_model_with_kd_path).exists():
 		student_model_with_kd.load_state_dict(torch.load(student_model_with_kd_path, map_location=DEVICE))
 	else:
 		print('\n----- TRAINING STUDENT (WITH KD) -----\n')

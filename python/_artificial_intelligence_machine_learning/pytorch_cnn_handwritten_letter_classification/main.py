@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 28/11/2024
 """
 
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
 		# Plot some example images

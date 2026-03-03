@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 26/10/2022
 """
 
-import os
+from pathlib import Path
 import requests
 
 from bs4 import BeautifulSoup
@@ -69,7 +69,7 @@ def read_crypto_prices():
 
 
 if __name__ == '__main__':
-	path = os.path.expanduser('~') + '/Desktop/daily.txt'
+	path = f'{Path.home()}/Desktop/daily.txt'
 
 	with open(path, 'w', encoding='UTF-8') as file:
 		try:

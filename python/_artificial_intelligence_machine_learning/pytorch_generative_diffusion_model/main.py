@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 28/05/2024
 """
 
-import glob
-import os
+from pathlib import Path
 from time import sleep
 
 import matplotlib.pyplot as plt
@@ -46,7 +45,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/celeba/*.jpg')
+	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
 	x = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
@@ -65,7 +64,7 @@ if __name__ == '__main__':
 
 	diffusion_controller = DiffusionController(num_timesteps=T, beta_min=BETA_MIN, beta_max=BETA_MAX, device=DEVICE)
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')

@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 08/09/2024
 """
 
-import glob
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -48,7 +47,7 @@ def create_data_loaders():
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
-	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/utkface/*.jpg')
+	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg')]
 	x_ground_truth = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
@@ -94,7 +93,7 @@ if __name__ == '__main__':
 	print(f'\nModel:\n{model}')
 	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE))
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
 		# Train model

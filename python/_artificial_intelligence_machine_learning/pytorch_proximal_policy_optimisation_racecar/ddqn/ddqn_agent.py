@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 16/02/2023
 """
 
-import os
+from pathlib import Path
 import random
 
 import numpy as np
@@ -89,7 +89,7 @@ class DDQNAgent:
 			laps = env.car.num_gates_crossed / len(env.reward_gates)
 			mean_vel = total_vel / t
 			model_path = f'./ddqn/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
-			if not os.path.exists(model_path):
+			if not Path(model_path).exists():
 				self.save_model(model_path)
 
 			# Do experience replay (learning) with a batch of data

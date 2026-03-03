@@ -6,7 +6,7 @@ Created 26/03/2024
 """
 
 from collections import Counter
-import os
+from pathlib import Path
 
 import nltk
 from nltk.corpus import stopwords
@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth'))
 	else:
 		print('\n----- TRAINING -----\n')

@@ -5,7 +5,7 @@ Author: Sam Barba
 Created 17/06/2023
 """
 
-import os
+from pathlib import Path
 
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
@@ -55,7 +55,7 @@ def do_mnist():
 	plot_torch_model(model, (1, 28, 28), input_device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
 	model_path = './models/mnist_model.pth'
 
-	if os.path.exists(model_path):
+	if Path(model_path).exists():
 		model.load_state_dict(torch.load(model_path, map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
@@ -193,7 +193,7 @@ if __name__ == '__main__':
 
 		model = TabularAutoencoder(num_features_in, num_features_out).cpu()
 
-		if os.path.exists(model_path):
+		if Path(model_path).exists():
 			model.load_state_dict(torch.load(model_path))
 		else:
 			print('\n----- TRAINING -----\n')

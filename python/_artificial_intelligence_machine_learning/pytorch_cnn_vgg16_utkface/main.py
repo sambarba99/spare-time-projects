@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 30/10/2022
 """
 
-import glob
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -112,10 +111,10 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in glob.iglob('C:/Users/sam/Desktop/projects/datasets/utkface/*.jpg'):
-		y = img_path.split('\\')[1]
+	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
+		y = str(img_path).split('\\')[1]
 		age, gender, race = y.split('_')[:3]
-		data.append((img_path, int(age), int(gender), int(race)))
+		data.append((str(img_path), int(age), int(gender), int(race)))
 
 	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender_id', 'race_id'])
 	df['gender_label'] = df['gender_id'].map(DATASET_DICT['gender'])
@@ -166,7 +165,7 @@ if __name__ == '__main__':
 	loss_func_race = torch.nn.CrossEntropyLoss()
 	mae_func_age = torch.nn.L1Loss()
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model

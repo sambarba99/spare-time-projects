@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 27/01/2024
 """
 
-import glob
-import os
+from pathlib import Path
 
 from cv2 import imread
 import matplotlib.pyplot as plt
@@ -81,9 +80,9 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in glob.iglob('C:/Users/sam/Desktop/projects/datasets/alzheimers/*/*.jpg'):
-		class_name = img_path.split('\\')[1]
-		data.append((img_path, class_name))
+	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/alzheimers').rglob('*.jpg'):
+		class_name = str(img_path).split('\\')[1]
+		data.append((str(img_path), class_name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 
@@ -120,7 +119,7 @@ if __name__ == '__main__':
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
-	if os.path.exists('./model.pth'):
+	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model

@@ -5,8 +5,7 @@ Author: Sam Barba
 Created 01/07/2023
 """
 
-import glob
-import os
+from pathlib import Path
 
 from PIL import Image
 import torch
@@ -42,7 +41,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	img_paths = glob.glob('C:/Users/sam/Desktop/projects/datasets/celeba/*.jpg')
+	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
 	x = [
 		transform(Image.open(img_path)) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
@@ -67,7 +66,7 @@ if __name__ == '__main__':
 		disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture'
 	)
 
-	if os.path.exists('./gen_model.pth'):
+	if Path('./gen_model.pth').exists():
 		gen_model.load_state_dict(torch.load('./gen_model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
