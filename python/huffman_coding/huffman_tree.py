@@ -14,7 +14,7 @@ class HuffmanTree:
 		self.right_child = right_child
 
 	def __lt__(self, other):
-		return self.weight < other.weight or (self.weight == other.weight and self.symbol < other.symbol)
+		return (self.weight, self.symbol) < (other.weight, other.symbol)
 
 	def create_huffman_dict(self, huffman_dict, h=''):
 		if not self.left_child and not self.right_child:  # Leaf

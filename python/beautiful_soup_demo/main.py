@@ -6,9 +6,9 @@ Created 26/10/2022
 """
 
 from pathlib import Path
-import requests
 
 from bs4 import BeautifulSoup
+import requests
 
 
 def read_bbc_news():
@@ -80,4 +80,4 @@ if __name__ == '__main__':
 			file.write(f'{article}\n\n')
 			file.write(f'{prices}')
 		except Exception as e:
-			file.write(f'Error: {e.args[-1]}')
+			file.write(f'Error: {e}')

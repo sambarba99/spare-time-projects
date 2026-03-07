@@ -35,7 +35,7 @@ def load_data():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 	# Normalise images to [0,1] and correct shape
-	x = np.concatenate([x_train, x_test], axis=0).astype(float) / 255
+	x = np.concatenate([x_train, x_test]).astype(float) / 255
 	x = np.reshape(x, (len(x), *INPUT_SHAPE))
 
 	# One-hot encode y

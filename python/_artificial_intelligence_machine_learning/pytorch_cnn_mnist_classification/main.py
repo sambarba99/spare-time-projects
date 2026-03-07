@@ -36,7 +36,7 @@ def load_data():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], axis=0, dtype=float) / 255
+	x = np.concatenate([x_train, x_test], dtype=float) / 255
 	x = np.expand_dims(x, 1)
 
 	y = np.concatenate([y_train, y_test])
