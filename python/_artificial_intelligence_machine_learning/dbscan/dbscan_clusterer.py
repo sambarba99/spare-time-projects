@@ -45,7 +45,7 @@ class DBSCAN:
 	def __get_neighbours(self, point_id):
 		neighbour_ids = []
 		for i in range(self.x.shape[0]):
-			d = math.dist(self.x[point_id], self.x[i])
+			d = dist(self.x[point_id], self.x[i])
 			if d < self.epsilon:
 				neighbour_ids.append(i)
 

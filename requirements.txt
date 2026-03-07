@@ -12,11 +12,13 @@ pyautogui
 pycurl
 pydot
 pydub
-pygame
+pygame-ce
 pyinstaller
+python-dateutil
+requests
 scikit-learn
 scikit-optimize
-tensorflow
+#tensorflow  <- not supported in 3.14 as of 03/2026
 keras
 transformers
 torch
