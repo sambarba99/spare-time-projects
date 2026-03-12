@@ -7,6 +7,7 @@ Created 09/01/2019
 
 from datetime import datetime
 from math import log
+import multiprocessing
 from pathlib import Path
 from time import perf_counter
 import tkinter as tk
@@ -29,7 +30,7 @@ selected_dir = None
 def select_dir():
 	global selected_dir
 
-	selected_dir = f'{Path.home()}/Desktop'.replace('\\', '/')
+	selected_dir = Path.home().as_posix()
 	selected_dir = filedialog.askdirectory(
 		title=f'{" " * 26}{"=" * 20}  Select a directory to walk  {"=" * 20}',
 		initialdir=selected_dir
@@ -40,9 +41,19 @@ def select_dir():
 	table.delete(*table.get_children())
 
 
-def walk_dir():
-	"""Depth-first search of directory, summing up file sizes"""
+def process_path(args):
+	path, selected_dir = args
+	fp = path.as_posix().removeprefix(selected_dir)
+	stats = path.stat()
+	accessed_str = datetime.fromtimestamp(stats.st_atime).strftime('%Y-%m-%d %H:%M:%S')
+	modified_str = datetime.fromtimestamp(stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+	created_str = datetime.fromtimestamp(stats.st_ctime).strftime('%Y-%m-%d %H:%M:%S')
+	file_size = stats.st_size
 
+	return fp, accessed_str, modified_str, created_str, file_size
+
+
+def get_file_stats(paths):
 	def format_size_str(size_bytes):
 		unit_idx = int(log(size_bytes, 1000)) if size_bytes > 0 else 0
 		unit_idx = min(unit_idx, len(UNITS) - 1)
@@ -51,30 +62,72 @@ def walk_dir():
 		return f'{int(size)} bytes' if unit == 'bytes' else f'{size:.2f} {unit}'
 
 
+	row_values = []
+	total_dir_size = 0
+
+	if len(paths) < 5000:
+		results = [process_path((path, f'{selected_dir}/')) for path in paths]
+	else:
+		args = [(path, f'{selected_dir}/') for path in paths]
+		with multiprocessing.Pool() as pool:
+			results = list(pool.imap_unordered(process_path, args, chunksize=64))
+
+	for fp, accessed_str, modified_str, created_str, file_size in results:
+		file_size_str = format_size_str(file_size)
+		row_values.append((fp, accessed_str, modified_str, created_str, file_size_str))
+		total_dir_size += file_size
+
+	dir_size_str = format_size_str(total_dir_size)
+
+	return row_values, dir_size_str
+
+
+def print_tree(paths):
+	def compress(name, node):
+		parts = [name]
+		while len(node) == 1:
+			child_name, child_node = next(iter(node.items()))
+			parts.append(child_name)
+			node = child_node
+		return '/'.join(parts), node
+
+	def print_(node, prefix='', root=True):
+		items = sorted(node.items(), key=lambda i: i[0].lower())  # Sort by name
+		for idx, (name, child) in enumerate(items):
+			name, child = compress(name, child)
+			if root:
+				print(name)
+				extension = ''
+			else:
+				connector = '└── ' if idx == len(items) - 1 else '├── '
+				print(prefix + connector + name)
+				extension = '\t' if idx == len(items) - 1 else '│   '
+			print_(child, prefix + extension, False)
+
+
+	tree = dict()
+	for path in paths:
+		parts = path.as_posix().split('/')
+		node = tree
+		for part in parts:
+			node = node.setdefault(part, dict())
+
+	print_(tree)
+
+
+def walk_dir():
 	if not selected_dir:
 		messagebox.showerror(title='Error', message='Select a directory')
 		return
 
-	total_dir_size = 0
-	row_values = []
 	start = perf_counter()
 
-	for p in Path(selected_dir).rglob('*'):
-		if not p.is_file():
-			continue
-		stats = p.stat()
-		file_size = stats.st_size
-		total_dir_size += file_size
-		fp = str(p.resolve()).replace('\\', '/').removeprefix(selected_dir.replace('\\', '/') + '/')
-		accessed_str = datetime.fromtimestamp(stats.st_atime).strftime('%Y-%m-%d %H:%M:%S')
-		modified_str = datetime.fromtimestamp(stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
-		created_str = datetime.fromtimestamp(stats.st_ctime).strftime('%Y-%m-%d %H:%M:%S')
-		file_size_str = format_size_str(file_size)
-		row_values.append((fp, accessed_str, modified_str, created_str, file_size_str))
+	paths = [p for p in Path(selected_dir).rglob('*') if p.is_file()]
+	row_values, dir_size_str = get_file_stats(paths)
 
 	interval = round(1000 * (perf_counter() - start))
-	dir_size_str = format_size_str(total_dir_size)
-	lbl_discovered_files.config(text=f'Discovered {len(row_values):,} files ({dir_size_str}) in {interval}ms')
+
+	lbl_discovered_files.config(text=f'Discovered {len(row_values):,} files ({dir_size_str}) in {interval:,}ms')
 
 	table.delete(*table.get_children())
 	row_values.sort(key=lambda row: row[0].lower())  # Sort by path
@@ -82,6 +135,10 @@ def walk_dir():
 		table.insert('', 'end', values=vals)
 
 	table.yview_moveto(0)  # Scroll to top
+
+	if len(paths) < 10_000:
+		print('\nTree structure:\n')
+		print_tree(paths)
 
 
 def sort_column(col):
@@ -137,7 +194,7 @@ if __name__ == '__main__':
 	table = ttk.Treeview(root, columns=list(TBL_COLS), show='headings')
 	for col, col_dict in TBL_COLS.items():
 		table.column(col, anchor='center', width=col_dict['width'])
-		table.heading(col, text=col, command=lambda _col=col: sort_column(_col))
+		table.heading(col, text=col, command=lambda col_=col: sort_column(col_))
 	ttk.Style().configure('Treeview.Heading', font=('Arial', 10, 'bold'))
 	scrollbar = ttk.Scrollbar(root, command=table.yview)
 	table.configure(yscrollcommand=scrollbar.set)

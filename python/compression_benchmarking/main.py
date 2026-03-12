@@ -7,7 +7,6 @@ Created 09/03/2026
 
 from compression import bz2, gzip, lzma, zlib, zstd
 import random
-import shutil
 import string
 from time import perf_counter
 

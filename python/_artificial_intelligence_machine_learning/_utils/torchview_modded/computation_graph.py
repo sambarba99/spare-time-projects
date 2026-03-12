@@ -1,6 +1,3 @@
-# mypy: ignore-errors
-from __future__ import annotations
-
 from typing import Union, Any, Callable
 from collections import Counter
 from contextlib import nullcontext

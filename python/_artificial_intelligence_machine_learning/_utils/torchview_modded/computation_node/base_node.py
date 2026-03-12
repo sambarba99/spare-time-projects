@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from ..utils import OrderedSet
 
 # arr_type is the fundemental data structure to store parent and
