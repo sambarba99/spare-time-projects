@@ -27,9 +27,12 @@ class Boid:
 		self.acc *= 0  # Reset to 0 net acceleration
 
 		# Let separation be 1% stronger than other forces, so boids fill screen more
-		if do_separation: self.acc += self.separation(flock) * 1.01
-		if do_alignment: self.acc += self.alignment(flock)
-		if do_cohesion: self.acc += self.cohesion(flock)
+		if do_separation:
+			self.acc += self.separation(flock) * 1.01
+		if do_alignment:
+			self.acc += self.alignment(flock)
+		if do_cohesion:
+			self.acc += self.cohesion(flock)
 
 		try:
 			self.acc.clamp_magnitude_ip(self.max_force)
@@ -42,10 +45,14 @@ class Boid:
 		self.pos += self.vel
 
 		# Check bounds
-		if self.pos[0] > self.x_max: self.pos[0] = 0
-		if self.pos[0] < 0: self.pos[0] = self.x_max
-		if self.pos[1] > self.y_max: self.pos[1] = 0
-		if self.pos[1] < 0: self.pos[1] = self.y_max
+		if self.pos[0] > self.x_max:
+			self.pos[0] = 0
+		if self.pos[0] < 0:
+			self.pos[0] = self.x_max
+		if self.pos[1] > self.y_max:
+			self.pos[1] = 0
+		if self.pos[1] < 0:
+			self.pos[1] = self.y_max
 
 	def separation(self, flock):
 		"""Steer to avoid crowding in local flock"""

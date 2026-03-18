@@ -152,7 +152,8 @@ if __name__ == '__main__':
 			for idx, n in enumerate(config):
 				y, x = divmod(idx, BOARD_SIZE)
 				board[y, x] = int(n)
-				if n != '0': given_coords.append((y, x))
+				if n != '0':
+					given_coords.append((y, x))
 
 			draw_grid(f'Level: {difficulty_lvl} (click to solve)')
 			wait_for_click()

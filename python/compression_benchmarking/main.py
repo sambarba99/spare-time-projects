@@ -23,7 +23,7 @@ def benchmark_compression(compress_fn, decompress_fn, data):
 	decompress_time = round(1000 * (perf_counter() - start))
 
 	assert decompressed == data
-	compressed_size_proportion = 100 * len(compressed) / len(data)
+	compressed_size_proportion = len(compressed) / len(data)
 
 	return compress_time, decompress_time, compressed_size_proportion
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
 	axes[2].set_title('% size of original', fontsize=11)
 	bars2 = axes[2].bar(names, compression_proportions)
-	labels = [f'{x:.2f}%' for x in compression_proportions]
+	labels = [f'{x:.2%}' for x in compression_proportions]
 	axes[2].bar_label(bars2, labels=labels)
 	axes[2].set_ylim(min(compression_proportions) * 0.998, max(compression_proportions) * 1.002)
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
 	axes[2].set_title('% size of original', fontsize=11)
 	bars2 = axes[2].bar(names, compression_proportions)
-	labels = [f'{x:.2f}%' for x in compression_proportions]
+	labels = [f'{x:.2%}' for x in compression_proportions]
 	axes[2].bar_label(bars2, labels=labels)
 	axes[2].set_ylim(min(compression_proportions) * 0.99, max(compression_proportions) * 1.01)
 

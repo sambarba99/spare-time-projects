@@ -265,9 +265,12 @@ if __name__ == '__main__':
 	ax_metric.plot(history['val_metric'], label='Validation F1' if task_choice in 'BM' else 'Validation MAE')
 	ax_metric.set_xlabel('Epoch')
 	ax_metric.set_ylabel('F1' if task_choice in 'BM' else 'MAE')
-	if task_choice == 'B': ax_loss.set_ylabel('Binary\ncross-entropy')
-	elif task_choice == 'M': ax_loss.set_ylabel('Categorical\ncross-entropy')
-	else: ax_loss.set_ylabel('MSE')
+	if task_choice == 'B':
+		ax_loss.set_ylabel('Binary\ncross-entropy')
+	elif task_choice == 'M':
+		ax_loss.set_ylabel('Categorical\ncross-entropy')
+	else:
+		ax_loss.set_ylabel('MSE')
 	ax_loss.legend()
 	ax_metric.legend()
 	plt.suptitle(f'Loss and {"F1 score" if task_choice in "BM" else "MAE"} during training', y=0.95)

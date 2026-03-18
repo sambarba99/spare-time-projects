@@ -42,10 +42,13 @@ def generate_graph(tree, nodes=None, edges=None):
 		return f'{tree.symbol}_{tree.weight:.2g}'
 
 
-	if nodes is None: nodes = []
-	if edges is None: edges = []
+	if nodes is None:
+		nodes = []
+	if edges is None:
+		edges = []
 
-	if not tree: return nodes, edges
+	if not tree:
+		return nodes, edges
 
 	nodes.append(make_str(tree))
 

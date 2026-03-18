@@ -66,8 +66,8 @@ if __name__ == '__main__':
 	encoded = tree.encode(STRING, huffman_dict)
 	print(f'\nHuffman coded:\n{encoded}')
 
-	compression_amount = 1 - (len(encoded) / len(binary))
-	print(f'\nCompression %: {(compression_amount * 100):.2f}')
+	compression_proportion = 1 - len(encoded) / len(binary)
+	print(f'\nCompression: {compression_proportion:.2%}')
 
 	print(f'\nDecoded:\n{tree.decode(encoded)}')
 

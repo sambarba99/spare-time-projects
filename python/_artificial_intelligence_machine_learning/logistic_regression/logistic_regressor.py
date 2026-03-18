@@ -103,7 +103,8 @@ class LogisticRegressor:
 			# Take the step
 			weights_current, bias_current, e_current = weights_new, bias_new, e_new
 
-			if i % 2 == 0: plot_decision_boundary(weights_current, bias_current, converged=False, first_time=False)
+			if i % 2 == 0:
+				plot_decision_boundary(weights_current, bias_current, converged=False, first_time=False)
 
 		self.weights = weights_current
 		self.bias = bias_current

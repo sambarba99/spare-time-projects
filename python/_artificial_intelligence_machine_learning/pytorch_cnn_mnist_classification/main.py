@@ -205,7 +205,7 @@ if __name__ == '__main__':
 					pg.Rect(x * DRAWING_CELL_SIZE, y * DRAWING_CELL_SIZE, DRAWING_CELL_SIZE, DRAWING_CELL_SIZE)
 				)
 
-		pred_lbl = font.render(f'{pred_probs.argmax()} ({(100 * pred_probs.max()):.1f}% sure)', True, 'green')
+		pred_lbl = font.render(f'{pred_probs.argmax()} ({pred_probs.max():.1%} sure)', True, 'green')
 		scene.blit(pred_lbl, (10, 10))
 
 		pg.display.update()

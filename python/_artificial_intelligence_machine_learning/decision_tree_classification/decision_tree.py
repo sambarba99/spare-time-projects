@@ -27,14 +27,16 @@ class DecisionTree:
 			"""
 
 			def calculate_gini(y):
-				if len(y) <= 1: return 0
+				if len(y) <= 1:
+					return 0
 
 				probs = np.bincount(y) / len(y)
 
 				return 1 - (probs * probs).sum()
 
 			def calculate_entropy(y):
-				if len(y) <= 1: return 0
+				if len(y) <= 1:
+					return 0
 
 				counts = np.bincount(y)
 				probs = counts[counts.nonzero()] / len(y)  # nonzero() ensures that we're not doing log(0) after

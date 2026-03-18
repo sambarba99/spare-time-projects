@@ -129,15 +129,21 @@ class Car:
 
 		# Apply force to accelerate/decelerate if necessary
 
-		if accelerating: self.acc = FORCE
-		elif decelerating: self.acc = -FORCE
-		else: self.acc = 0
+		if accelerating:
+			self.acc = FORCE
+		elif decelerating:
+			self.acc = -FORCE
+		else:
+			self.acc = 0
 
 		# Apply steering if necessary
 
-		if turning_left: turn_amount = -TURN_RATE * self.vel
-		elif turning_right: turn_amount = TURN_RATE * self.vel
-		else: turn_amount = 0
+		if turning_left:
+			turn_amount = -TURN_RATE * self.vel
+		elif turning_right:
+			turn_amount = TURN_RATE * self.vel
+		else:
+			turn_amount = 0
 
 		self.heading += turn_amount
 		self.heading %= (2 * pi)

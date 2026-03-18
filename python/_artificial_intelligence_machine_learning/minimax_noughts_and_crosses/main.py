@@ -37,8 +37,10 @@ def handle_mouse_click(y, x):
 
 	result = find_winner()
 	# No point checking if human wins...
-	if result == TIE: status_text = "It's a tie! Click to reset"
-	if not result: status_text = "AI's turn (x)"
+	if result == TIE:
+		status_text = "It's a tie! Click to reset"
+	if not result:
+		status_text = "AI's turn (x)"
 
 	draw_grid()
 
@@ -74,9 +76,12 @@ def find_winner():
 def make_best_ai_move():
 	def minimax(is_maximising, depth, alpha, beta):
 		result = find_winner()
-		if result == AI: return 1
-		if result == HUMAN: return -1
-		if result == TIE: return 0
+		if result == AI:
+			return 1
+		if result == HUMAN:
+			return -1
+		if result == TIE:
+			return 0
 
 		best_score = -2 if is_maximising else 2
 
@@ -117,9 +122,12 @@ def make_best_ai_move():
 	board[best_y][best_x] = AI
 
 	result = find_winner()
-	if result == AI: status_text = 'AI wins! Click to reset'
-	elif result == TIE: status_text = "It's a tie! Click to reset"
-	elif not result: status_text = 'Your turn (o)'
+	if result == AI:
+		status_text = 'AI wins! Click to reset'
+	elif result == TIE:
+		status_text = "It's a tie! Click to reset"
+	elif not result:
+		status_text = 'Your turn (o)'
 
 
 def draw_grid():

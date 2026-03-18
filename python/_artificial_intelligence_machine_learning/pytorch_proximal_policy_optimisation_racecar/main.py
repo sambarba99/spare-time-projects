@@ -94,15 +94,24 @@ def play_manually():
 			turning_left = keys_pressed[pg.K_a]
 			turning_right = keys_pressed[pg.K_d]
 
-			if accelerating and turning_left: action = 5
-			elif accelerating and turning_right: action = 6
-			elif decelerating and turning_left: action = 7
-			elif decelerating and turning_right: action = 8
-			elif accelerating: action = 1
-			elif decelerating: action = 2
-			elif turning_left: action = 3
-			elif turning_right: action = 4
-			else: action = 0
+			if accelerating and turning_left:
+				action = 5
+			elif accelerating and turning_right:
+				action = 6
+			elif decelerating and turning_left:
+				action = 7
+			elif decelerating and turning_right:
+				action = 8
+			elif accelerating:
+				action = 1
+			elif decelerating:
+				action = 2
+			elif turning_left:
+				action = 3
+			elif turning_right:
+				action = 4
+			else:
+				action = 0
 
 			*_, terminal = env.step(action)
 

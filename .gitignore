@@ -39,4 +39,4 @@ python/_artificial_intelligence_machine_learning/pytorch_generative_diffusion_mo
 sql_password.txt
 
 # Ignore makefiles
-cpp/*/makefile
+c++/*/makefile

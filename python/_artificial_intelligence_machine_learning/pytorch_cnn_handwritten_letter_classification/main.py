@@ -210,7 +210,7 @@ if __name__ == '__main__':
 				)
 
 		pred_letter = chr(65 + pred_probs.argmax().item())
-		pred_lbl = font.render(f'{pred_letter} ({(100 * pred_probs.max()):.1f}% sure)', True, 'green')
+		pred_lbl = font.render(f'{pred_letter} ({pred_probs.max():.1%} sure)', True, 'green')
 		scene.blit(pred_lbl, (10, 10))
 
 		pg.display.update()

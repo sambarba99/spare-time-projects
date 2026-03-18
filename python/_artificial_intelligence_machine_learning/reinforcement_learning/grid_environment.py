@@ -37,10 +37,14 @@ class GridEnv:
 
 	def step(self, state, action):
 		new_y, new_x = state
-		if action == NORTH: new_y -= 1
-		if action == EAST: new_x += 1
-		if action == SOUTH: new_y += 1
-		if action == WEST: new_x -= 1
+		if action == NORTH:
+			new_y -= 1
+		if action == EAST:
+			new_x += 1
+		if action == SOUTH:
+			new_y += 1
+		if action == WEST:
+			new_x -= 1
 
 		# If new state is within grid, use new coords
 		if new_y in range(self.size) and new_x in range(self.size):
@@ -113,10 +117,14 @@ class GridEnv:
 
 					# Draw arrow pointing in optimal direction (best policy)
 					best_action = final_q_table[y, x].argmax()
-					if best_action == NORTH: pg.draw.polygon(scene, ARROW_COL, shift_arrow(NORTH_ARROW, x, y))
-					if best_action == EAST: pg.draw.polygon(scene, ARROW_COL, shift_arrow(EAST_ARROW, x, y))
-					if best_action == SOUTH: pg.draw.polygon(scene, ARROW_COL, shift_arrow(SOUTH_ARROW, x, y))
-					if best_action == WEST: pg.draw.polygon(scene, ARROW_COL, shift_arrow(WEST_ARROW, x, y))
+					if best_action == NORTH:
+						pg.draw.polygon(scene, ARROW_COL, shift_arrow(NORTH_ARROW, x, y))
+					if best_action == EAST:
+						pg.draw.polygon(scene, ARROW_COL, shift_arrow(EAST_ARROW, x, y))
+					if best_action == SOUTH:
+						pg.draw.polygon(scene, ARROW_COL, shift_arrow(SOUTH_ARROW, x, y))
+					if best_action == WEST:
+						pg.draw.polygon(scene, ARROW_COL, shift_arrow(WEST_ARROW, x, y))
 				elif (y, x) == self.start:
 					start_lbl = font.render('Start', True, TEXT_COL)
 					lbl_rect = start_lbl.get_rect(center=((x + 0.5) * CELL_SIZE, (y + 0.5) * CELL_SIZE))

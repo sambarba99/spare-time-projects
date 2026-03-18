@@ -188,9 +188,12 @@ if __name__ == '__main__':
 	ax_metric.plot(metric[1], label='Validation accuracy' if task_choice in 'BM' else 'Validation MAE')
 	ax_metric.set_xlabel('Epoch')
 	ax_metric.set_ylabel('Accuracy' if task_choice in 'BM' else 'MAE')
-	if task_choice == 'B': ax_loss.set_ylabel('Binary\ncross-entropy')
-	elif task_choice == 'M': ax_loss.set_ylabel('Categorical\ncross-entropy')
-	else: ax_loss.set_ylabel('MSE')
+	if task_choice == 'B':
+		ax_loss.set_ylabel('Binary\ncross-entropy')
+	elif task_choice == 'M':
+		ax_loss.set_ylabel('Categorical\ncross-entropy')
+	else:
+		ax_loss.set_ylabel('MSE')
 	ax_loss.legend()
 	ax_metric.legend()
 	plt.suptitle(f'Loss and {"accuracy" if task_choice in "BM" else "MAE"} during training', y=0.95)

@@ -99,14 +99,16 @@ def mutation(offspring):
 
 
 def evaluate(*population):
-	if isinstance(population[0], list): population = population[0]
+	if isinstance(population[0], list):
+		population = population[0]
 
 	for individual in population:
 		individual.calc_fitness(all_items, NUM_ITEMS, KNAPSACK_CAPACITY)
 
 
 def find_fittest(*population):
-	if isinstance(population[0], list): population = population[0]
+	if isinstance(population[0], list):
+		population = population[0]
 
 	return max(population, key=lambda ind: ind.fitness)
 

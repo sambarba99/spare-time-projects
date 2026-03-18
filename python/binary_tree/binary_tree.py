@@ -44,21 +44,24 @@ class Tree:
 		return max(Tree.get_height(self.left_child), Tree.get_height(self.right_child)) + 1
 
 	def in_order_traversal(self):
-		if not self: return []
+		if not self:
+			return []
 
 		return Tree.in_order_traversal(self.left_child) \
 			+ [self.data] \
 			+ Tree.in_order_traversal(self.right_child)
 
 	def pre_order_traversal(self):
-		if not self: return []
+		if not self:
+			return []
 
 		return [self.data] \
 			+ Tree.pre_order_traversal(self.left_child) \
 			+ Tree.pre_order_traversal(self.right_child)
 
 	def post_order_traversal(self):
-		if not self: return []
+		if not self:
+			return []
 
 		return Tree.post_order_traversal(self.left_child) \
 			+ Tree.post_order_traversal(self.right_child) \
@@ -95,7 +98,8 @@ class Tree:
 		return True
 
 	def is_balanced(self):
-		if not self: return True
+		if not self:
+			return True
 
 		left_height = Tree.get_height(self.left_child)
 		right_height = Tree.get_height(self.right_child)

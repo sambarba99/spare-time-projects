@@ -106,18 +106,30 @@ def play_manually():
 			turning_left = keys_pressed[pg.K_LEFT]
 			turning_right = keys_pressed[pg.K_RIGHT]
 
-			if boosting and turning_left and shooting: action = 10
-			elif boosting and turning_right and shooting: action = 11
-			elif boosting and turning_left: action = 5
-			elif boosting and turning_right: action = 6
-			elif boosting and shooting: action = 7
-			elif turning_left and shooting: action = 8
-			elif turning_right and shooting: action = 9
-			elif boosting: action = 1
-			elif turning_left: action = 2
-			elif turning_right: action = 3
-			elif shooting: action = 4
-			else: action = 0
+			if boosting and turning_left and shooting:
+				action = 10
+			elif boosting and turning_right and shooting:
+				action = 11
+			elif boosting and turning_left:
+				action = 5
+			elif boosting and turning_right:
+				action = 6
+			elif boosting and shooting:
+				action = 7
+			elif turning_left and shooting:
+				action = 8
+			elif turning_right and shooting:
+				action = 9
+			elif boosting:
+				action = 1
+			elif turning_left:
+				action = 2
+			elif turning_right:
+				action = 3
+			elif shooting:
+				action = 4
+			else:
+				action = 0
 
 			*_, terminal = env.step(action)
 

@@ -83,7 +83,8 @@ class LinearRegressor:
 			# Take the step
 			weights_current, bias_current, e_current = weights_new, bias_new, e_new
 
-			if i % 25 == 0: plot_regression_line(weights_current, bias_current, converged=False, first_time=False)
+			if i % 25 == 0:
+				plot_regression_line(weights_current, bias_current, converged=False, first_time=False)
 
 		self.weights = weights_current
 		self.bias = bias_current

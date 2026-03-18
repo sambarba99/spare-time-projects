@@ -71,7 +71,8 @@ data = None
 
 
 def generate_bit_permutations(num_bits):
-	if num_bits < 1: yield slice(None),
+	if num_bits < 1:
+		yield slice(None),
 	else:
 		for head in generate_bit_permutations(num_bits - 1):
 			yield head + (0,)
@@ -117,8 +118,10 @@ def calculate_message_order(edges):
 
 	flags = dict()  # Nested dict
 	for a, b in edges:
-		if a not in flags: flags[a] = dict()
-		if b not in flags: flags[b] = dict()
+		if a not in flags:
+			flags[a] = dict()
+		if b not in flags:
+			flags[b] = dict()
 		flags[a][b] = flags[b][a] = False
 
 	msg_order = []

@@ -33,10 +33,13 @@ def plot_tree(tree, title):
 
 
 def generate_graph(tree, nodes=None, edges=None):
-	if nodes is None: nodes = []
-	if edges is None: edges = []
+	if nodes is None:
+		nodes = []
+	if edges is None:
+		edges = []
 
-	if not tree: return nodes, edges
+	if not tree:
+		return nodes, edges
 
 	nodes.append(tree.data)
 

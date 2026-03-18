@@ -22,8 +22,10 @@ def plot_tree(tree, features):
 	def get_level(tree, level, nodes=None):
 		"""Get the nodes of a certain tree level"""
 
-		if nodes is None: nodes = []
-		if not tree: return nodes
+		if nodes is None:
+			nodes = []
+		if not tree:
+			return nodes
 
 		if level == 0:
 			s = f'{round(tree.value, 2)}' \

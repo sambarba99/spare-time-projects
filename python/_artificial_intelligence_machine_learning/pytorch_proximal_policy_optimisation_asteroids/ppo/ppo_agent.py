@@ -209,12 +209,12 @@ class PPOAgent:
 
 			episode_num += 1
 			timesteps_done += t
-			percent_done = 100 * timesteps_done / TOTAL_TRAIN_TIMESTEPS
+			percent_done = timesteps_done / TOTAL_TRAIN_TIMESTEPS
 			total_return_per_episode.append(total_episode_return)
 
 			if episode_num % 10 == 0:
 				print(f'Episode: {episode_num}  |  '
-					f'timesteps: {t} ({percent_done:.1f}% done)  |  '
+					f'timesteps: {t} ({percent_done:.1%} done)  |  '
 					f'total return: {total_episode_return:.2f}  |  '
 					f'score: {train_env.spaceship.score}')
 

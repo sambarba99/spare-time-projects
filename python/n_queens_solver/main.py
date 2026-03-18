@@ -68,7 +68,8 @@ def solve():
 
 def valid(row, col):
 	# Check row and column
-	if QUEEN in board[row] or QUEEN in board[:, col]: return False
+	if QUEEN in board[row] or QUEEN in board[:, col]:
+		return False
 
 	# Check upper diagonal on left side
 	for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
