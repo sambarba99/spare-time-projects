@@ -33,3 +33,6 @@ Model architecture:
 <p align="center">
 	<img src="images/model_architecture.png"/>
 </p>
+
+Source:
+- [MNIST CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv) (Kaggle dataset)

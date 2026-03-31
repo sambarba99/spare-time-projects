@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -29,6 +28,7 @@ from tabular_autoencoder import TabularAutoencoder
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 NUM_EPOCHS = 500
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'  # For MNISTAutoencoder
@@ -40,19 +40,19 @@ mx = my = last_mx = last_my = 0
 def do_mnist():
 	# Prepare data
 
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/mnist.csv', header=None)
 
-	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], dtype=float) / 255
+	x, y = df.iloc[:, 1:].to_numpy(), df.iloc[:, 0]
+
+	# Reshape images, normalise to [0,1], and add channel dim
+	x = x.reshape((-1, 28, 28)) / 255
 	x = np.expand_dims(x, 1)
 	x = torch.tensor(x, device=DEVICE).float()
-
-	y = np.concatenate([y_train, y_test])
 
 	# Load or train model
 
 	model = MNISTAutoencoder().to(DEVICE)
-	plot_torch_model(model, (1, 28, 28), input_device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
+	plot_torch_model(model, (1, 28, 28), device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
 	model_path = './models/mnist_model.pth'
 
 	if Path(model_path).exists():
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 			train_dataset = CustomDataset(x_train)
 			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False)
 			loss_func = torch.nn.MSELoss()
-			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+			optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
 			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 			val_loss_history = []
 

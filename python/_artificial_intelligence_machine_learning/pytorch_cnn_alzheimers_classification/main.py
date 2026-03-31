@@ -7,7 +7,7 @@ Created 27/01/2024
 
 from pathlib import Path
 
-from cv2 import imread
+import cv2 as cv
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
@@ -28,6 +28,7 @@ from conv_net import CNN
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_H = 208
 IMG_W = 176
@@ -59,9 +60,7 @@ def create_data_loaders(df):
 	y = torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.8:0.1:0.1)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.9, stratify=y, random_state=1
-	)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(
 		x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1
 	)
@@ -80,22 +79,22 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/alzheimers').rglob('*.jpg'):
-		class_name = str(img_path).split('\\')[1]
-		data.append((str(img_path), class_name))
+	for p in Path('C:/Users/sam/Desktop/projects/datasets/alzheimers').rglob('*.jpg'):
+		class_name = str(p).split('\\')[-2]
+		data.append((str(p), class_name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 
 	# Plot some examples
 
-	example_indices = [0, 1, 3200, 3201, 5440, 5441, 6336, 6337]
+	example_indices = [0, 1, 8320, 8321, 6400, 6401, 8192, 8193]
 	_, axes = plt.subplots(nrows=2, ncols=4, figsize=(6, 4))
 	plt.subplots_adjust(top=0.8)
 	for idx, ax in zip(example_indices, axes.flatten()):
-		sample = imread(df['img_path'][idx])
+		sample = cv.imread(df['img_path'][idx])
 		ax.imshow(sample)
 		ax.axis('off')
-		ax.set_title(df['class'][idx][2:].replace('_', ' '), fontsize=11)
+		ax.set_title(df['class'][idx], fontsize=11)
 	plt.suptitle('Data samples', x=0.514, y=0.94)
 	plt.gcf().set_facecolor('#80b0f0')
 	plt.show()
@@ -115,7 +114,7 @@ if __name__ == '__main__':
 
 	model = CNN().to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, (1, INPUT_H, INPUT_W), input_device=DEVICE)
+	plot_torch_model(model, (1, INPUT_H, INPUT_W), device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -137,11 +136,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				x_train = x_train.to(DEVICE)
-				y_train = y_train.to(DEVICE)
-
-				y_train_logits = model(x_train)
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE))
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()

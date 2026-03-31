@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid
+from _utils.plotting import plot_image_grid, plot_torch_model
 from models import Generator, Discriminator
 
 
@@ -41,9 +41,9 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
@@ -60,10 +60,10 @@ if __name__ == '__main__':
 	print(f'\nGenerator model:\n\n{gen_model}')
 	print(f'\nDiscriminator model:\n\n{disc_model}')
 	plot_torch_model(
-		gen_model, (GEN_LATENT_DIM, 1, 1), input_device=DEVICE, out_file='./images/generator_architecture'
+		gen_model, (GEN_LATENT_DIM, 1, 1), device=DEVICE, out_file='./images/generator_architecture'
 	)
 	plot_torch_model(
-		disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture'
+		disc_model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/discriminator_architecture'
 	)
 
 	if Path('./gen_model.pth').exists():

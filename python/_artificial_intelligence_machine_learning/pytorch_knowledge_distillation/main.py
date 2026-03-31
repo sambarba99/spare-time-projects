@@ -20,11 +20,12 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_confusion_matrix
+from _utils.plotting import plot_confusion_matrix, plot_torch_model
 from conv_nets import Teacher, Student
 
 
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 32
 BATCH_SIZE = 128
@@ -40,12 +41,12 @@ def create_data_loaders():
 
 	transform = transforms.ToTensor()  # Normalise to [0,1]
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/cifar10').glob('*.png')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/cifar10').rglob('*.png'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
-	y_labels = [img_path.split('\\')[-1].split('_')[0] for img_path in img_paths]
+	y_labels = [str(img_path).split('\\')[-2] for img_path in img_paths]
 
 	label_encoder = LabelEncoder()
 	y = label_encoder.fit_transform(y_labels)
@@ -90,11 +91,8 @@ def train(model, save_path):
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-			x_train = x_train.to(DEVICE)
-			y_train = y_train.to(DEVICE)
-
-			y_train_logits = model(x_train)
-			loss = loss_func(y_train_logits, y_train)
+			y_train_logits = model(x_train.to(DEVICE))
+			loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 			optimiser.zero_grad()
 			loss.backward()
@@ -137,12 +135,9 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-			x_train = x_train.to(DEVICE)
-			y_train = y_train.to(DEVICE)
-
 			with torch.inference_mode():
-				teacher_logits = teacher_model(x_train)
-			student_logits = student_model(x_train)
+				teacher_logits = teacher_model(x_train.to(DEVICE))
+			student_logits = student_model(y_train.to(DEVICE))
 
 			teacher_soft_probs = torch.softmax(teacher_logits / TEMPERATURE, dim=-1)
 			student_soft_probs = torch.log_softmax(student_logits / TEMPERATURE, dim=-1)
@@ -257,10 +252,10 @@ if __name__ == '__main__':
 	print(f'\nTeacher model:\n{teacher_model}')
 	print(f'\nStudent model:\n{student_model_no_kd}')
 	plot_torch_model(
-		teacher_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/teacher_architecture'
+		teacher_model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/teacher_architecture'
 	)
 	plot_torch_model(
-		student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/student_architecture'
+		student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/student_architecture'
 	)
 
 	teacher_params = sum(p.numel() for p in teacher_model.parameters())

@@ -110,9 +110,9 @@ def plot_image_grid(
 		cv.destroyAllWindows()
 
 
-def plot_torch_model(model, *input_shapes, input_device='cpu', out_file='./images/model_architecture'):
+def plot_torch_model(model, *input_shapes, device='cpu', out_file='./images/model_architecture'):
 	# Add batch size of 1
-	x = [torch.zeros((1, *shape), device=input_device) for shape in input_shapes]
+	x = [torch.zeros((1, *shape), device=device) for shape in input_shapes]
 
 	g = draw_graph(model, input_data=x)
 	g.render(out_file, view=True, cleanup=True, format='png')

@@ -9,10 +9,10 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pygame as pg
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
@@ -20,12 +20,12 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid, plot_confusion_matrix
+from _utils.plotting import plot_confusion_matrix, plot_image_grid, plot_torch_model
 from model import imgs_to_patches, VisionTransformer
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 28
 EMBEDDING_DIM = 64
@@ -42,20 +42,18 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/mnist.csv', header=None)
 
-	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], dtype=float) / 255
+	x, y = df.iloc[:, 1:].to_numpy(), df.iloc[:, 0]
+
+	# Reshape images, normalise to [0,1], and add channel dim
+	x = x.reshape((-1, 28, 28)) / 255
 	x = np.expand_dims(x, 1)
-
-	y = np.concatenate([y_train, y_test])
 
 	x, y = torch.tensor(x).float(), torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.98, stratify=y, random_state=1
-	)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(
 		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
 	)
@@ -79,7 +77,7 @@ if __name__ == '__main__':
 		patch_size=PATCH_SIZE, num_patches=NUM_PATCHES
 	).to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), input_device=DEVICE)
+	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -120,11 +118,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				x_train = x_train.to(DEVICE)
-				y_train = y_train.to(DEVICE)
-
-				y_train_logits = model(x_train)
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE))
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()

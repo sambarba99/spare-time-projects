@@ -22,9 +22,9 @@ class CNN(nn.Module):
 		self.fc_block = nn.Sequential(
 			nn.Flatten(),                     # -> (N, 400)
 			nn.Dropout(),  # 0.5
-			nn.Linear(400, 128),
+			nn.Linear(400, 256),
 			nn.LeakyReLU(),
-			nn.Linear(128, 26)  # 26 classes
+			nn.Linear(256, 26)  # 26 classes
 		)
 
 	def forward(self, x):

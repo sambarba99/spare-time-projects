@@ -24,16 +24,18 @@ from conv_net import CNN
 
 
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
 BATCH_SIZE = 256
 NUM_EPOCHS = 50
 DRAWING_CELL_SIZE = 15
 DRAWING_SIZE = DRAWING_CELL_SIZE * 28
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
-	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/handwritten_letters.csv')
+	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/handwritten_letters.csv', header=None)
 
 	x, y = df.iloc[:, 1:].to_numpy(), df.iloc[:, 0]
 
@@ -47,9 +49,7 @@ def load_data():
 	x, y = torch.tensor(x).float(), torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.98:0.01:0.01)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.99, stratify=y, random_state=1
-	)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.99, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(
 		x_train_val, y_train_val, train_size=0.99, stratify=y_train_val, random_state=1
 	)
@@ -67,14 +67,14 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = CNN().cpu()
+	model = CNN().to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, INPUT_SHAPE)
+	plot_torch_model(model, INPUT_SHAPE, device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
 	if Path('./model.pth').exists():
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Plot some example images
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
 		print('----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+		optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -98,8 +98,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_logits = model(x_train)
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE))
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
 			model.eval()
 			with torch.inference_mode():
-				y_val_logits = model(x_val)
+				y_val_logits = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(y_val_logits, y_val).item()
 			val_f1 = f1_score(y_val, y_val_logits.argmax(dim=1), average='weighted')
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
 	model.eval()
 	with torch.inference_mode():
-		y_test_logits = model(x_test)
+		y_test_logits = model(x_test.to(DEVICE)).cpu()
 	test_pred = y_test_logits.argmax(dim=1)
 	test_loss = loss_func(y_test_logits, y_test)
 	print(f'Test loss: {test_loss.item()}\n')
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 					model_input[:, y + dy, x + dx] = np.random.uniform(0.33, 1)
 
 		with torch.inference_mode():
-			pred_logits = model(model_input.unsqueeze(dim=0))
+			pred_logits = model(model_input.unsqueeze(dim=0).to(DEVICE))
 		pred_probs = torch.softmax(pred_logits, dim=-1)
 
 		for y in range(28):
@@ -218,7 +218,7 @@ if __name__ == '__main__':
 	# Plot feature maps of user-drawn letter
 
 	# Plot feature maps for user-drawn digit
-	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input)
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input.to(DEVICE))
 	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
 		cols = 8
 		rows = len(feature_map) // cols

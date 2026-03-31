@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve, plot_torch_model
 from conv_net import CNN
 
 
@@ -28,6 +28,7 @@ np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 DATASET_DICT = {
 	'race': {0: 'white', 1: 'black', 2: 'asian', 3: 'indian', 4: 'other'},
@@ -77,9 +78,7 @@ def create_data_loaders(df):
 		f'{age_bin_idx}_{gender}_{race}' for age_bin_idx, gender, race
 		in zip(age_bin_indices, y_gender, y_race)
 	])
-	train_val_idx, test_idx = train_test_split(
-		indices, train_size=0.99, stratify=stratify_labels, random_state=1
-	)
+	train_val_idx, test_idx = train_test_split(indices, train_size=0.99, stratify=stratify_labels, random_state=1)
 	train_idx, val_idx = train_test_split(
 		train_val_idx, train_size=0.96, stratify=stratify_labels[train_val_idx], random_state=1
 	)
@@ -111,10 +110,10 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
-		y = str(img_path).split('\\')[1]
+	for p in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
+		y = str(p).split('\\')[-1]
 		age, gender, race = y.split('_')[:3]
-		data.append((str(img_path), int(age), int(gender), int(race)))
+		data.append((str(p), int(age), int(gender), int(race)))
 
 	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender_id', 'race_id'])
 	df['gender_label'] = df['gender_id'].map(DATASET_DICT['gender'])
@@ -158,7 +157,7 @@ if __name__ == '__main__':
 
 	model = CNN().to(DEVICE)
 	print(f'Model:\n{model}')
-	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./model_architecture')
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./model_architecture')
 
 	loss_func_age = torch.nn.MSELoss()
 	loss_func_gender = torch.nn.BCEWithLogitsLoss()
@@ -172,7 +171,7 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
@@ -268,7 +267,7 @@ if __name__ == '__main__':
 			history['gender_val_F1'].append(gender_val_f1)
 			history['race_val_F1'].append(race_val_f1)
 
-			# Condition early stopping on race val F1 score, as this is the least accurate model output
+			# Condition early stopping on race val F1 score, as this is the weakest model output
 			if early_stopping(race_val_f1, None):
 				print('Early stopping at epoch', epoch)
 				break

@@ -17,16 +17,18 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid
+from _utils.plotting import plot_image_grid, plot_torch_model
 from model import VariationalAutoencoder
 
 
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 128
 CORRUPTED_SQUARE_SIZE = 64
 BATCH_SIZE = 64
 NUM_EPOCHS = 100
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders():
@@ -47,9 +49,9 @@ def create_data_loaders():
 		transforms.ToTensor()  # Automatically normalises to [0,1]
 	])
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'))
 	x_ground_truth = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 	x_corrputed_and_coords = [
@@ -89,18 +91,18 @@ if __name__ == '__main__':
 
 	# Define model
 
-	model = VariationalAutoencoder().cpu()
+	model = VariationalAutoencoder().to(DEVICE)
 	print(f'\nModel:\n{model}')
-	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE))
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE)
 
 	if Path('./model.pth').exists():
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+		optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(patience=20, min_delta=0, mode='min')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -112,8 +114,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				reconstructed, mu, log_var = model(x_corrputed)
-				loss = model.loss(reconstructed, x_ground_truth, mu, log_var, kl_weight)
+				reconstructed, mu, log_var = model(x_corrputed.to(DEVICE))
+				loss = model.loss(reconstructed, x_ground_truth.to(DEVICE), mu, log_var, kl_weight)
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -124,8 +126,8 @@ if __name__ == '__main__':
 			model.eval()
 			x_val_corrputed, x_val_ground_truth = next(iter(val_loader))
 			with torch.inference_mode():
-				val_reconstructed, mu, log_var = model(x_val_corrputed)
-			val_loss = model.loss(val_reconstructed, x_val_ground_truth, mu, log_var, kl_weight).item()
+				val_reconstructed, mu, log_var = model(x_val_corrputed.to(DEVICE))
+			val_loss = model.loss(val_reconstructed.cpu(), x_val_ground_truth, mu, log_var, kl_weight).item()
 
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.2f}')
 			progress_bar.close()
@@ -144,7 +146,7 @@ if __name__ == '__main__':
 	model.eval()
 	x_corrputed, x_ground_truth = next(iter(test_loader))
 	with torch.inference_mode():
-		reconstructed, *_ = model(x_corrputed)
+		reconstructed, *_ = model(x_corrputed.to(DEVICE))
 
 	num_images = 6
 	fig, axes = plt.subplots(nrows=3, ncols=num_images, figsize=(10, 4.5))
@@ -177,8 +179,8 @@ if __name__ == '__main__':
 
 	# Visualise some of the model's latent space by linearly interpolating between 2 random noise vectors
 
-	# z1 = torch.randn(24, 512)
-	# z2 = torch.randn_like(z1)
+	# z1 = torch.randn(24, 512, device=DEVICE)
+	# z2 = torch.randn_like(z1, device=DEVICE)
 	#
 	# for t in torch.linspace(0, 1, 101):
 	# 	noise_interp = z1 * t + z2 * (1 - t)

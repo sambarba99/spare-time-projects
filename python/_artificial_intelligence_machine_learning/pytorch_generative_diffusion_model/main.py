@@ -45,9 +45,9 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
 	])
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
@@ -60,18 +60,20 @@ def create_train_loader():
 if __name__ == '__main__':
 	model = DDPM(num_timesteps=T, encoding_dim=T_ENCODING_DIM, device=DEVICE)
 	print(f'\nModel:\n\n{model}')
-	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), tuple(), input_device=DEVICE)
+	# Pass in empty tuple for the 't' arg in DDPM forward method
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), tuple(), device=DEVICE)
 
 	diffusion_controller = DiffusionController(num_timesteps=T, beta_min=BETA_MIN, beta_max=BETA_MAX, device=DEVICE)
 
 	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
+		train_loader = create_train_loader()
+
 		print('\n----- TRAINING -----\n')
 
-		train_loader = create_train_loader()
 		loss_func = torch.nn.MSELoss()
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
 		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
 			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
 		)

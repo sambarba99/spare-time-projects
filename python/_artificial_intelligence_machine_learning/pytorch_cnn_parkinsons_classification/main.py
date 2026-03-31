@@ -27,11 +27,13 @@ np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 64
 BATCH_SIZE = 256
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 100
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders(df):
@@ -91,9 +93,7 @@ def create_data_loaders(df):
 	y = torch.tensor(y).float()
 
 	# Create train/validation/test sets (ratio 0.7:0.2:0.1)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.9, stratify=y, random_state=1
-	)
+	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(
 		x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1
 	)
@@ -112,15 +112,15 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/parkinsons').rglob('*.jpg'):
-		class_name = str(img_path).split('\\')[1].split('_')[1]
-		data.append((str(img_path), class_name))
+	for p in Path('C:/Users/sam/Desktop/projects/datasets/parkinsons').rglob('*.png'):
+		class_name = str(p).split('\\')[-2]
+		data.append((str(p), class_name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])
 
 	# Plot some examples
 
-	example_indices = [0, 52, 102, 154]
+	example_indices = [0, 138, 51, 156]
 	_, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 5))
 	plt.subplots_adjust(top=0.85, bottom=0, hspace=0.1, wspace=0.1)
 	for idx, ax in zip(example_indices, axes.flatten()):
@@ -145,14 +145,14 @@ if __name__ == '__main__':
 
 	train_loader, val_loader, test_loader = create_data_loaders(df)
 
-	model = CNN().cpu()
+	model = CNN().to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE))
+	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), device=DEVICE)
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
 	if Path('./model.pth').exists():
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		# Train model
 
@@ -169,8 +169,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_logits = model(x_train).squeeze()
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE)).squeeze()
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -181,7 +181,7 @@ if __name__ == '__main__':
 			model.eval()
 			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
-				y_val_logits = model(x_val).squeeze()
+				y_val_logits = model(x_val.to(DEVICE)).squeeze().cpu()
 			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round()
 			val_loss = loss_func(y_val_logits, y_val).item()
@@ -209,7 +209,7 @@ if __name__ == '__main__':
 		)
 
 	x_val, _ = next(iter(val_loader))
-	layer_feature_maps = get_cnn_feature_maps(model, input_img=x_val[0])
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=x_val[0].to(DEVICE))
 	for idx, (feature_map, padding) in enumerate(zip(layer_feature_maps, (10, 5)), start=1):
 		cols = idx * 8
 		rows = len(feature_map) // cols
@@ -226,7 +226,7 @@ if __name__ == '__main__':
 	model.eval()
 	x_test, y_test = next(iter(test_loader))
 	with torch.inference_mode():
-		y_test_logits = model(x_test).squeeze()
+		y_test_logits = model(x_test.to(DEVICE)).squeeze().cpu()
 	y_test_probs = torch.sigmoid(y_test_logits)
 	y_test_pred = y_test_probs.round()
 	test_loss = loss_func(y_test_logits, y_test)

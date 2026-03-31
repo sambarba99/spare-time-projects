@@ -84,7 +84,7 @@ def build_model():
 def build_and_train_model(*_):
 	build_model()
 	loss_func = nn.BCEWithLogitsLoss() if num_classes == 2 else nn.CrossEntropyLoss()
-	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+	optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
 
 	for epoch in range(1, NUM_EPOCHS + 1):
 		y_logits = model(x).squeeze()

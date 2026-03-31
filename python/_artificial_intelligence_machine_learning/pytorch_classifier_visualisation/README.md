@@ -19,3 +19,6 @@ Learning the decision boundary for a 2D point dataset:
 <p align="center">
 	<img src="images/spiral_classification.webp"/>
 </p>
+
+Source:
+- [MNIST CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv) (Kaggle dataset)
