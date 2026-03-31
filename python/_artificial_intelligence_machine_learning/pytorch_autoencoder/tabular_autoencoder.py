@@ -13,7 +13,7 @@ class TabularAutoencoder(nn.Module):
 		super().__init__()
 		self.encoder_block = nn.Sequential(
 			nn.Linear(num_features_in, 32),
-			nn.Tanh(),
+			nn.Tanh(),  # Tanh keeps data bounded in [-1,1], which stabilises training as values can't explode
 			nn.Linear(32, 16),
 			nn.Tanh(),
 			nn.Linear(16, 8),

@@ -41,13 +41,13 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 def create_train_loader():
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
-		transforms.ToTensor(),
-		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
+		transforms.ToTensor(),  # Scale to [0,1]
+		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 	])
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
@@ -60,22 +60,15 @@ def create_train_loader():
 if __name__ == '__main__':
 	model = DDPM(num_timesteps=T, encoding_dim=T_ENCODING_DIM, device=DEVICE)
 	print(f'\nModel:\n\n{model}')
-	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), tuple(), input_device=DEVICE)
+	# Pass in empty tuple for the 't' arg in DDPM forward method
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), tuple(), device=DEVICE)
 
 	diffusion_controller = DiffusionController(num_timesteps=T, beta_min=BETA_MIN, beta_max=BETA_MAX, device=DEVICE)
 
 	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
-		print('\n----- TRAINING -----\n')
-
 		train_loader = create_train_loader()
-		loss_func = torch.nn.MSELoss()
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
-		)
-		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
 
 		# Visualise the forward diffusion process
 		first_4_imgs = next(iter(train_loader))[:4].to(DEVICE)
@@ -86,19 +79,25 @@ if __name__ == '__main__':
 			noisy_images, _ = diffusion_controller.add_noise(first_4_imgs, t_tensor)
 			noise_dict[t] = noisy_images
 
-		pil_image_transform = transforms.ToPILImage()
-
 		fig, axes = plt.subplots(nrows=4, ncols=len(noise_dict), figsize=(9, 5))
 		plt.subplots_adjust(top=0.84, bottom=0.06, hspace=0, wspace=0.1)
 		for idx, (t, noisy_imgs) in enumerate(noise_dict.items()):
 			fig.text(x=0.18 + idx / 9, y=0.85, s=f't={t}/1000', ha='center', fontsize=10)
 			for i in range(4):
-				normalised = (noisy_imgs[i] - noisy_imgs[i].min()) / (noisy_imgs[i].max() - noisy_imgs[i].min())
-				axes[i, idx].imshow(pil_image_transform(normalised))
+				axes[i, idx].imshow(diffusion_controller.destandardise_transform(noisy_imgs[i]))
 				axes[i, idx].axis('off')
 
 		plt.suptitle('Forward diffusion process', y=0.95)
 		plt.show()
+
+		print('\n----- TRAINING -----\n')
+
+		loss_func = torch.nn.MSELoss()
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
+		)
+		early_stopping = EarlyStopping(model=model, patience=50, mode='min')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -135,14 +134,13 @@ if __name__ == '__main__':
 			progress_bar.close()
 			scheduler.step(mean_loss)
 
-			if early_stopping(mean_loss, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(mean_loss):
 				break
 
 			if DEVICE == 'cuda':
 				sleep(20)  # Cooldown
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Test model by denoising a pure noise vector (reverse diffusion process)

@@ -10,10 +10,8 @@ from pathlib import Path
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -26,9 +24,10 @@ from mnist_autoencoder import MNISTAutoencoder
 from tabular_autoencoder import TabularAutoencoder
 
 
-pd.set_option('display.max_columns', 12)
-pd.set_option('display.width', None)
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 NUM_EPOCHS = 500
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'  # For MNISTAutoencoder
@@ -40,19 +39,22 @@ mx = my = last_mx = last_my = 0
 def do_mnist():
 	# Prepare data
 
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	x, y, *_ = load_csv_classification_data(
+		'C:/Users/sam/Desktop/projects/datasets/mnist.csv',
+		header=None,
+		drop_useless_features=False,
+		y_col_pos=0
+	)
 
-	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], dtype=float) / 255
+	# Reshape images, scale to [0,1], and add channel dim
+	x = x.reshape((-1, 28, 28)) / 255
 	x = np.expand_dims(x, 1)
 	x = torch.tensor(x, device=DEVICE).float()
-
-	y = np.concatenate([y_train, y_test])
 
 	# Load or train model
 
 	model = MNISTAutoencoder().to(DEVICE)
-	plot_torch_model(model, (1, 28, 28), input_device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
+	plot_torch_model(model, (1, 28, 28), device=DEVICE, out_file='./images/mnist_autoencoder_architecture')
 	model_path = './models/mnist_model.pth'
 
 	if Path(model_path).exists():
@@ -63,10 +65,10 @@ def do_mnist():
 		# Don't need labels (y) as we're autoencoding
 		x_train, x_val = train_test_split(x, stratify=y, train_size=0.98, random_state=1)
 		train_dataset = CustomDataset(x_train)
-		train_loader = DataLoader(train_dataset, batch_size=512, shuffle=False)
+		train_loader = DataLoader(train_dataset, batch_size=512, shuffle=True)
 		loss_func = torch.nn.MSELoss()
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
+		early_stopping = EarlyStopping(model=model, patience=50, mode='min')
 		val_loss_history = []
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -92,11 +94,10 @@ def do_mnist():
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_loss, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_loss):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), model_path)
 
 		plt.figure(figsize=(8, 5))
@@ -201,10 +202,10 @@ if __name__ == '__main__':
 			# Don't need labels (y) as we're autoencoding
 			x_train, x_val = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
 			train_dataset = CustomDataset(x_train)
-			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False)
+			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 			loss_func = torch.nn.MSELoss()
 			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
+			early_stopping = EarlyStopping(model=model, patience=50, mode='min')
 			val_loss_history = []
 
 			for epoch in range(1, NUM_EPOCHS + 1):
@@ -230,11 +231,10 @@ if __name__ == '__main__':
 				progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 				progress_bar.close()
 
-				if early_stopping(val_loss, model.state_dict()):
-					print('Early stopping at epoch', epoch)
+				if early_stopping(val_loss):
 					break
 
-			model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+			early_stopping.restore_best_weights()
 			torch.save(model.state_dict(), model_path)
 
 			plt.figure(figsize=(8, 5))
@@ -247,12 +247,13 @@ if __name__ == '__main__':
 		# Visualise the latent space
 
 		encodings = model.encoder_block(x).detach().numpy()
+		cmap = 'bwr' if len(labels) == 2 else 'brg'
 
 		plt.figure(figsize=(7, 6))
 		ax = plt.axes() if num_features_out == 2 else plt.axes(projection='3d')
-		scatter = ax.scatter(*encodings.T, c=y, alpha=0.5, cmap='brg') \
+		scatter = ax.scatter(*encodings.T, c=y, alpha=0.5, cmap=cmap) \
 			if num_features_out == 2 else \
-			ax.scatter3D(*encodings.T, c=y, alpha=0.5, cmap='brg')
+			ax.scatter3D(*encodings.T, c=y, alpha=0.5, cmap=cmap)
 		ax.set_xlabel('Latent variable 1')
 		ax.set_ylabel('Latent variable 2')
 		if num_features_out == 3:
@@ -266,4 +267,5 @@ if __name__ == '__main__':
 		for h in handles:
 			h.set_alpha(1)
 		ax.legend(handles, labels)
+		plt.axis('scaled')
 		plt.show()

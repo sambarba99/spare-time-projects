@@ -22,15 +22,14 @@
 python/*/.idea/
 
 # Ignore large datasets and models
-datasets/alzheimers/
 datasets/celeba/
 datasets/cifar10/
 datasets/parkinsons/
 datasets/utkface/
 datasets/handwritten_letters.csv
 datasets/imdb_movie_reviews.csv
-python/_artificial_intelligence_machine_learning/pytorch_cnn_alzheimers_classification/model.pth
-python/_artificial_intelligence_machine_learning/pytorch_cnn_parkinsons_classification/model.pth
+datasets/mnist.csv
+python/_artificial_intelligence_machine_learning/pytorch_autoencoder_variational/model.pth
 python/_artificial_intelligence_machine_learning/pytorch_cnn_vgg16_utkface/model.pth
 python/_artificial_intelligence_machine_learning/pytorch_embedding_movie_review_analysis/model.pth
 python/_artificial_intelligence_machine_learning/pytorch_generative_diffusion_model/model.pth

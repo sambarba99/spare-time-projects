@@ -13,20 +13,27 @@ import torch
 
 
 def load_csv_classification_data(
-		path, train_size=1, val_size=0, test_size=0, x_transform=None, one_hot_y=False, tensor_device=None
+		path, header='infer',
+		train_size=1, val_size=0, test_size=0, drop_useless_features=True, x_transform=None,
+		y_col_pos=-1, one_hot_y=False, tensor_device=None
 	):
-	assert np.isclose(train_size + val_size + test_size, 1) and train_size > 0
+	assert header in ('infer', None)
+	assert train_size > 0
+	assert val_size >= 0 and test_size >= 0
+	assert np.isclose(train_size + val_size + test_size, 1)
 
-	df = pd.read_csv(path)
+	df = pd.read_csv(path, header=header)
 	print(f'\nRaw data:\n\n{df}\n')
 
-	x, y = df.iloc[:, :-1], df.iloc[:, -1]
+	x = df.drop(df.columns[y_col_pos], axis=1)
+	y = df.iloc[:, y_col_pos]
 
-	for col in x.columns:
-		if x[col].nunique() == 1:
-			# No information from this feature
-			print(f"Dropping column '{col}' (1 unique value)\n")
-			x = x.drop(col, axis=1)
+	if drop_useless_features:
+		drop_columns = [c for c in x.columns if x[c].nunique() == 1]
+		if drop_columns:
+			# No information from these features
+			print(f'Dropping these columns (1 unique value): {drop_columns}\n')
+			x = x.drop(drop_columns, axis=1)
 
 	x_to_encode = x.select_dtypes(exclude=np.number).columns
 
@@ -63,17 +70,13 @@ def load_csv_classification_data(
 	if val_size == test_size == 0:
 		return x, y, labels, features
 
-	x_train, x_remaining, y_train, y_remaining = train_test_split(
-		x, y, train_size=train_size, stratify=y, random_state=1
-	)
+	x_train, x_tmp, y_train, y_tmp = train_test_split(x, y, train_size=train_size, stratify=y, random_state=1)
 	if val_size == 0 or test_size == 0:
-		return x_train, y_train, x_remaining, y_remaining, labels, features
+		return x_train, y_train, x_tmp, y_tmp, labels, features
 
-	rel_train_size = train_size / (train_size + val_size)
-	x_train, x_val, y_train, y_val = train_test_split(
-		x_train, y_train, train_size=rel_train_size, stratify=y_train, random_state=1
-	)
-	return x_train, y_train, x_val, y_val, x_remaining, y_remaining, labels, features
+	val_size /= (val_size + test_size)
+	x_val, x_test, y_val, y_test = train_test_split(x_tmp, y_tmp, train_size=val_size, stratify=y_tmp, random_state=1)
+	return x_train, y_train, x_val, y_val, x_test, y_test, labels, features
 
 
 def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_transform=None, tensor_device=None):
@@ -115,10 +118,10 @@ def load_csv_regression_data(path, train_size=1, val_size=0, test_size=0, x_tran
 	if val_size == test_size == 0:
 		return x, y, features
 
-	x_train, x_remaining, y_train, y_remaining = train_test_split(x, y, train_size=train_size, random_state=1)
+	x_train, x_tmp, y_train, y_tmp = train_test_split(x, y, train_size=train_size, random_state=1)
 	if val_size == 0 or test_size == 0:
-		return x_train, y_train, x_remaining, y_remaining, features
+		return x_train, y_train, x_tmp, y_tmp, features
 
-	rel_train_size = train_size / (train_size + val_size)
-	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=rel_train_size, random_state=1)
-	return x_train, y_train, x_val, y_val, x_remaining, y_remaining, features
+	val_size /= (val_size + test_size)
+	x_val, x_test, y_val, y_test = train_test_split(x_tmp, y_tmp, train_size=val_size, random_state=1)
+	return x_train, y_train, x_val, y_val, x_test, y_test, features

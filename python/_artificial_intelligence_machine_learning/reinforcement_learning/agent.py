@@ -13,10 +13,10 @@ from grid_environment import GridEnv
 class Agent:
 	def __init__(self, gamma=0.9, alpha=0.2, epsilon=0.1):
 		"""
-		Parameters:
-			gamma: Discount factor
-			alpha: Learning rate (for SARSA and Q-learning)
-			epsilon: For epsilon-greedy policy
+		Args:
+			gamma (float): discount factor
+			alpha (float): learning rate (for SARSA and Q-learning)
+			epsilon (float): for epsilon-greedy policy.
 		"""
 
 		self.gamma = gamma

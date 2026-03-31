@@ -1,5 +1,5 @@
 """
-Knowledge Distillation demo using a subset of the CIFAR-10 dataset
+PyTorch Knowledge Distillation with the CIFAR-10 dataset
 
 Author: Sam Barba
 Created 29/09/2024
@@ -8,7 +8,6 @@ Created 29/09/2024
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 from PIL import Image
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
@@ -20,42 +19,41 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_confusion_matrix
+from _utils.plotting import plot_confusion_matrix, plot_torch_model
 from conv_nets import Teacher, Student
 
 
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 32
-BATCH_SIZE = 128
-NUM_EPOCHS = 100
-DISTILLATION_LOSS_WEIGHT = 0.6   # Contribution of distillation loss to KD training
-CROSS_ENTROPY_LOSS_WEIGHT = 0.4  # Contribution of cross-entropy loss to KD training
-TEMPERATURE = 2                  # Controls smoothness of output distributions
+BATCH_SIZE = 256
+NUM_EPOCHS = 200
+ALPHA = 0.25     # Parameter for balancing the loss components (cross-entropy loss vs KL loss)
+TEMPERATURE = 3  # Controls smoothness of output distributions
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders():
-	# Preprocess images now instead of during training (faster pipeline overall)
+	transform = transforms.ToTensor()  # Scale to [0,1]
 
-	transform = transforms.ToTensor()  # Normalise to [0,1]
-
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/cifar10').glob('*.png')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/cifar10').rglob('*.png'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
-	y_labels = [img_path.split('\\')[-1].split('_')[0] for img_path in img_paths]
+	y_labels = [str(img_path).split('\\')[-2] for img_path in img_paths]
 
 	label_encoder = LabelEncoder()
 	y = label_encoder.fit_transform(y_labels)
 	y = torch.tensor(y).long()
 
-	# Create train/validation/test sets (ratio 0.95:0.04:0.01)
-
-	indices = np.arange(len(x))
-	train_val_idx, test_idx = train_test_split(indices, train_size=0.99, stratify=y, random_state=1)
-	train_idx, val_idx = train_test_split(train_val_idx, train_size=0.96, stratify=y[train_val_idx], random_state=1)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
+	indices = torch.arange(len(x))
+	train_idx, tmp_idx = train_test_split(indices, train_size=0.96, stratify=y, random_state=1)
+	val_idx, test_idx = train_test_split(tmp_idx, train_size=0.5, stratify=y[tmp_idx], random_state=1)
 
 	x_train = [x[i] for i in train_idx]
 	x_val = [x[i] for i in val_idx]
@@ -65,14 +63,35 @@ def create_data_loaders():
 	y_test = y[test_idx]
 	test_labels = [y_labels[i] for i in test_idx]
 
+	# for lbl in sorted(set(test_labels)):
+	# 	print(f'{lbl}: {[idx for idx, val in enumerate(test_labels) if val == lbl]}')
+
+	# Standardise images using training mean and std
+	mean = torch.zeros(3)
+	sq_mean = torch.zeros(3)
+	num_pixels = IMG_SIZE * IMG_SIZE * len(x_train)
+	for img in tqdm(x_train, desc='Calculating mean and std of x_train', unit='imgs', ascii=True):
+		mean += img.sum(dim=[1, 2])
+		sq_mean += (img ** 2).sum(dim=[1, 2])
+	mean /= num_pixels
+	sq_mean /= num_pixels
+	std = (sq_mean - mean ** 2).sqrt()
+	norm_transform = transforms.Normalize(mean.tolist(), std.tolist())
+	for idx, img in enumerate(x_train):
+		x_train[idx] = norm_transform(img)
+	for idx, img in enumerate(x_val):
+		x_val[idx] = norm_transform(img)
+	for idx, img in enumerate(x_test):
+		x_test[idx] = norm_transform(img)
+
 	train_dataset = CustomDataset(x_train, y_train)
 	val_dataset = CustomDataset(x_val, y_val)
 	test_dataset = CustomDataset(x_test, y_test, test_labels)
-	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 	val_loader = DataLoader(val_dataset, batch_size=len(x_val))
 	test_loader = DataLoader(test_dataset, batch_size=len(x_test))
 
-	return train_loader, val_loader, test_loader
+	return train_loader, val_loader, test_loader, mean, std
 
 
 def train(model, save_path):
@@ -80,7 +99,7 @@ def train(model, save_path):
 
 	loss_func = torch.nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+	early_stopping = EarlyStopping(model=model, patience=20, mode='max')
 
 	for epoch in range(1, NUM_EPOCHS + 1):
 		progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -90,11 +109,8 @@ def train(model, save_path):
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-			x_train = x_train.to(DEVICE)
-			y_train = y_train.to(DEVICE)
-
-			y_train_logits = model(x_train)
-			loss = loss_func(y_train_logits, y_train)
+			y_train_logits = model(x_train.to(DEVICE))
+			loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 			optimiser.zero_grad()
 			loss.backward()
@@ -112,11 +128,10 @@ def train(model, save_path):
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
-		if early_stopping(val_f1, model.state_dict()):
-			print('Early stopping at epoch', epoch)
+		if early_stopping(val_f1):
 			break
 
-	model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+	early_stopping.restore_best_weights()
 	torch.save(model.state_dict(), save_path)
 
 
@@ -125,7 +140,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 
 	loss_func = torch.nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(student_model.parameters())
-	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+	early_stopping = EarlyStopping(model=student_model, patience=20, mode='max')
 
 	teacher_model.eval()
 
@@ -137,29 +152,26 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 			progress_bar.update()
 			progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-			x_train = x_train.to(DEVICE)
-			y_train = y_train.to(DEVICE)
-
 			with torch.inference_mode():
-				teacher_logits = teacher_model(x_train)
-			student_logits = student_model(x_train)
+				teacher_logits = teacher_model(x_train.to(DEVICE))
+			student_logits = student_model(x_train.to(DEVICE))
 
 			teacher_soft_probs = torch.softmax(teacher_logits / TEMPERATURE, dim=-1)
 			student_soft_probs = torch.log_softmax(student_logits / TEMPERATURE, dim=-1)
 
-			# Calculate the distillation loss (using KL divergence),
+			# Calculate the true label (cross-entropy) loss
+			ce_loss = loss_func(student_logits, y_train.to(DEVICE))
+
+			# Calculate the distillation (KL divergence) loss,
 			# scaled by T^2 (source: https://arxiv.org/pdf/1503.02531)
-			distillation_loss = torch.nn.functional.kl_div(
+			kl_loss = torch.nn.functional.kl_div(
 				student_soft_probs,
 				teacher_soft_probs,
 				reduction='batchmean'
 			) * TEMPERATURE * TEMPERATURE
 
-			# Calculate the true label loss
-			label_loss = loss_func(student_logits, y_train)
-
 			# Weighted sum of the losses
-			loss = DISTILLATION_LOSS_WEIGHT * distillation_loss + CROSS_ENTROPY_LOSS_WEIGHT * label_loss
+			loss = ALPHA * ce_loss + (1 - ALPHA) * kl_loss
 
 			optimiser.zero_grad()
 			loss.backward()
@@ -177,11 +189,10 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
-		if early_stopping(val_f1, student_model.state_dict()):
-			print('Early stopping at epoch', epoch)
+		if early_stopping(val_f1):
 			break
 
-	student_model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+	early_stopping.restore_best_weights()
 	torch.save(student_model.state_dict(), save_path)
 
 
@@ -215,17 +226,17 @@ def test(model, plot_title):
 	# Convert to percentages
 	y_test_probs *= 100
 
-	# Plot 16 test set images with outputs (this list contains at least 1 of every class)
+	# Plot 16 test set images with model outputs (this list contains at least 1 of every class)
 
-	test_indices = [
-		1, 12, 15, 28, 7, 45, 18, 0,
-		4, 36, 2, 14, 38, 30, 10, 52
-	]
+	test_indices = [7, 4, 2, 1, 11, 3, 10, 30, 0, 14, 8, 18, 21, 5, 40, 12]
 
 	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 6))
 	plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.05, hspace=0.45)
 
-	pil_image_transform = transforms.ToPILImage()
+	pil_image_transform = transforms.Compose([
+		transforms.Lambda(lambda img: img * std.view(3, 1, 1) + mean.view(3, 1, 1)),  # De-standardise
+		transforms.ToPILImage()
+	])
 
 	for idx, ax in zip(test_indices, axes.flatten()):
 		img, y_pred_class_idx, y_pred_prob, y_label = x_test[idx], y_test_pred[idx], y_test_probs[idx], y_labels[idx]
@@ -246,7 +257,7 @@ def test(model, plot_title):
 if __name__ == '__main__':
 	# Load data
 
-	train_loader, val_loader, test_loader = create_data_loaders()
+	train_loader, val_loader, test_loader, mean, std = create_data_loaders()
 
 	# Define models
 
@@ -257,16 +268,16 @@ if __name__ == '__main__':
 	print(f'\nTeacher model:\n{teacher_model}')
 	print(f'\nStudent model:\n{student_model_no_kd}')
 	plot_torch_model(
-		teacher_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/teacher_architecture'
+		teacher_model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/teacher_architecture'
 	)
 	plot_torch_model(
-		student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/student_architecture'
+		student_model_no_kd, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/student_architecture'
 	)
 
 	teacher_params = sum(p.numel() for p in teacher_model.parameters())
 	student_params = sum(p.numel() for p in student_model_no_kd.parameters())
 	print(f'\nTeacher parameters: {teacher_params:,}')
-	print(f'Student parameters: {student_params:,} ({round(student_params / teacher_params, 2)}x)')
+	print(f'Student parameters: {student_params:,} ({(student_params / teacher_params):.2f}x teacher)')
 
 	# Load models, or train if they don't exist
 

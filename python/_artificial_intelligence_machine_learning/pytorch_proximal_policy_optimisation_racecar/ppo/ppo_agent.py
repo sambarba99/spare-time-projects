@@ -54,12 +54,14 @@ class ActorCritic(nn.Module):
 		# Q_pi(s,a) = expected return from starting in state 's', doing action 'a' and following policy 'pi'
 		self.actor = nn.Sequential(
 			nn.Linear(NUM_INPUTS, LAYER_SIZE),
+			# Tanh is zero-centered, so positive/negative advantage estimates are represented symmetrically
+			# (ReLU-based activations are biased positive)
 			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
 			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, NUM_ACTIONS),
 			nn.Softmax(dim=-1)
-		)
+		).cpu()
 
 		# Value (critic) function:
 		# V_pi(s) = expected return from starting in state 's' and following policy 'pi'
@@ -69,7 +71,7 @@ class ActorCritic(nn.Module):
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
 			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, 1)
-		)
+		).cpu()
 
 	def forward(self):
 		raise NotImplementedError
@@ -121,11 +123,12 @@ class PPOAgent:
 		self.policy = ActorCritic(self.training_mode)
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
 
-		self.buffer = RolloutBuffer()
-		self.optimiser = torch.optim.Adam([
-			{'params': self.trainable_policy.actor.parameters(), 'lr': ACTOR_LR},
-			{'params': self.trainable_policy.critic.parameters(), 'lr': CRITIC_LR}
-		])
+		if self.training_mode:
+			self.buffer = RolloutBuffer()
+			self.optimiser = torch.optim.Adam([
+				{'params': self.trainable_policy.actor.parameters(), 'lr': ACTOR_LR},
+				{'params': self.trainable_policy.critic.parameters(), 'lr': CRITIC_LR}
+			])
 
 	def do_training(self, env):
 		timesteps_done = episode_num = 0
@@ -156,8 +159,7 @@ class PPOAgent:
 					laps = env.car.num_gates_crossed / len(env.reward_gates)
 					mean_vel = total_vel / t
 					model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
-					if not Path(model_path).exists():
-						self.save_model(model_path)
+					self.save_model(model_path)
 
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs = \
 						self.buffer.rollout()                                                       # ALGORITHM STEP 3
@@ -216,7 +218,7 @@ class PPOAgent:
 			if episode_num % 10 == 0:
 				print(f'Episode: {episode_num}  |  '
 					f'timesteps: {t} ({percent_done:.1%} done)  |  '
-					f'total return: {total_episode_return:.1f}  |  ')
+					f'total return: {total_episode_return:.1f}')
 
 		laps = env.car.num_gates_crossed / len(env.reward_gates)
 		model_path = f'./ppo/model_{laps:.2f}_laps_final_update.pth'

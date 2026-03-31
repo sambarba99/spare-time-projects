@@ -1,4 +1,4 @@
-## Demo of a Variational Autoencoder (VAE) for [Inpainting](https://en.wikipedia.org/wiki/Inpainting)
+## [Inpainting](https://en.wikipedia.org/wiki/Inpainting) with a PyTorch Variational Autoencoder (VAE)
 
 Example test set outputs:
 

@@ -19,3 +19,6 @@ Example of tabular data compression (iris dataset, 2 latent variables and 3 late
 	<br/>
 	<img src="images/iris_3_latent_variables.png"/>
 </p>
+
+Source:
+- [MNIST CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv) (Kaggle dataset)

@@ -5,6 +5,7 @@ Author: Sam Barba
 Created 30/10/2022
 """
 
+from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -20,14 +21,17 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve, plot_torch_model
 from conv_net import CNN
 
 
 np.random.seed(1)
 pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 DATASET_DICT = {
 	'race': {0: 'white', 1: 'black', 2: 'asian', 3: 'indian', 4: 'other'},
@@ -35,12 +39,13 @@ DATASET_DICT = {
 }
 IMG_SIZE = 128
 BATCH_SIZE = 32
+BATCH_SIZE_TEST = 16
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 50
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Weighting the losses according to how well the model generally does for each output
-# (e.g. race classification is weakest, so its loss weighs the most)
+# (e.g. race classification is weakest, so its loss is given the most weight)
 AGE_LOSS_WEIGHT = 0.1
 GENDER_LOSS_WEIGHT = 4
 RACE_LOSS_WEIGHT = 10
@@ -52,11 +57,9 @@ def create_data_loaders(df):
 	y_gender = df['gender_id'].to_numpy()
 	y_race = df['race_id'].to_numpy()
 
-	# Preprocess images now instead of during training (faster pipeline overall)
-
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
-		transforms.ToTensor()  # Automatically normalises to [0,1]
+		transforms.ToTensor()  # Scale to [0,1]
 	])
 
 	x = [
@@ -67,22 +70,22 @@ def create_data_loaders(df):
 	y_gender = torch.tensor(y_gender).float()
 	y_race = torch.tensor(y_race).long()
 
-	# Create train/validation/test sets (ratio 0.95:0.04:0.01)
-	# Stratify based on binned age + gender + race
-
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02), stratifying based on binned age + gender + race
 	indices = np.arange(len(x))
 	age_bins = np.linspace(0, 100, 9)
 	age_bin_indices = np.digitize(y_age, age_bins)
-	stratify_labels = np.array([
-		f'{age_bin_idx}_{gender}_{race}' for age_bin_idx, gender, race
+	stratify_labels = [
+		f'{age_bin_idx}_{int(gender)}_{race}' for age_bin_idx, gender, race
 		in zip(age_bin_indices, y_gender, y_race)
+	]
+	strat_label_counts = Counter(stratify_labels)
+	# Val and test are 0.02, so any label that occurs < 1/0.02 = 50 times is 'rare'
+	stratify_labels = np.array([
+		lbl if strat_label_counts[lbl] >= 50 else 'rare'
+		for lbl in stratify_labels
 	])
-	train_val_idx, test_idx = train_test_split(
-		indices, train_size=0.99, stratify=stratify_labels, random_state=1
-	)
-	train_idx, val_idx = train_test_split(
-		train_val_idx, train_size=0.96, stratify=stratify_labels[train_val_idx], random_state=1
-	)
+	train_idx, tmp_idx = train_test_split(indices, train_size=0.96, stratify=stratify_labels, random_state=1)
+	val_idx, test_idx = train_test_split(tmp_idx, train_size=0.5, stratify=stratify_labels[tmp_idx], random_state=1)
 
 	x_train = [x[i] for i in train_idx]
 	x_val = [x[i] for i in val_idx]
@@ -97,24 +100,42 @@ def create_data_loaders(df):
 	y_val_race = y_race[val_idx]
 	y_test_race = y_race[test_idx]
 
+	# Standardise images using training mean and std
+	mean = torch.zeros(3)
+	sq_mean = torch.zeros(3)
+	num_pixels = IMG_SIZE * IMG_SIZE * len(x_train)
+	for img in tqdm(x_train, desc='Calculating mean and std of x_train', unit='imgs', ascii=True):
+		mean += img.sum(dim=[1, 2])
+		sq_mean += (img ** 2).sum(dim=[1, 2])
+	mean /= num_pixels
+	sq_mean /= num_pixels
+	std = (sq_mean - mean ** 2).sqrt()
+	norm_transform = transforms.Normalize(mean.tolist(), std.tolist())
+	for idx, img in enumerate(x_train):
+		x_train[idx] = norm_transform(img)
+	for idx, img in enumerate(x_val):
+		x_val[idx] = norm_transform(img)
+	for idx, img in enumerate(x_test):
+		x_test[idx] = norm_transform(img)
+
 	train_dataset = CustomDataset(x_train, y_train_age, y_train_gender, y_train_race)
 	val_dataset = CustomDataset(x_val, y_val_age, y_val_gender, y_val_race)
 	test_dataset = CustomDataset(x_test, y_test_age, y_test_gender, y_test_race)
-	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
-	val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
-	test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+	val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
+	test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE_TEST)
 
-	return train_loader, val_loader, test_loader
+	return train_loader, val_loader, test_loader, mean, std
 
 
 if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for img_path in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
-		y = str(img_path).split('\\')[1]
+	for p in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
+		y = str(p).split('\\')[-1]
 		age, gender, race = y.split('_')[:3]
-		data.append((str(img_path), int(age), int(gender), int(race)))
+		data.append((str(p), int(age), int(gender), int(race)))
 
 	df = pd.DataFrame(data, columns=['img_path', 'age', 'gender_id', 'race_id'])
 	df['gender_label'] = df['gender_id'].map(DATASET_DICT['gender'])
@@ -132,7 +153,7 @@ if __name__ == '__main__':
 		ax.imshow(sample)
 		ax.axis('off')
 		ax.set_title(f"{df['age'][idx]}, {df['gender_label'][idx]}, {df['race_label'][idx]}")
-	plt.suptitle('Data samples (age, gender, race)', y=0.96)
+	plt.suptitle('Raw data samples (age, gender, race)', y=0.96)
 	plt.show()
 
 	# Plot output feature distributions
@@ -154,11 +175,11 @@ if __name__ == '__main__':
 
 	# Define data loaders and model
 
-	train_loader, val_loader, test_loader = create_data_loaders(df)
+	train_loader, val_loader, test_loader, mean, std = create_data_loaders(df)
 
 	model = CNN().to(DEVICE)
-	print(f'Model:\n{model}')
-	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./model_architecture')
+	print(f'\nModel:\n{model}')
+	plot_torch_model(model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./model_architecture')
 
 	loss_func_age = torch.nn.MSELoss()
 	loss_func_gender = torch.nn.BCEWithLogitsLoss()
@@ -172,8 +193,11 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+		early_stopping = EarlyStopping(
+			model=model, patience=10, mode='max',
+			track_best_weights=False, print_precision_on_stop=2
+		)
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -205,14 +229,14 @@ if __name__ == '__main__':
 				optimiser.step()
 
 				progress_bar.set_postfix_str(
-					f'age_loss={age_loss.item():.4f}, '
+					f'age_loss={age_loss.item():.2f}, '
 					f'gender_loss={gender_loss.item():.4f}, '
 					f'race_loss={race_loss.item():.4f}'
 				)
 
 			age_val_loss_total = age_val_mae_total = 0
-			gender_val_loss_total = gender_val_f1_total = 0
-			race_val_loss_total = race_val_f1_total = 0
+			gender_val_loss_total = 0
+			race_val_loss_total = 0
 			all_gender_preds, all_gender_labels = [], []
 			all_race_preds, all_race_labels = [], []
 
@@ -250,8 +274,8 @@ if __name__ == '__main__':
 			race_val_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='weighted')
 
 			progress_bar.set_postfix_str(
-				f'age_val_loss={age_val_loss:.4f}, '
-				f'age_val_MAE={age_val_mae:.4f}, '
+				f'age_val_loss={age_val_loss:.2f}, '
+				f'age_val_MAE={age_val_mae:.2f}, '
 				f'gender_val_loss={gender_val_loss:.4f}, '
 				f'gender_val_F1={gender_val_f1:.4f}, '
 				f'race_val_loss={race_val_loss:.4f}, '
@@ -268,9 +292,8 @@ if __name__ == '__main__':
 			history['gender_val_F1'].append(gender_val_f1)
 			history['race_val_F1'].append(race_val_f1)
 
-			# Condition early stopping on race val F1 score, as this is the least accurate model output
-			if early_stopping(race_val_f1, None):
-				print('Early stopping at epoch', epoch)
+			# Condition early stopping on race val F1 score, as this is the weakest model output
+			if early_stopping(race_val_f1):
 				break
 
 		# Plot training metrics
@@ -293,63 +316,108 @@ if __name__ == '__main__':
 
 	print('\n----- TESTING -----\n')
 
-	model.eval()
-	x_test, y_test_age, y_test_gender, y_test_race = next(iter(test_loader))
-	with torch.inference_mode():
-		age_test_pred, gender_test_logits, race_test_logits = model(x_test.to(DEVICE))
-	age_test_pred = age_test_pred.squeeze().cpu()
-	gender_test_logits = gender_test_logits.squeeze().cpu()
-	race_test_logits = race_test_logits.cpu()
+	age_test_loss_total = age_test_mae_total = 0
+	gender_test_loss_total = 0
+	race_test_loss_total = 0
+	all_gender_preds, all_gender_labels, all_gender_logits = [], [], []
+	all_race_preds, all_race_labels, all_race_logits = [], [], []
 
-	print('Test age MAE:', mae_func_age(age_test_pred, y_test_age).item())
+	pil_image_transform = transforms.Compose([
+		transforms.Lambda(lambda img: img * std.view(3, 1, 1) + mean.view(3, 1, 1)),  # De-standardise
+		transforms.ToPILImage()
+	])
+
+	model.eval()
+	with torch.inference_mode():
+		for test_idx, (x_test, y_test_age, y_test_gender, y_test_race) in enumerate(test_loader):
+			x_test = x_test.to(DEVICE)
+			y_test_age = y_test_age.to(DEVICE)
+			y_test_gender = y_test_gender.to(DEVICE)
+			y_test_race = y_test_race.to(DEVICE)
+
+			age_test_pred, gender_test_logits, race_test_logits = model(x_test)
+			age_test_pred = age_test_pred.squeeze()
+			gender_test_logits = gender_test_logits.squeeze()
+
+			gender_test_probs = torch.sigmoid(gender_test_logits)
+			gender_test_pred = gender_test_probs.round()
+			race_test_pred = race_test_logits.argmax(dim=1)
+
+			all_gender_preds.append(gender_test_pred.cpu())
+			all_gender_labels.append(y_test_gender.cpu())
+			all_gender_logits.append(gender_test_logits.cpu())
+			all_race_preds.append(race_test_pred.cpu())
+			all_race_labels.append(y_test_race.cpu())
+			all_race_logits.append(race_test_logits.cpu())
+
+			age_test_loss_total += loss_func_age(age_test_pred, y_test_age).item()
+			age_test_mae_total += mae_func_age(age_test_pred, y_test_age).item()
+			gender_test_loss_total += loss_func_gender(gender_test_logits, y_test_gender).item()
+			race_test_loss_total += loss_func_race(race_test_logits, y_test_race).item()
+
+			if len(x_test) < BATCH_SIZE_TEST:  # Last batch may be smaller than BATCH_SIZE_TEST
+				break
+
+			# Plot test images with model outputs
+
+			_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 8))
+			plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.05, hspace=0.45)
+
+			for idx, ax in enumerate(axes.flatten()):
+				img, y_age, y_gender, y_race = x_test[idx], y_test_age[idx], y_test_gender[idx], y_test_race[idx]
+
+				y_gender_label = DATASET_DICT['gender'][int(y_gender.item())]
+				y_race_label = DATASET_DICT['race'][y_race.item()]
+
+				age_pred = round(age_test_pred[idx].item())
+				gender_pred = int(gender_test_pred[idx].item())
+				race_pred = race_test_pred[idx].item()
+				gender_pred_label = DATASET_DICT['gender'][gender_pred]
+				race_pred_label = DATASET_DICT['race'][race_pred]
+
+				ax.imshow(pil_image_transform(img.cpu()))
+				ax.axis('off')
+				ax.set_title(
+					f'Pred: {age_pred}, {gender_pred_label}, {race_pred_label}'
+					f'\nActual: {int(y_age)}, {y_gender_label}, {y_race_label}',
+					fontsize=10
+				)
+			plt.suptitle('Test output examples', y=0.95)
+			plt.savefig(f'./test_output{test_idx}.png')
+			plt.close()
+
+	age_test_loss = age_test_loss_total / len(test_loader)
+	age_test_mae = age_test_mae_total / len(test_loader)
+	gender_test_loss = gender_test_loss_total / len(test_loader)
+	gender_test_f1 = f1_score(torch.cat(all_gender_labels), torch.cat(all_gender_preds))
+	race_test_loss = race_test_loss_total / len(test_loader)
+	race_test_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='weighted')
+
+	print(f'Age test loss: {age_test_loss:.2f}')
+	print(f'Age test MAE: {age_test_mae:.2f}')
+	print(f'Gender test loss: {gender_test_loss:.4f}')
+	print(f'Gender test F1: {gender_test_f1:.4f}')
+	print(f'Race test loss: {race_test_loss:.4f}')
+	print(f'Race test F1: {race_test_f1:.4f}')
 
 	# ROC curve for gender output
-	gender_test_probs = torch.sigmoid(gender_test_logits)
-	plot_roc_curve(y_test_gender, gender_test_probs, 'Test ROC curve for gender classification')
+	gender_test_probs = torch.sigmoid(torch.cat(all_gender_logits))
+	plot_roc_curve(torch.cat(all_gender_labels), gender_test_probs, 'Test ROC curve for gender classification')
 
-	# Confusion matrices for gender and race outputs
+	# Confusion matrix for gender output
 	gender_test_pred = gender_test_probs.round()
-	race_test_pred = race_test_logits.argmax(dim=1)
-	f1_gender = f1_score(y_test_gender, gender_test_pred)
-	f1_race = f1_score(y_test_race, race_test_pred, average='weighted')
 	plot_confusion_matrix(
-		y_test_gender,
+		torch.cat(all_gender_labels),
 		gender_test_pred,
 		sorted(DATASET_DICT['gender'].values()),
-		f'Test confusion matrix for gender classification\n(F1 score: {f1_gender:.3f})'
+		'Test confusion matrix for gender classification'
 	)
+
+	# Confusion matrix for race output
+	race_test_pred = torch.cat(all_race_logits).argmax(dim=1)
 	plot_confusion_matrix(
-		y_test_race,
+		torch.cat(all_race_labels),
 		race_test_pred,
 		sorted(DATASET_DICT['race'].values()),
-		f'Test confusion matrix for race classification\n(F1 score: {f1_race:.3f})'
+		'Test confusion matrix for race classification'
 	)
-
-	# Plot first 16 test set images with outputs
-
-	_, axes = plt.subplots(nrows=4, ncols=4, figsize=(9, 8))
-	plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.05, hspace=0.45)
-
-	pil_image_transform = transforms.ToPILImage()
-
-	for idx, ax in enumerate(axes.flatten()):
-		img, y_age, y_gender, y_race = x_test[idx], y_test_age[idx], y_test_gender[idx], y_test_race[idx]
-
-		y_gender_label = DATASET_DICT['gender'][int(y_gender.item())]
-		y_race_label = DATASET_DICT['race'][y_race.item()]
-
-		age_pred = round(age_test_pred[idx].item())
-		gender_pred = int(gender_test_pred[idx].item())
-		race_pred = race_test_pred[idx].item()
-		gender_pred_label = DATASET_DICT['gender'][gender_pred]
-		race_pred_label = DATASET_DICT['race'][race_pred]
-
-		ax.imshow(pil_image_transform(img))
-		ax.axis('off')
-		ax.set_title(
-			f'Pred: {age_pred}, {gender_pred_label}, {race_pred_label}'
-			+ f'\nActual: {int(y_age)}, {y_gender_label}, {y_race_label}',
-			fontsize=10
-		)
-	plt.suptitle('Test output examples', y=0.95)
-	plt.show()

@@ -21,7 +21,7 @@ INTERPOLATION_DICT = {'nearest': cv.INTER_NEAREST, 'cubic': cv.INTER_CUBIC, 'are
 
 
 def plot_image_grid(
-		images, rows, cols, padding, scale_factor=1, scale_interpolation='nearest',
+		images, rows, cols, padding, transform=None, scale_factor=1, scale_interpolation='nearest',
 		outer_padding=20, background_rgb=(128, 176, 240), title_rgb=(0, 0, 0),
 		title='', save_path='', show=True
 	):
@@ -41,6 +41,9 @@ def plot_image_grid(
 		images = list(images)
 
 	for idx, img in enumerate(images):
+		if transform:
+			img = transform(img)
+
 		# Squeeze image
 		img = img.squeeze()
 
@@ -50,7 +53,7 @@ def plot_image_grid(
 			if img.ndim == 3 and img.shape[0] == 3:
 				img = np.transpose(img, (1, 2, 0))  # (C, H, W) -> (H, W, C)
 
-		# Normalise to [0,1] then convert to range [0,255]
+		# Scale to [0,1] then convert to range [0,255]
 		if img.max() == img.min():
 			normalised_img = np.zeros_like(img)
 		else:
@@ -110,9 +113,9 @@ def plot_image_grid(
 		cv.destroyAllWindows()
 
 
-def plot_torch_model(model, *input_shapes, input_device='cpu', out_file='./images/model_architecture'):
+def plot_torch_model(model, *input_shapes, device='cpu', out_file='./images/model_architecture'):
 	# Add batch size of 1
-	x = [torch.zeros((1, *shape), device=input_device) for shape in input_shapes]
+	x = [torch.zeros((1, *shape), device=device) for shape in input_shapes]
 
 	g = draw_graph(model, input_data=x)
 	g.render(out_file, view=True, cleanup=True, format='png')
@@ -186,9 +189,9 @@ def get_cnn_feature_maps(conv_model, input_img, model_type='pytorch'):
 	return layer_feature_maps
 
 
-def plot_confusion_matrix(y_test, test_pred_labels, labels, title, x_ticks_rotation=0, horiz_alignment='center'):
-	cm = confusion_matrix(y_test, test_pred_labels)
-	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels).plot(cmap='Blues')
+def plot_confusion_matrix(y_test, y_test_pred, class_names, title, x_ticks_rotation=0, horiz_alignment='center'):
+	cm = confusion_matrix(y_test, y_test_pred)
+	ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names).plot(cmap='Blues')
 	plt.xticks(rotation=x_ticks_rotation, ha=horiz_alignment)
 	plt.title(title)
 	plt.show()

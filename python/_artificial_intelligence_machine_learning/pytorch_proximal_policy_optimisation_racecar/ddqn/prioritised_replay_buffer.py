@@ -130,7 +130,7 @@ class PrioritisedReplayBuffer:
 		# weights w_IS = (1/N * 1/P(i))^b (fully compensates for non-uniform probabilities if b = 1).
 		weights_IS = (self.size * probs) ** -self.beta
 
-		# Normalise weights to avoid large updates
+		# Scale weights to [0,1] to avoid large updates
 		weights_IS /= weights_IS.max()
 
 		# Anneal beta towards 1

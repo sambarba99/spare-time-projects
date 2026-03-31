@@ -1,4 +1,4 @@
-## PyTorch Vision Transformer (ViT) MNIST classifier
+## MNIST classification with a PyTorch Vision Transformer (ViT)
 
 <p align="center">
 	<img src="images/data_samples.png"/>
@@ -29,3 +29,4 @@ Model architecture:
 Sources:
 - [Vision Transformer (ViT) Attention Maps using MNIST](https://github.com/mashaan14/VisionTransformer-MNIST/tree/main)
 - [Quantifying Attention Flow in Transformers](https://arxiv.org/pdf/2005.00928) (Abnar, Zuidema 2020)
+- [MNIST CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv) (Kaggle dataset)

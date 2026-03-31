@@ -22,22 +22,22 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
 
-def make_best_tree(x_train, y_train, x_test, y_test, use_gini=True):
-	"""Test different max_depth values, and return tree with the best one"""
+def make_best_tree(x_train, y_train, x_val, y_val, use_gini=True):
+	"""Tune a tree (try different max_depth values), and return tree with the best validation F1 score"""
 
 	best_tree = None
-	best_test_f1 = -1
+	best_f1 = -1
 	max_depth = 0  # 0 max_depth means predicting all data points as the same value
 
 	while True:
 		tree = DecisionTree(x_train, y_train, max_depth, use_gini)
 		train_f1 = tree.evaluate(x_train, y_train)
-		test_f1 = tree.evaluate(x_test, y_test)
-		print(f'max_depth {max_depth}: training F1 score = {train_f1} | test F1 score = {test_f1}')
+		val_f1 = tree.evaluate(x_val, y_val)
+		print(f'max_depth {max_depth}: training F1 score = {train_f1:.4f} | val F1 score = {val_f1:.4f}')
 
-		if test_f1 > best_test_f1:
-			best_tree, best_test_f1 = tree, test_f1
-			if test_f1 == 1:
+		if val_f1 > best_f1:
+			best_tree, best_f1 = tree, val_f1
+			if val_f1 == 1:
 				break
 		else:
 			break  # No improvement, so stop
@@ -126,29 +126,29 @@ if __name__ == '__main__':
 				ax_classification.set_title(f'Max depth = {tree.depth}, F1 score = {f1:.4f}\n(converged)')
 				plt.show()
 	else:
-		x_train, y_train, x_test, y_test, labels, features = load_csv_classification_data(
-			path, train_size=0.8, test_size=0.2
+		x_train, y_train, x_val, y_val, labels, features = load_csv_classification_data(
+			path, train_size=0.8, val_size=0.2
 		)
 
-		tree = make_best_tree(x_train, y_train, x_test, y_test)
+		tree = make_best_tree(x_train, y_train, x_val, y_val)
 		print(f'\nOptimal tree depth: {tree.depth}')
 
 		plot_tree(tree, features, labels)
 
 		# Confusion matrix
-		test_pred = [tree.predict(xi) for xi in x_test]
-		test_pred_classes = [p['class'] for p in test_pred]
-		f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
+		val_pred = [tree.predict(xi) for xi in x_val]
+		val_pred_classes = [p['class'] for p in val_pred]
+		f1 = f1_score(y_val, val_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
 		plot_confusion_matrix(
-			y_test,
-			test_pred_classes,
+			y_val,
+			val_pred_classes,
 			labels,
-			f'Test confusion matrix\n(F1 score: {f1:.3f})',
+			f'Val confusion matrix\n(F1 score: {f1:.3f})',
 			x_ticks_rotation=45,
 			horiz_alignment='right'
 		)
 
 		# ROC curve
 		if len(labels) == 2:  # Binary classification
-			test_pred_probs = np.array([p['class_probs'] for p in test_pred])
-			plot_roc_curve(y_test, test_pred_probs[:, 1])  # Assuming 1 is the positive class
+			val_pred_probs = np.array([p['class_probs'] for p in val_pred])
+			plot_roc_curve(y_val, val_pred_probs[:, 1])  # Assuming 1 is the positive class

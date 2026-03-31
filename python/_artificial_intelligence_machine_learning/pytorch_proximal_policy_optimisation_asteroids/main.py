@@ -30,7 +30,7 @@ def train():
 	rand2 = random.Random()
 	train_env = GameEnv(random_obj=rand1, do_rendering=False, training_mode=True)
 	checkpoint_env = GameEnv(random_obj=rand2, do_rendering=False)
-	agent = PPOAgent()
+	agent = PPOAgent(training_mode=True)
 	total_return_per_epoch, mean_checkpoint_score = agent.do_training(train_env, checkpoint_env)
 
 	# Smooth data
@@ -57,15 +57,14 @@ def train():
 
 def test():
 	env = GameEnv(random_obj=random.Random(), do_rendering=True)
-	agent = PPOAgent()
+	agent = PPOAgent(training_mode=False)
 	agent.load_model()
 	paused = True
 	action = 0
 
 	while True:
-		# env.reset(171)  # Best found seed
+		# env.reset(10)  # Best found seed
 		env.reset()
-		agent.buffer.clear()  # Don't need rollout buffer when testing
 		state = env.get_state()
 		terminal = False
 
@@ -79,7 +78,7 @@ def test():
 							paused = not paused
 
 			if not paused:
-				action = agent.choose_action(state, True)
+				action = agent.choose_action(state)
 				_, state, terminal = env.step(action)
 
 			env.render(action, terminal)

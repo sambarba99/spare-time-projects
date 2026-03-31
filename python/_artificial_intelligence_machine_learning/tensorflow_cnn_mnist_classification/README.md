@@ -1,7 +1,9 @@
-## (TensorFlow) MNIST Convolutional Neural Network (CNN)
+## MNIST classification with a TensorFlow Convolutional Neural Network
 
 <p align="center">
 	<img src="images/data_samples.png"/>
+	<br/>
+	<img src="images/test_confusion_matrix.png"/>
 </p>
 
 Learned filters of each conv layer:
@@ -10,12 +12,6 @@ Learned filters of each conv layer:
 	<img src="images/conv1_filters.png"/>
 	<br/>
 	<img src="images/conv2_filters.png"/>
-</p>
-
-Test set performance:
-
-<p align="center">
-	<img src="images/test_confusion_matrix.png"/>
 </p>
 
 Test on user-drawn digit (+ feature maps):

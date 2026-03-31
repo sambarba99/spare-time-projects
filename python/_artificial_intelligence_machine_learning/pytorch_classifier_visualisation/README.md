@@ -17,5 +17,8 @@ Layer activations (convolutional feature maps + linear layers) of the MNIST clas
 Learning the decision boundary for a 2D point dataset:
 
 <p align="center">
-	<img src="images/spiral_classification.webp"/>
+	<img src="images/spiral_classification.gif"/>
 </p>
+
+Source:
+- [MNIST CSV](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv) (Kaggle dataset)

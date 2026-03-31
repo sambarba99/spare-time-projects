@@ -66,6 +66,7 @@ def gen_data(mode):
 	build_model()
 	plot_decision_boundary()
 	ax_classification.set_title('Start (random weights)')
+	# plt.savefig(f'./0000.png')
 	plt.show()
 
 
@@ -74,9 +75,9 @@ def build_model():
 
 	model = nn.Sequential(
 		nn.Linear(2, LAYER_SIZE),
-		nn.Tanh(),
+		nn.GELU(),
 		nn.Linear(LAYER_SIZE, LAYER_SIZE),
-		nn.Tanh(),
+		nn.GELU(),
 		nn.Linear(LAYER_SIZE, 1 if num_classes == 2 else num_classes)
 	).cpu()
 
@@ -98,9 +99,11 @@ def build_and_train_model(*_):
 			plot_decision_boundary()
 			ax_classification.set_title(f'Epoch {epoch}/{NUM_EPOCHS}')
 			plt.pause(0.01)
+			# plt.savefig(f'./{epoch:0>4}.png')
 
 	plot_decision_boundary()
 	ax_classification.set_title(f'Epoch {NUM_EPOCHS}/{NUM_EPOCHS}')
+	# plt.savefig(f'./{NUM_EPOCHS}.png')
 	plt.show()
 
 
@@ -124,16 +127,18 @@ def plot_decision_boundary():
 	if num_classes == 2:  # Binary
 		y_probs = torch.sigmoid(y_logits)
 		y_pred = y_probs.round()
+		cmap = 'bwr'
 	else:  # Multiclass
 		y_pred = y_logits.argmax(dim=1)
+		cmap = 'jet'
 
 	# Reshape and plot
 	ax_classification.clear()
 	y_flat = y if y.dim() == 1 else y.argmax(dim=1)
-	ax_classification.scatter(x[:, 0], x[:, 1], c=y_flat, cmap='jet', alpha=0.7)
+	ax_classification.scatter(x[:, 0], x[:, 1], c=y_flat, cmap=cmap, alpha=0.7)
 	y_pred = y_pred.reshape(xx.shape).detach().numpy()
 	ax_classification.imshow(
-		y_pred, interpolation='nearest', cmap='jet', alpha=0.5, aspect='auto', origin='lower',
+		y_pred, interpolation='nearest', cmap=cmap, alpha=0.5, aspect='auto', origin='lower',
 		extent=(xx.min(), xx.max(), yy.min(), yy.max())
 	)
 

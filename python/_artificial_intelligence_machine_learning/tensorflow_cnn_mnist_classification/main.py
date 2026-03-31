@@ -1,5 +1,5 @@
 """
-TensorFlow MNIST convolutional neural network
+MNIST classification with a TensorFlow Convolutional Neural Network
 
 Author: Sam Barba
 Created 20/10/2021
@@ -34,7 +34,7 @@ DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 def load_data():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-	# Normalise images to [0,1] and correct shape
+	# Scale images to [0,1] and correct shape
 	x = np.concatenate([x_train, x_test]).astype(float) / 255
 	x = np.reshape(x, (len(x), *INPUT_SHAPE))
 
@@ -43,10 +43,8 @@ def load_data():
 	y = np.eye(10)[y]  # 10 classes (0-9)
 
 	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
-	x_train, x_val, y_train, y_val = train_test_split(
-		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
-	)
+	x_train, x_tmp, y_train, y_tmp = train_test_split(x, y, train_size=0.96, stratify=y, random_state=1)
+	x_val, x_test, y_val, y_test = train_test_split(x_tmp, y_tmp, train_size=0.5, stratify=y_tmp, random_state=1)
 
 	return x_train, y_train, x_val, y_val, x_test, y_test
 
@@ -155,8 +153,8 @@ if __name__ == '__main__':
 	# Plot the model's learned filters
 	layer_filters = get_cnn_learned_filters(model, model_type='tensorflow')
 	for idx, (filters, padding) in enumerate(zip(layer_filters, (15, 10)), start=1):
-		cols = 8
-		rows = len(filters) // cols
+		rows = idx
+		cols = len(filters) // rows
 		plot_image_grid(
 			filters, rows, cols, padding=padding, scale_factor=20,
 			title=f'Filters of conv layer {idx}/{len(layer_filters)}',
@@ -229,8 +227,8 @@ if __name__ == '__main__':
 	# Plot feature maps for user-drawn digit
 	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input, model_type='tensorflow')
 	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
-		cols = 8
-		rows = len(feature_map) // cols
+		rows = idx
+		cols = len(feature_map) // rows
 		plot_image_grid(
 			feature_map, rows, cols, padding=padding, scale_factor=scale_factor,
 			title=f'Feature map of conv layer {idx}/{len(layer_feature_maps)} (user-drawn digit)',

@@ -14,7 +14,7 @@ class MNISTAutoencoder(nn.Module):
 		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, height, width)
 		self.encoder_block = nn.Sequential(
 			nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1),   # -> (N, 16, 14, 14)
-			nn.Tanh(),
+			nn.Tanh(),  # Tanh keeps data bounded in [-1,1], which stabilises training as values can't explode
 			nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),  # -> (N, 32, 7, 7)
 			nn.Tanh(),
 			nn.Conv2d(32, 64, kernel_size=7),                       # -> (N, 64, 1, 1)

@@ -6,6 +6,7 @@ Created 28/05/2024
 """
 
 import torch
+from torchvision import transforms
 from tqdm import tqdm
 
 from _utils.plotting import plot_image_grid
@@ -20,6 +21,7 @@ class DiffusionController:
 		self.sqrt_alphas_cp = self.alphas_cp.sqrt()
 		self.sqrt_1_minus_alphas_cp = (1 - self.alphas_cp).sqrt()
 		self.device = device
+		self.destandardise_transform = transforms.Lambda(lambda img: torch.clamp(img * 0.5 + 0.5, 0, 1))
 
 	def add_noise(self, images, timesteps):
 		sqrt_alphas_cp_t = self.sqrt_alphas_cp[timesteps].view(-1, 1, 1, 1)
@@ -35,8 +37,8 @@ class DiffusionController:
 		images = torch.randn(num_images, 3, img_size, img_size, device=self.device)
 
 		plot_image_grid(
-			images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			images, rows=4, cols=6, padding=4, transform=self.destandardise_transform, scale_factor=1.5,
+			scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title=f'Reverse diffusion process (t={self.T}/{self.T})',
 			save_path=f'./images/reverse_diffusion_step_{self.T}.png',
 			show=False
@@ -65,15 +67,15 @@ class DiffusionController:
 				images += beta_t.sqrt() * noise
 
 			plot_image_grid(
-				images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-				background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+				images, rows=4, cols=6, padding=4, transform=self.destandardise_transform, scale_factor=1.5,
+				scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 				title=f'Reverse diffusion process (t={t}/{self.T})',
 				save_path=f'./images/reverse_diffusion_step_{t:0>4}.png',
 				show=False
 			)
 
 		plot_image_grid(
-			images, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			images, rows=4, cols=6, padding=4, transform=self.destandardise_transform, scale_factor=1.5,
+			scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title='Model test on random noise'
 		)

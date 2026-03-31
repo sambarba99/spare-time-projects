@@ -1,4 +1,4 @@
-## Sentiment Analysis of Movie Reviews via an Embedding-based PyTorch model
+## Sentiment Analysis of Movie Reviews with a PyTorch Embedding model
 
 Raw data:
 
@@ -10,11 +10,9 @@ Test set performance:
 
 <p align="center">
 	<img src="images/test_confusion_matrix.png"/>
-	<br/>
-	<img src="images/test_roc_curve.png"/>
 </p>
 
-Model architecture (input size = 300 tokens):
+Model architecture (input size = 250 tokens):
 
 <p align="center">
 	<img src="images/model_architecture.png"/>

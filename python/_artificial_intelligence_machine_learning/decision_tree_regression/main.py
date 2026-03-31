@@ -20,22 +20,22 @@ pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
 
-def make_best_tree(x_train, y_train, x_test, y_test):
-	"""Test different max_depth values, and return tree with the best one"""
+def make_best_tree(x_train, y_train, x_val, y_val):
+	"""Tune a tree (try different max_depth values), and return tree with the best validation RMSE"""
 
 	best_tree = None
-	best_test_rmse = np.inf
+	best_rmse = np.inf
 	max_depth = 0  # 0 max_depth means predicting all data points as the same value
 
 	while True:
 		tree = DecisionTree(x_train, y_train, max_depth)
 		train_rmse = tree.evaluate(x_train, y_train)
-		test_rmse = tree.evaluate(x_test, y_test)
-		print(f'max_depth {max_depth}: training RMSE = {train_rmse} | test RMSE = {test_rmse}')
+		val_rmse = tree.evaluate(x_val, y_val)
+		print(f'max_depth {max_depth}: training RMSE = {train_rmse:.4f} | val RMSE = {val_rmse:.4f}')
 
-		if test_rmse < best_test_rmse:
-			best_tree, best_test_rmse = tree, test_rmse
-			if test_rmse == 0:
+		if val_rmse < best_rmse:
+			best_tree, best_rmse = tree, val_rmse
+			if val_rmse == 0:
 				break
 		else:
 			break  # No improvement, so stop
@@ -64,10 +64,10 @@ if __name__ == '__main__':
 	if path == 'sine':
 		x = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
 		y = np.sin(x) + np.random.uniform(-0.1, 0.1, 100).reshape(-1, 1)
-		x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.8, random_state=1)
+		x_train, x_val, y_train, y_val = train_test_split(x, y, train_size=0.8, random_state=1)
 		features = ['x']
 	else:
-		x_train, y_train, x_test, y_test, features = load_csv_regression_data(path, train_size=0.8, test_size=0.2)
+		x_train, y_train, x_val, y_val, features = load_csv_regression_data(path, train_size=0.8, val_size=0.2)
 
 	if path == 'sine':
 		x = np.linspace(0, 2 * np.pi, 100)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 		plt.legend()
 		plt.show()
 	else:
-		tree = make_best_tree(x_train, y_train, x_test, y_test)
+		tree = make_best_tree(x_train, y_train, x_val, y_val)
 		print(f'\nOptimal tree depth: {tree.depth}')
 
 	plot_tree(tree, features)

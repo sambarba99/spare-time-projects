@@ -43,7 +43,6 @@ def load_data(train_test_ratio=0.8):
 
 	print(f"\nHighest (abs) correlation with y ({y_name}): {corrs[max_corr_idx]}  (feature '{top_feature}')")
 
-	# Standardise x to aid gradient descent
 	x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_test_ratio, random_state=1)
 
 	x_train = np.expand_dims(x_train, -1)

@@ -1,5 +1,5 @@
 """
-Sentiment Analysis of movie reviews via an embedding-based PyTorch model
+Sentiment Analysis of Movie Reviews with a PyTorch Embedding model
 
 Author: Sam Barba
 Created 26/03/2024
@@ -20,23 +20,29 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_confusion_matrix, plot_roc_curve
+from _utils.plotting import plot_confusion_matrix, plot_roc_curve, plot_torch_model
 from model import MovieReviewClf
+
 
 # Un-comment if running for first time
 # nltk.download('punkt')
+# nltk.download('punkt_tab')
 # nltk.download('stopwords')
 
 pd.set_option('display.max_columns', 5)
 pd.set_option('display.width', None)
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
-SEQUENCE_LEN = 300
+SEQUENCE_LEN = 250
 EMBEDDING_DIM = 256
 HIDDEN_DIM = 128
 BATCH_SIZE = 64
 LEARNING_RATE = 2e-4
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
@@ -45,7 +51,6 @@ def load_data():
 	print('\nPreprocessing...')
 
 	# Tokenisation and stopword removal
-
 	stop_words = set(stopwords.words('english'))
 	df['tokens'] = df['review'].apply(word_tokenize)
 	df['tokens'] = df['tokens'].apply(
@@ -53,38 +58,33 @@ def load_data():
 	)
 
 	# Build vocabulary and assign indices to tokens
-
 	all_tokens = [t for tokens in df['tokens'] for t in tokens]
 	token_counts = Counter(all_tokens)
 	sorted_tokens = sorted(token_counts, key=token_counts.get, reverse=True)
 	token_to_idx = {t: idx for idx, t in enumerate(sorted_tokens, start=1)}
-	vocab_size = len(token_to_idx) + 1  # Add 1 for the padding token
+	vocab_size = len(token_to_idx) + 1  # Add 1 for the padding token (0)
 
-	# Convert tokens to indices, and crop/pad sequences to length SEQUENCE_LEN
-
-	df['indexed_tokens'] = df['tokens'].apply(lambda tokens: [token_to_idx[t] for t in tokens])
-	df['padded_tokens'] = df['indexed_tokens'].apply(
-		lambda indices: indices[:SEQUENCE_LEN] + [0] * (SEQUENCE_LEN - len(indices))
+	# Convert tokens to indices, cropping sequences to length SEQUENCE_LEN
+	df['token_idx'] = df['tokens'].apply(
+		lambda tokens: [token_to_idx[t] for idx, t in enumerate(tokens) if idx < SEQUENCE_LEN]
 	)
+
+	# Pad shorter sequences with 0s
+	df['padded_idx'] = df['token_idx'].apply(lambda idx: idx + [0] * (SEQUENCE_LEN - len(idx)))
 
 	print(f'\nPreprocessed reviews:\n{df}')
 
-	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-
-	x = list(df['padded_tokens'])
+	x = list(df['padded_idx'])
 	y = pd.get_dummies(df['sentiment'], drop_first=True, dtype=int).to_numpy().squeeze()
 	x, y = torch.tensor(x).int(), torch.tensor(y).float()
 	labels = sorted(df['sentiment'].unique())
 
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.98, stratify=y, random_state=1
-	)
-	x_train, x_val, y_train, y_val = train_test_split(
-		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
-	)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
+	x_train, x_tmp, y_train, y_tmp = train_test_split(x, y, train_size=0.96, stratify=y, random_state=1)
+	x_val, x_test, y_val, y_test = train_test_split(x_tmp, y_tmp, train_size=0.5, stratify=y_tmp, random_state=1)
 
 	train_dataset = CustomDataset(x_train, y_train)
-	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 	return train_loader, x_val, y_val, x_test, y_test, labels, vocab_size
 
@@ -96,21 +96,17 @@ if __name__ == '__main__':
 
 	# Define and train model
 
-	model = MovieReviewClf(
-		vocab_size=vocab_size,
-		embedding_dim=EMBEDDING_DIM,
-		hidden_dim=HIDDEN_DIM
-	).cpu()
-	plot_torch_model(model, (SEQUENCE_LEN,))
+	model = MovieReviewClf(vocab_size=vocab_size, embedding_dim=EMBEDDING_DIM, hidden_dim=HIDDEN_DIM).to(DEVICE)
+	plot_torch_model(model, (SEQUENCE_LEN,), device=DEVICE)
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
 	if Path('./model.pth').exists():
-		model.load_state_dict(torch.load('./model.pth'))
+		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
-		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+		early_stopping = EarlyStopping(model=model, patience=20, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -119,8 +115,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				y_train_logits = model(x_train).squeeze()
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE)).squeeze()
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -129,7 +125,7 @@ if __name__ == '__main__':
 				progress_bar.set_postfix_str(f'loss={loss.item():.4f}')
 
 			with torch.inference_mode():
-				y_val_logits = model(x_val).squeeze()
+				y_val_logits = model(x_val.to(DEVICE)).squeeze().cpu()
 			y_val_probs = torch.sigmoid(y_val_logits)
 			y_val_pred = y_val_probs.round().detach()
 			val_loss = loss_func(y_val_logits, y_val).item()
@@ -137,17 +133,16 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_f1, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_f1):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Test model (plot confusion matrix and ROC curve)
 
 	with torch.inference_mode():
-		y_test_logits = model(x_test).squeeze()
+		y_test_logits = model(x_test.to(DEVICE)).squeeze().cpu()
 	y_test_probs = torch.sigmoid(y_test_logits)
 	y_test_pred = y_test_probs.round().detach()
 

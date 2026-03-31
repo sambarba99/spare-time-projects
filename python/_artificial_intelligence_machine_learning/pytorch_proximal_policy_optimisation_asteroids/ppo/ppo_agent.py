@@ -7,6 +7,8 @@ Author: Sam Barba
 Created 11/07/2024
 """
 
+from datetime import datetime
+
 # import numpy as np  # If using minibatch updates
 import torch
 from torch import nn
@@ -53,22 +55,24 @@ class ActorCritic(nn.Module):
 		# Q_pi(s,a) = expected return from starting in state 's', doing action 'a' and following policy 'pi'
 		self.actor = nn.Sequential(
 			nn.Linear(NUM_INPUTS, LAYER_SIZE),
-			nn.LeakyReLU(),
+			# Tanh is zero-centered, so positive/negative advantage estimates are represented symmetrically
+			# (ReLU-based activations are biased positive)
+			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
-			nn.LeakyReLU(),
+			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, NUM_ACTIONS),
 			nn.Softmax(dim=-1)
-		)
+		).cpu()
 
 		# Value (critic) function:
 		# V_pi(s) = expected return from starting in state 's' and following policy 'pi'
 		self.critic = nn.Sequential(
 			nn.Linear(NUM_INPUTS, LAYER_SIZE),
-			nn.LeakyReLU(),
+			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, LAYER_SIZE),
-			nn.LeakyReLU(),
+			nn.Tanh(),
 			nn.Linear(LAYER_SIZE, 1)
-		)
+		).cpu()
 
 	def forward(self):
 		raise NotImplementedError
@@ -110,21 +114,24 @@ class ActorCritic(nn.Module):
 
 
 class PPOAgent:
-	def __init__(self):
+	def __init__(self, *, training_mode):
+		self.training_mode = training_mode
+
 		# In each PPO update, gradient steps are performed on self.trainable_policy,
 		# then its weights are copied to self.policy
 		self.trainable_policy = ActorCritic()
 		self.policy = ActorCritic()
 		self.policy.load_state_dict(self.trainable_policy.state_dict())
 
-		self.buffer = RolloutBuffer()
-		self.optimiser = torch.optim.Adam([
-			{'params': self.trainable_policy.actor.parameters(), 'lr': ACTOR_LR},
-			{'params': self.trainable_policy.critic.parameters(), 'lr': CRITIC_LR}
-		])
+		if self.training_mode:
+			self.buffer = RolloutBuffer()
+			self.optimiser = torch.optim.Adam([
+				{'params': self.trainable_policy.actor.parameters(), 'lr': ACTOR_LR},
+				{'params': self.trainable_policy.critic.parameters(), 'lr': CRITIC_LR}
+			])
 
 	def do_training(self, train_env, checkpoint_env):
-		timesteps_done = episode_num = percent_done = 0
+		timesteps_done = episode_num = 0
 		total_return_per_episode, mean_checkpoint_scores = [], []
 
 		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                               # ALGORITHM STEP 2
@@ -200,7 +207,7 @@ class PPOAgent:
 						self.optimiser.step()
 
 					self.policy.load_state_dict(self.trainable_policy.state_dict())
-					mean_score = self.checkpoint(checkpoint_env, percent_done)
+					mean_score = self.checkpoint(checkpoint_env)
 					mean_checkpoint_scores.append(mean_score)
 					self.buffer.clear()
 
@@ -223,13 +230,14 @@ class PPOAgent:
 	def choose_action(self, state, greedy=False):
 		state = torch.tensor(state).float()
 		with torch.inference_mode():
-			action, action_log_prob, state_value = self.policy.act(state, greedy)
+			action, action_log_prob, state_value = self.policy.act(state, greedy or not self.training_mode)
 
-		# Store data for rollout (training)
-		self.buffer.states.append(state)
-		self.buffer.state_values.append(state_value)
-		self.buffer.actions.append(action)
-		self.buffer.action_log_probs.append(action_log_prob)
+		if self.training_mode:
+			# Store data for rollout
+			self.buffer.states.append(state)
+			self.buffer.state_values.append(state_value)
+			self.buffer.actions.append(action)
+			self.buffer.action_log_probs.append(action_log_prob)
 
 		return action.item()
 
@@ -260,7 +268,7 @@ class PPOAgent:
 
 		return advantages, returns
 
-	def checkpoint(self, env, percent_done, num_runs=10):
+	def checkpoint(self, env, num_runs=10):
 		total_score = 0
 
 		for seed in range(1, num_runs + 1):
@@ -275,11 +283,9 @@ class PPOAgent:
 
 			total_score += env.spaceship.score
 
+		ts = datetime.now().strftime('%Y%m%d-%H%M%S')
 		mean_score = total_score / num_runs
-		torch.save(
-			self.policy.state_dict(),
-			f'./ppo/models/model_{mean_score:.1f}_score_{percent_done:.1f}_percent_done.pth'
-		)
+		torch.save(self.policy.state_dict(), f'./ppo/models/model_{ts}_{mean_score:.1f}_score.pth')
 
 		return mean_score
 

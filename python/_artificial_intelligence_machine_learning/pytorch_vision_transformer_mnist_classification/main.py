@@ -1,5 +1,5 @@
 """
-PyTorch Vision Transformer for MNIST classification
+MNIST classification with a PyTorch Vision Transformer (ViT)
 
 Author: Sam Barba
 Created 19/12/2024
@@ -12,20 +12,23 @@ import numpy as np
 import pygame as pg
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.datasets import mnist  # Faster to use TF than torchvision
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from torchvision.utils import make_grid
 from tqdm import tqdm
 
+from _utils.csv_data_loader import load_csv_classification_data
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid, plot_confusion_matrix
+from _utils.plotting import plot_confusion_matrix, plot_image_grid, plot_torch_model
 from model import imgs_to_patches, VisionTransformer
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Reduce tensorflow log spam
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
 torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 28
 EMBEDDING_DIM = 64
@@ -35,33 +38,44 @@ NUM_HEADS = 8
 PATCH_SIZE = 4
 NUM_PATCHES = (IMG_SIZE // PATCH_SIZE) ** 2
 BATCH_SIZE = 128
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
 DRAWING_CELL_SIZE = 15
 DRAWING_SIZE = DRAWING_CELL_SIZE * 28
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
-	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	x, y, *_ = load_csv_classification_data(
+		'C:/Users/sam/Desktop/projects/datasets/mnist.csv',
+		header=None,
+		drop_useless_features=False,
+		y_col_pos=0
+	)
 
-	# Normalise images to [0,1] and add channel dim
-	x = np.concatenate([x_train, x_test], dtype=float) / 255
+	# Reshape images, scale to [0,1], and add channel dim
+	x = x.reshape((-1, 28, 28)) / 255
 	x = np.expand_dims(x, 1)
-
-	y = np.concatenate([y_train, y_test])
 
 	x, y = torch.tensor(x).float(), torch.tensor(y).long()
 
 	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
-	x_train_val, x_test, y_train_val, y_test = train_test_split(
-		x, y, train_size=0.98, stratify=y, random_state=1
+	x_train, x_tmp, y_train, y_tmp = train_test_split(x, y, train_size=0.96, stratify=y, random_state=1)
+	x_val, x_test, y_val, y_test = train_test_split(x_tmp, y_tmp, train_size=0.5, stratify=y_tmp, random_state=1)
+
+	augment_transform = transforms.RandomAffine(
+		degrees=10,
+		translate=(0.1, 0.1),
+		scale=(0.9, 1.1),
+		shear=10
 	)
-	x_train, x_val, y_train, y_val = train_test_split(
-		x_train_val, y_train_val, train_size=0.98, stratify=y_train_val, random_state=1
-	)
+	x_train_augmented = torch.stack([augment_transform(xi) for xi in x_train])
+	y_train_augmented = y_train.clone()
+
+	x_train = torch.cat([x_train, x_train_augmented])
+	y_train = torch.cat([y_train, y_train_augmented])
 
 	train_set = CustomDataset(x_train, y_train)
-	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=False)
+	train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
 	return train_loader, x_val, y_val, x_test, y_test
 
@@ -79,7 +93,7 @@ if __name__ == '__main__':
 		patch_size=PATCH_SIZE, num_patches=NUM_PATCHES
 	).to(DEVICE)
 	print(f'\nModel:\n{model}\n')
-	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), input_device=DEVICE)
+	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), device=DEVICE)
 
 	loss_func = torch.nn.CrossEntropyLoss()
 
@@ -109,8 +123,8 @@ if __name__ == '__main__':
 
 		print('----- TRAINING -----\n')
 
-		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
+		optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
+		early_stopping = EarlyStopping(model=model, patience=20, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -120,11 +134,8 @@ if __name__ == '__main__':
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
-				x_train = x_train.to(DEVICE)
-				y_train = y_train.to(DEVICE)
-
-				y_train_logits = model(x_train)
-				loss = loss_func(y_train_logits, y_train)
+				y_train_logits = model(x_train.to(DEVICE))
+				loss = loss_func(y_train_logits, y_train.to(DEVICE))
 
 				optimiser.zero_grad()
 				loss.backward()
@@ -140,11 +151,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_f1, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_f1):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Test model

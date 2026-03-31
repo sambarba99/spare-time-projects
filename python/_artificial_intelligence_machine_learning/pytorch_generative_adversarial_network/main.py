@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 from _utils.custom_dataset import CustomDataset
 from _utils.early_stopping import EarlyStopping
-from _utils.plotting import plot_torch_model, plot_image_grid
+from _utils.plotting import plot_image_grid, plot_torch_model
 from models import Generator, Discriminator
 
 
@@ -30,20 +30,22 @@ DISC_NOISE_STRENGTH = 0.05
 BATCH_SIZE = 128
 LEARNING_RATE = 1e-4
 OPTIM_BETAS = (0.5, 0.999)
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+destandardise_transform = transforms.Lambda(lambda img: img * 0.5 + 0.5)
 
 
 def create_train_loader():
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
-		transforms.ToTensor(),
-		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalise to [-1,1]
+		transforms.ToTensor(),  # Scale to [0,1]
+		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 	])
 
-	img_paths = [str(fp) for fp in Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg')]
+	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
 	x = [
-		transform(Image.open(img_path)) for img_path in
+		transform(Image.open(str(img_path))) for img_path in
 		tqdm(img_paths, desc='Preprocessing images', unit='imgs', ascii=True)
 	]
 
@@ -60,10 +62,10 @@ if __name__ == '__main__':
 	print(f'\nGenerator model:\n\n{gen_model}')
 	print(f'\nDiscriminator model:\n\n{disc_model}')
 	plot_torch_model(
-		gen_model, (GEN_LATENT_DIM, 1, 1), input_device=DEVICE, out_file='./images/generator_architecture'
+		gen_model, (GEN_LATENT_DIM, 1, 1), device=DEVICE, out_file='./images/generator_architecture'
 	)
 	plot_torch_model(
-		disc_model, (3, IMG_SIZE, IMG_SIZE), input_device=DEVICE, out_file='./images/discriminator_architecture'
+		disc_model, (3, IMG_SIZE, IMG_SIZE), device=DEVICE, out_file='./images/discriminator_architecture'
 	)
 
 	if Path('./gen_model.pth').exists():
@@ -76,14 +78,14 @@ if __name__ == '__main__':
 		loss_func = torch.nn.BCELoss()
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='min')
+		early_stopping = EarlyStopping(model=gen_model, patience=10, mode='min')
 
 		gen_model.eval()
 		with torch.inference_mode():
 			fake_images_test = gen_model(fixed_noise)
 		plot_image_grid(
-			fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-			background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			fake_images_test, rows=4, cols=6, padding=4, transform=destandardise_transform, scale_factor=1.5,
+			scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 			title='Start', save_path='./images/0_start.png',
 			show=False
 		)
@@ -134,8 +136,8 @@ if __name__ == '__main__':
 				with torch.inference_mode():
 					fake_images_test = gen_model(fixed_noise)
 				plot_image_grid(
-					fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-					background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+					fake_images_test, rows=4, cols=6, padding=4, transform=destandardise_transform, scale_factor=1.5,
+					scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 					title=f'Epoch {epoch}/{NUM_EPOCHS}, iteration {batch_idx}/{len(train_loader)}',
 					save_path=f'./images/ep_{epoch:03}_iter_{batch_idx:03}.png',
 					show=False
@@ -145,11 +147,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'mean_gen_loss={mean_gen_loss:.4f}')
 			progress_bar.close()
 
-			if early_stopping(mean_gen_loss, gen_model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(mean_gen_loss):
 				break
 
-		gen_model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(gen_model.state_dict(), './gen_model.pth')
 
 	# Test generator on a random noise vector
@@ -159,22 +160,22 @@ if __name__ == '__main__':
 	with torch.inference_mode():
 		fake_images_test = gen_model(noise)
 	plot_image_grid(
-		fake_images_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+		fake_images_test, rows=4, cols=6, padding=4, transform=destandardise_transform, scale_factor=1.5,
+		scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
 		title='Generator test on random noise'
 	)
 
 	# Visualise some of the latent space by linearly interpolating between 2 random noise vectors
 
-	# noise2 = torch.randn_like(noise, device=DEVICE)
-	# for t in torch.linspace(0, 1, 101):
-	# 	noise_interp = noise * t + noise2 * (1 - t)
-	# 	with torch.inference_mode():
-	# 		latent_space_test = gen_model(noise_interp)
-	# 	plot_image_grid(
-	# 		latent_space_test, rows=4, cols=6, padding=4, scale_factor=1.5, scale_interpolation='cubic',
-	# 		background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
-	# 		title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
-	# 		save_path=f'./images/{t:.2f}.png',
-	# 		show=False
-	# 	)
+	noise2 = torch.randn_like(noise)
+	for t in torch.linspace(0, 1, 101):
+		noise_interp = noise * t + noise2 * (1 - t)
+		with torch.inference_mode():
+			latent_space_test = gen_model(noise_interp)
+		plot_image_grid(
+			latent_space_test, rows=4, cols=6, padding=4, transform=destandardise_transform, scale_factor=1.5,
+			scale_interpolation='cubic', background_rgb=(0, 0, 0), title_rgb=(255, 255, 255),
+			title=f'{t:.2f}(vector_1) + {(1 - t):.2f}(vector_2)',
+			save_path=f'./images/{t:.2f}.png',
+			show=False
+		)

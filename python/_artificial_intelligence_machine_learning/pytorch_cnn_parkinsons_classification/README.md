@@ -1,8 +1,14 @@
 ## PyTorch classification of Patient Drawings for Parkinson's Disease Detection
 
 <p align="center">
-	<img src="images/data_samples.png"/>
+	<img src="images/data_samples_raw.png"/>
 	<br/>
+	<img src="images/data_samples_augmented.png"/>
+</p>
+
+Test set performance:
+
+<p align="center">
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 

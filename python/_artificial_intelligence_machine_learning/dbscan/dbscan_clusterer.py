@@ -16,9 +16,11 @@ NOISE = -1
 class DBSCAN:
 	def __init__(self, *, epsilon, min_samples):
 		"""
-		Parameters:
-			epsilon: radius of local expanding clusters
-			min_samples: required points within radius epsilon for it to be considered a cluster
+		Args:
+			epsilon (float):
+				radius of local expanding clusters.
+			min_samples (int):
+				minimum number of points within radius epsilon to qualify as a cluster.
 		"""
 
 		self.epsilon = epsilon

@@ -52,14 +52,21 @@ class VisionTransformer(nn.Module):
 		num_attention_layers, num_heads, patch_size, num_patches
 	):
 		"""
-		Inputs:
-			num_channels - number of input channels (1 for grayscale)
-			embedding_dim - dimensionality of the input feature vectors to the ViT
-			hidden_dim - dimensionality of the hidden layer in the feed-forward networks within the ViT
-			num_attention_layers - number of attention layers in the ViT
-			num_heads - number of heads to use in the multi-head attention block
-			patch_size - number of pixels per dimension of one image patch
-			num_patches - number of patches that constitute an image
+		Args:
+			num_channels (int):
+				number of input channels (1 for grayscale).
+			embedding_dim (int):
+				dimensionality of the input feature vectors to the ViT.
+			hidden_dim (int):
+				dimensionality of the hidden layer in the feed-forward networks within the ViT.
+			num_attention_layers (int):
+				number of attention layers in the ViT.
+			num_heads (int):
+				number of heads to use in the multi-head attention block.
+			patch_size (int):
+				number of pixels per dimension of one image patch.
+			num_patches (int):
+				number of patches that constitute an image.
 		"""
 
 		super().__init__()
