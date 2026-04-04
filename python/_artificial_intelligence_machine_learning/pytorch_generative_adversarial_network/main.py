@@ -76,7 +76,7 @@ if __name__ == '__main__':
 		loss_func = torch.nn.BCELoss()
 		gen_optimiser = torch.optim.Adam(gen_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
 		disc_optimiser = torch.optim.Adam(disc_model.parameters(), lr=LEARNING_RATE, betas=OPTIM_BETAS)
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='min')
+		early_stopping = EarlyStopping(model=gen_model, patience=5, mode='min', track_best_weights=True)
 
 		gen_model.eval()
 		with torch.inference_mode():
@@ -145,11 +145,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'mean_gen_loss={mean_gen_loss:.4f}')
 			progress_bar.close()
 
-			if early_stopping(mean_gen_loss, gen_model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(mean_gen_loss):
 				break
 
-		gen_model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(gen_model.state_dict(), './gen_model.pth')
 
 	# Test generator on a random noise vector

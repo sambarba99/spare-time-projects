@@ -1,10 +1,10 @@
-## PyTorch Knowledge Distillation demo with the CIFAR-10 dataset
+## PyTorch Knowledge Distillation with the CIFAR-10 dataset
 
 |          Model          |  Test set F1 score  |
 |:-----------------------:|:-------------------:|
-|         Teacher         |        0.847        |
-|     Student (no KD)     |        0.738        |
-| **_Student (with KD)_** | **0.782** (+ 0.044) |
+|         Teacher         |        0.813        |
+|     Student (no KD)     |        0.741        |
+| **_Student (with KD)_** | **0.768** (+ 0.027) |
 
 Student model (with KD) test set performance:
 

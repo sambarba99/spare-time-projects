@@ -87,8 +87,8 @@ if __name__ == '__main__':
 
 		print('----- TRAINING -----\n')
 
-		optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(patience=5, min_delta=0, mode='max')
+		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+		early_stopping = EarlyStopping(model=model, patience=5, mode='max', track_best_weights=True)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -115,11 +115,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_f1, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_f1):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Plot the model's learned filters

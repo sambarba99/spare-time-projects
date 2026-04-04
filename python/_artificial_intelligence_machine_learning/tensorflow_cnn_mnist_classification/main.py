@@ -1,5 +1,5 @@
 """
-TensorFlow MNIST convolutional neural network
+MNIST classification with a TensorFlow Convolutional Neural Network
 
 Author: Sam Barba
 Created 20/10/2021

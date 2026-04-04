@@ -30,9 +30,9 @@ torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
 IMG_SIZE = 64
-BATCH_SIZE = 256
+BATCH_SIZE = 32
 LEARNING_RATE = 1e-4
-NUM_EPOCHS = 100
+NUM_EPOCHS = 300
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
@@ -92,10 +92,10 @@ def create_data_loaders(df):
 	x = [torch.tensor(xi).float() for xi in x]
 	y = torch.tensor(y).float()
 
-	# Create train/validation/test sets (ratio 0.7:0.2:0.1)
+	# Create train/validation/test sets (ratio 0.8:0.1:0.1)
 	x_train_val, x_test, y_train_val, y_test = train_test_split(x, y, train_size=0.9, stratify=y, random_state=1)
 	x_train, x_val, y_train, y_val = train_test_split(
-		x_train_val, y_train_val, train_size=0.78, stratify=y_train_val, random_state=1
+		x_train_val, y_train_val, train_size=0.89, stratify=y_train_val, random_state=1
 	)
 
 	train_set = CustomDataset(x_train, y_train)
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 		print('----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+		early_stopping = EarlyStopping(model=model, patience=50, mode='max', track_best_weights=True)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -189,11 +189,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_f1, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_f1):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Plot the model's learned filters, and corresponding feature maps of a sample image

@@ -66,7 +66,7 @@ def do_mnist():
 		train_loader = DataLoader(train_dataset, batch_size=512, shuffle=False)
 		loss_func = torch.nn.MSELoss()
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
+		early_stopping = EarlyStopping(model=model, patience=50, mode='min', track_best_weights=True)
 		val_loss_history = []
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -92,11 +92,10 @@ def do_mnist():
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 			progress_bar.close()
 
-			if early_stopping(val_loss, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_loss):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), model_path)
 
 		plt.figure(figsize=(8, 5))
@@ -203,8 +202,8 @@ if __name__ == '__main__':
 			train_dataset = CustomDataset(x_train)
 			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False)
 			loss_func = torch.nn.MSELoss()
-			optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
-			early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
+			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+			early_stopping = EarlyStopping(model=model, patience=50, mode='min', track_best_weights=True)
 			val_loss_history = []
 
 			for epoch in range(1, NUM_EPOCHS + 1):
@@ -230,11 +229,10 @@ if __name__ == '__main__':
 				progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
 				progress_bar.close()
 
-				if early_stopping(val_loss, model.state_dict()):
-					print('Early stopping at epoch', epoch)
+				if early_stopping(val_loss):
 					break
 
-			model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+			early_stopping.restore_best_weights()
 			torch.save(model.state_dict(), model_path)
 
 			plt.figure(figsize=(8, 5))
@@ -266,4 +264,5 @@ if __name__ == '__main__':
 		for h in handles:
 			h.set_alpha(1)
 		ax.legend(handles, labels)
+		plt.axis('scaled')
 		plt.show()

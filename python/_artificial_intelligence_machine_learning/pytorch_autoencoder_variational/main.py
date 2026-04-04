@@ -1,5 +1,5 @@
 """
-Demo of a variational autoencoder (VAE) for inpainting
+Inpainting with a PyTorch Variational Autoencoder (VAE)
 
 Author: Sam Barba
 Created 08/09/2024
@@ -41,8 +41,6 @@ def create_data_loaders():
 
 		return corrupted_img, (x1, y1)
 
-
-	# Preprocess images now instead of during training (faster pipeline overall)
 
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
@@ -102,8 +100,11 @@ if __name__ == '__main__':
 
 		print('\n----- TRAINING -----\n')
 
-		optimiser = torch.optim.AdamW(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(patience=20, min_delta=0, mode='min')
+		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
+		early_stopping = EarlyStopping(
+			model=model, patience=20, mode='min',
+			track_best_weights=True, print_precision_on_stop=2
+		)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -132,11 +133,10 @@ if __name__ == '__main__':
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.2f}')
 			progress_bar.close()
 
-			if early_stopping(val_loss, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(val_loss):
 				break
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Plot some test set outputs

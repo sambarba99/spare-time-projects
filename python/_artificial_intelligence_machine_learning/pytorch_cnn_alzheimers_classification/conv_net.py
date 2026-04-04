@@ -11,6 +11,7 @@ from torch import nn
 class CNN(nn.Module):
 	def __init__(self):
 		super().__init__()
+		# Input shape (N, 1, 104, 88) (batch size, no. colour channels, height, width)
 		self.conv_block = nn.Sequential(
 			nn.Conv2d(1, 32, kernel_size=3, padding=1),   # -> (N, 32, 104, 88)
 			nn.LeakyReLU(),

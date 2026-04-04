@@ -50,7 +50,10 @@ class CustomNN:
 		self.model = nn.Sequential(*layers)
 		self.loss_func = nn.MSELoss()
 		self.optimiser = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
-		self.early_stopping = EarlyStopping(patience=10, min_delta=0, mode='min')
+		self.early_stopping = EarlyStopping(
+			model=self.model, patience=10, mode='min',
+			track_best_weights=True, print_precision_on_stop=None
+		)
 
 	def fit(self, train_loader, val_loader):
 		for _ in range(NUM_EPOCHS):
@@ -69,10 +72,10 @@ class CustomNN:
 				y_val_pred = self.model(x_val).squeeze()
 			val_loss = self.loss_func(y_val_pred, y_val).item()
 
-			if self.early_stopping(val_loss, self.model.state_dict()):
+			if self.early_stopping(val_loss):
 				break
 
-		self.model.load_state_dict(self.early_stopping.best_weights)  # Restore best weights
+		self.early_stopping.restore_best_weights()
 
 	def test(self, test_loader):
 		self.model.eval()

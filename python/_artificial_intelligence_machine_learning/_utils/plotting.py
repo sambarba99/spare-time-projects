@@ -6,8 +6,8 @@ Created 26/03/2024
 """
 
 import cv2 as cv
-from keras.layers import Conv2D
-from keras.models import Model
+# from keras.layers import Conv2D
+# from keras.models import Model
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont

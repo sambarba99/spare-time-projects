@@ -53,8 +53,6 @@ def create_data_loaders(df):
 	y_gender = df['gender_id'].to_numpy()
 	y_race = df['race_id'].to_numpy()
 
-	# Preprocess images now instead of during training (faster pipeline overall)
-
 	transform = transforms.Compose([
 		transforms.Resize(IMG_SIZE),
 		transforms.ToTensor()  # Automatically normalises to [0,1]
@@ -172,7 +170,10 @@ if __name__ == '__main__':
 		print('\n----- TRAINING -----\n')
 
 		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-		early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+		early_stopping = EarlyStopping(
+			model=model, patience=10, mode='max',
+			track_best_weights=False, print_precision_on_stop=2
+		)
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, NUM_EPOCHS + 1):
@@ -268,8 +269,7 @@ if __name__ == '__main__':
 			history['race_val_F1'].append(race_val_f1)
 
 			# Condition early stopping on race val F1 score, as this is the weakest model output
-			if early_stopping(race_val_f1, None):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(race_val_f1):
 				break
 
 		# Plot training metrics

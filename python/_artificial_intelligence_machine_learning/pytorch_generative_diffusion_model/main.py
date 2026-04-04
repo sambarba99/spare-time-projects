@@ -70,15 +70,6 @@ if __name__ == '__main__':
 	else:
 		train_loader = create_train_loader()
 
-		print('\n----- TRAINING -----\n')
-
-		loss_func = torch.nn.MSELoss()
-		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
-		)
-		early_stopping = EarlyStopping(patience=50, min_delta=0, mode='min')
-
 		# Visualise the forward diffusion process
 		first_4_imgs = next(iter(train_loader))[:4].to(DEVICE)
 		noise_dict = dict.fromkeys(list(range(0, 501, 100)) + [1000])
@@ -101,6 +92,15 @@ if __name__ == '__main__':
 
 		plt.suptitle('Forward diffusion process', y=0.95)
 		plt.show()
+
+		print('\n----- TRAINING -----\n')
+
+		loss_func = torch.nn.MSELoss()
+		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+		scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+			optimiser, mode='min', factor=0.5, patience=10, min_lr=1e-5
+		)
+		early_stopping = EarlyStopping(model=model, patience=50, mode='min', track_best_weights=True)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -137,14 +137,13 @@ if __name__ == '__main__':
 			progress_bar.close()
 			scheduler.step(mean_loss)
 
-			if early_stopping(mean_loss, model.state_dict()):
-				print('Early stopping at epoch', epoch)
+			if early_stopping(mean_loss):
 				break
 
 			if DEVICE == 'cuda':
 				sleep(20)  # Cooldown
 
-		model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
 	# Test model by denoising a pure noise vector (reverse diffusion process)

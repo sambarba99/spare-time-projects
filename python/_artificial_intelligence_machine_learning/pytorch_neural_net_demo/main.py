@@ -169,7 +169,7 @@ if __name__ == '__main__':
 		loss_func = nn.MSELoss()  # Mean Squared Error
 	mae_loss = nn.L1Loss()
 
-	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='min')
+	early_stopping = EarlyStopping(model=model, patience=10, mode='min', track_best_weights=True)
 	history = {'loss': [], 'metric': [], 'val_loss': [], 'val_metric': []}
 
 	for epoch in range(1, NUM_EPOCHS + 1):
@@ -250,11 +250,10 @@ if __name__ == '__main__':
 				print(f'Epoch: {epoch}  |  Loss: {loss:.4f}  |  MAE: {metric:.4f}'
 					f'  |  Val loss: {val_loss:.4f}  |  Val MAE: {val_metric:.4f}')
 
-		if early_stopping(val_loss, model.state_dict()):
-			print('Early stopping at epoch', epoch)
+		if early_stopping(val_loss):
 			break
 
-	model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+	early_stopping.restore_best_weights()
 
 	# Plot loss and F1/MAE throughout training
 

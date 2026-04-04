@@ -1,9 +1,11 @@
 """
-Knowledge Distillation demo using a subset of the CIFAR-10 dataset
+PyTorch Knowledge Distillation with the CIFAR-10 dataset
 
 Author: Sam Barba
 Created 29/09/2024
 """
+
+# todo rerun, then with 0.6 0.4
 
 from pathlib import Path
 
@@ -30,15 +32,13 @@ torch.cuda.manual_seed_all(1)
 IMG_SIZE = 32
 BATCH_SIZE = 128
 NUM_EPOCHS = 100
-DISTILLATION_LOSS_WEIGHT = 0.6   # Contribution of distillation loss to KD training
-CROSS_ENTROPY_LOSS_WEIGHT = 0.4  # Contribution of cross-entropy loss to KD training
+DISTILLATION_LOSS_WEIGHT = 0.5   # Contribution of distillation loss to KD training
+CROSS_ENTROPY_LOSS_WEIGHT = 0.5  # Contribution of cross-entropy loss to KD training
 TEMPERATURE = 2                  # Controls smoothness of output distributions
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def create_data_loaders():
-	# Preprocess images now instead of during training (faster pipeline overall)
-
 	transform = transforms.ToTensor()  # Normalise to [0,1]
 
 	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/cifar10').rglob('*.png'))
@@ -52,11 +52,11 @@ def create_data_loaders():
 	y = label_encoder.fit_transform(y_labels)
 	y = torch.tensor(y).long()
 
-	# Create train/validation/test sets (ratio 0.95:0.04:0.01)
+	# Create train/validation/test sets (ratio 0.96:0.02:0.02)
 
 	indices = np.arange(len(x))
-	train_val_idx, test_idx = train_test_split(indices, train_size=0.99, stratify=y, random_state=1)
-	train_idx, val_idx = train_test_split(train_val_idx, train_size=0.96, stratify=y[train_val_idx], random_state=1)
+	train_val_idx, test_idx = train_test_split(indices, train_size=0.98, stratify=y, random_state=1)
+	train_idx, val_idx = train_test_split(train_val_idx, train_size=0.98, stratify=y[train_val_idx], random_state=1)
 
 	x_train = [x[i] for i in train_idx]
 	x_val = [x[i] for i in val_idx]
@@ -81,7 +81,7 @@ def train(model, save_path):
 
 	loss_func = torch.nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+	early_stopping = EarlyStopping(model=model, patience=10, mode='max', track_best_weights=True)
 
 	for epoch in range(1, NUM_EPOCHS + 1):
 		progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
@@ -110,11 +110,10 @@ def train(model, save_path):
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
-		if early_stopping(val_f1, model.state_dict()):
-			print('Early stopping at epoch', epoch)
+		if early_stopping(val_f1):
 			break
 
-	model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+	early_stopping.restore_best_weights()
 	torch.save(model.state_dict(), save_path)
 
 
@@ -123,7 +122,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 
 	loss_func = torch.nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(student_model.parameters())
-	early_stopping = EarlyStopping(patience=10, min_delta=0, mode='max')
+	early_stopping = EarlyStopping(model=student_model, patience=10, mode='max', track_best_weights=True)
 
 	teacher_model.eval()
 
@@ -137,7 +136,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 
 			with torch.inference_mode():
 				teacher_logits = teacher_model(x_train.to(DEVICE))
-			student_logits = student_model(y_train.to(DEVICE))
+			student_logits = student_model(x_train.to(DEVICE))
 
 			teacher_soft_probs = torch.softmax(teacher_logits / TEMPERATURE, dim=-1)
 			student_soft_probs = torch.log_softmax(student_logits / TEMPERATURE, dim=-1)
@@ -151,7 +150,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 			) * TEMPERATURE * TEMPERATURE
 
 			# Calculate the true label loss
-			label_loss = loss_func(student_logits, y_train)
+			label_loss = loss_func(student_logits, y_train.to(DEVICE))
 
 			# Weighted sum of the losses
 			loss = DISTILLATION_LOSS_WEIGHT * distillation_loss + CROSS_ENTROPY_LOSS_WEIGHT * label_loss
@@ -172,11 +171,10 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 		progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
 		progress_bar.close()
 
-		if early_stopping(val_f1, student_model.state_dict()):
-			print('Early stopping at epoch', epoch)
+		if early_stopping(val_f1):
 			break
 
-	student_model.load_state_dict(early_stopping.best_weights)  # Restore best weights
+	early_stopping.restore_best_weights()
 	torch.save(student_model.state_dict(), save_path)
 
 

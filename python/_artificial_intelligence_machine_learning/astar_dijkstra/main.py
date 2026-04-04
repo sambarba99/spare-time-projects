@@ -241,7 +241,7 @@ if __name__ == '__main__':
 	clock = pg.time.Clock()
 
 	root = tk.Tk()
-	root.title('A*/Dijkstra Demo')
+	root.title('A* and Dijkstra Demo')
 	root.config(width=380, height=235, background='#101010')
 	root.resizable(False, False)
 
