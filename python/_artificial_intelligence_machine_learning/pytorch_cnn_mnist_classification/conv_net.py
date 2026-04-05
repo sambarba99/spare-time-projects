@@ -18,10 +18,8 @@ class CNN(nn.Module):
 			nn.MaxPool2d(2),                             # -> (N, 16, 14, 14)
 			nn.Conv2d(8, 16, kernel_size=3, padding=1),  # -> (N, 32, 14, 14)
 			nn.LeakyReLU(),
-			nn.MaxPool2d(2),                              # -> (N, 32, 7, 7)
-			nn.Conv2d(16, 32, kernel_size=3, padding=1),  # -> (N, 32, 14, 14)
-			nn.LeakyReLU(),
-			nn.MaxPool2d(2)                              # -> (N, 32, 7, 7)
+			nn.MaxPool2d(2),                             # -> (N, 32, 7, 7)
+			nn.Conv2d(16, 32, kernel_size=3, padding=1)  # -> (N, 32, 14, 14)
 		)
 		self.fc_block = nn.Sequential(
 			nn.Flatten(),                                # -> (N, 784)
