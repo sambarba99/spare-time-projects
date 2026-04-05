@@ -13,19 +13,19 @@ class CNN(nn.Module):
 		super().__init__()
 		# Input shape (N, 1, 28, 28) (batch size, no. colour channels, height, width)
 		self.conv_block = nn.Sequential(
-			nn.Conv2d(1, 16, kernel_size=3, padding=1),   # -> (N, 8, 28, 28)
+			nn.Conv2d(1, 8, kernel_size=3, padding=1),   # -> (N, 8, 28, 28)
 			nn.LeakyReLU(),
 			nn.MaxPool2d(2),                             # -> (N, 8, 14, 14)
-			nn.Conv2d(16, 32, kernel_size=3, padding=1),  # -> (N, 16, 14, 14)
-			# nn.MaxPool2d(2)#,                             # -> (N, 16, 7, 7)
-			# nn.Conv2d(16, 32, kernel_size=3, padding=1)  # -> (N, 32, 7, 7)
+			nn.Conv2d(8, 32, kernel_size=3, padding=1),  # -> (N, 32, 14, 14)
+			nn.LeakyReLU(),
+			nn.MaxPool2d(2)                              # -> (N, 32, 7, 7)
 		)
 		self.fc_block = nn.Sequential(
-			nn.Flatten(),                                # -> (N, 6272)
+			nn.Flatten(),                                # -> (N, 1568)
 			nn.Dropout(),  # 0.5
-			nn.Linear(6272, 512),
+			nn.Linear(1568, 256),
 			nn.LeakyReLU(),
-			nn.Linear(512, 10)  # 10 classes (0-9)
+			nn.Linear(256, 10)  # 10 classes (0-9)
 		)
 
 	def forward(self, x):
