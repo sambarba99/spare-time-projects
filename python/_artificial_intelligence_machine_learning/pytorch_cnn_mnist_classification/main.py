@@ -26,7 +26,7 @@ torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
 INPUT_SHAPE = (1, 28, 28)  # Colour channels, H, W
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 NUM_EPOCHS = 100
 DRAWING_CELL_SIZE = 15
 DRAWING_SIZE = DRAWING_CELL_SIZE * 28
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 		print('----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
-		early_stopping = EarlyStopping(model=model, patience=10, mode='max', track_best_weights=True)
+		early_stopping = EarlyStopping(model=model, patience=20, mode='max', track_best_weights=True)
 
 		for epoch in range(1, NUM_EPOCHS + 1):
 			progress_bar = tqdm(range(len(train_loader)), unit='batches', ascii=True)
