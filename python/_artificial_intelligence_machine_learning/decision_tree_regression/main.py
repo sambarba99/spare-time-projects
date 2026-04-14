@@ -16,6 +16,7 @@ from tree_plotter import plot_tree
 
 
 plt.rcParams['figure.figsize'] = (8, 5)
+np.random.seed(1)
 pd.set_option('display.max_columns', 12)
 pd.set_option('display.width', None)
 
@@ -62,27 +63,27 @@ if __name__ == '__main__':
 		case _: path = 'sine'
 
 	if path == 'sine':
-		x = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
-		y = np.sin(x) + np.random.uniform(-0.1, 0.1, 100).reshape(-1, 1)
+		x = np.linspace(0, 2 * np.pi, 1000).reshape(-1, 1)
+		noise = 0.15
+		y = np.sin(x) + np.random.normal(0, noise, size=x.shape)
 		x_train, x_val, y_train, y_val = train_test_split(x, y, train_size=0.8, random_state=1)
-		features = ['x']
-	else:
-		x_train, y_train, x_val, y_val, features = load_csv_regression_data(path, train_size=0.8, val_size=0.2)
 
-	if path == 'sine':
-		x = np.linspace(0, 2 * np.pi, 100)
-		y = np.sin(x) + np.random.uniform(-0.1, 0.1, 100)
+		# Sort val data in order of x so it's plottable
+		x_val, y_val = x_val.squeeze(), y_val.squeeze()
+		val_idx = np.argsort(x_val)
+		x_val = x_val[val_idx]
+		y_val = y_val[val_idx]
 
-		plt.scatter(x, y, s=5, color='black', label='Data')
-		for max_depth in [0, 1, 6]:
+		plt.scatter(x_val, y_val, s=5, color='black', label='Val data')
+		for max_depth in [0, 1, 5]:
 			tree = DecisionTree(x_train, y_train, max_depth)
-			pred = [tree.predict([xi]) for xi in x]
-			plt.plot(x, pred, label=f'Tree depth {tree.depth}')
+			pred = [tree.predict([xi]) for xi in x_val]
+			plt.plot(x_val, pred, label=f'Tree depth {tree.depth}')
 		plt.title('Sine wave prediction with different tree depths')
 		plt.legend()
 		plt.show()
 	else:
+		x_train, y_train, x_val, y_val, features = load_csv_regression_data(path, train_size=0.8, val_size=0.2)
 		tree = make_best_tree(x_train, y_train, x_val, y_val)
 		print(f'\nOptimal tree depth: {tree.depth}')
-
-	plot_tree(tree, features)
+		plot_tree(tree, features)

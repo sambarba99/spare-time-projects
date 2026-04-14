@@ -90,10 +90,9 @@ class LinearRegressor:
 		self.bias = bias_current
 
 	def cost(self, x, y, weights, bias):
-		"""Mean absolute error"""
-
 		y_predictions = x.dot(weights) + bias
-		return np.abs(y_predictions - y).sum() / len(y)
+		rmse = np.mean((y_predictions - y) ** 2) ** 0.5
+		return rmse
 
 	def predict(self, inputs):
 		return inputs.dot(self.weights) + self.bias

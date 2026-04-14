@@ -7,7 +7,7 @@ Created 03/03/2022
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import root_mean_squared_error
 
 import bayesian_utility
 
@@ -130,9 +130,9 @@ if __name__ == '__main__':
 		train_pred = phi_train.dot(w)
 		test_pred = phi_test.dot(w)
 		val_pred = phi_val.dot(w)
-		err_train = np.append(err_train, mean_absolute_error(y_train, train_pred))
-		err_test = np.append(err_test, mean_absolute_error(y_test, test_pred))
-		err_val = np.append(err_val, mean_absolute_error(y_val, val_pred))
+		err_train = np.append(err_train, root_mean_squared_error(y_train, train_pred))
+		err_test = np.append(err_test, root_mean_squared_error(y_test, test_pred))
+		err_val = np.append(err_val, root_mean_squared_error(y_val, val_pred))
 		neg_log_evidence = np.append(
 			neg_log_evidence,
 			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 	ax1.plot(v, err_test, '--', label='Test')
 	ax1.plot(v, err_val, '--', label='Val')
 	ax1.set_xlabel('log(lambda)')
-	ax1.set_ylabel('MAE')
+	ax1.set_ylabel('RMSE')
 	ax1.legend(loc='center left')
 
 	ax2.plot(v, neg_log_evidence, color='tab:green', label='Train')

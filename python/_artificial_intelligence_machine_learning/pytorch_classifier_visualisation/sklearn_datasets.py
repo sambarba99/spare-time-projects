@@ -14,6 +14,8 @@ from torch import nn
 
 
 plt.rcParams['figure.figsize'] = (7, 7)
+np.random.seed(1)
+torch.manual_seed(1)
 
 NUM_EPOCHS = 1000
 NUM_SAMPLES = 1000
@@ -23,7 +25,7 @@ x = y = num_classes = None
 model = nn.Sequential()
 
 
-def make_spirals():
+def make_spirals(noise=0.06):
 	clockwise_class, anticlockwise_class = [], []
 
 	for i in range(NUM_SAMPLES // 2):
@@ -36,7 +38,7 @@ def make_spirals():
 
 	class1, class2 = np.array(clockwise_class), np.array(anticlockwise_class)
 	x = np.vstack((class1, class2))
-	x += np.random.normal(scale=0.06, size=x.shape)
+	x += np.random.normal(0, noise, size=x.shape)
 	y1 = np.zeros(NUM_SAMPLES // 2)
 	y2 = np.ones(NUM_SAMPLES // 2)
 	y = np.concatenate((y1, y2))

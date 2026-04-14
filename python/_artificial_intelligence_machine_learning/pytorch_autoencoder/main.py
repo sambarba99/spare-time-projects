@@ -37,19 +37,22 @@ mx = my = last_mx = last_my = 0
 
 
 def do_mnist():
-	# Prepare data
+	def x_transform(x):
+		x = x.reshape(-1, 28, 28)  # (N, 784) -> (N, 28, 28)
+		x /= 255                   # Scale to [0,1]
+		x = np.expand_dims(x, 1)   # Add channel dim (N, 1, 28, 28)
+		return x
 
+
+	# Prepare data
 	x, y, *_ = load_csv_classification_data(
 		'C:/Users/sam/Desktop/projects/datasets/mnist.csv',
 		header=None,
 		drop_useless_features=False,
-		y_col_pos=0
+		x_transform=x_transform,
+		y_col_pos=0,
+		output_as_tensor=True
 	)
-
-	# Reshape images, scale to [0,1], and add channel dim
-	x = x.reshape((-1, 28, 28)) / 255
-	x = np.expand_dims(x, 1)
-	x = torch.tensor(x, device=DEVICE).float()
 
 	# Load or train model
 
@@ -78,6 +81,7 @@ def do_mnist():
 				progress_bar.update()
 				progress_bar.set_description(f'Epoch {epoch}/{NUM_EPOCHS}')
 
+				x_train = x_train.to(DEVICE)
 				reconstructed = model(x_train)
 				loss = loss_func(reconstructed, x_train)
 
@@ -88,7 +92,7 @@ def do_mnist():
 				progress_bar.set_postfix_str(f'loss={loss.item():.4f}')
 
 			with torch.inference_mode():
-				val_reconstructed = model(x_val)
+				val_reconstructed = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(val_reconstructed, x_val).item()
 			val_loss_history.append(val_loss)
 			progress_bar.set_postfix_str(f'val_loss={val_loss:.4f}')
@@ -109,7 +113,7 @@ def do_mnist():
 
 	# Visualise the latent space, controlled by the mouse
 
-	encodings = model.encoder_block(x).detach().cpu().numpy()
+	encodings = model.encoder_block(x.to(DEVICE)).detach().cpu().numpy()
 
 	fig, (ax_latent, ax_decoded) = plt.subplots(ncols=2, figsize=(9, 5))
 	plt.subplots_adjust(wspace=0.1)
@@ -179,7 +183,7 @@ if __name__ == '__main__':
 	else:
 		# Prepare data
 
-		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), tensor_device='cpu')
+		x, y, labels, _ = load_csv_classification_data(path, x_transform=MinMaxScaler(), output_as_tensor=True)
 		num_features_in = x.shape[1]
 
 		choice = input('Enter 2 to compress to 2 latent variables, or 3: ')

@@ -124,7 +124,7 @@ if __name__ == '__main__':
 		train_size=0.8,
 		val_size=0.2,
 		x_transform=StandardScaler(),
-		tensor_device='cpu'
+		output_as_tensor=True
 	)
 
 	train_dataset = CustomDataset(x_train, y_train)

@@ -82,11 +82,11 @@ if __name__ == '__main__':
 	labels = None
 	if task_choice in 'BM':
 		x_train, y_train, x_val, y_val, x_test, y_test, labels, _ = load_csv_classification_data(
-			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler(), one_hot_y=True
+			path, train_size=0.7, val_size=0.15, test_size=0.15, x_transform=StandardScaler(), one_hot_y=True
 		)
 	else:
 		x_train, y_train, x_val, y_val, x_test, y_test, _ = load_csv_regression_data(
-			path, train_size=0.7, val_size=0.2, test_size=0.1, x_transform=StandardScaler()
+			path, train_size=0.7, val_size=0.15, test_size=0.15, x_transform=StandardScaler()
 		)
 
 	# Build model

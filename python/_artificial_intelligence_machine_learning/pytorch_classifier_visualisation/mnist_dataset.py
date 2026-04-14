@@ -12,7 +12,6 @@ import cv2 as cv
 import numpy as np
 import pygame as pg
 from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -81,21 +80,23 @@ class CNN(nn.Module):
 
 
 def load_data():
-	x, y, *_ = load_csv_classification_data(
+	def x_transform(x):
+		x = x.reshape(-1, 28, 28)  # (N, 784) -> (N, 28, 28)
+		x /= 255                   # Scale to [0,1]
+		x = np.expand_dims(x, 1)   # Add channel dim (N, 1, 28, 28)
+		return x
+
+
+	x_train, y_train, x_val, y_val, *_ = load_csv_classification_data(
 		'C:/Users/sam/Desktop/projects/datasets/mnist.csv',
 		header=None,
+		train_size=0.98,
+		val_size=0.02,
 		drop_useless_features=False,
-		y_col_pos=0
+		x_transform=x_transform,
+		y_col_pos=0,
+		output_as_tensor=True
 	)
-
-	# Reshape images, scale to [0,1], and add channel dim
-	x = x.reshape((-1, 28, 28)) / 255
-	x = np.expand_dims(x, 1)
-
-	x, y = torch.tensor(x).float(), torch.tensor(y).long()
-
-	# Create train/validation sets (ratio 0.98:0.02)
-	x_train, x_val, y_train, y_val = train_test_split(x, y, train_size=0.98, stratify=y, random_state=1)
 
 	augment_transform = transforms.RandomAffine(
 		degrees=10,
@@ -123,7 +124,7 @@ if __name__ == '__main__':
 	# Define model
 
 	model = CNN().to(DEVICE)
-	print(f'\nModel:\n{model}\n')
+	print(f'Model:\n{model}\n')
 
 	if os.path.exists('./mnist_model.pth'):
 		model.load_state_dict(torch.load('./mnist_model.pth', map_location=DEVICE))

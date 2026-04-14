@@ -8,6 +8,7 @@ Created 10/11/2021
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import root_mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -75,13 +76,13 @@ if __name__ == '__main__':
 	regressor.fit(x_train, y_train)
 
 	y_pred = regressor.predict(x_test)
-	mae = np.abs(y_pred[:, 0] - y_test[:, 0]).sum() / len(y_test)
-	print('\nTest MAE:', mae)
+	rmse = root_mean_squared_error(y_test[:, 0], y_pred[:, 0])
+	print('\nTest RMSE:', rmse)
 
 	# Plot cost history
 
 	plt.plot(regressor.cost_history)
 	plt.xlabel('Training iteration')
-	plt.ylabel('MAE')
-	plt.title('MAE during training')
+	plt.ylabel('RMSE')
+	plt.title('RMSE during training')
 	plt.show()

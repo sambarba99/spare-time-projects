@@ -7,6 +7,8 @@ Created 03/03/2022
 
 import numpy as np
 
+np.random.seed(1)
+
 
 class DataGenerator:
 	"""Generate data for prediction modelling (a sine wave with a blank region)"""

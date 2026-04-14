@@ -37,8 +37,6 @@ def transform(x, y, num_components):
 		mean_diff = class_mean - x_mean
 		sb += num_class * np.outer(mean_diff, mean_diff)
 
-	sw += np.eye(num_features) * 1e-6  # Add small regularisation term to avoid singular matrix issues
-
 	# Find directions that minimise within-class variance and maximise between-class variance
 	eigenvalues, eigenvectors = eigh(sb, sw)
 
@@ -62,10 +60,9 @@ if __name__ == '__main__':
 		'\n2 for breast tumour dataset,'
 		'\n3 for glass dataset,'
 		'\n4 for iris dataset,'
-		'\n5 for mushroom dataset,'
-		'\n6 for pulsar dataset,'
-		'\n7 for Titanic dataset,'
-		'\nor 8 for wine dataset\n>>> '
+		'\n5 for pulsar dataset,'
+		'\n6 for Titanic dataset,'
+		'\nor 7 for wine dataset\n>>> '
 	)
 
 	match choice:
@@ -73,9 +70,8 @@ if __name__ == '__main__':
 		case '2': path = 'C:/Users/sam/Desktop/projects/datasets/breast_tumour_pathology.csv'
 		case '3': path = 'C:/Users/sam/Desktop/projects/datasets/glass_classification.csv'
 		case '4': path = 'C:/Users/sam/Desktop/projects/datasets/iris_classification.csv'
-		case '5': path = 'C:/Users/sam/Desktop/projects/datasets/mushroom_edibility_classification.csv'
-		case '6': path = 'C:/Users/sam/Desktop/projects/datasets/pulsar_identification.csv'
-		case '7': path = 'C:/Users/sam/Desktop/projects/datasets/titanic_survivals.csv'
+		case '5': path = 'C:/Users/sam/Desktop/projects/datasets/pulsar_identification.csv'
+		case '6': path = 'C:/Users/sam/Desktop/projects/datasets/titanic_survivals.csv'
 		case _: path = 'C:/Users/sam/Desktop/projects/datasets/wine_classification.csv'
 
 	# Normalise x (LDA is sensitive to feature scales)

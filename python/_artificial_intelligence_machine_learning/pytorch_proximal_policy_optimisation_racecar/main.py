@@ -23,8 +23,8 @@ from pytorch_proximal_policy_optimisation_racecar.ppo.ppo_agent import PPOAgent
 from pytorch_proximal_policy_optimisation_racecar.game_env.game_env import GameEnv
 
 
-plt.rcParams['figure.figsize'] = (10, 6)
 random.seed(1)
+plt.rcParams['figure.figsize'] = (10, 6)
 torch.manual_seed(1)
 
 

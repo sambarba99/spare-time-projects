@@ -7,7 +7,7 @@ Created 14/02/2024
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import root_mean_squared_error
 from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
@@ -25,7 +25,7 @@ LEARNING_RATE = 3e-3
 NUM_EPOCHS = 200
 
 
-def plot_val_progress(x_val, y_val_true, y_val_pred, val_mae, epoch):
+def plot_val_progress(x_val, y_val_true, y_val_pred, val_rmse, epoch):
 	plt.cla()
 	plt.gca().set_facecolor('black')
 	plt.gcf().set_facecolor('#0d1117')
@@ -35,13 +35,13 @@ def plot_val_progress(x_val, y_val_true, y_val_pred, val_mae, epoch):
 	plt.ylabel('$y$', color='white', fontsize=14)
 	plt.tick_params(colors='white')
 	if epoch == 0:
-		plt.title(f'Start (random weights)  |  Val MAE = {val_mae:.3f}', color='white')
+		plt.title(f'Start (random weights)  |  Val RMSE = {val_rmse:.3f}', color='white')
 	else:
-		plt.title(f'Epoch {epoch}/{NUM_EPOCHS}  |  Val MAE = {val_mae:.3f}', color='white')
+		plt.title(f'Epoch {epoch}/{NUM_EPOCHS}  |  Val RMSE = {val_rmse:.3f}', color='white')
 	legend = plt.legend(facecolor='#808080')
 	for handle in legend.legend_handles:
 		handle.set_alpha(1)
-	# plt.savefig(f'./{epoch_num:0>3}.png')
+	# plt.savefig(f'./{epoch:0>3}.png')
 	if epoch == NUM_EPOCHS:
 		plt.show()
 	else:
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 	# Define an arbitrary function
 	x = np.linspace(-1, 1, NUM_DATA_POINTS)
 	y = 5 * x ** 3 - x ** 2 - 3 * x + 1  # 5x^3 - x^2 - 3x + 1
-	y += np.random.normal(0, NOISE, len(x))
+	y += np.random.normal(0, NOISE, size=len(x))
 
 	x, y = torch.tensor(x).float(), torch.tensor(y).float()
 
@@ -81,8 +81,8 @@ if __name__ == '__main__':
 	with torch.inference_mode():
 		y_val_pred = model(x_val.unsqueeze(dim=1)).squeeze()
 
-	val_mae = mean_absolute_error(y_val, y_val_pred)
-	plot_val_progress(x_val, y_val, y_val_pred, val_mae, 0)
+	val_rmse = root_mean_squared_error(y_val, y_val_pred)
+	plot_val_progress(x_val, y_val, y_val_pred, val_rmse, 0)
 
 	# Training loop
 	for epoch in range(1, NUM_EPOCHS + 1):
@@ -98,5 +98,5 @@ if __name__ == '__main__':
 		with torch.inference_mode():
 			y_val_pred = model(x_val.unsqueeze(dim=1)).squeeze()
 
-		val_mae = mean_absolute_error(y_val, y_val_pred)
-		plot_val_progress(x_val, y_val, y_val_pred, val_mae, epoch)
+		val_rmse = root_mean_squared_error(y_val, y_val_pred)
+		plot_val_progress(x_val, y_val, y_val_pred, val_rmse, epoch)
