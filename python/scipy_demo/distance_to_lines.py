@@ -117,7 +117,7 @@ def objective_function(point, lines):
 	return total_distance_squared
 
 
-def solve_with_sgd(point, lines, learning_rate=0.02, threshold=0.001, max_iterations=1000):
+def solve_with_sgd(point, lines, learning_rate=0.02, threshold=1e-3, max_iterations=1000):
 	trajectory = [point.copy()]
 
 	for i in range(max_iterations):

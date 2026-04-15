@@ -123,7 +123,7 @@ if __name__ == '__main__':
 				nn.ReLU(),
 				nn.Linear(16, num_targets)
 			)
-			optimiser = torch.optim.Adam(model.parameters(), lr=0.005)
+			optimiser = torch.optim.Adam(model.parameters(), lr=5e-3)
 
 		case 'RB':  # Boston housing dataset
 			model = nn.Sequential(
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 				nn.ReLU(),
 				nn.Linear(256, num_targets)
 			)
-			optimiser = torch.optim.RMSprop(model.parameters(), lr=0.004)
+			optimiser = torch.optim.RMSprop(model.parameters(), lr=4e-3)
 
 		case _:  # Medical insurance or Parkinson's dataset
 			model = nn.Sequential(

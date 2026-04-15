@@ -2,13 +2,15 @@
 Driver code
 
 Controls:
-	Space: toggle animation (during testing)
-	Arrow keys/space: control spaceship (during manual playing)
+	W/A/D/space: control spaceship
+	K: pause
+	P: activate PPO agent
 
 Author: Sam Barba
 Created 11/07/2024
 """
 
+from pathlib import Path
 import random
 import sys
 
@@ -31,42 +33,73 @@ def train():
 	train_env = GameEnv(random_obj=rand1, do_rendering=False, training_mode=True)
 	checkpoint_env = GameEnv(random_obj=rand2, do_rendering=False)
 	agent = PPOAgent(training_mode=True)
-	total_return_per_epoch, mean_checkpoint_score = agent.do_training(train_env, checkpoint_env)
+	total_reward_per_episode = agent.train(train_env, checkpoint_env)
 
 	# Smooth data
-	w = len(total_return_per_epoch) // 20
-	smoothed = savgol_filter(total_return_per_epoch, window_length=w, polyorder=3)
+	w = len(total_reward_per_episode) // 20
+	smoothed = savgol_filter(total_reward_per_episode, window_length=w, polyorder=3, mode='mirror')
 
-	plt.plot(total_return_per_epoch, alpha=0.4, linewidth=1, color='red')
+	plt.plot(total_reward_per_episode, alpha=0.4, linewidth=1, color='red')
 	plt.plot(smoothed, linewidth=2, color='red')
-	plt.xlabel('Epoch')
-	plt.ylabel('Total return')
-	plt.title('Total return per training epoch')
-	plt.savefig('./training_return.png')
-	plt.close()
+	plt.xlabel('Episode')
+	plt.ylabel('Total reward')
+	plt.title('Total reward per training episode')
+	plt.show()
 
-	w = len(mean_checkpoint_score) // 10
-	smoothed = savgol_filter(mean_checkpoint_score, window_length=w, polyorder=3)
 
-	plt.plot(mean_checkpoint_score, alpha=0.4, linewidth=1, color='red')
-	plt.plot(smoothed, linewidth=2, color='red')
-	plt.title('Mean score per model checkpoint')
-	plt.savefig('./test_score.png')
-	plt.close()
+def find_best_test_seeds(num_runs=1000):
+	env = GameEnv(random_obj=random.Random(), do_rendering=False)
+	agent = PPOAgent(training_mode=False)
+	results = []
+
+	for p in Path('./ppo').glob('*.pth'):
+		print('\nTesting', p.name)
+		agent.load_model(p.resolve())
+		total_score = 0
+		seeds_and_scores = []
+
+		for i in range(1, num_runs + 1):
+			env.reset(i)
+			state = env.get_state()
+			terminal = False
+
+			while not terminal:
+				action = agent.choose_action(state, greedy=True)
+				_, state, terminal = env.step(action)
+
+			total_score += env.spaceship.score
+			seeds_and_scores.append((i, env.spaceship.score))
+
+			print(f'Seed: {i}/{num_runs}  |  '
+				f'score: {env.spaceship.score}  |  '
+				f'running mean: {(total_score / i):.1f}')
+
+		# Sort by score descending, and keep the top 5
+		seeds_and_scores = sorted(seeds_and_scores, key=lambda i: -i[1])[:5]
+
+		results.append((p.name, total_score / num_runs, tuple(seeds_and_scores)))
+
+	# Sort by best score (desc), then mean score (desc)
+	results.sort(key=lambda i: (-i[2][0][1], -i[1]))
+
+	print('\nModel path | Mean score | Best seeds/scores')
+	for row in results:
+		print(*row)
 
 
 def test():
 	env = GameEnv(random_obj=random.Random(), do_rendering=True)
 	agent = PPOAgent(training_mode=False)
 	agent.load_model()
-	paused = True
+	paused = False
 	action = 0
 
 	while True:
-		# env.reset(10)  # Best found seed
+		# env.reset(482)  # Demo seed
 		env.reset()
 		state = env.get_state()
-		terminal = False
+		shooting = agent_active = terminal = False
+		# agent_active = True  # Uncomment if using a seed
 
 		while not terminal:
 			for event in pg.event.get():
@@ -74,78 +107,68 @@ def test():
 					case pg.QUIT:
 						sys.exit()
 					case pg.KEYDOWN:
-						if event.key == pg.K_SPACE:
-							paused = not paused
+						match event.key:
+							case pg.K_SPACE:
+								# Player must tap spacebar to shoot, not hold down
+								shooting = True
+							case pg.K_k:
+								paused = not paused
+							case pg.K_p:
+								agent_active = not agent_active
+
+			player_lbl = 'Player: PPO agent' if agent_active else 'Player: you'
 
 			if not paused:
-				action = agent.choose_action(state)
+				if agent_active:
+					action = agent.choose_action(state, greedy=True)
+				else:
+					keys_pressed = pg.key.get_pressed()
+
+					boosting = keys_pressed[pg.K_w]
+					turning_left = keys_pressed[pg.K_a]
+					turning_right = keys_pressed[pg.K_d]
+
+					if boosting and turning_left and shooting:
+						action = 10
+					elif boosting and turning_right and shooting:
+						action = 11
+					elif boosting and turning_left:
+						action = 5
+					elif boosting and turning_right:
+						action = 6
+					elif boosting and shooting:
+						action = 7
+					elif turning_left and shooting:
+						action = 8
+					elif turning_right and shooting:
+						action = 9
+					elif boosting:
+						action = 1
+					elif turning_left:
+						action = 2
+					elif turning_right:
+						action = 3
+					elif shooting:
+						action = 4
+					else:
+						action = 0
+
 				_, state, terminal = env.step(action)
 
-			env.render(action, terminal)
+			env.render(action, terminal=terminal, player_lbl=player_lbl)
 
-
-def play_manually():
-	env = GameEnv(random_obj=random.Random(), do_rendering=True)
-
-	while True:
-		env.reset()
-		shooting = terminal = False
-
-		while not terminal:
-			for event in pg.event.get():
-				if event.type == pg.QUIT:
-					sys.exit()
-				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-					# Player must tap spacebar to shoot, not hold down
-					shooting = True
-
-			keys_pressed = pg.key.get_pressed()
-
-			boosting = keys_pressed[pg.K_UP]
-			turning_left = keys_pressed[pg.K_LEFT]
-			turning_right = keys_pressed[pg.K_RIGHT]
-
-			if boosting and turning_left and shooting:
-				action = 10
-			elif boosting and turning_right and shooting:
-				action = 11
-			elif boosting and turning_left:
-				action = 5
-			elif boosting and turning_right:
-				action = 6
-			elif boosting and shooting:
-				action = 7
-			elif turning_left and shooting:
-				action = 8
-			elif turning_right and shooting:
-				action = 9
-			elif boosting:
-				action = 1
-			elif turning_left:
-				action = 2
-			elif turning_right:
-				action = 3
-			elif shooting:
-				action = 4
-			else:
-				action = 0
-
-			*_, terminal = env.step(action)
-
-			env.render(action, terminal)
-
-			shooting = False
+			shooting = False  # Reset for next loop
 
 
 if __name__ == '__main__':
 	choice = input(
-		'\nEnter 1 to play manually,'
-		'\n2 to test existing agent,'
+		'\nEnter 1 to play/test agent,'
+		'\n2 to find the best test seed,'
 		'\nor 3 to train new agent\n>>> '
 	)
 
 	match choice:
-		case '1': play_manually()
-		case '2': test()
+		case '1': test()
+		case '2': find_best_test_seeds()
 		case '3': train()
 		case _: print('\nBad input')

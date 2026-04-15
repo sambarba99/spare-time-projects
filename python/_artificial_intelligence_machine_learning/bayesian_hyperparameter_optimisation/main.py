@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from skopt import gp_minimize
 from skopt.space import Categorical, Integer, Real
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import DataLoader
 
 from _utils.csv_data_loader import load_csv_regression_data

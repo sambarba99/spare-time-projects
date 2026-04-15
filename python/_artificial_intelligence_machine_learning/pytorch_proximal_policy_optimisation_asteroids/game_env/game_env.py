@@ -9,12 +9,48 @@ from math import pi, sin, cos, atan2
 
 import numpy as np
 import pygame as pg
-from scipy.optimize import fsolve
 
 from pytorch_proximal_policy_optimisation_asteroids.game_env.constants import *
+from pytorch_proximal_policy_optimisation_asteroids.ppo.constants import MAX_ASTEROIDS_DETECT
 
+
+# Normalised centered asteroid points
+ASTEROIDS = [
+	{
+		'points': [(-2, -4), (0, -2), (2, -4), (4, -2), (3, 0), (4, 2), (1, 4), (-2, 4), (-4, 2), (-4, -2)],
+		'mean_radius': 4.04
+	},
+	{
+		'points': [(-2, -4), (0, -3), (2, -4), (4, -2), (2, -1), (4, 1), (2, 4), (-1, 3), (-2, 4), (-4, 2), (-3, 0), (-4, -2)],
+		'mean_radius': 3.90
+	},
+	{
+		'points': [(-1, -4), (2, -4), (4, -1), (4, 1), (2, 4), (0, 4), (0, 1), (-2, 4), (-4, 1), (-2, 0), (-4, -1)],
+		'mean_radius': 3.73
+	},
+	{
+		'points': [(-2, -4), (1, -4), (4, -2), (4, -1), (1, 0), (4, 2), (2, 4), (1, 3), (-2, 4), (-4, 1), (-4, -2), (-1, -2)],
+		'mean_radius': 3.80
+	}
+]
+
+# For normalising radii in state representation
+MAX_ASTEROID_RADIUS = max(a['mean_radius'] for a in ASTEROIDS) * ASTEROID_SCALES['large']
+
+# Normalised centered spaceship points
+SHIP_POINTS = [(0, -11), (-6, 7), (6, 7), (-5, 4), (5, 4), (-3, 4), (3, 4), (0, 10)]
+
+# Indices connecting points to form lines
+SHIP_EDGES = [
+	(0, 1), (0, 2), (3, 4),  # Hull lines
+	(5, 7), (6, 7)  # Thruster lines
+]
 
 vec2 = pg.math.Vector2
+
+
+def normalise_angle(a):
+	return (a + pi) % (2 * pi) - pi
 
 
 def lines_intersect(line_a, line_b):
@@ -38,7 +74,7 @@ class Spaceship:
 		self.pos = vec2(SCENE_WIDTH / 2, SCENE_HEIGHT / 2)
 		self.vel = vec2()  # 0,0
 		self.acc = 0
-		self.heading = -pi / 2  # Point up (heading = direction spaceship is pointing)
+		self.heading = 0  # 0 = point up
 		self.bullets = []
 		self.score = 0
 
@@ -63,14 +99,14 @@ class Spaceship:
 		# Apply steering if necessary
 
 		if turning_left:
-			self.heading = (self.heading - TURN_RATE) % (2 * pi)
+			self.heading = normalise_angle(self.heading - TURN_RATE)
 		elif turning_right:
-			self.heading = (self.heading + TURN_RATE) % (2 * pi)
+			self.heading = normalise_angle(self.heading + TURN_RATE)
 
 		# Update velocity
 
 		if self.acc:
-			acc_vector = vec2(cos(self.heading), sin(self.heading)) * self.acc
+			acc_vector = vec2(sin(self.heading), -cos(self.heading)) * self.acc
 			self.vel += acc_vector
 			self.vel.clamp_magnitude_ip(MAX_VEL)
 
@@ -96,56 +132,47 @@ class Spaceship:
 			for a1, a2 in asteroid.lines:
 				if lines_intersect((s1, s2), (a1, a2)):
 					return True
-		return False
+
+		return self.pos.distance_to(asteroid.pos) < asteroid.radius
 
 	def update_lines(self):
-		l1 = (
-			(self.pos.x + SPACESHIP_SCALE * cos(self.heading),
-			self.pos.y + SPACESHIP_SCALE * sin(self.heading)),
-			(self.pos.x - SPACESHIP_SCALE * cos(0.66 + self.heading) * 0.95,
-			self.pos.y - SPACESHIP_SCALE * sin(0.66 + self.heading) * 0.95)
-		)
-		l2 = (
-			l1[0],
-			(self.pos.x - SPACESHIP_SCALE * cos(0.66 - self.heading) * 0.95,
-			self.pos.y + SPACESHIP_SCALE * sin(0.66 - self.heading) * 0.95)
-		)
-		l3 = (
-			(self.pos.x - SPACESHIP_SCALE * cos(self.heading + pi / 4) * 0.71,
-			self.pos.y - SPACESHIP_SCALE * sin(self.heading + pi / 4) * 0.71),
-			(self.pos.x - SPACESHIP_SCALE * cos(-self.heading + pi / 4) * 0.71,
-			self.pos.y + SPACESHIP_SCALE * sin(-self.heading + pi / 4) * 0.71)
-		)
-		self.lines = [l1, l2, l3]  # Hull lines
+		sin_heading = sin(self.heading)
+		cos_heading = cos(self.heading)
+		transformed_points = []
+
+		for x, y in SHIP_POINTS:
+			rx = (x * cos_heading - y * sin_heading) * SPACESHIP_SCALE
+			ry = (x * sin_heading + y * cos_heading) * SPACESHIP_SCALE
+			transformed_points.append((rx + self.pos.x, ry + self.pos.y))
+
+		# Hull lines
+		self.lines = [
+			(transformed_points[start], transformed_points[end])
+			for start, end in SHIP_EDGES[:3]
+		]
+
 		if self.acc:
 			# Thruster lines
-			t1 = (
-				(self.pos.x - SPACESHIP_SCALE * cos(self.heading),
-				self.pos.y - SPACESHIP_SCALE * sin(self.heading)),
-				(self.pos.x - SPACESHIP_SCALE * cos(self.heading + pi / 6) * 0.63,
-				self.pos.y - SPACESHIP_SCALE * sin(self.heading + pi / 6) * 0.63)
-			)
-			t2 = (
-				t1[0],
-				(self.pos.x - SPACESHIP_SCALE * cos(-self.heading + pi / 6) * 0.63,
-				self.pos.y + SPACESHIP_SCALE * sin(-self.heading + pi / 6) * 0.63)
-			)
-			self.lines.extend([t1, t2])
+			self.lines.extend([
+				(transformed_points[start], transformed_points[end])
+				for start, end in SHIP_EDGES[3:]
+			])
 
 
 class Asteroid:
 	def __init__(self, random_obj, size, pos, direction=None):
 		self.size = size
 		self.pos = pos
-		self.radius = ASTEROID_RADII[size]
 		self.direction = random_obj.uniform(0, 2 * pi) if direction is None else direction
-		vel_unit_vector = vec2(cos(self.direction), sin(self.direction))
-		vel_magnitude = random_obj.uniform(ASTEROID_VELS[size] * 0.2, ASTEROID_VELS[size])
+		vel_unit_vector = vec2(sin(self.direction), -cos(self.direction))
+		vel_magnitude = random_obj.uniform(ASTEROID_VELS[size] * 0.5, ASTEROID_VELS[size])
 		self.vel = vel_unit_vector * vel_magnitude
 
-		# Generate random points around the centre, then use these to generate lines
-		self.num_points = random_obj.randint(5, 12)
-		self.rand_offsets = [random_obj.uniform(-self.radius * 0.3, self.radius * 0.3) for _ in range(self.num_points)]
+		rand_asteroid = random_obj.choice(ASTEROIDS)
+		self.scaled_points = [vec2(x, y) * ASTEROID_SCALES[size] for x, y in rand_asteroid['points']]
+		self.radius = rand_asteroid['mean_radius'] * ASTEROID_SCALES[size]
+
+		# Lines defining the asteroid
 		self.lines = None
 		self.update()
 
@@ -154,45 +181,32 @@ class Asteroid:
 		self.pos.x %= SCENE_WIDTH
 		self.pos.y %= SCENE_HEIGHT
 
-		points = []
-		for i in range(self.num_points):
-			angle = i / self.num_points * 2 * pi
-			r = self.radius + self.rand_offsets[i]
-			points.append((self.pos.x + r * cos(angle), self.pos.y + r * sin(angle)))
+		local_points = [
+			(p.x + self.pos.x, p.y + self.pos.y)
+			for p in self.scaled_points
+		]
 
-		self.lines = [(p1, p2) for p1, p2 in zip(points[:-1], points[1:])]
-		self.lines.append((points[-1], points[0]))
+		self.lines = [
+			(local_points[i], local_points[(i + 1) % len(local_points)])
+			for i in range(len(local_points))
+		]
 
 
 class Bullet:
 	def __init__(self, pos, direction):
 		self.pos = pos
-		self.last_pos = pos
-		vel_unit_vector = vec2(cos(direction), sin(direction))
+		vel_unit_vector = vec2(sin(direction), -cos(direction))
 		self.vel = vel_unit_vector * BULLET_SPEED
 		self.life = BULLET_LIFESPAN
 
 	def update(self):
-		self.life -= 1
-		if self.life == 0:
-			return
-		self.last_pos = self.pos.copy()
 		self.pos += self.vel
-		if self.pos.x < 0:
-			self.pos.x = self.last_pos.x = SCENE_WIDTH
-		elif self.pos.x > SCENE_WIDTH:
-			self.pos.x = self.last_pos.x = 0
-		if self.pos.y < 0:
-			self.pos.y = self.last_pos.y = SCENE_HEIGHT
-		elif self.pos.y > SCENE_HEIGHT:
-			self.pos.y = self.last_pos.y = 0
+		self.pos.x %= SCENE_WIDTH
+		self.pos.y %= SCENE_HEIGHT
+		self.life -= 1
 
 	def check_asteroid_hit(self, asteroid):
-		bullet_path = (self.pos, self.last_pos)
-		for a1, a2 in asteroid.lines:
-			if lines_intersect(bullet_path, (a1, a2)):
-				return True
-		return False
+		return self.pos.distance_to(asteroid.pos) < asteroid.radius
 
 
 class GameEnv:
@@ -202,197 +216,210 @@ class GameEnv:
 		self.spaceship = None
 		self.asteroids = None
 		self.level = None
-		self.timestep_reward = None
-
-		self.detected_asteroid_idx = None  # Indices of the nearest MAX_ASTEROIDS_DETECT asteroids
-		self.nearest_asteroid_idx = None   # Index of the nearest asteroid (for predictive aiming)
+		self.detected_asteroids = None
 
 		if do_rendering:
 			pg.init()
 			pg.display.set_caption('PPO Asteroids player')
-			self.font = pg.font.SysFont('consolas', 26)
+			self.font28 = pg.font.SysFont('consolas', 28)
+			self.font22 = pg.font.SysFont('consolas', 22)
 			self.scene = pg.display.set_mode((SCENE_WIDTH, SCENE_HEIGHT))
 			self.clock = pg.time.Clock()
 
 		self.reset()
 
-	def get_state(self):
-		"""Obtain the state of the spaceship/environment"""
+	def get_state(self, return_timestep_reward=False):
+		"""
+		Obtain the state of the environment by engineering features about the spaceship (inc. bullets) and asteroids
+		"""
 
-		def toroidal_distance_to_asteroid(asteroid):
-			"""Toroidal distance from the spaceship to a given asteroid"""
+		def toroidal_relative_vector(a, b):
+			"""Smallest toroidal displacement from point A to point B"""
 
-			dx_abs = abs(self.spaceship.pos.x - asteroid.pos.x)
-			dy_abs = abs(self.spaceship.pos.y - asteroid.pos.y)
-			dx = min(dx_abs, SCENE_WIDTH - dx_abs)
-			dy = min(dy_abs, SCENE_HEIGHT - dy_abs)
-			distance_to_centre = (dx * dx + dy * dy) ** 0.5
-			distance = distance_to_centre \
-				- (asteroid.radius + (min(asteroid.rand_offsets) + max(asteroid.rand_offsets)) / 2) \
-				- SPACESHIP_SCALE
+			dx = (b.x - a.x + SCENE_WIDTH / 2) % SCENE_WIDTH - SCENE_WIDTH / 2
+			dy = (b.y - a.y + SCENE_HEIGHT / 2) % SCENE_HEIGHT - SCENE_HEIGHT / 2
 
-			return distance
-
-		def toroidal_direction_to_asteroid(asteroid, spaceship_direction):
-			"""Toroidal direction from the spaceship to a given asteroid"""
-
-			dx = asteroid.pos.x - self.spaceship.pos.x
-			dy = asteroid.pos.y - self.spaceship.pos.y
-
-			# Wrap-around distances
-			dx_wrap_x = SCENE_WIDTH - abs(dx) if dx != 0 else 0
-			dy_wrap_y = SCENE_HEIGHT - abs(dy) if dy != 0 else 0
-
-			# Possible positions considering wrap-around
-			possible_positions = [
-				(dx, dy),  # No wrap
-				(-dx_wrap_x if dx > 0 else dx_wrap_x, dy),  # Wrap x-axis
-				(dx, -dy_wrap_y if dy > 0 else dy_wrap_y),  # Wrap y-axis
-				(-dx_wrap_x if dx > 0 else dx_wrap_x, -dy_wrap_y if dy > 0 else dy_wrap_y)  # Wrap both axes
-			]
-
-			# Find the nearest position considering wrap-around
-			nearest_pos = min(possible_positions, key=lambda pos: pos[0] * pos[0] + pos[1] * pos[1])
-
-			# Calculate the angle to the nearest position
-			angle_to_asteroid = atan2(nearest_pos[1], nearest_pos[0])
-
-			# -pi to pi
-			direction_to_asteroid = (angle_to_asteroid - spaceship_direction + pi / 2) % (2 * pi)
-			if direction_to_asteroid > pi:
-				direction_to_asteroid -= 2 * pi
-
-			return direction_to_asteroid
-
-		def find_aim_angle(gun_pos, asteroid, spaceship_heading):
-			"""Given the spaceship gun and a moving target (asteroid), find the angle to aim at in order to hit it"""
-
-			def wrap_around_delta_pos(pos1, pos2):
-				dx = pos2[0] - pos1[0]
-				dy = pos2[1] - pos1[1]
-				dx_wrap = dx if abs(dx) < SCENE_WIDTH / 2 else dx - np.sign(dx) * SCENE_WIDTH
-				dy_wrap = dy if abs(dy) < SCENE_HEIGHT / 2 else dy - np.sign(dy) * SCENE_HEIGHT
-
-				return np.array([dx_wrap, dy_wrap])
-
-			def equation(t):
-				future_target_pos = asteroid.pos + asteroid.vel * t
-				# Calculate relative position considering wrap-around
-				rel_pos = wrap_around_delta_pos(gun_pos, future_target_pos)
-				# Distance to cover by bullet
-				dist = np.linalg.norm(rel_pos)
-
-				# Solving: dist - BULLET_SPEED * t = 0 (i.e. solve for t)
-				return dist - BULLET_SPEED * t
+			return vec2(dx, dy)
 
 
-			# Solve for time of impact (initial guess: t = 1)
-			t_impact = fsolve(equation, x0=1)[0]
+		# Spaceship info
 
-			# Calculate the relative position at impact time
-			impact_pos = wrap_around_delta_pos(gun_pos, asteroid.pos + asteroid.vel * t_impact)
+		spaceship_vel_mag = self.spaceship.vel.magnitude() / MAX_VEL
+		if spaceship_vel_mag > 0:
+			spaceship_vel_dir = atan2(self.spaceship.vel.x, -self.spaceship.vel.y)
+			spaceship_vel_sin = sin(spaceship_vel_dir)
+			spaceship_vel_cos = cos(spaceship_vel_dir)
+		else:
+			spaceship_vel_sin = spaceship_vel_cos = 0
 
-			# Find the aim angle (-pi to pi)
-			angle = (atan2(impact_pos[1], impact_pos[0]) - spaceship_heading + pi / 2) % (2 * pi)
-			if angle > pi:
-				angle -= 2 * pi
+		# Asteroid info
 
-			return angle
+		asteroid_info = []
 
+		for idx, a in enumerate(self.asteroids):
+			rel_pos = toroidal_relative_vector(self.spaceship.pos, a.pos)
+			distance = rel_pos.magnitude()
+			rel_direction = normalise_angle(atan2(rel_pos.x, -rel_pos.y) - self.spaceship.heading)
+			rel_vel = a.vel - self.spaceship.vel
 
-		# Caluclate distances to all asteroids
+			asteroid_info.append({
+				'idx': idx,
+				'dist': distance,
+				'rel_direction': rel_direction,
+				'rel_vel': rel_vel,
+				'radius': a.radius
+			})
 
-		dists_to_asteroids = np.array([toroidal_distance_to_asteroid(a) for a in self.asteroids])
+		# Bullet info
 
-		# Get asteroid indices based on distance
+		bullet_dists = []
+		rel_bullet_directions = []
+		bullet_life_left = []
 
-		self.nearest_asteroid_idx = dists_to_asteroids.argmin()
+		for b in self.spaceship.bullets:
+			rel_pos = toroidal_relative_vector(self.spaceship.pos, b.pos)
+			distance = rel_pos.magnitude()
+			rel_direction = normalise_angle(atan2(rel_pos.x, -rel_pos.y) - self.spaceship.heading)
 
-		if self.detected_asteroid_idx is None or max(self.detected_asteroid_idx) >= len(self.asteroids):
-			self.detected_asteroid_idx = np.argsort(dists_to_asteroids)[:MAX_ASTEROIDS_DETECT]
-		dists_to_asteroids = dists_to_asteroids[self.detected_asteroid_idx]
-		pad_size = max(0, MAX_ASTEROIDS_DETECT - len(self.detected_asteroid_idx))
+			bullet_dists.append(distance)
+			rel_bullet_directions.append(rel_direction)
+			bullet_life_left.append(b.life)
 
-		# Find the following asteroid info
+		# Prioritise detected asteroids based on sorted distance and direction (to minimise shuffling between frames),
+		# keeping top MAX_ASTEROIDS_DETECT
 
-		directions_to_asteroids = []
-		rel_asteroid_vel_mags = []
-		rel_asteroid_vel_angles = []
+		asteroid_info.sort(key=lambda i: (i['dist'], i['rel_direction']))
+		detected_asteroids = asteroid_info[:MAX_ASTEROIDS_DETECT]
+		if self.training_mode:
+			self.detected_asteroids = {a['idx'] for a in detected_asteroids}
 
-		# Convert spaceship heading and direction to [-pi, pi] range
-		adjusted_heading = (self.spaceship.heading + pi / 2) % (2 * pi)
-		if adjusted_heading > pi:
-			adjusted_heading -= 2 * pi
-		spaceship_direction = atan2(self.spaceship.vel.y, self.spaceship.vel.x)
-		adjusted_direction = (spaceship_direction + pi / 2) % (2 * pi)
-		if adjusted_direction > pi:
-			adjusted_direction -= 2 * pi
+		# Extract features for top asteroids
 
-		for idx in self.detected_asteroid_idx:
-			asteroid = self.asteroids[idx]
-			direction_to_asteroid = toroidal_direction_to_asteroid(asteroid, adjusted_direction)
-			mag_diff = asteroid.vel.magnitude() - self.spaceship.vel.magnitude()
-			angle_diff = asteroid.direction - spaceship_direction
-			if angle_diff > pi:
-				angle_diff -= 2 * pi
+		asteroid_dists = [a['dist'] for a in detected_asteroids]
+		rel_asteroid_directions = [a['rel_direction'] for a in detected_asteroids]
+		rel_asteroid_vel_mags = [a['rel_vel'].magnitude() for a in detected_asteroids]
+		rel_asteroid_vel_directions = [
+			atan2(a['rel_vel'].x, -a['rel_vel'].y) - self.spaceship.heading
+			for a in detected_asteroids
+		]
+		asteroid_radii = [a['radius'] for a in detected_asteroids]
 
-			directions_to_asteroids.append(direction_to_asteroid)
-			rel_asteroid_vel_mags.append(mag_diff)
-			rel_asteroid_vel_angles.append(angle_diff)
+		# Normalise observations to [0,1] or [-1,1]
 
-		# Find angle to aim at in order to hit the nearest asteroid
+		asteroid_dists = np.array(asteroid_dists) / MAX_OBJECT_DIST
+		rel_asteroid_directions_sin = np.sin(rel_asteroid_directions)
+		rel_asteroid_directions_cos = np.cos(rel_asteroid_directions)
+		rel_asteroid_vel_mags = np.array(rel_asteroid_vel_mags) / (MAX_VEL + ASTEROID_VELS['small'])
+		rel_asteroid_vel_sin = np.sin(rel_asteroid_vel_directions)
+		rel_asteroid_vel_cos = np.cos(rel_asteroid_vel_directions)
+		asteroid_radii = np.array(asteroid_radii) / MAX_ASTEROID_RADIUS
+		bullet_dists = np.array(bullet_dists) / MAX_OBJECT_DIST
+		rel_bullet_directions_sin = np.sin(rel_bullet_directions)
+		rel_bullet_directions_cos = np.cos(rel_bullet_directions)
+		bullet_life_left = np.array(bullet_life_left) / BULLET_LIFESPAN
 
-		gun_pos = vec2(self.spaceship.lines[0][0])
-		nearest_asteroid = self.asteroids[self.nearest_asteroid_idx]
-		aim_angle = find_aim_angle(gun_pos, nearest_asteroid, adjusted_heading)
+		# Apply padding so that the final state vector has a consistent shape
 
-		# The further the spaceship is from asteroids, the greater the timestep reward
+		pad_size_asteroid = max(0, MAX_ASTEROIDS_DETECT - len(detected_asteroids))
+		pad_size_bullet = max(0, MAX_BULLETS - len(bullet_dists))
 
-		dists_to_asteroids /= MAX_ASTEROID_DIST
-		nearest_3_dists = dists_to_asteroids[:3]
-		self.timestep_reward = 2 * sum(nearest_3_dists) / len(nearest_3_dists)
+		if pad_size_asteroid:
+			asteroid_dists = np.pad(asteroid_dists, (0, pad_size_asteroid))
+			rel_asteroid_directions_sin = np.pad(rel_asteroid_directions_sin, (0, pad_size_asteroid))
+			rel_asteroid_directions_cos = np.pad(rel_asteroid_directions_cos, (0, pad_size_asteroid))
+			rel_asteroid_vel_mags = np.pad(rel_asteroid_vel_mags, (0, pad_size_asteroid))
+			rel_asteroid_vel_sin = np.pad(rel_asteroid_vel_sin, (0, pad_size_asteroid))
+			rel_asteroid_vel_cos = np.pad(rel_asteroid_vel_cos, (0, pad_size_asteroid))
+			asteroid_radii = np.pad(asteroid_radii, (0, pad_size_asteroid))
+		asteroid_mask = np.pad(np.ones(len(detected_asteroids)), (0, pad_size_asteroid))
+
+		if pad_size_bullet:
+			bullet_dists = np.pad(bullet_dists, (0, pad_size_bullet))
+			rel_bullet_directions_sin = np.pad(rel_bullet_directions_sin, (0, pad_size_bullet))
+			rel_bullet_directions_cos = np.pad(rel_bullet_directions_cos, (0, pad_size_bullet))
+			bullet_life_left = np.pad(bullet_life_left, (0, pad_size_bullet), constant_values=1)
 
 		# Construct state representation
 
-		dists_to_asteroids = np.pad(dists_to_asteroids, (0, pad_size), constant_values=(1,))
-		directions_to_asteroids = np.pad(directions_to_asteroids, (0, pad_size))
-		rel_asteroid_vel_mags = np.pad(rel_asteroid_vel_mags, (0, pad_size))
-		rel_asteroid_vel_angles = np.pad(rel_asteroid_vel_angles, (0, pad_size))
+		asteroid_info_stacked = np.stack([
+			asteroid_dists,
+			rel_asteroid_directions_sin,
+			rel_asteroid_directions_cos,
+			rel_asteroid_vel_mags,
+			rel_asteroid_vel_sin,
+			rel_asteroid_vel_cos,
+			asteroid_radii
+		], axis=1)
+		asteroid_info_flattened = asteroid_info_stacked.flatten()
+
+		bullet_info_stacked = np.stack([
+			bullet_dists,
+			rel_bullet_directions_sin,
+			rel_bullet_directions_cos,
+			bullet_life_left
+		], axis=1)
+		bullet_info_flattened = bullet_info_stacked.flatten()
 
 		state = [
-			aim_angle / pi,
-			*dists_to_asteroids,
-			*directions_to_asteroids / pi,
-			*rel_asteroid_vel_mags / MAX_VEL,
-			*rel_asteroid_vel_angles / pi
+			# Spaceship info
+			spaceship_vel_mag,
+			spaceship_vel_sin,
+			spaceship_vel_cos,
+			sin(self.spaceship.heading),
+			cos(self.spaceship.heading),
+			*bullet_info_flattened,
+			# Asteroid info
+			*asteroid_info_flattened,
+			*asteroid_mask
 		]
 
-		return state
+		if return_timestep_reward:
+			# The further the spaceship is from the nearest asteroid, the greater the timestep reward
+			timestep_reward = asteroid_dists[0]
+
+			return state, timestep_reward
+		else:
+			return state
 
 	def step(self, action):
 		"""
-		Perform an action, then return resulting info as the tuple (return, next_state, terminal)
+		Perform an action, then return resulting info as the tuple (reward, next_state, terminal)
 		"""
 
 		self.spaceship.perform_action(action)
 
 		# Update asteroids and bullets
+
 		for a in self.asteroids:
 			a.update()
-		for b in self.spaceship.bullets:
+
+		total_miss_penalty = 0
+
+		for b in self.spaceship.bullets[:]:
 			b.update()
 			if b.life == 0:
 				self.spaceship.bullets.remove(b)
+				total_miss_penalty += MISS_PENALTY
 
-		next_state = self.get_state()
+		if self.training_mode:
+			prev_detected = self.detected_asteroids.copy()
+			next_state, timestep_reward = self.get_state(return_timestep_reward=True)
+		else:
+			prev_detected = set()
+			next_state = self.get_state()
+			timestep_reward = 0
+
+		timestep_reward += total_miss_penalty
 
 		# Check for spaceship-asteroid collision
+
 		if any(self.spaceship.check_collision(a) for a in self.asteroids):
 			return COLLISION_PENALTY, next_state, True
 
 		# Check if a bullet has hit an asteroid
-		for bullet in self.spaceship.bullets:
-			for idx, asteroid in enumerate(self.asteroids):
+
+		for bullet in self.spaceship.bullets[:]:
+			for idx, asteroid in enumerate(self.asteroids[:]):
 				if bullet.check_asteroid_hit(asteroid):
 					self.asteroids.remove(asteroid)
 					self.spaceship.bullets.remove(bullet)
@@ -405,71 +432,76 @@ class GameEnv:
 									self.rand,
 									'medium' if asteroid.size == 'large' else 'small',
 									asteroid.pos.copy(),
-									(asteroid.direction + self.rand.uniform(-pi / 8, pi / 8)) % (2 * pi)
+									asteroid.direction + self.rand.uniform(-pi / 8, pi / 8)
 								)
 							)
-
-					self.detected_asteroid_idx = None
 
 					if len(self.asteroids) == 0:  # Destroyed all asteroids, go to next level
 						self.level += 1
 						self.spaceship.bullets = []
 						self.make_asteroids()
 
-					if idx == self.nearest_asteroid_idx:
-						# Highly reward destroying the nearest asteroid
-						return AGENT_ASTEROID_DESTROY_REWARD + self.timestep_reward, next_state, False
-					else:
-						return self.timestep_reward, next_state, False
+					if idx in prev_detected:
+						timestep_reward += AGENT_ASTEROID_DESTROY_REWARD
 
-		return self.timestep_reward, next_state, False
+					return timestep_reward, next_state, False
 
-	def render(self, action, terminal):
+		return timestep_reward, next_state, False
+
+	def render(self, action, terminal, player_lbl):
 		self.scene.fill('black')
 
-		# Draw spaceship
-		flame_green = np.random.randint(0, 256)  # Using self.rand gives non-reproducible testing results
-		for idx, (s1, s2) in enumerate(self.spaceship.lines):
-			if idx < 3:
-				# Hull = red if game over, else white
-				colour = 'red' if terminal else 'white'
-			else:
-				# Thruster = red/orange/yellow
-				colour = (255, flame_green, 0)
-			pg.draw.line(self.scene, colour, s1, s2, 2)
+		# Render spaceship
 
-		# Draw asteroids
+		is_full_ship = len(self.spaceship.lines) == len(SHIP_EDGES)
+		green = np.random.randint(0, 256)  # Using self.rand gives non-reproducible testing results
+		hull_colour = 'red' if terminal else 'white'
+
+		# Reversed so thruster lines render underneath hull lines
+		for idx, (start_point, end_point) in enumerate(reversed(self.spaceship.lines)):
+			is_thruster = is_full_ship and idx < 2
+			colour = (255, green, 0) if is_thruster else hull_colour
+			pg.draw.line(self.scene, colour, start_point, end_point, 3)
+
+		# Render asteroids and bullets
+
 		for a in self.asteroids:
 			for a1, a2 in a.lines:
-				pg.draw.line(self.scene, 'white', a1, a2)
+				pg.draw.line(self.scene, 'white', a1, a2, 2)
 
-		# Draw bullets
 		for b in self.spaceship.bullets:
 			pg.draw.circle(self.scene, 'white', b.pos, 3)
 
-		# Display arrow/space key control (key is green if used, else grey)
-		up_colour = 'green' if action in (1, 5, 6, 7, 10, 11) else (80, 80, 80)
-		left_colour = 'green' if action in (2, 5, 8, 10) else (80, 80, 80)
-		right_colour = 'green' if action in (3, 6, 9, 11) else (80, 80, 80)
-		space_colour = 'green' if action in (4, 7, 8, 9, 10, 11) else (80, 80, 80)
-		pg.draw.rect(self.scene, up_colour, pg.Rect(120, 80, 25, 25))
-		pg.draw.rect(self.scene, left_colour, pg.Rect(95, 105, 25, 25))
-		pg.draw.rect(self.scene, right_colour, pg.Rect(145, 105, 25, 25))
-		pg.draw.rect(self.scene, space_colour, pg.Rect(12, 105, 75, 25))
+		# Render arrow/space key control (key is green if used, else grey)
 
-		# Display level and score
-		level_lbl = self.font.render(f'Level: {self.level}', True, 'white')
-		score_lbl = self.font.render(f'Score: {self.spaceship.score}', True, 'white')
-		self.scene.blit(level_lbl, (10, 10))
-		self.scene.blit(score_lbl, (10, 40))
+		if terminal:
+			w_colour = a_colour = d_colour = space_colour = 'red'
+		else:
+			w_colour = 'green' if action in (1, 5, 6, 7, 10, 11) else (40, 40, 40)
+			a_colour = 'green' if action in (2, 5, 8, 10) else (40, 40, 40)
+			d_colour = 'green' if action in (3, 6, 9, 11) else (40, 40, 40)
+			space_colour = 'green' if action in (4, 7, 8, 9, 10, 11) else (40, 40, 40)
+		pg.draw.rect(self.scene, w_colour, pg.Rect(56, 25, 30, 30))
+		pg.draw.rect(self.scene, a_colour, pg.Rect(25, 56, 30, 30))
+		pg.draw.rect(self.scene, d_colour, pg.Rect(87, 56, 30, 30))
+		pg.draw.rect(self.scene, space_colour, pg.Rect(120, 56, 120, 30))
+
+		# Render level, score, player labels
+
+		level_lbl = self.font28.render(f'Level: {self.level}', True, 'red' if terminal else 'white')
+		score_lbl = self.font28.render(f'Score: {self.spaceship.score}', True, 'red' if terminal else 'white')
+		player_lbl = self.font22.render(player_lbl, True, 'red' if terminal else 'white')
+		self.scene.blit(level_lbl, (24, 104))
+		self.scene.blit(score_lbl, (24, 138))
+		self.scene.blit(player_lbl, (24, 173))
 
 		pg.display.update()
 		if terminal:
-			pg.time.wait(800)
+			pg.time.wait(1000)
 		self.clock.tick(FPS)
 
 	def make_asteroids(self):
-		"""Num. asteroids = level + 3"""
+		"""No. asteroids = level + 3"""
 
 		# Don't spawn asteroids around where the spaceship is (also considering wrap-around)
 		possible_x = [
@@ -482,9 +514,10 @@ class GameEnv:
 		]
 
 		self.asteroids = []
-		for i in range(self.level + 3):
-			match i % 4:
-				case 0: asteroid = Asteroid(self.rand, 'large', vec2(y=self.rand.choice(possible_y)))
+		for _ in range(self.level + 3):
+			edge = self.rand.randrange(4)
+			match edge:
+				case 0: asteroid = Asteroid(self.rand, 'large', vec2(0, self.rand.choice(possible_y)))
 				case 1: asteroid = Asteroid(self.rand, 'large', vec2(SCENE_WIDTH - 1, self.rand.choice(possible_y)))
 				case 2: asteroid = Asteroid(self.rand, 'large', vec2(self.rand.choice(possible_x), 0))
 				case _: asteroid = Asteroid(self.rand, 'large', vec2(self.rand.choice(possible_x), SCENE_HEIGHT - 1))
@@ -504,7 +537,7 @@ class GameEnv:
 			self.spaceship.heading = self.rand.uniform(0, 2 * pi)
 			rand_direction = self.rand.uniform(0, 2 * pi)
 			rand_magnitude = self.rand.uniform(0, MAX_VEL / 2)
-			self.spaceship.vel = vec2(cos(rand_direction), sin(rand_direction)) * rand_magnitude
+			self.spaceship.vel = vec2(sin(rand_direction), -cos(rand_direction)) * rand_magnitude
 
 		self.level = 1
 		self.make_asteroids()
