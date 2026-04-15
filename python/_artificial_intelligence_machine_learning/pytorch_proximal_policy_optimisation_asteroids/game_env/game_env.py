@@ -469,7 +469,7 @@ class GameEnv:
 		self.clock.tick(FPS)
 
 	def make_asteroids(self):
-		"""Num. asteroids = level + 3"""
+		"""No. asteroids = level + 3"""
 
 		# Don't spawn asteroids around where the spaceship is (also considering wrap-around)
 		possible_x = [

@@ -29,9 +29,10 @@ torch.manual_seed(1)
 
 
 def train(is_ppo):
-	env = GameEnv(do_rendering=False)
+	train_env = GameEnv(do_rendering=False)
+	checkpoint_env = GameEnv(do_rendering=False)
 	agent = PPOAgent(training_mode=True) if is_ppo else DDQNAgent(training_mode=True)
-	total_return_per_epoch = agent.do_training(env)
+	total_return_per_epoch = agent.do_training(train_env, checkpoint_env)
 
 	# Smooth data
 	w = int(len(total_return_per_epoch) / 20)
@@ -77,6 +78,7 @@ def test(is_ppo):
 
 def play_manually():
 	env = GameEnv(do_rendering=True)
+	render_meta = False
 
 	while True:
 		env.reset()
@@ -84,8 +86,12 @@ def play_manually():
 
 		while not terminal:
 			for event in pg.event.get():
-				if event.type == pg.QUIT:
-					sys.exit()
+				match event.type:
+					case pg.QUIT:
+						sys.exit()
+					case pg.KEYDOWN:
+						if event.key == pg.K_m:
+							render_meta = not render_meta
 
 			keys_pressed = pg.key.get_pressed()
 
@@ -115,22 +121,22 @@ def play_manually():
 
 			*_, terminal = env.step(action)
 
-			env.render(action, render_meta=False, terminal=terminal)
+			env.render(action, render_meta=render_meta, terminal=terminal)
 
 
 if __name__ == '__main__':
 	choice = input(
 		'\nEnter 1 to play manually,'
 		'\n2 to test existing PPO agent,'
-		'\n3 to test existing DDQN agent,'
-		'\n4 to train new PPO agent,'
+		'\n3 to train new PPO agent,'
+		'\n4 to test existing DDQN agent,'
 		'\nor 5 to train new DDQN agent\n>>> '
 	)
 
 	match choice:
 		case '1': play_manually()
 		case '2': test(is_ppo=True)
-		case '3': test(is_ppo=False)
-		case '4': train(is_ppo=True)
+		case '3': train(is_ppo=True)
+		case '4': test(is_ppo=False)
 		case '5': train(is_ppo=False)
 		case _: print('\nBad input')

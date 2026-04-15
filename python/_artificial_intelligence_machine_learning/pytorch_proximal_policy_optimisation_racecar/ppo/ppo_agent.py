@@ -6,9 +6,6 @@ The steps here correspond to those in ppo_clip_pseudocode.png (see 'ALGORITHM ST
 Author: Sam Barba
 Created 16/02/2023
 """
-
-from pathlib import Path
-
 import torch
 from torch import nn
 from torch.distributions import Categorical
@@ -76,17 +73,16 @@ class ActorCritic(nn.Module):
 	def forward(self):
 		raise NotImplementedError
 
-	def act(self, state):
-		# Generate action distribution given state
+	def act(self, state, greedy):
+		# Generate action distribution given `state`
 		action_probs = self.actor(state)
 		distribution = Categorical(action_probs)
 
-		if self.training_mode:
+		if greedy:
+			action = action_probs.argmax()
+		else:
 			# Sample an action from the distribution
 			action = distribution.sample()
-		else:
-			# For testing/visualisation, be greedy
-			action = action_probs.argmax()
 
 		# Get the log probability of this action in the distribution
 		action_log_prob = distribution.log_prob(action)
@@ -97,17 +93,15 @@ class ActorCritic(nn.Module):
 		return action, action_log_prob, state_value
 
 	def evaluate(self, states, actions):
-		# Get critic's value of states
+		# Get critic's value of `states`
 		state_values = self.critic(states).squeeze()
 
-		# Generate action distribution given states
+		# Generate action distribution given `states`
 		action_probs = self.actor(states)
 		distribution = Categorical(action_probs)
 
-		# Get the log probability of 'actions' in this distribution
+		# Get the log probability of `actions` in this distribution, and its entropy
 		action_log_probs = distribution.log_prob(actions)
-
-		# Get distribution's entropy
 		dist_entropy = distribution.entropy()
 
 		return state_values, action_log_probs, dist_entropy
@@ -116,50 +110,38 @@ class ActorCritic(nn.Module):
 class PPOAgent:
 	def __init__(self, *, training_mode):
 		self.training_mode = training_mode
-
-		# In each PPO update, gradient steps are performed on self.trainable_policy,
-		# then its weights are copied to self.policy
-		self.trainable_policy = ActorCritic(self.training_mode)
 		self.policy = ActorCritic(self.training_mode)
-		self.policy.load_state_dict(self.trainable_policy.state_dict())
 
 		if self.training_mode:
 			self.buffer = RolloutBuffer()
 			self.optimiser = torch.optim.Adam([
-				{'params': self.trainable_policy.actor.parameters(), 'lr': ACTOR_LR},
-				{'params': self.trainable_policy.critic.parameters(), 'lr': CRITIC_LR}
+				{'params': self.policy.actor.parameters(), 'lr': ACTOR_LR},
+				{'params': self.policy.critic.parameters(), 'lr': CRITIC_LR}
 			])
 
-	def do_training(self, env):
+	def do_training(self, train_env, checkpoint_env):
 		timesteps_done = episode_num = 0
 		total_return_per_episode = []
 
 		while timesteps_done < TOTAL_TRAIN_TIMESTEPS:                                               # ALGORITHM STEP 2
-			env.reset()
-			state = env.get_state()
-			t = total_episode_return = total_vel = 0
+			train_env.reset()
+			state = train_env.get_state()
+			t = total_episode_return = 0
 
 			for t in range(1, MAX_EP_LENGTH + 1):
 				# Calculate action and make a step in the env
 				action = self.choose_action(state)
-				return_, state, terminal = env.step(action)
+				return_, state, terminal = train_env.step(action)
 
 				# For returns-to-go computation later
 				self.buffer.returns.append(return_)
 				self.buffer.terminals.append(terminal)
 
 				total_episode_return += return_
-				total_vel += env.car.vel
 				timesteps_done += 1
 
 				if len(self.buffer) == BATCH_SIZE:
 					# ------------------------------ PPO update ------------------------------ #
-
-					# Save model from last update
-					laps = env.car.num_gates_crossed / len(env.reward_gates)
-					mean_vel = total_vel / t
-					model_path = f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth'
-					self.save_model(model_path)
 
 					batch_states, batch_state_values, batch_actions, batch_action_log_probs = \
 						self.buffer.rollout()                                                       # ALGORITHM STEP 3
@@ -176,18 +158,19 @@ class PPOAgent:
 
 					for _ in range(GRAD_STEPS_PER_EPOCH):
 						state_values, action_log_probs, action_dist_entropy = \
-							self.trainable_policy.evaluate(batch_states, batch_actions)
+							self.policy.evaluate(batch_states, batch_actions)
 
-						# Calculate ratio r(t) = pi_theta(a_t | s_t) / pi_theta_old(a_t | s_t).
-						# r(t) = (prob. of choosing action a_t in state s_t under the current policy)
-						#      ÷ (prob. of choosing a_t | s_t under the prev. policy)
+						# Calculate ratio r(t) = pi_theta(a_t | s_t) / pi_theta_old(a_t | s_t)
+						# pi_theta_old is the policy before this update loop, captured in batch_action_log_probs
+						# i.e. r(t) = (prob. of choosing action a_t in state s_t under the current policy)
+						#           ÷ (prob. of choosing a_t | s_t under the old policy)
 						log_ratios = action_log_probs - batch_action_log_probs
 						ratios = torch.exp(log_ratios)
 
 						# Calculate surrogate losses (the minimum of these will be used in steps 6/7):
 						# surr2 clips the surr1 ratios to ensure the gradient step isn't too big
 						surr1 = ratios * advantages
-						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * advantages  # Clip
+						surr2 = torch.clamp(ratios, 1 - EPSILON, 1 + EPSILON) * advantages
 
 						# Calculate losses and do backpropagation                                     ALGORITHM STEP 6/7
 						# Actor loss is negative because we want to maximise (gradient ascent)
@@ -204,13 +187,12 @@ class PPOAgent:
 						loss.backward()
 						self.optimiser.step()
 
-					self.policy.load_state_dict(self.trainable_policy.state_dict())
 					self.buffer.clear()
+					self.checkpoint(checkpoint_env)
 
 				if terminal:
 					break
 
-			# Checkpoint and save model in case a PPO update just happened
 			episode_num += 1
 			percent_done = timesteps_done / TOTAL_TRAIN_TIMESTEPS
 			total_return_per_episode.append(total_episode_return)
@@ -220,16 +202,15 @@ class PPOAgent:
 					f'timesteps: {t} ({percent_done:.1%} done)  |  '
 					f'total return: {total_episode_return:.1f}')
 
-		laps = env.car.num_gates_crossed / len(env.reward_gates)
-		model_path = f'./ppo/model_{laps:.2f}_laps_final_update.pth'
-		self.save_model(model_path)
+		laps = train_env.car.num_gates_crossed / len(train_env.reward_gates)
+		self.save_model(f'./ppo/model_{laps:.2f}_laps_final_update.pth')
 
 		return total_return_per_episode
 
-	def choose_action(self, state):
+	def choose_action(self, state, greedy=False):
 		state = torch.tensor(state).float()
 		with torch.inference_mode():
-			action, action_log_prob, state_value = self.policy.act(state)
+			action, action_log_prob, state_value = self.policy.act(state, greedy or not self.training_mode)
 
 		if self.training_mode:
 			# Store data for rollout
@@ -252,12 +233,24 @@ class PPOAgent:
 			returns_to_go.append(discounted_return)
 
 		returns_to_go.reverse()
-		returns_to_go = torch.tensor(returns_to_go).float()
 
-		return returns_to_go
+		return torch.tensor(returns_to_go).float()
 
-	def save_model(self, path):
-		torch.save(self.policy.state_dict(), path)
+	def checkpoint(self, env):
+		env.reset()
+		state = env.get_state()
+		t = total_vel = 0
+
+		for t in range(1, MAX_EP_LENGTH + 1):
+			action = self.choose_action(state, True)  # Be greedy when testing
+			_, state, terminal = env.step(action)
+			if terminal:
+				break
+			total_vel += env.car.vel
+
+		laps = env.car.num_gates_crossed / len(env.reward_gates)
+		mean_vel = total_vel / t
+		torch.save(self.policy.state_dict(), f'./ppo/model_{laps:.2f}_laps_{mean_vel:.1f}_mean_vel.pth')
 
 	def load_model(self):
 		self.policy.load_state_dict(torch.load('./ppo/model.pth'))

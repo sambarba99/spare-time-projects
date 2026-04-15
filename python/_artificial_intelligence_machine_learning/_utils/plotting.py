@@ -98,7 +98,7 @@ def plot_image_grid(
 	if title:
 		pil_img = Image.fromarray(output_img)
 		draw = ImageDraw.Draw(pil_img)
-		x = (output_width - title_width) // 2  # Horizontal center
+		x = (output_width - title_width) // 2  # Horizontal centre
 		y = title_padding // 2 - 2
 		draw.text((x, y), title, font=font, fill=title_rgb)
 		output_img = np.array(pil_img)

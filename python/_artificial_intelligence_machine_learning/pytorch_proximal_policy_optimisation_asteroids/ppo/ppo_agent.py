@@ -78,7 +78,7 @@ class ActorCritic(nn.Module):
 		raise NotImplementedError
 
 	def act(self, state, greedy):
-		# Generate action distribution given state
+		# Generate action distribution given `state`
 		action_probs = self.actor(state)
 		distribution = Categorical(action_probs)
 

@@ -5,7 +5,6 @@ Author: Sam Barba
 Created 16/02/2023
 """
 
-from collections import deque
 import random
 
 import torch
@@ -24,82 +23,84 @@ class SumTree:
 
 	def __init__(self, capacity):
 		self.capacity = capacity
-		self.nodes = [0] * (2 * self.capacity - 1)
-		self.transition_priorities = [None] * self.capacity
-		self.write_idx = 0
+		self.tree = [0] * (2 * self.capacity - 1)
+		self.data_idx = [None] * self.capacity
+		self.write = 0
 
 	@property
 	def total(self):
-		return self.nodes[0]
+		return self.tree[0]
 
-	def add(self, priority, data):
-		self.transition_priorities[self.write_idx] = data
-		self.update(self.write_idx, priority)
-		self.write_idx = (self.write_idx + 1) % self.capacity
+	def add(self, priority, data_idx):
+		leaf_idx = self.write + self.capacity - 1
+		self.data_idx[self.write] = data_idx
+		self.update(leaf_idx, priority)
+		self.write = (self.write + 1) % self.capacity
 
-	def update(self, data_idx, priority):
-		"""
-		Update the SumTree by changing a leaf value (transition priority).
-		The change is propagated up to the root.
-		"""
+	def update(self, tree_idx, priority):
+		"""Update a leaf node and propagate the priority change up to the root"""
 
-		child_idx = data_idx + self.capacity - 1  # Child index in tree array
-		delta = priority - self.nodes[child_idx]
-		while child_idx >= 0:
-			self.nodes[child_idx] += delta
-			child_idx = (child_idx - 1) // 2
+		delta = priority - self.tree[tree_idx]
+		while True:
+			self.tree[tree_idx] += delta
+			if tree_idx == 0:
+				break
+			tree_idx = (tree_idx - 1) // 2
 
 	def get(self, cumulative_sum):
 		"""
-		Get the leaf number, leaf value and data value (transition priority)
-		that correspond to a given cumulative sum
+		Traverse the tree to find the leaf whose cumulative priority range contains `cumulative_sum`.
+		Uses a binary search over prefix sums.
+		Returns: tree_idx, priority, data_idx
 		"""
 
-		assert cumulative_sum <= self.total
+		# Clamp to guard against floating point drift exceeding the root sum
+		cumulative_sum = min(cumulative_sum, self.total - 1e-8)
 
 		idx = 0
-		while 2 * idx + 1 < len(self.nodes):
+		while 2 * idx + 1 < len(self.tree):
 			left = 2 * idx + 1
 			right = left + 1
 
-			if cumulative_sum <= self.nodes[left]:
+			if cumulative_sum <= self.tree[left]:
 				idx = left
 			else:
+				cumulative_sum -= self.tree[left]
 				idx = right
-				cumulative_sum -= self.nodes[left]
 
-		data_idx = idx - self.capacity + 1
+		data_idx = idx - (self.capacity - 1)
 
-		return data_idx, self.nodes[idx], self.transition_priorities[data_idx]
+		return idx, self.tree[idx], self.data_idx[data_idx]
 
 
 class PrioritisedReplayBuffer:
 	def __init__(self):
-		"""See ddqn/constants.py for attribute descriptions"""
+		"""See ddqn/constants.py for descriptions"""
 
 		self.capacity = PER_CAPACITY
 		self.tree = SumTree(self.capacity)
 		self.beta = PER_BETA
 		self.max_priority = PER_EPSILON  # Priority for new samples, init as epsilon
 
-		# Transition: (state, action, return, next_state, terminal)
-		self.transitions = deque(maxlen=self.capacity)
-
-		self.write_idx = 0
+		# Contains transitions of format: (state, action, return, next_state, terminal)
+		self.buffer = [None] * self.capacity
+		self.write = 0
 		self.size = 0
 
 	def store_transition(self, state, action, return_, next_state, terminal):
-		# Store transition index with maximum priority in sum tree
-		self.tree.add(self.max_priority, self.write_idx)
+		self.buffer[self.write] = (state, action, return_, next_state, terminal)
 
-		# Store transition in the buffer
-		self.transitions.append((state, action, return_, next_state, terminal))
+		# New samples get max priority
+		self.tree.add(self.max_priority, self.write)
 
-		self.write_idx = (self.write_idx + 1) % self.capacity
+		self.write = (self.write + 1) % self.capacity
 		self.size = min(self.size + 1, self.capacity)
 
 	def sample(self, batch_size):
-		priorities, tree_indices, sample_indices = [], [], []
+		assert self.size >= batch_size, f'Buffer only has {self.size} transitions; cannot sample {batch_size}'
+		assert self.tree.total > 0, 'SumTree is empty'
+
+		batch, tree_indices, priorities = [], [], []
 
 		# To sample a batch of size k, the range [0, p_total] is divided equally into k ranges.
 		# Next, a value is uniformly sampled from each range. Finally, the transitions (s, a, r, s', t)
@@ -107,43 +108,40 @@ class PrioritisedReplayBuffer:
 		segment_size = self.tree.total / batch_size
 
 		for i in range(batch_size):
-			segment_min = segment_size * i
-			segment_max = segment_size * (i + 1)
-			cumulative_sum = random.uniform(segment_min, segment_max)
+			a = segment_size * i
+			b = segment_size * (i + 1)
+			s = random.uniform(a, b)
+			tree_idx, priority, data_idx = self.tree.get(s)
 
-			# tree_idx is the sample's index in the tree, needed to update priorities;
-			# sample_idx is the sample's index in the buffer, needed to sample actual transitions
-			tree_idx, priority, sample_idx = self.tree.get(cumulative_sum)
-
-			priorities.append(priority)
+			batch.append(self.buffer[data_idx])
 			tree_indices.append(tree_idx)
-			sample_indices.append(sample_idx)
+			priorities.append(priority)
 
-		priorities = torch.tensor(priorities).float().unsqueeze(dim=1)
+		priorities = torch.tensor(priorities).float()
+		probs = priorities / (self.tree.total + 1e-8)
 
-		probs = priorities / self.tree.total
-
-		# The estimation of the expected value with stochastic updates relies on those updates
-		# corresponding to the same distribution as its expectation. PER introduces bias as it
-		# changes this distribution in an uncontrolled fashion, therefore changing the solution
-		# that the estimates will converge to. This can be corrected by using importance sampling
-		# weights w_IS = (1/N * 1/P(i))^b (fully compensates for non-uniform probabilities if b = 1).
-		weights_IS = (self.size * probs) ** -self.beta
+		# The estimation of the expected value with stochastic updates relies on those updates corresponding to the
+		# same distribution as its expectation. PER introduces bias as it changes this distribution in an uncontrolled
+		# fashion, therefore changing the solution that the estimates will converge to. This can be corrected by using
+		# importance sampling weights w = (1/N * 1/P(i))^b (fully compensates for non-uniform probabilities if b = 1).
+		weights = (self.size * probs) ** -self.beta
 
 		# Scale weights to [0,1] to avoid large updates
-		weights_IS /= weights_IS.max()
+		weights /= weights.max()
 
 		# Anneal beta towards 1
 		self.beta = min(self.beta + PER_BETA_INC, 1)
 
-		batch = [self.transitions[i] for i in sample_indices]
-
-		return batch, weights_IS, tree_indices
+		return batch, weights, tree_indices
 
 	def update_priorities(self, tree_indices, td_errors):
-		# Add epsilon to prevent 0 priority, and apply prioritisation rate
-		td_errors = (td_errors + PER_EPSILON) ** PER_ALPHA
+		"""Higher TD error -> higher priority -> sampled more often"""
 
-		for data_idx, priority in zip(tree_indices, td_errors):
-			self.tree.update(data_idx, priority)
+		# Add epsilon to prevent 0 priority, and apply prioritisation rate
+		td_errors = torch.abs(td_errors) + PER_EPSILON
+		priorities = td_errors ** PER_ALPHA
+
+		for tree_idx, priority in zip(tree_indices, priorities):
+			priority = priority.item()
+			self.tree.update(tree_idx, priority)
 			self.max_priority = max(self.max_priority, priority)

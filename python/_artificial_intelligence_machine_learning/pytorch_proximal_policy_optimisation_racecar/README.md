@@ -2,7 +2,7 @@
 
 An implementation of a simulated self-driving car that learns to race around a track using Proximal Policy Optimisation (PPO). For comparison against another type of RL agent, a Double Deep Q Network (DDQN) agent with Prioritised Experience Replay (PER) is also implemented.
 
-PPO agent's performance (clipped to 5 laps):
+PPO agent's performance (clipped to ?? laps):
 
 <p align="center">
 	<img src="ppo/ppo_5_laps.webp"/>
@@ -67,3 +67,5 @@ PER is also implemented here (`ddqn/prioritised_replay_buffer.py`), as it's bett
 Sources:
 - [Deep Reinforcement Learning with Double Q Learning](https://arxiv.org/pdf/1509.06461.pdf) (Hasselt, Guez, Silver 2015)
 - [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) (Schaul et. al. 2016)
+- [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf) (Schulman et. al. 2017)
+- [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/algorithms/ppo.html#exploration-vs-exploitation) (OpenAI 2018)

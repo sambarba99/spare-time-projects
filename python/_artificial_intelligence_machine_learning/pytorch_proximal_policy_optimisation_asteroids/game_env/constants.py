@@ -1,5 +1,5 @@
 """
-Constants for game environment
+Constants for environment
 
 Author: Sam Barba
 Created 11/07/2024
@@ -11,7 +11,7 @@ TURN_RATE = 0.07
 MAX_VEL = 7
 BULLET_SPEED = 12
 MAX_BULLETS = 4
-# Num. timesteps before a bullet disappears
+# No. timesteps before a bullet disappears
 BULLET_LIFESPAN = 52
 ASTEROID_RADII = {'small': 16, 'medium': 32, 'large': 64}
 ASTEROID_VELS = {'small': 4, 'medium': 2.5, 'large': 1}

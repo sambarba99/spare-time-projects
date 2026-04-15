@@ -18,6 +18,6 @@ VALUE_FUNC_COEFF = 0.5            # Value (critic) function coefficient
 ENTROPY_COEFF = 0.01              # Coefficient for entropy regularisation term
 
 # ----- MODEL/AGENT ----- #
-NUM_INPUTS = 13   # 10 distances to walls, car's vel and drift vel, direction to next reward gate
-NUM_ACTIONS = 9   # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
-LAYER_SIZE = 16   # Nodes per hidden layer
+NUM_INPUTS = 13  # 10 distances to walls, car's vel and drift vel, direction to next reward gate
+NUM_ACTIONS = 9  # Do nothing, accelerate, decelerate/reverse, turn left/right, combinations of these
+LAYER_SIZE = 16  # Nodes per hidden layer
