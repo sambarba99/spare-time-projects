@@ -1,6 +1,7 @@
 #ifndef MATRIX
 #define MATRIX
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -57,7 +58,8 @@ class Matrix {
 				b = 0;
 				for (int j = 1; j < n; j++) {
 					for (int k = 0; k < n; k++) {
-						if (k == i) continue;
+						if (k == i)
+							continue;
 						temp[a][b] = grid[j][k];
 						b++;
 						if (b == n - 1) {
@@ -143,50 +145,41 @@ class Matrix {
 
 		Matrix rref() {
 			vector<vector<long double>> rref_grid = grid;
-			int pivot_row, pivot_col = 0;
+			int i = 0;  // Current row
 
-			for (int i = 0; i < rows; i++) {
-				// 1. Find left-most nonzero entry (pivot)
-				pivot_row = i;
-				while (rref_grid[pivot_row][pivot_col] == 0) {
-					pivot_row++;
-					if (pivot_row == rows) {
-						// Back to initial row but next column
-						pivot_row == i;
-						pivot_col++;
-						if (pivot_col == cols)  // No pivot
-							return Matrix(rref_grid);
-					}
-				}
+			for (int pivot_col = 0; pivot_col < cols; pivot_col++) {
+				// Find pivot (largest absolute value in the current column, from row `i` downwards)
+				int pivot_row = i;
+				for (int r = i; r < rows; r++)
+					if (fabsl(rref_grid[r][pivot_col]) > fabsl(rref_grid[pivot_row][pivot_col]))
+						pivot_row = r;
 
-				// 2. If pivot row is below current row, swap these rows (push 0s to bottom)
-				if (pivot_row > i) {
-					vector<long double> temp = rref_grid[pivot_row];
-					rref_grid[pivot_row] = rref_grid[i];
-					rref_grid[i] = temp;
-				}
+				// If pivot is ~0, skip this col
+				if (fabsl(rref_grid[pivot_row][pivot_col]) < 1e-12)
+					continue;
 
-				// 3. Scale current row such that pivot becomes 1
-				long double scale = rref_grid[i][pivot_col];
-				vector<long double> scaled_row(cols);
+				// Move the best pivot into the current row by swapping if necessary
+				if (pivot_row != i)
+					swap(rref_grid[pivot_row], rref_grid[i]);
+
+				// Scale current row such that pivot becomes 1
+				double scale = rref_grid[i][pivot_col];
 				for (int j = 0; j < cols; j++)
-					scaled_row[j] = rref_grid[i][j] / scale;
-				rref_grid[i] = scaled_row;
+					rref_grid[i][j] /= scale;
 
-				// 4. Make entries above/below equal 0
+				// Make entries above/below current row equal 0 (eliminate)
 				for (int r = 0; r < rows; r++) {
-					scale = rref_grid[r][pivot_col];
-					if (r != i) {
-						vector<long double> new_row(cols);
-						for (int j = 0; j < cols; j++)
-							new_row[j] = rref_grid[r][j] - scale * rref_grid[i][j];
-						rref_grid[r] = new_row;
-					}
+					if (r == i)
+						continue;
+					double factor = rref_grid[r][pivot_col];
+					for (int j = 0; j < cols; j++)
+						rref_grid[r][j] -= factor * rref_grid[i][j];
 				}
 
-				// 5. Move to next col
-				pivot_col++;
-				if (pivot_col == cols) break;
+				// Move to next row
+				i++;
+				if (i >= rows)
+					break;
 			}
 
 			return Matrix(rref_grid);

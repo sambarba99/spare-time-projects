@@ -51,7 +51,7 @@ class LogisticRegressor:
 			if not first_time:
 				line_x = np.array([x_min, x_max])
 				line_y = m * line_x + c
-				# plt.plot(line_x, line_y, color='black', linewidth=1, ls='--')
+				# plt.plot(line_x, line_y, color='black', linestyle='--', linewidth=1)
 				plt.fill_between(line_x, line_y, -100, color='tab:orange', alpha=0.2)
 				plt.fill_between(line_x, line_y, 100, color='tab:blue', alpha=0.2)
 			plt.xlim(x_min, x_max)

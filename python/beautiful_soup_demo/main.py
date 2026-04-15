@@ -13,27 +13,27 @@ import requests
 
 def read_bbc_news():
 	url = 'https://www.bbc.co.uk/news'
-	result = requests.get(url)
-	html = BeautifulSoup(result.text, 'html.parser')
+	ret = requests.get(url)
+	html = BeautifulSoup(ret.text, 'html.parser')
 
 	# Search for 'Most read', then for next <ol> (ordered list) tag after it in tree structure
 	ordered_list = html.find(string='Most read').find_next('ol')
 	list_items = ordered_list.find_all('li')  # <li> = list item
 
-	result = ''
+	ret = ''
 	for idx, item in enumerate(list_items):
 		link_tag = item.find('a')  # <a> tags are links
 		link_text = link_tag.string
 		hyperlink = link_tag['href']  # Hypertext reference
-		result += f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})'
+		ret += f'\n{idx + 1}: {link_text}\n   (https://www.bbc.co.uk{hyperlink})'
 
-	return f'Most read BBC News stories:\n{result}'
+	return f'Most read BBC News stories:\n{ret}'
 
 
 def read_wiki_article_of_the_day():
 	url = 'https://en.wikipedia.org/wiki/Main_Page'
-	result = requests.get(url)
-	html = BeautifulSoup(result.text, 'html.parser')
+	ret = requests.get(url)
+	html = BeautifulSoup(ret.text, 'html.parser')
 
 	# Search for "From today's featured article", then for next <p> (paragraph) tag after it in tree structure
 	p = html.find(string="From today's featured article").find_next('p')
@@ -41,31 +41,31 @@ def read_wiki_article_of_the_day():
 	link_tag = p.find_all('a')[-1]  # Grab hyperlink manually to add to file
 	hyperlink = link_tag['href']
 
-	result = f'Wikipedia article of the day:\n\n{p_text} (https://en.wikipedia.org{hyperlink})'
+	ret = f'Wikipedia article of the day:\n\n{p_text} (https://en.wikipedia.org{hyperlink})'
 
-	return result
+	return ret
 
 
 def read_crypto_prices():
 	url = 'https://coinmarketcap.com/'
-	result = requests.get(url)
-	html = BeautifulSoup(result.text, 'html.parser')
+	ret = requests.get(url)
+	html = BeautifulSoup(ret.text, 'html.parser')
 
 	table = html.find('table')
 	table_rows = table.find_all('tr')
 	headers = table_rows[0].find_all('th')[2:4]
 	name_h, price_h = [h.text.strip() for h in headers]
 
-	result = 'Crypto prices:'
-	result += f'\n\n{name_h:>15}   |   {price_h}'
-	result += '\n' + '-' * 38
+	ret = 'Crypto prices:'
+	ret += f'\n\n{name_h:>15}   |   {price_h}'
+	ret += '\n' + '-' * 38
 
 	for tr in table_rows[1:10]:
 		row_data = tr.find_all('td')[2:4]  # <td> = table data
 		name, price = row_data
-		result += f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}'
+		ret += f'\n{name.find("p").text.strip():>15}   |   {price.text.strip()}'
 
-	return result
+	return ret
 
 
 if __name__ == '__main__':

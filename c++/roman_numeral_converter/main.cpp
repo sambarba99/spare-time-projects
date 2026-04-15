@@ -36,7 +36,8 @@ string int_to_numerals(int n) {
 			numerals += k;
 			n -= v;
 		}
-		if (!n) break;
+		if (!n)
+			break;
 	}
 
 	return numerals;

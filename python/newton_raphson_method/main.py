@@ -57,7 +57,7 @@ def handle_button_click(*, coefficients, find_root):
 	plt.plot(x_plot, y_deriv_plot, label=fr"$d/dx$ = ${str(poly_deriv)}$")
 	plt.subplots_adjust(top=0.86)
 	plt.axhline(color='black')
-	plt.vlines(root, y_min, y_max, color='red', ls='--', linewidth=1)
+	plt.vlines(root, y_min, y_max, color='red', linestyle='--', linewidth=1)
 	plt.xlabel(r'$x$')
 	plt.ylabel(r"$f(x)$ and $d/dx$")
 	plt.legend()

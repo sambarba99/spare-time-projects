@@ -66,7 +66,7 @@ class Boid:
 
 			d = self.pos.distance_to(boid.pos)
 			if d < self.perception_radius:
-				steering += (self.pos - boid.pos) / (d + 1e-6) ** 2  # Avoid 0 div error
+				steering += (self.pos - boid.pos) / (d + 1e-6) ** 2  # Avoid division by 0
 				total += 1
 
 		if total:

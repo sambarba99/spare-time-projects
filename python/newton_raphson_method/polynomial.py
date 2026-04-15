@@ -11,7 +11,7 @@ import random
 class Polynomial:
 	def __init__(self, coefficients):
 		"""
-		Parameters:
+		Args:
 			coefficients: Define the polynomial in the form a_n, a_(n-1), ..., a_0
 			i.e. f(x) = a_n(x^n) + a_(n-1)(x^(n-1)) + ... + a_1(x) + a_0
 		"""
@@ -54,41 +54,54 @@ class Polynomial:
 		return Polynomial(deriv_coefficients)
 
 	def __repr__(self):
-		def expr(degree):
+		def format_number(n):
+			s = f'{n:.4g}'
+			if 'e' in s:
+				base, exp = s.split('e')
+				if base == '1':
+					return fr'10^{{{int(exp)}}}'
+				else:
+					return fr'{base}\cdot10^{{{int(exp)}}}'  # E.g. 2.5 ⋅ 10^{-9} (LaTeX needs exponents wrapping in {})
+			return s
+
+		def power(degree):
 			if degree == 0:
 				return ''
 			if degree == 1:
 				return 'x'
-			return f'x^{degree}'
+			return f'x^{{{degree}}}'
 
 
 		degree = len(self.coefficients) - 1
-		ret = ''
+		terms = []
 
-		for i in range(degree + 1):
-			c = self.coefficients[i]
+		for idx, c in enumerate(self.coefficients):
+			if c == 0:
+				continue
 
-			if abs(c) == 1 and i < degree:
-				ret += ' +' if c > 0 else ' -'
-				if i > 0:
-					ret += ' '
-				ret += expr(degree - i)
-			elif c != 0:
-				if c == (int_c := int(c)):
-					c = int_c
+			d = degree - idx
+			abs_c = abs(c)
 
-				if c > 0:
-					ret += ' + '
-				else:
-					ret += ' -' if i == 0 else ' - '
+			if d > 0 and abs_c == 1:
+				coeff_str = ''
+			else:
+				if float(abs_c).is_integer():
+					abs_c = int(abs_c)
+				coeff_str = str(abs_c) if isinstance(abs_c, int) else format_number(abs_c)
 
-				ret += f'{abs(c)}{expr(degree - i)}'
+			term = f'{coeff_str}{power(d)}'
 
-		return ret.lstrip(' + ')
+			if not terms:
+				terms.append(term if c > 0 else f'-{term}')
+			else:
+				sign = '+' if c > 0 else '-'
+				terms.append(f'{sign}{term}')
+
+		return ' '.join(terms)
 
 	# Evaluate polynomial at x
 	def __call__(self, x):
-		result = 0
+		ret = 0
 		for idx, c in enumerate(self.coefficients[::-1]):
-			result += c * x ** idx
-		return result
+			ret += c * x ** idx
+		return ret

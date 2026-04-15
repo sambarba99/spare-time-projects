@@ -128,29 +128,37 @@ class Solver:
 
 			ret = matrix.copy()
 			rows, cols = matrix.shape
-			curr_row = 0
+			i = 0  # Current row
 
-			for col in range(cols - 1):  # Avoid the augmented column
-				# Find the row with the largest element in the current column
-				max_row_idx = np.abs(ret[curr_row:rows, col]).argmax() + curr_row
-				if ret[max_row_idx, col] == 0:
-					continue  # Skip this column, no pivot can be made
+			for pivot_col in range(cols - 1):  # Exclude the augmented column
+				# Find pivot (largest absolute value in the current column, from row `i` downwards)
+				pivot_row = max(range(i, rows), key=lambda r: abs(ret[r, pivot_col]))
 
-				# Swap the current row with the row containing the largest element
-				ret[[curr_row, max_row_idx]] = ret[[max_row_idx, curr_row]]
-				# Scale the pivot row to make the pivot equal to 1
-				ret[curr_row] /= ret[curr_row, col]
+				# If pivot is ~0, skip this col
+				if abs(ret[pivot_row, pivot_col]) < 1e-12:
+					continue
 
-				# Eliminate all other entries in the current column
-				for i in range(rows):
-					if i != curr_row:
-						ret[i] -= ret[i, col] * ret[curr_row]
+				# Move the best pivot into the current row by swapping if necessary
+				if pivot_row != i:
+					ret[[pivot_row, i]] = ret[[i, pivot_row]]
 
-				curr_row += 1
-				if curr_row >= rows:
+				# Scale current row such that pivot becomes 1
+				scale = ret[i, pivot_col]
+				ret[i] /= scale
+
+				# Make entries above/below current row equal 0 (eliminate)
+				for r in range(rows):
+					if r != i:
+						factor = ret[r, pivot_col]
+						ret[r] -= factor * ret[i]
+
+				# Move to next row
+				i += 1
+				if i >= rows:
 					break
 
 			return ret
+
 
 		ret = False
 		numbered_cells = []
