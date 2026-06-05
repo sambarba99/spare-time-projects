@@ -251,6 +251,7 @@ class GameEnv:
 		if self.do_rendering:
 			pg.init()
 			pg.display.set_caption('Deep Reinforcement Learning self-driving car')
+			self.driver = 'you'
 			self.font30 = pg.font.SysFont('consolas', 30)
 			self.font24 = pg.font.SysFont('consolas', 24)
 			self.scene = pg.display.set_mode((SCENE_WIDTH, SCENE_HEIGHT))
@@ -344,7 +345,7 @@ class GameEnv:
 		# Penalise every timestep
 		return TIMESTEP_PENALTY, next_state, False
 
-	def render(self, action, render_meta, terminal, driver_lbl, state_value, min_hue=0, max_hue=0.333):
+	def render(self, action, render_meta, terminal, state_value, min_hue=0, max_hue=0.333):
 		self.scene.fill('black')
 
 		# Compute lookahead position based on car vel and heading
@@ -462,7 +463,7 @@ class GameEnv:
 		laps = self.car.num_gates_crossed / len(self.reward_gates)
 		laps_lbl = self.font30.render(f'Laps: {laps:.2f}', True, 'red' if terminal else 'white')
 		speed_lbl = self.font30.render(f'Speed: {self.car.vel:.1f}', True, 'red' if terminal else 'white')
-		driver_lbl = self.font24.render(driver_lbl, True, 'red' if terminal else 'white')
+		driver_lbl = self.font24.render(f'Driver: {self.driver}', True, 'red' if terminal else 'white')
 		self.scene.blit(laps_lbl, (29, 150))
 		self.scene.blit(speed_lbl, (29, 190))
 		self.scene.blit(driver_lbl, (29, 232))

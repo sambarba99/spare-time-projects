@@ -30,25 +30,23 @@ PRESET_PUZZLES = {
 board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 given_coords = None  # Store coords of numbers that are already given
 backtrack_grid = None  # For visualising backtracks
-num_backtracks = 0
+
+
+def find_free_square():
+	return next(((y, x) for (y, x), val in np.ndenumerate(board) if val == 0), None)
+
+
+def is_legal(n, y, x):
+	# Top-left coords of big square
+	by = y - (y % 3)
+	bx = x - (x % 3)
+
+	# Check row + column + big square
+	return n not in board[y] and n not in board[:, x] and n not in board[by:by + 3, bx:bx + 3]
 
 
 def solve():
 	"""Non-recursive depth-first search with backtracking to solve the board"""
-
-	def find_free_square():
-		return next(((y, x) for (y, x), val in np.ndenumerate(board) if val == 0), None)
-
-	def is_legal(n, y, x):
-		# Top-left coords of big square
-		by = y - (y % 3)
-		bx = x - (x % 3)
-
-		# Check row + column + big square
-		return n not in board[y] and n not in board[:, x] and n not in board[by:by + 3, bx:bx + 3]
-
-
-	global num_backtracks
 
 	y, x = find_free_square()
 	stack = [(1, y, x)]  # Start checking numbers from 1
@@ -63,15 +61,14 @@ def solve():
 		if n > 9:
 			# No possible number found for (y, x), backtrack
 			board[y, x] = 0
-			num_backtracks += 1
 			backtrack_grid[y, x] += 1
-			draw_grid(f'Solving ({num_backtracks} backtracks)')
+			draw_grid(f'Solving ({backtrack_grid.sum():,} backtracks)')
 		elif is_legal(n, y, x):
 			board[y, x] = n
-			draw_grid(f'Solving ({num_backtracks} backtracks)')
+			draw_grid(f'Solving ({backtrack_grid.sum():,} backtracks)')
 			next_free = find_free_square()
 			if next_free:
-				# Append (n + 1, y, x) even though we've just placed n at (y,x) to prepare for possible backtracking
+				# Save current square for future backtracking, then move on to next empty square
 				stack.append((n + 1, y, x))
 				stack.append((1, *next_free))
 			else:
@@ -147,7 +144,6 @@ if __name__ == '__main__':
 		for difficulty_lvl, config in PRESET_PUZZLES.items():
 			given_coords = []
 			backtrack_grid = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
-			num_backtracks = 0
 
 			for idx, n in enumerate(config):
 				y, x = divmod(idx, BOARD_SIZE)
@@ -160,6 +156,6 @@ if __name__ == '__main__':
 			start = perf_counter()
 			solve()
 			interval = perf_counter() - start
-			draw_grid(f'Solved ({num_backtracks} backtracks, {interval:.3}s) - click for next puzzle')
+			draw_grid(f'Solved ({backtrack_grid.sum():,} backtracks, {interval:.3f}s) - click for next puzzle')
 			plot_backtracks(difficulty_lvl)
 			wait_for_click()

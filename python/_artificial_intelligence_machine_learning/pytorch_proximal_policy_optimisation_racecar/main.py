@@ -15,7 +15,6 @@ Created 16/02/2023
 import sys
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pygame as pg
 from scipy.signal import savgol_filter
 import torch
@@ -25,7 +24,6 @@ from pytorch_proximal_policy_optimisation_racecar.game_env.game_env import GameE
 
 
 plt.rcParams['figure.figsize'] = (10, 6)
-np.random.seed(1)
 torch.manual_seed(1)
 
 
@@ -74,8 +72,7 @@ def test():
 								render_state_values = not render_state_values
 							case pg.K_p:
 								agent_active = not agent_active
-
-			driver_lbl = 'Driver: PPO agent' if agent_active else 'Driver: you'
+								env.driver = 'PPO agent' if agent_active else 'you'
 
 			if not paused:
 				if agent_active:
@@ -113,7 +110,6 @@ def test():
 				action,
 				render_meta=render_meta,
 				terminal=terminal,
-				driver_lbl=driver_lbl,
 				state_value=state_value if render_state_values else None
 			)
 

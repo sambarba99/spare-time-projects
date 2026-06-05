@@ -221,6 +221,7 @@ class GameEnv:
 		if do_rendering:
 			pg.init()
 			pg.display.set_caption('PPO Asteroids player')
+			self.player = 'you'
 			self.font28 = pg.font.SysFont('consolas', 28)
 			self.font22 = pg.font.SysFont('consolas', 22)
 			self.scene = pg.display.set_mode((SCENE_WIDTH, SCENE_HEIGHT))
@@ -448,7 +449,7 @@ class GameEnv:
 
 		return timestep_reward, next_state, False
 
-	def render(self, action, terminal, player_lbl):
+	def render(self, action, terminal):
 		self.scene.fill('black')
 
 		# Render spaceship
@@ -490,7 +491,7 @@ class GameEnv:
 
 		level_lbl = self.font28.render(f'Level: {self.level}', True, 'red' if terminal else 'white')
 		score_lbl = self.font28.render(f'Score: {self.spaceship.score}', True, 'red' if terminal else 'white')
-		player_lbl = self.font22.render(player_lbl, True, 'red' if terminal else 'white')
+		player_lbl = self.font22.render(f'Player: {self.player}', True, 'red' if terminal else 'white')
 		self.scene.blit(level_lbl, (24, 104))
 		self.scene.blit(score_lbl, (24, 138))
 		self.scene.blit(player_lbl, (24, 173))

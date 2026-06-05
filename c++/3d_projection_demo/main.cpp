@@ -71,7 +71,7 @@ double dz = 1;
 double theta_x = 0;
 double theta_y = 0;
 double theta_z = 0;
-Mat orientation = {{  // Identity matrix initially
+Mat orientation = {{  // Initial identity matrix
 	{1, 0, 0},
 	{0, 1, 0},
 	{0, 0, 1}

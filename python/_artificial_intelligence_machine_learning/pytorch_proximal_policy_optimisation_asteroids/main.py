@@ -115,8 +115,7 @@ def test():
 								paused = not paused
 							case pg.K_p:
 								agent_active = not agent_active
-
-			player_lbl = 'Player: PPO agent' if agent_active else 'Player: you'
+								env.player = 'PPO agent' if agent_active else 'you'
 
 			if not paused:
 				if agent_active:
@@ -155,7 +154,7 @@ def test():
 
 				_, state, terminal = env.step(action)
 
-			env.render(action, terminal=terminal, player_lbl=player_lbl)
+			env.render(action, terminal=terminal)
 
 			shooting = False  # Reset for next loop
 
