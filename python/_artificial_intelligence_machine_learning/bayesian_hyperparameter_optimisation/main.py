@@ -11,93 +11,49 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from skopt import gp_minimize
 from skopt.space import Categorical, Integer, Real
+import optuna
 import torch
-from torch import nn
 from torch.utils.data import DataLoader
 
 from _utils.csv_data_loader import load_csv_regression_data
 from _utils.custom_dataset import CustomDataset
-from _utils.early_stopping import EarlyStopping
+from custom_nn import CustomNN
 
 
-plt.rcParams['figure.figsize'] = (6, 4)
+plt.rcParams['figure.figsize'] = (8, 5)
 pd.set_option('display.max_columns', 14)
 pd.set_option('display.width', None)
-torch.manual_seed(1)
+optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 DATASET_PATH = 'C:/Users/sam/Desktop/projects/datasets/boston_housing.csv'
-NUM_FEATURES = 13
-NUM_OUTPUTS = 1
 BATCH_SIZE = 32
-NUM_EPOCHS = 100
 NUM_OPTIMISATION_ITERS = 25
 
 
-class CustomNN:
-	def __init__(self, num_hidden_layers, nodes_per_hidden_layer, activation_type, dropout_rate, learning_rate):
-		torch.manual_seed(1)
+def scikit_objective(params):
+	torch.manual_seed(1)
 
-		layers = [nn.Linear(NUM_FEATURES, nodes_per_hidden_layer)]
-
-		for _ in range(num_hidden_layers - 1):
-			layers.append(get_activation_layer(activation_type))
-			layers.append(nn.Dropout(dropout_rate))
-			layers.append(nn.Linear(nodes_per_hidden_layer, nodes_per_hidden_layer))
-
-		layers.append(get_activation_layer(activation_type))
-		layers.append(nn.Dropout(dropout_rate))
-		layers.append(nn.Linear(nodes_per_hidden_layer, NUM_OUTPUTS))
-
-		self.model = nn.Sequential(*layers)
-		self.loss_func = nn.MSELoss()
-		self.optimiser = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
-		self.early_stopping = EarlyStopping(
-			model=self.model, patience=10, mode='min',
-			track_best_weights=False, print_precision_on_stop=None
-		)
-
-	def fit(self, train_loader, val_loader):
-		for _ in range(NUM_EPOCHS):
-			self.model.train()
-			for x_train, y_train in train_loader:
-				y_pred = self.model(x_train).squeeze()
-				loss = self.loss_func(y_pred, y_train)
-
-				self.optimiser.zero_grad()
-				loss.backward()
-				self.optimiser.step()
-
-			self.model.eval()
-			x_val, y_val = next(iter(val_loader))
-			with torch.inference_mode():
-				y_val_pred = self.model(x_val).squeeze()
-			val_loss = self.loss_func(y_val_pred, y_val).item()
-
-			if self.early_stopping(val_loss):
-				break
-
-		return self.early_stopping.best_score
-
-
-def get_activation_layer(activation_type):
-	match activation_type:
-		case 'relu':
-			return nn.ReLU()
-		case 'leakyrelu':
-			return nn.LeakyReLU()
-		case 'elu':
-			return nn.ELU()
-		case 'gelu':
-			return nn.GELU()
-		case 'prelu':
-			return nn.PReLU()
-		case _:
-			raise ValueError
-
-
-def objective(params):
 	model = CustomNN(*params)
 	val_loss = model.fit(train_loader, val_loader)
+
+	return val_loss
+
+
+def optuna_objective(trial):
+	torch.manual_seed(1)
+
+	num_hidden_layers = trial.suggest_int('Num hidden layers', 1, 4)
+	nodes_per_hidden_layer = trial.suggest_categorical('Nodes per hidden layer', [8, 16, 32, 64])
+	activation_type = trial.suggest_categorical('Activation type', ['relu', 'leakyrelu', 'elu', 'gelu', 'prelu'])
+	dropout_rate = trial.suggest_float('Dropout rate', 0, 0.5)
+	learning_rate = trial.suggest_float('Learning rate', 1e-5, 1e-2, log=True)
+	params = [num_hidden_layers, nodes_per_hidden_layer, activation_type, dropout_rate, learning_rate]
+
+	model = CustomNN(*params)
+	val_loss = model.fit(train_loader, val_loader)
+
+	objective_scores.append(val_loss)
+	print(f'Iteration {len(objective_scores)}/{NUM_OPTIMISATION_ITERS} | params: {params} | score: {val_loss}')
 
 	return val_loss
 
@@ -132,44 +88,53 @@ if __name__ == '__main__':
 	train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 	val_loader = DataLoader(val_dataset, batch_size=len(x_val))
 
-	# Define the hyperparameter search space
+	# Define the hyperparameter search space (for scikit-optimize)
 
 	search_space = [
-		Integer(1, 4),                                               # Num hidden layers: int from 1-4
+		Integer(1, 4),                                               # Num hidden layers
 		Categorical([8, 16, 32, 64]),                                # Nodes per hidden layer
 		Categorical(['relu', 'leakyrelu', 'elu', 'gelu', 'prelu']),  # Activation type
-		Real(0, 0.5),                                                # Dropout rate: real from 0-0.5
-		Real(1e-4, 0.01, prior='log-uniform')                        # Learning rate: real from 0.0001-0.01
+		Real(0, 0.5),                                                # Dropout rate
+		Real(1e-5, 1e-2, prior='log-uniform')                        # Learning rate (sampled from a logarithmic scale)
 	]
 
-	# Run Bayesian optimisation
+	# Run optimisation
+
+	choice = input('Enter 1 for scikit-optimize or 2 for Optuna: ')
 
 	objective_scores = []
-	print('Running Bayesian optimisation...\n')
+	print('\nRunning optimisation...\n')
 
-	res = gp_minimize(
-		func=objective,
-		dimensions=search_space,
-		n_calls=NUM_OPTIMISATION_ITERS,
-		callback=[print_progress],
-		random_state=1
-	)
+	if choice == '1':
+		res = gp_minimize(
+			func=scikit_objective,
+			dimensions=search_space,
+			n_calls=NUM_OPTIMISATION_ITERS,
+			callback=[print_progress],
+			random_state=1
+		)
 
-	print('\nBest hyperparameters:')
-	print(f'\tNum hidden layers: {res.x[0]}')
-	print(f'\tNodes per hidden layer: {res.x[1]}')
-	print(f'\tActivation type: {res.x[2]}')
-	print(f'\tDropout rate: {res.x[3]:.2f}')
-	print(f'\tLearning rate: {res.x[4]:.2e}')
-	print(f'\tBest val loss (MSE): {res.fun:.2f}')
+		print(f'\nBest val loss (MSE): {res.fun:.2f}')
 
-	custom_nn = CustomNN(*res.x)
-	print('\nModel with best params:\n')
-	print(custom_nn.model)
+		print('\nBest hyperparameters:')
+		print(f'\tNum hidden layers: {res.x[0]}')
+		print(f'\tNodes per hidden layer: {res.x[1]}')
+		print(f'\tActivation type: {res.x[2]}')
+		print(f'\tDropout rate: {res.x[3]:.2f}')
+		print(f'\tLearning rate: {res.x[4]:.2e}')
+	else:
+		sampler = optuna.samplers.TPESampler(seed=1)
+		study = optuna.create_study(direction='minimize', sampler=sampler)
+		study.optimize(optuna_objective, n_trials=NUM_OPTIMISATION_ITERS)
+
+		print(f'\nBest val loss (MSE): {study.best_value:.2f}')
+
+		print('\nBest hyperparameters:')
+		for k, v in study.best_params.items():
+			print(f'\t{k}: {v}')
 
 	running_minimum_objective = np.minimum.accumulate(objective_scores)
-	plt.plot(range(1, NUM_OPTIMISATION_ITERS + 1), running_minimum_objective)
-	plt.scatter(range(1, NUM_OPTIMISATION_ITERS + 1), running_minimum_objective)
+	plt.plot(range(1, NUM_OPTIMISATION_ITERS + 1), running_minimum_objective, marker='o')
 	plt.xlabel('Num calls $n$')
 	plt.ylabel('Min $f(x)$ after $n$ calls')
 	plt.title('Convergence plot')

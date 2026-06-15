@@ -4,7 +4,7 @@
 	<img src="agent_gameplay.webp"/>
 </p>
 
-In regular Q-learning, the Q value update is:
+In regular Q-learning (see [this other project](../reinforcement_learning_basics)), the Q value update is:
 
 $$Q(s_t,a_t|\theta_t)=r_t+\gamma \underset{a \in A}{\mathop{\mathrm{max}}}\bigg(Q(s_{t+1},a|\theta_t)\bigg)$$
 
@@ -46,6 +46,6 @@ PER is also implemented here (`dueling_ddqn/prioritised_replay_buffer.py`), as i
 
 Sources:
 - [Cart-Pole Gymnasium documentation](https://gymnasium.farama.org/environments/classic_control/cart_pole/)
-- [Deep Reinforcement Learning with Double Q Learning](https://arxiv.org/pdf/1509.06461.pdf) (Hasselt, Guez, Silver 2015)
+- [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) (Hasselt, Guez, Silver 2015)
 - [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581) (Wang et. al. 2016)
 - [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) (Schaul et. al. 2016)

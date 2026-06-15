@@ -1,5 +1,5 @@
 """
-Agent class for reinforcement learning algorithms demo
+Agent class for Reinforcement Learning algorithms demo
 
 Author: Sam Barba
 Created 25/02/2022
@@ -38,6 +38,7 @@ class Agent:
 
 	def __discounted_reward(self, new_state, v):
 		"""Discounted reward of a new state"""
+
 		return self.gamma * v[new_state]
 
 	def policy_iteration(self, theta=1e-9):
@@ -46,14 +47,16 @@ class Agent:
 		# Dicts and list initialised only with start state; new states are added as they're discovered
 		# Initial arbitrary policy (random)
 		policy = {self.env.start: np.random.choice(self.env.actions)}
+
 		# Initial arbitrary value function (v(s) = 0 for each state)
 		v = {self.env.start: 0}
+
 		non_terminal_states = [self.env.start]
 
-		policy_stable = False
+		policy_converged = False
 
-		while not policy_stable:
-			policy_stable = True
+		while not policy_converged:
+			policy_converged = True
 
 			# Policy evaluation (compute each v(s) under current policy)
 			convergence = 1
@@ -99,7 +102,7 @@ class Agent:
 				policy[state] = best_action
 
 				if old_action != best_action:
-					policy_stable = False
+					policy_converged = False
 
 		# Update Q-table, as it is used in drawing grid at the end
 		self.q_table = {state: np.zeros(4) for state in policy}  # 4 possible actions
@@ -169,6 +172,7 @@ class Agent:
 				state = new_state
 
 			trajectory.reverse()
+
 			# Compute 'returns-to-go' (estimated future returns from a given start state)
 			g = 0
 			for idx, step in enumerate(trajectory):
@@ -233,8 +237,9 @@ class Agent:
 				if new_state not in self.q_table:  # Update with any new states
 					self.q_table[new_state] = np.zeros(4)
 
-				self.q_table[state][action] += self.alpha * (reward + self.gamma *
-					max(self.q_table[new_state]) - self.q_table[state][action])
+				self.q_table[state][action] += self.alpha * (
+					reward + self.gamma * max(self.q_table[new_state]) - self.q_table[state][action]
+				)
 
 				state = new_state
 
@@ -244,7 +249,8 @@ class Agent:
 		if print_table:
 			print("\n# --- Final Q-table ('state: NESW values') --- #\n")
 			for state, action_vals in sorted(self.q_table.items()):
-				print(f'{state}: ', action_vals.round(3))
+				y, x = [int(i) for i in state]
+				print(f'({y}, {x}): ', action_vals.round(3))
 
 		# Draw environment grid depicting optimal policy and v(s) for each state
 		self.env.render(self.q_table)
@@ -256,4 +262,5 @@ class Agent:
 			- A specific value of a state-action is accessed via q_table[state][action]
 		Initialised empty; new states are added as they're discovered
 		"""
+
 		self.q_table = dict()
