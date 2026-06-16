@@ -2,7 +2,7 @@
 MySQL demo
 
 Author: Sam Barba
-Created 18/08/2019
+Created 2019-08-18
 """
 
 import mysql.connector

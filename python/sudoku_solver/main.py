@@ -2,7 +2,7 @@
 Sudoku solver using Depth-First Search and backtracking
 
 Author: Sam Barba
-Created 07/09/2021
+Created 2021-09-07
 """
 
 import sys

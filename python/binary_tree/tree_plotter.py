@@ -2,7 +2,7 @@
 Binary tree plotter using GraphViz
 
 Author: Sam Barba
-Created 19/10/2022
+Created 2022-10-19
 """
 
 from graphviz import Graph

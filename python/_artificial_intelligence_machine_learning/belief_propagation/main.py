@@ -2,7 +2,7 @@
 Belief propagation in a Bayesian network demo
 
 Author: Sam Barba
-Created 29/11/2021
+Created 2021-11-29
 """
 
 import numpy as np

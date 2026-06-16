@@ -12,7 +12,7 @@ Controls:
 	Scroll: zoom
 
 Author: Sam Barba
-Created 14/11/2022
+Created 2022-11-14
 */
 
 #include <iomanip>

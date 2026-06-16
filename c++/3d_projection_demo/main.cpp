@@ -12,7 +12,7 @@ Controls:
 	R: reset
 
 Author: Sam Barba
-Created 03/02/2026
+Created 2026-02-03
 */
 
 #include <array>

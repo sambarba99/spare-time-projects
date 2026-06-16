@@ -2,7 +2,7 @@
 Custom dataset class
 
 Author: Sam Barba
-Created 26/03/2024
+Created 2024-03-26
 """
 
 from torch.utils.data import Dataset

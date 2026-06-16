@@ -2,7 +2,7 @@
 Polynomial regressor class
 
 Author: Sam Barba
-Created 18/10/2023
+Created 2023-10-18
 """
 
 import numpy as np
@@ -29,6 +29,6 @@ class PolynomialRegressor:
 		for d in range(1, self.degree + 1):
 			x_poly = np.c_[x_poly, x ** d]
 
-		y_pred = x_poly.dot(self.theta)
+		preds = x_poly.dot(self.theta)
 
-		return y_pred
+		return preds

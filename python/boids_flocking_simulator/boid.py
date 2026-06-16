@@ -2,7 +2,7 @@
 Boid class
 
 Author: Sam Barba
-Created 11/03/2022
+Created 2022-03-11
 """
 
 import numpy as np

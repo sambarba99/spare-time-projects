@@ -2,7 +2,7 @@
 Polynomial class for Newton-Raphson method demo
 
 Author: Sam Barba
-Created 14/10/2021
+Created 2021-10-14
 """
 
 import random

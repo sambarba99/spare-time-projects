@@ -2,7 +2,7 @@
 Root/stationary point finder using Newton-Raphson method
 
 Author: Sam Barba
-Created 14/10/2021
+Created 2021-10-14
 """
 
 import tkinter as tk

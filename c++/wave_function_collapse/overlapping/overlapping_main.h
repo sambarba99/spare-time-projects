@@ -11,7 +11,7 @@ their superposition. By iterating WFC and checking which neighbour tile states a
 have just one state (its superposition is 'collapsed'), meaning its tile image can be visualised.
 
 Author: Sam Barba
-Created 15/02/2025
+Created 2025-02-15
 */
 
 #ifndef OVERLAPPING_MAIN

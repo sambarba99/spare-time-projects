@@ -2,7 +2,7 @@
 Kalman filter demo
 
 Author: Sam Barba
-Created 06/10/2024
+Created 2024-10-06
 """
 
 import matplotlib.pyplot as plt

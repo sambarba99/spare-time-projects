@@ -2,7 +2,7 @@
 Web scraping demo with Beautiful Soup
 
 Author: Sam Barba
-Created 26/10/2022
+Created 2022-10-26
 """
 
 from pathlib import Path

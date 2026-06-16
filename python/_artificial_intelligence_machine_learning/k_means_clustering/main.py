@@ -2,7 +2,7 @@
 K-Means clustering demo
 
 Author: Sam Barba
-Created 21/11/2021
+Created 2021-11-21
 """
 
 from sklearn.datasets import make_blobs
@@ -21,5 +21,5 @@ if __name__ == '__main__':
 
 	k_means = KMeans(NUM_CLUSTERS)
 	k_means.fit(x)
-	y_pred = k_means.predict(x)
-	print(f'\ny_pred = {y_pred}')
+	preds = k_means.predict(x)
+	print(f'\nPredictions = {preds}')

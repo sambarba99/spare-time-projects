@@ -2,7 +2,7 @@
 Matrix calculator
 
 Author: Sam Barba
-Created 03/09/2021
+Created 2021-09-03
 */
 
 #include <iostream>

@@ -2,7 +2,7 @@
 Node class for A* and Dijkstra demo
 
 Author: Sam Barba
-Created 20/09/2021
+Created 2021-09-20
 """
 
 from numpy import inf

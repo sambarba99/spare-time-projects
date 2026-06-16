@@ -2,7 +2,7 @@
 XGBoost class
 
 Author: Sam Barba
-Created 09/03/2024
+Created 2024-03-09
 """
 
 import numpy as np
@@ -26,14 +26,14 @@ class XGBoostClassifier:
 
 	def fit(self, x, y):
 		# Initialise the predictions with zeros
-		pred = np.zeros((len(y), self.num_classes))
+		preds = np.zeros((len(y), self.num_classes))
 
 		# One-hot encode the target variable
 		y_one_hot = np.eye(self.num_classes)[y]
 
 		for _ in range(self.num_estimators):
 			# Calculate the gradient
-			gradient = self.__calculate_gradient(y_one_hot, pred)
+			gradient = self.__calculate_gradient(y_one_hot, preds)
 
 			# Fit a weak learner (decision tree) to the gradient, then store it
 			tree = DecisionTreeRegressor(max_depth=self.max_depth)
@@ -41,16 +41,16 @@ class XGBoostClassifier:
 			self.models.append(tree)
 
 			# Update the predictions using the new weak learner
-			pred += self.learning_rate * tree.predict(x)
+			preds += self.learning_rate * tree.predict(x)
 
 	def predict(self, x):
 		# Initialise predictions with zeros
-		pred = np.zeros((x.shape[0], self.num_classes))
+		preds = np.zeros((x.shape[0], self.num_classes))
 
 		# Make predictions using each weak learner
 		for model in self.models:
-			pred += self.learning_rate * model.predict(x)
+			preds += self.learning_rate * model.predict(x)
 
 		# Apply softmax function to convert to probabilities
-		probs = self.__softmax(pred)
+		probs = self.__softmax(preds)
 		return probs

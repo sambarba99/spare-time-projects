@@ -10,7 +10,7 @@ their superposition. By iterating WFC and checking which neighbour tile states a
 have just one state (its superposition is 'collapsed'), meaning its tile image can be visualised.
 
 Author: Sam Barba
-Created 19/07/2023
+Created 2023-07-19
 */
 
 #ifndef ADJACENT_MAIN

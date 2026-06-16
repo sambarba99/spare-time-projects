@@ -2,7 +2,7 @@
 Utility class for Bayesian linear regression demo
 
 Author: Sam Barba
-Created 03/03/2022
+Created 2022-03-03
 """
 
 import numpy as np

@@ -2,7 +2,7 @@
 Simulated Annealing applied to the TSP
 
 Author: Sam Barba
-Created 31/01/2022
+Created 2022-01-31
 """
 
 import matplotlib.pyplot as plt

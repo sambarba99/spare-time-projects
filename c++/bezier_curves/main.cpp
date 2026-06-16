@@ -7,7 +7,7 @@ Controls:
 	R: reset
 
 Author: Sam Barba
-Created 19/11/2022
+Created 2022-11-19
 */
 
 #include <cmath>

@@ -2,7 +2,7 @@
 Barnsley fern generator
 
 Author: Sam Barba
-Created 26/10/2025
+Created 2025-10-26
 */
 
 #include <opencv2/opencv.hpp>

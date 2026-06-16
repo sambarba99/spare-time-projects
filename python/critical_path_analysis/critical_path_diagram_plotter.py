@@ -2,7 +2,7 @@
 Critical path diagram plotter using GraphViz
 
 Author: Sam Barba
-Created 06/11/2022
+Created 2022-11-06
 """
 
 from graphviz import Digraph

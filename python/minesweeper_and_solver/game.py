@@ -2,7 +2,7 @@
 Game class
 
 Author: Sam Barba
-Created 28/01/2025
+Created 2025-01-28
 """
 
 from dataclasses import dataclass, field

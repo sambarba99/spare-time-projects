@@ -2,7 +2,7 @@
 Gaussian Mixture Model class
 
 Author: Sam Barba
-Created 15/12/2023
+Created 2023-12-15
 """
 
 import numpy as np

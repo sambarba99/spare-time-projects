@@ -25,6 +25,7 @@ python/*/.idea/
 datasets/brain_tumours/
 datasets/celeba/
 datasets/cifar10/
+datasets/imagenet/
 datasets/parkinsons/
 datasets/utkface/
 datasets/handwritten_letters.csv

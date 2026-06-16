@@ -2,7 +2,7 @@
 Visualisation of Wave Function Collapse (via adjacent tiling or overlapping tiling algorithm)
 
 Author: Sam Barba
-Created 19/07/2023
+Created 2023-07-19
 */
 
 #include "adjacent/adjacent_main.h"

@@ -2,7 +2,7 @@
 Ulam prime spiral generator
 
 Author: Sam Barba
-Created 15/11/2022
+Created 2022-11-15
 */
 
 #include <cmath>

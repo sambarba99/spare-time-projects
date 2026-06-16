@@ -2,7 +2,7 @@
 Linear Discriminant Analysis demo
 
 Author: Sam Barba
-Created 12/03/2024
+Created 2024-03-12
 """
 
 import matplotlib.pyplot as plt

@@ -1,0 +1,36 @@
+"""
+Constants for environment
+
+Author: Sam Barba
+Created 2026-06-05
+"""
+
+# ----- PHYSICS ----- #
+GRAVITY = 9.81
+DAMPING = 0.2
+CART_WIDTH = 100
+CART_HEIGHT = 50
+CART_MASS = 1
+POLE_MASS = 0.2
+TOTAL_MASS = CART_MASS + POLE_MASS
+POLE_LENGTH = 2  # Metres
+POLE_MASSLENGTH = POLE_MASS * POLE_LENGTH
+PUSH_FORCE = 10
+DT = 1 / 60  # Corresponds to FPS
+MAX_VEL = 10  # Approx max vel, for normalising state values (found by testing)
+
+# ----- REWARDS ----- #
+ANGLE_REWARD_SCALE = 1
+DISTANCE_REWARD_SCALE = 0.5
+VELOCITY_REWARD_SCALE = 0.1
+ANGULAR_VELOCITY_REWARD_SCALE = 0.1
+TERMINAL_PENALTY = -1
+
+# ----- RENDERING ----- #
+SCENE_WIDTH = 800
+SCENE_HEIGHT = 550
+PIXELS_PER_METRE = 100
+TRACK_Y = 350
+CART_WHEEL_RADIUS = 10
+MASS_SQUARE_SIZE = 15
+FPS = 60

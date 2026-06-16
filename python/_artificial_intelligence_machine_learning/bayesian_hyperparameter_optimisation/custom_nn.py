@@ -2,7 +2,7 @@
 Custom neural net class
 
 Author: Sam Barba
-Created 15/09/2024
+Created 2024-09-15
 """
 
 import torch
@@ -32,17 +32,14 @@ class CustomNN:
 		self.model = nn.Sequential(*layers)
 		self.loss_func = nn.MSELoss()
 		self.optimiser = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
-		self.early_stopping = EarlyStopping(
-			model=self.model, patience=10, mode='min',
-			track_best_weights=False, print_precision_on_stop=None
-		)
+		self.early_stopping = EarlyStopping(target=self.model, patience=10, mode='min', track_best_weights=False)
 
 	def fit(self, train_loader, val_loader):
 		for _ in range(NUM_EPOCHS):
 			self.model.train()
 			for x_train, y_train in train_loader:
-				y_pred = self.model(x_train).squeeze()
-				loss = self.loss_func(y_pred, y_train)
+				preds = self.model(x_train).squeeze()
+				loss = self.loss_func(preds, y_train)
 
 				self.optimiser.zero_grad()
 				loss.backward()
@@ -51,8 +48,8 @@ class CustomNN:
 			self.model.eval()
 			x_val, y_val = next(iter(val_loader))
 			with torch.inference_mode():
-				y_val_pred = self.model(x_val).squeeze()
-			val_loss = self.loss_func(y_val_pred, y_val).item()
+				preds = self.model(x_val).squeeze()
+			val_loss = self.loss_func(preds, y_val).item()
 
 			if self.early_stopping(val_loss):
 				break

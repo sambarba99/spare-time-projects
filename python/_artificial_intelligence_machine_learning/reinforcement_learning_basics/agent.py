@@ -2,7 +2,7 @@
 Agent class for Reinforcement Learning algorithms demo
 
 Author: Sam Barba
-Created 25/02/2022
+Created 2022-02-25
 """
 
 import numpy as np

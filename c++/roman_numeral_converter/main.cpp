@@ -2,7 +2,7 @@
 Roman numeral converter
 
 Author: Sam Barba
-Created 06/09/2021
+Created 2021-09-06
 */
 
 #include <algorithm>

@@ -2,7 +2,7 @@
 Compression function benchmarking
 
 Author: Sam Barba
-Created 09/03/2026
+Created 2026-03-09
 """
 
 from compression import bz2, gzip, lzma, zlib, zstd

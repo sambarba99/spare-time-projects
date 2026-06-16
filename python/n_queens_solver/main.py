@@ -2,7 +2,7 @@
 N Queens solver using depth-first search
 
 Author: Sam Barba
-Created 08/02/2022
+Created 2022-02-08
 """
 
 import sys

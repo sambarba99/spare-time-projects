@@ -2,7 +2,7 @@
 Sorting algorithm visualisation
 
 Author: Sam Barba
-Created 10/01/2024
+Created 2024-01-10
 """
 
 import sys
