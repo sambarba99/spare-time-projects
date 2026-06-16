@@ -2,7 +2,7 @@
 Visualisation of the Collatz conjecture
 
 Author: Sam Barba
-Created 07/08/2023
+Created 2023-08-07
 """
 
 from graphviz import Digraph

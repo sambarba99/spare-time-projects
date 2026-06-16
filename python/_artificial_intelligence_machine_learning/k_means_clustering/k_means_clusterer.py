@@ -2,7 +2,7 @@
 K-Means clusterer class
 
 Author: Sam Barba
-Created 21/11/2021
+Created 2021-11-21
 """
 
 import matplotlib.pyplot as plt

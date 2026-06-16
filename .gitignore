@@ -1,16 +1,22 @@
-# Ignore all files...
-*.*
+# Base ignore
+*
 
-# ...Except these
+# Allow structure
+!*/
+
+# Track .gitignore
 !.gitignore
+
+# Track base makefile
+!makefile
+
+# Track these extensions at any depth
 !*.cpp
 !*.csv
 !*.gif
 !*.h
 !*.h5
-!*.jpeg
 !*.jpg
-!*.json
 !*.md
 !*.png
 !*.pth
@@ -18,25 +24,26 @@
 !*.txt
 !*.webp
 
-# Ignore PyCharm .idea folders
-python/*/.idea/
-
 # Ignore large datasets and models
 datasets/brain_tumours/
 datasets/celeba/
 datasets/cifar10/
+datasets/imagenet/
 datasets/parkinsons/
 datasets/utkface/
 datasets/handwritten_letters.csv
 datasets/imdb_movie_reviews.csv
 datasets/mnist.csv
-python/_artificial_intelligence_machine_learning/pytorch_autoencoder_variational/model.pth
-python/_artificial_intelligence_machine_learning/pytorch_cnn_vgg16_utkface/model.pth
-python/_artificial_intelligence_machine_learning/pytorch_embedding_movie_review_analysis/model.pth
-python/_artificial_intelligence_machine_learning/pytorch_generative_diffusion_model/model.pth
+python/_artificial_intelligence_machine_learning/autoencoder_variational/model.pth
+python/_artificial_intelligence_machine_learning/generative_diffusion_model/model.pth
+python/_artificial_intelligence_machine_learning/movie_review_analysis_embeddings/model.pth
+python/_artificial_intelligence_machine_learning/utkface_classification_vgg16/model.pth
+
+# Ignore .vscode folders
+.vscode/
+
+# Ignore per-project makefiles
+c++/*/makefile
 
 # Ignore MySQL password
 sql_password.txt
-
-# Ignore makefiles
-c++/*/makefile

@@ -2,7 +2,7 @@
 Decision tree class
 
 Author: Sam Barba
-Created 19/10/2022
+Created 2022-10-19
 """
 
 import numpy as np
@@ -77,9 +77,9 @@ class DecisionTree:
 			return self.right.predict(sample)
 
 	def evaluate(self, x, y):
-		y_pred = np.array([self.predict(sample) for sample in x])
+		preds = np.array([self.predict(sample) for sample in x])
 
-		return mean_squared_error(y, y_pred) ** 0.5  # RMSE
+		return mean_squared_error(y, preds) ** 0.5  # RMSE
 
 	@property
 	def depth(self):

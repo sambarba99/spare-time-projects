@@ -2,7 +2,7 @@
 Game class
 
 Author: Sam Barba
-Created 28/01/2025
+Created 2025-01-28
 """
 
 from dataclasses import dataclass, field
@@ -269,7 +269,7 @@ class Game:
 			if self.show_solver_probs and cell.mine_prob is not None:
 				prob_lbl = self.font14.render(str(cell.mine_prob), True, 'black')
 				lbl_rect = prob_lbl.get_rect(
-					center=((cell.x + 0.5) * IMG_PX_SIZE, (cell.y + 0.5) * IMG_PX_SIZE + PAD_TOP)
+					center=((cell.x + 0.5) * IMG_PX_SIZE, (cell.y + 0.5) * IMG_PX_SIZE + PAD_TOP + 1)
 				)
 				self.scene.blit(prob_lbl, lbl_rect)
 

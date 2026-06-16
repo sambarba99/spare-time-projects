@@ -2,7 +2,7 @@
 Tree class
 
 Author: Sam Barba
-Created 08/09/2021
+Created 2021-09-08
 """
 
 class Tree:

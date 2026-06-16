@@ -2,7 +2,7 @@
 SVM class
 
 Author: Sam Barba
-Created 13/03/2024
+Created 2024-03-13
 """
 
 import matplotlib.pyplot as plt

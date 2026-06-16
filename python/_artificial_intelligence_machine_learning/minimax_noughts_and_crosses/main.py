@@ -2,7 +2,7 @@
 Noughts and Crosses player using minimax algorithm with alpha-beta pruning
 
 Author: Sam Barba
-Created 08/02/2022
+Created 2022-02-08
 """
 
 import sys
@@ -146,7 +146,7 @@ def draw_grid():
 			colour = (220, 20, 20) if token == AI else (20, 120, 220)
 			cell_lbl = token_font.render(token, True, colour)
 			lbl_rect = cell_lbl.get_rect(
-				center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET)
+				center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 13)
 			)
 			scene.blit(cell_lbl, lbl_rect)
 

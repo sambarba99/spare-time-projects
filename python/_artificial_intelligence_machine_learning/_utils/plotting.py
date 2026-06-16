@@ -2,12 +2,12 @@
 Plotting utility
 
 Author: Sam Barba
-Created 26/03/2024
+Created 2024-03-26
 """
 
 import cv2 as cv
-from keras.layers import Conv2D
-from keras.models import Model
+# from keras.layers import Conv2D  # TensorFlow currently unavailable in Python 3.14
+# from keras.models import Model
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -115,7 +115,7 @@ def plot_image_grid(
 
 def plot_torch_model(model, *input_shapes, device='cpu', out_file='./images/model_architecture'):
 	# Add batch size of 1
-	x = [torch.zeros((1, *shape), device=device) for shape in input_shapes]
+	x = [torch.zeros(1, *shape, device=device) for shape in input_shapes]
 
 	g = draw_graph(model, input_data=x)
 	g.render(out_file, view=True, cleanup=True, format='png')

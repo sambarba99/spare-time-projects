@@ -2,7 +2,7 @@
 Sudoku solver using Depth-First Search and backtracking
 
 Author: Sam Barba
-Created 07/09/2021
+Created 2021-09-07
 """
 
 import sys
@@ -93,7 +93,7 @@ def draw_grid(status):
 			cell_lbl = cell_font.render(str_val, True, FOREGROUND)
 
 		lbl_rect = cell_lbl.get_rect(
-			center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 1)
+			center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 3)
 		)
 		scene.blit(cell_lbl, lbl_rect)
 

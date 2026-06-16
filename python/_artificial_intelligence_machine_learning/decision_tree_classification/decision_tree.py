@@ -2,7 +2,7 @@
 Decision tree class
 
 Author: Sam Barba
-Created 01/10/2022
+Created 2022-10-01
 """
 
 import numpy as np

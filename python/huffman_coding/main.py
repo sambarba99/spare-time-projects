@@ -2,7 +2,7 @@
 Huffman coding demo
 
 Author: Sam Barba
-Created 22/11/2022
+Created 2022-11-22
 """
 
 import heapq

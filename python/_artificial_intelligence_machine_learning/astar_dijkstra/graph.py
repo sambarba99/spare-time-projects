@@ -2,7 +2,7 @@
 Graph class for A* and Dijkstra demo
 
 Author: Sam Barba
-Created 05/10/2024
+Created 2024-10-05
 """
 
 import heapq

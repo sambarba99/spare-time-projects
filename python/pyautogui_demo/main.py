@@ -2,7 +2,7 @@
 PyAutoGUI demo
 
 Author: Sam Barba
-Created 16/02/2022
+Created 2022-02-16
 """
 
 import numpy as np

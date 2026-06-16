@@ -2,7 +2,7 @@
 Decision tree regression demo
 
 Author: Sam Barba
-Created 19/10/2022
+Created 2022-10-19
 """
 
 import matplotlib.pyplot as plt
@@ -77,8 +77,8 @@ if __name__ == '__main__':
 		plt.scatter(x_val, y_val, s=5, color='black', label='Val data')
 		for max_depth in [0, 1, 5]:
 			tree = DecisionTree(x_train, y_train, max_depth)
-			pred = [tree.predict([xi]) for xi in x_val]
-			plt.plot(x_val, pred, label=f'Tree depth {tree.depth}')
+			preds = [tree.predict([xi]) for xi in x_val]
+			plt.plot(x_val, preds, label=f'Tree depth {tree.depth}')
 		plt.title('Sine wave prediction with different tree depths')
 		plt.legend()
 		plt.show()

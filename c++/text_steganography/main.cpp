@@ -2,7 +2,7 @@
 LSB text steganography
 
 Author: Sam Barba
-Created 01/10/2021
+Created 2021-10-01
 */
 
 #include <bitset>

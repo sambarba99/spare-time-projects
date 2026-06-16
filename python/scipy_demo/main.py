@@ -2,7 +2,7 @@
 SciPy demo
 
 Author: Sam Barba
-Created 27/10/2022
+Created 2022-10-27
 """
 
 import matplotlib.pyplot as plt

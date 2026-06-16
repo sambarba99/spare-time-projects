@@ -2,7 +2,7 @@
 Linear regression demo on Boston housing dataset
 
 Author: Sam Barba
-Created 10/11/2021
+Created 2021-11-10
 """
 
 import matplotlib.pyplot as plt
@@ -75,8 +75,8 @@ if __name__ == '__main__':
 	regressor = LinearRegressor(feature, y_name)
 	regressor.fit(x_train, y_train)
 
-	y_pred = regressor.predict(x_test)
-	rmse = root_mean_squared_error(y_test[:, 0], y_pred[:, 0])
+	preds = regressor.predict(x_test)
+	rmse = root_mean_squared_error(y_test[:, 0], preds[:, 0])
 	print('\nTest RMSE:', rmse)
 
 	# Plot cost history

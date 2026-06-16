@@ -2,7 +2,7 @@
 DBSCAN demo
 
 Author: Sam Barba
-Created 27/12/2021
+Created 2021-12-27
 """
 
 import matplotlib.pyplot as plt

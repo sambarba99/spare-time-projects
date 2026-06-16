@@ -2,7 +2,7 @@
 Graphical model (Bayes net) and factor graph plotter using GraphViz
 
 Author: Sam Barba
-Created 02/12/2022
+Created 2022-12-02
 """
 
 from graphviz import Digraph, Graph

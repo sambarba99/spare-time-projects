@@ -8,7 +8,7 @@ Controls:
 	R: reset parameter values
 
 Author: Sam Barba
-Created 11/03/2022
+Created 2022-03-11
 """
 
 import sys

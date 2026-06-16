@@ -17,7 +17,7 @@ Example: engineering project
 +------------------+------+----------+--------------+
 
 Author: Sam Barba
-Created 15/12/2021
+Created 2021-12-15
 */
 
 #include <algorithm>

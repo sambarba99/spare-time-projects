@@ -2,7 +2,7 @@
 Polynomial regression demo
 
 Author: Sam Barba
-Created 18/10/2023
+Created 2023-10-18
 """
 
 import matplotlib.pyplot as plt
@@ -46,11 +46,11 @@ if __name__ == '__main__':
 	x_test = x_test[test_idx]
 	y_test = y_test[test_idx]
 
-	y_pred = poly_reg.predict(x_test.reshape(-1, 1)).squeeze()
-	rmse = root_mean_squared_error(y_test, y_pred)
+	preds = poly_reg.predict(x_test.reshape(-1, 1)).squeeze()
+	rmse = root_mean_squared_error(y_test, preds)
 
 	plt.scatter(x_test, y_test, color='black', s=8, label='True test')
-	plt.plot(x_test, y_pred, color='red', label='Pred test')
+	plt.plot(x_test, preds, color='red', label='Pred test')
 	plt.legend()
 	plt.xlabel('$x$')
 	plt.ylabel('$y$')

@@ -2,7 +2,7 @@
 Compression function benchmarking
 
 Author: Sam Barba
-Created 09/03/2026
+Created 2026-03-09
 """
 
 from compression import bz2, gzip, lzma, zlib, zstd
@@ -70,8 +70,7 @@ if __name__ == '__main__':
 
 	# Test file compression
 
-	file_path = ('C:/Users/sam/Desktop/projects/python/_artificial_intelligence_machine_learning'
-		'/pytorch_autoencoder_variational/model.pth')
+	file_path = 'C:/Users/sam/Desktop/projects/python/_artificial_intelligence_machine_learning/autoencoder_variational/model.pth'
 	with open(file_path, 'rb') as f:
 		file_data = f.read()
 

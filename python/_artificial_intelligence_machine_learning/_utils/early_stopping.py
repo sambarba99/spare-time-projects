@@ -1,49 +1,50 @@
 """
-Early Stopping class for PyTorch models
+Early Stopping class
 
 Author: Sam Barba
-Created 26/03/2024
+Created 2024-03-26
 """
 
 from copy import deepcopy
 
 import numpy as np
+import torch
 
 
 class EarlyStopping:
-	def __init__(self, *, model, patience, mode, track_best_weights=True, min_delta=0, print_precision_on_stop=4):
+	def __init__(self, *, target, patience, mode, track_best_weights=True, min_delta=0):
 		"""
 		Args:
-			model (torch.nn.Module):
-				The model being trained. Used to optionally save and restore the best-performing weights.
+			target (torch.nn.Module or torch.nn.Parameter):
+				The model or parameter being trained. Used to optionally save and restore the best-performing weights.
 			patience (int):
 				Number of consecutive epochs with no improvement before stopping.
 			mode (str):
 				'min' or 'max'. If 'min', training stops when monitored metric stops decreasing (e.g. loss).
 				If 'max', training stops when monitored metric stops increasing (e.g. accuracy).
 			track_best_weights (bool):
-				Whether to keep track of the model's best-performing weights, so they can be restored later.
+				Whether to keep track of the target's best-performing weights, so they can be restored later.
 			min_delta (float):
 				Minimum change in the monitored metric to qualify as an improvement.
-			print_precision_on_stop (int):
-				Number of decimal places to use when printing the best score upon early stopping.
-				If None, no message is printed.
 		"""
 
+		assert isinstance(target, (torch.nn.Module, torch.nn.Parameter)), 'target to track must be nn.Module or nn.Parameter'
 		assert patience >= 1
 		assert mode in ('min', 'max')
 		assert track_best_weights in (True, False)
 		assert min_delta >= 0
-		assert print_precision_on_stop is None or print_precision_on_stop >= 0
 
-		self.model = model
+		self.target = target
+		self.is_module = isinstance(target, torch.nn.Module)
 		self.patience = patience
 		self.track_best_weights = track_best_weights
 		self.min_delta = min_delta
-		self.print_precision_on_stop = print_precision_on_stop
 		self.epoch = 0
 		self.num_bad_epochs = 0
-		self.best_weights = deepcopy(model.state_dict()) if track_best_weights else None
+		if track_best_weights:
+			self.best = deepcopy(target.state_dict()) if self.is_module else target.detach().clone()
+		else:
+			self.best = None
 		self.best_score = np.inf if mode == 'min' else -np.inf
 		self.monitor_op = np.less if mode == 'min' else np.greater
 		self.multiplier = -1 if mode == 'min' else 1
@@ -55,19 +56,22 @@ class EarlyStopping:
 			self.num_bad_epochs = 0
 			self.best_score = new_score
 			if self.track_best_weights:
-				self.best_weights = deepcopy(self.model.state_dict())
+				self.best = deepcopy(self.target.state_dict()) if self.is_module else self.target.detach().clone()
 		else:
 			self.num_bad_epochs += 1
-
 			if self.num_bad_epochs >= self.patience:
-				if self.print_precision_on_stop is not None:
-					print(f'Early stopping (best score = {self.best_score:.{self.print_precision_on_stop}f},'
-						f' epoch {self.epoch - self.patience})')
-
 				return True
 
 		return False
 
+	def print_stop_message(self, precision=4):
+		print(f'Early stopping (best score = {self.best_score:.{precision}f}, epoch {self.epoch - self.patience})')
+
 	def restore_best_weights(self):
 		assert self.track_best_weights, 'track_best_weights needs to be True in order to restore them.'
-		self.model.load_state_dict(self.best_weights)
+
+		if self.is_module:
+			self.target.load_state_dict(self.best)
+		else:
+			with torch.no_grad():
+				self.target.copy_(self.best)

@@ -2,7 +2,7 @@
 A* and Dijkstra demo
 
 Author: Sam Barba
-Created 20/09/2021
+Created 2021-09-20
 """
 
 import tkinter as tk
@@ -246,21 +246,15 @@ if __name__ == '__main__':
 	root.resizable(False, False)
 
 	stringv_type = tk.StringVar(value='labyrinth')
-	radio_btn_labyrinth = tk.Radiobutton(
-		root, text='Labyrinth', font='consolas 10', variable=stringv_type, value='labyrinth',
-		background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010'
-	)
-	radio_btn_maze = tk.Radiobutton(
-		root, text='Maze', font='consolas 10', variable=stringv_type, value='maze',
-		background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010'
-	)
-	radio_btn_graph = tk.Radiobutton(
-		root, text='Graph', font='consolas 10', variable=stringv_type, value='graph',
-		background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010'
-	)
+	radio_btn_labyrinth = tk.Radiobutton(root, text='Labyrinth', font='consolas 10', variable=stringv_type,
+		value='labyrinth', background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+	radio_btn_maze = tk.Radiobutton(root, text='Maze', font='consolas 10', variable=stringv_type,
+		value='maze', background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+	radio_btn_graph = tk.Radiobutton(root, text='Graph', font='consolas 10', variable=stringv_type,
+		value='graph', background='#101010', foreground='white',
+		activebackground='#101010', activeforeground='white', selectcolor='#101010')
 
 	btn_generate = tk.Button(root, text='Generate', font='consolas 12', command=generate_graph)
 	btn_solve_astar = tk.Button(root, text='Solve with A*', font='consolas 12', command=astar)

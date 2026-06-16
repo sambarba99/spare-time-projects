@@ -6,7 +6,7 @@ Animated progress for 25 points:
 	<img src="output25.webp"/>
 </p>
 
-Solution for 100 points (within $10^6$ iters):
+Solution for 100 points:
 
 <p align="center">
 	<img src="output100.png"/>

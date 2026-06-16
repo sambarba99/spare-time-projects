@@ -2,7 +2,7 @@
 Item class for GA demo
 
 Author: Sam Barba
-Created 17/09/2021
+Created 2021-09-17
 """
 
 from dataclasses import dataclass

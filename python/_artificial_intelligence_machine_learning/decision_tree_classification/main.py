@@ -2,7 +2,7 @@
 Decision tree classification demo
 
 Author: Sam Barba
-Created 03/11/2021
+Created 2021-11-03
 """
 
 import matplotlib.pyplot as plt
@@ -136,8 +136,8 @@ if __name__ == '__main__':
 		plot_tree(tree, features, labels)
 
 		# Confusion matrix
-		val_pred = [tree.predict(xi) for xi in x_val]
-		val_pred_classes = [p['class'] for p in val_pred]
+		val_preds = [tree.predict(xi) for xi in x_val]
+		val_pred_classes = [p['class'] for p in val_preds]
 		f1 = f1_score(y_val, val_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
 		plot_confusion_matrix(
 			y_val,
@@ -150,5 +150,5 @@ if __name__ == '__main__':
 
 		# ROC curve
 		if len(labels) == 2:  # Binary classification
-			val_pred_probs = np.array([p['class_probs'] for p in val_pred])
+			val_pred_probs = np.array([p['class_probs'] for p in val_preds])
 			plot_roc_curve(y_val, val_pred_probs[:, 1])  # Assuming 1 is the positive class

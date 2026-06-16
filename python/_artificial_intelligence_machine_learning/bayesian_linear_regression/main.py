@@ -2,7 +2,7 @@
 Bayesian linear regression demo
 
 Author: Sam Barba
-Created 03/03/2022
+Created 2022-03-03
 """
 
 import matplotlib.pyplot as plt
@@ -121,18 +121,18 @@ if __name__ == '__main__':
 	lam_vals = 10 ** v
 
 	err_train = np.zeros(0)
-	err_test = np.zeros(0)
 	err_val = np.zeros(0)
+	err_test = np.zeros(0)
 	neg_log_evidence = np.zeros(0)
 
 	for lam in lam_vals:
 		w = fit_pls(phi_train, y_train, lam)
-		train_pred = phi_train.dot(w)
-		test_pred = phi_test.dot(w)
-		val_pred = phi_val.dot(w)
-		err_train = np.append(err_train, root_mean_squared_error(y_train, train_pred))
-		err_test = np.append(err_test, root_mean_squared_error(y_test, test_pred))
-		err_val = np.append(err_val, root_mean_squared_error(y_val, val_pred))
+		train_preds = phi_train.dot(w)
+		val_preds = phi_val.dot(w)
+		test_preds = phi_test.dot(w)
+		err_train = np.append(err_train, root_mean_squared_error(y_train, train_preds))
+		err_val = np.append(err_val, root_mean_squared_error(y_val, val_preds))
+		err_test = np.append(err_test, root_mean_squared_error(y_test, test_preds))
 		neg_log_evidence = np.append(
 			neg_log_evidence,
 			-compute_log_marginal(phi_train, y_train, lam / SIGMA ** 2, SIGMA ** 2)
@@ -142,8 +142,8 @@ if __name__ == '__main__':
 	ax2 = ax1.twinx()
 
 	ax1.plot(v, err_train, label='Train')
-	ax1.plot(v, err_test, '--', label='Test')
 	ax1.plot(v, err_val, '--', label='Val')
+	ax1.plot(v, err_test, '--', label='Test')
 	ax1.set_xlabel('log(lambda)')
 	ax1.set_ylabel('RMSE')
 	ax1.legend(loc='center left')

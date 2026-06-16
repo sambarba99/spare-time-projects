@@ -2,7 +2,7 @@
 Bayesian hyperparameter optimisation demo (on Boston housing dataset)
 
 Author: Sam Barba
-Created 15/09/2024
+Created 2024-09-15
 """
 
 import matplotlib.pyplot as plt

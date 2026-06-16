@@ -2,7 +2,7 @@
 Support Vector Machine (SVM) demo
 
 Author: Sam Barba
-Created 13/03/2024
+Created 2024-03-13
 """
 
 from sklearn.datasets import make_blobs

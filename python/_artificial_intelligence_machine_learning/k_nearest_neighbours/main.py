@@ -2,7 +2,7 @@
 KNN demo
 
 Author: Sam Barba
-Created 11/09/2021
+Created 2021-09-11
 """
 
 import matplotlib.pyplot as plt

@@ -2,7 +2,7 @@
 KNN classifier
 
 Author: Sam Barba
-Created 22/10/2021
+Created 2021-10-22
 """
 
 from math import dist

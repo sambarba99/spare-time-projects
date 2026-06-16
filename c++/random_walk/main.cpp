@@ -2,7 +2,7 @@
 Random walk generator
 
 Author: Sam Barba
-Created 18/10/2024
+Created 2024-10-18
 */
 
 #include <opencv2/opencv.hpp>

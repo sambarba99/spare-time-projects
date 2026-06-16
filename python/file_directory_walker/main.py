@@ -2,7 +2,7 @@
 File directory walker
 
 Author: Sam Barba
-Created 09/01/2019
+Created 2019-01-09
 """
 
 from datetime import datetime

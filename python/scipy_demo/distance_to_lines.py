@@ -2,7 +2,7 @@
 Minimising the distance from a point to multiple 2D or 3D lines
 
 Author: Sam Barba
-Created 26/11/2023
+Created 2023-11-26
 """
 
 import math

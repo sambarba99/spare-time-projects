@@ -2,7 +2,7 @@
 N Queens solver using depth-first search
 
 Author: Sam Barba
-Created 08/02/2022
+Created 2022-02-08
 """
 
 import sys
@@ -106,7 +106,7 @@ def draw_grid(solve_status):
 			if board[i, j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
 				lbl_rect = cell_lbl.get_rect(
-					center=((j + 0.5) * CELL_SIZE + GRID_OFFSET, (i + 0.5) * CELL_SIZE + GRID_OFFSET)
+					center=((j + 0.5) * CELL_SIZE + GRID_OFFSET, (i + 0.5) * CELL_SIZE + GRID_OFFSET + 2)
 				)
 				scene.blit(cell_lbl, lbl_rect)
 

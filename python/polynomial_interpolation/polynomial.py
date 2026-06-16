@@ -2,7 +2,7 @@
 Functions for polynomial interpolation and evaluation
 
 Author: Sam Barba
-Created 15/04/2026
+Created 2026-04-15
 """
 
 import numpy as np

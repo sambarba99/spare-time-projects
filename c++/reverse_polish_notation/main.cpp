@@ -2,7 +2,7 @@
 Infix to RPN converter and evaluator
 
 Author: Sam Barba
-Created 11/09/2021
+Created 2021-09-11
 */
 
 #include <cmath>

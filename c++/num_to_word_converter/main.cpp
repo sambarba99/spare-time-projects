@@ -2,7 +2,7 @@
 Number to words converter
 
 Author: Sam Barba
-Created 06/09/2022
+Created 2022-09-06
 */
 
 #include <cmath>

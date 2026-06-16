@@ -2,7 +2,7 @@
 Simulated Annealing applied to the TSP
 
 Author: Sam Barba
-Created 31/01/2022
+Created 2022-01-31
 """
 
 import matplotlib.pyplot as plt
@@ -34,10 +34,10 @@ def calc_distance(candidate):
 
 def generate_new_candidate(candidate):
 	"""
-	Generates a new candidate based on an existing candidate. First, a segment is randomly chosen from
-	the existing one. This segment is then either reversed or shifted with a 50/50 chance: if reversed,
-	the points in the segment are reversed in order of visit. If shifted, the segment is clipped out of
-	its original position and spliced in at a random point in the remainder of the path.
+	Generates a new candidate based on an existing candidate. First, a segment is randomly chosen from the existing one.
+	This segment is then either reversed or shifted with a 50/50 chance: if reversed, the points in the segment are
+	reversed in order of visit. If shifted, the segment is clipped out of its original position and spliced in at a
+	random point in the remainder of the path.
 	"""
 
 	start_idx, end_idx = sorted(np.random.choice(NUM_POINTS, size=2, replace=False))
@@ -77,9 +77,12 @@ def plot_progress(candidate):
 	ax_current_candidate.plot(*coords.T, color='red', linewidth=1, zorder=1)
 	ax_current_candidate.scatter(*coords.T, color='black', s=18, zorder=2)
 	ax_current_candidate.axis('scaled')
-	ax_current_candidate.set_xlabel('x')
-	ax_current_candidate.set_ylabel('y')
-	ax_current_candidate.set_title(f'Current solution (iteration {iter_num} / {max_iters})')
+	ax_current_candidate.set_xticks([])
+	ax_current_candidate.set_yticks([])
+	ax_current_candidate.set_title(f'Current solution (iteration {iter_num:,} / {max_iters:,})')
+
+	# if iter_num in (1, max_iters) or (iter_num % 4) == 0:
+	# 	plt.savefig(f'C:/Users/sam/Desktop/frames/{iter_num:0>6}.png')
 
 
 if __name__ == '__main__':
@@ -94,7 +97,7 @@ if __name__ == '__main__':
 
 	ax_dist_vs_iteration = plt.axes([0.08, 0.57, 0.45, 0.33])
 	ax_temp_vs_iteration = plt.axes([0.08, 0.1, 0.45, 0.33])
-	ax_current_candidate = plt.axes([0.6, 0.1, 0.35, 0.8])
+	ax_current_candidate = plt.axes([0.58, 0.1, 0.38, 0.8])
 
 	while temperature > TEMP_THRESHOLD:
 		iter_num += 1

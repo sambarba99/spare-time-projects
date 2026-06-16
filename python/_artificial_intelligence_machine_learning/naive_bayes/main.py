@@ -2,7 +2,7 @@
 Naive Bayes classification demo
 
 Author: Sam Barba
-Created 21/11/2021
+Created 2021-11-21
 """
 
 import numpy as np

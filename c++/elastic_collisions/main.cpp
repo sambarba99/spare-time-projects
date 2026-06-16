@@ -2,7 +2,7 @@
 Perfectly elastic collision simulator
 
 Author: Sam Barba
-Created 28/08/2024
+Created 2024-08-28
 */
 
 #include <iomanip>
