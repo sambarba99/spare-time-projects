@@ -5,6 +5,23 @@ Author: Sam Barba
 Created 2026-06-17
 """
 
+from pathlib import Path
+
+import torch
+
+from _utils.early_stopping import EarlyStopping
+from _utils.progress_bar import ProgressBar
+from utils import *
+
+
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
+torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
+
+LEARNING_RATE = 0.01
+NUM_EPOCHS = 100
+
 
 def train_noise(target_class_name=None):
 	if target_class_name:
@@ -75,4 +92,22 @@ def train_noise(target_class_name=None):
 
 
 if __name__ == '__main__':
-	print()
+	# Load data
+
+	train_loader, val_loader, _ = create_data_loaders()
+
+	# Freeze the classifier (only train perturbations)
+
+	model.eval()
+	for param in model.parameters():
+		param.requires_grad_(False)
+
+	# Train perturbations (untargeted then targeted)
+
+	for c in ['untargeted'] + CLASS_SUBSET:
+		path = f'./artefacts/perturbation_{c}.pth'
+		if Path(path).exists():
+			print(path, 'already exists')
+		else:
+			noise_logits = train_noise(target_class_name=None if c == 'untargeted' else clean_label(c))
+			torch.save(noise_logits.detach().cpu(), path)

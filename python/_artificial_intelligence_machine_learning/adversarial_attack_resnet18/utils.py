@@ -11,6 +11,7 @@ import random
 import re
 
 import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 import torch
@@ -22,6 +23,10 @@ from _utils.progress_bar import ProgressBar
 
 
 random.seed(1)
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
+torch.manual_seed(1)
+torch.cuda.manual_seed_all(1)
 
 # For targeted adversarial patches/noise, use this subset of ImageNet classes
 CLASS_SUBSET = [
@@ -31,6 +36,7 @@ CLASS_SUBSET = [
 SAMPLES_PER_CLASS = 4
 BATCH_SIZE = 32
 PATCH_SIZES = [32, 48, 64]
+EPSILON = 0.02
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
@@ -49,11 +55,6 @@ transform_mean = torch.tensor(transform.mean, device=DEVICE).view(3, 1, 1)
 transform_std = torch.tensor(transform.std, device=DEVICE).view(3, 1, 1)
 valid_min = (0 - transform_mean) / transform_std
 valid_max = (1 - transform_mean) / transform_std
-# transform = transforms.Compose([
-# 	transforms.Resize(img_size),  # TODO for this demo we'll resize instead of crop
-# 	transforms.ToTensor(),  # Scale to [0,1]
-# 	transforms.Normalize(transform_mean.tolist(), transform_std.tolist())
-# ])
 pil_image_transform = transforms.Compose([
 	transforms.Lambda(lambda img: img * transform_std.cpu() + transform_mean.cpu()),  # De-standardise
 	transforms.ToPILImage()
@@ -120,8 +121,8 @@ def apply_patch(images, patch_logits, validation=False):
 	return patched
 
 
-def apply_noise(images, noise_logits, epsilon=0.02):
-	noise = epsilon * torch.tanh(noise_logits)  # Map to [-epsilon, epsilon]
+def apply_noise(images, noise_logits):
+	noise = EPSILON * torch.tanh(noise_logits)  # Map to [-EPSILON, EPSILON]
 
 	# Convert the perturbation from pixel space into the model's normalised input space. Unlike absolute pixel values,
 	# additive perturbations only need to be scaled by the std (no mean subtraction).
@@ -156,7 +157,7 @@ def plot_learned_patches(patch_names, patch_sizes):
 	plt.show()
 
 
-def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_class_name=None, num_images=6, k=5):
+def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_class_name=None, num_images=5, k=5):
 	"""
 	Evaluate the ResNet18 classifier, optionally applying targeted or untargeted adversarial patches or noise to inputs.
 	Samples ``num_images`` images from ``loader`` (selecting at most one image per class), and plots the classifier's
@@ -178,25 +179,30 @@ def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_cla
 	seen_classes = set()
 	examples = []
 
-	top1_correct = top5_correct = total = 0  # To calculate top-1 and top-5 accuracy
+	top1_correct = topk_correct = total = 0  # To calculate top-1 and top-k accuracy
 	attack_successes = attack_total = 0  # To calculate Attack Success Rate
 
 	with torch.inference_mode():
 		for x, y in loader:
 			x = x.to(DEVICE)
+
 			if patch_logits is not None:
-				x = apply_patch(x, patch_logits)
+				adversarial = apply_patch(x, patch_logits)
+				logits = clf_model(adversarial)
 			elif noise_logits is not None:
-				x = apply_noise(x, noise_logits)
+				adversarial = apply_noise(x, noise_logits)
+				logits = clf_model(adversarial)
+			else:
+				adversarial = torch.empty(len(x))
+				logits = clf_model(x)
 
-			logits = clf_model(x).cpu()
-			probs = torch.softmax(logits, dim=1)
+			probs = torch.softmax(logits, dim=1).cpu()
 			preds1 = probs.argmax(dim=1)
-			preds5 = torch.topk(probs, k=5, dim=1).indices
+			predsk = torch.topk(probs, k=k, dim=1).indices
 
-			# Update top-1 and top-5 accuracy
+			# Update top-1 and top-k accuracy
 			top1_correct += (preds1 == y).sum().item()
-			top5_correct += preds5.eq(y.view(-1, 1)).any(dim=1).sum().item()
+			topk_correct += predsk.eq(y.view(-1, 1)).any(dim=1).sum().item()
 			total += len(y)
 
 			if patch_logits is not None or noise_logits is not None:
@@ -212,7 +218,7 @@ def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_cla
 					attack_total += mask.sum().item()
 
 			if len(examples) < num_images:
-				for img, true_label, p in zip(x, y, probs):
+				for img_clean, img_adversarial, true_label, p in zip(x, adversarial, y, probs):
 					class_idx = true_label.item()
 
 					if class_idx in seen_classes:
@@ -224,9 +230,10 @@ def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_cla
 
 					seen_classes.add(class_idx)
 					examples.append({
-						'img': img.clone().cpu(),
+						'img_clean': img_clean.clone().cpu(),
+						'img_adversarial': img_adversarial.clone().cpu(),
 						'true': class_idx,
-						'probs': p.clone().cpu()
+						'probs': p.clone()
 					})
 
 					if len(examples) == num_images:
@@ -236,56 +243,91 @@ def evaluate(clf_model, loader, patch_logits=None, noise_logits=None, target_cla
 
 	# For each image, plot the top 'k' predicted classes
 
-	_, axes = plt.subplots(nrows=num_images, ncols=2, figsize=(8, 9))
-	plt.subplots_adjust(left=0.05, right=0.85, hspace=0.15, wspace=0.4)
+	patch = noise = None
+
+	if patch_logits is None and noise_logits is None:
+		# Image | Bar chart
+		_, axes = plt.subplots(nrows=num_images, ncols=2, figsize=(8, 8))
+		plt.subplots_adjust(left=0.04, right=0.87, bottom=0.05, hspace=0.2, wspace=0.6)
+	else:
+		# Image | Patch/Noise | Adversarial     |     Bar chart
+		fig = plt.figure(figsize=(10, 8))
+		outer = fig.add_gridspec(ncols=2, width_ratios=[1.8, 1], left=0.04, right=0.94, bottom=0.05, wspace=0.5)
+		left = outer[0].subgridspec(num_images, 3, wspace=0.01, hspace=0.2)
+		right = outer[1].subgridspec(num_images, 1, hspace=0.2)
+		axes = np.empty((num_images, 4), dtype=object)
+		for row in range(num_images):
+			axes[row, 0] = fig.add_subplot(left[row, 0])
+			axes[row, 1] = fig.add_subplot(left[row, 1])
+			axes[row, 2] = fig.add_subplot(left[row, 2])
+			axes[row, 3] = fig.add_subplot(right[row, 0])
+
+		if patch_logits is not None:
+			patch = torch.sigmoid(patch_logits.cpu())
+			patch = patch.permute(1, 2, 0)
+		else:
+			noise = EPSILON * torch.tanh(noise_logits.cpu())
+			noise = noise.permute(1, 2, 0)
+			noise = (noise + EPSILON) / (2 * EPSILON)  # Map to [0,1] to visualise
 
 	for row, example in enumerate(examples):
-		# Plot image
+		# Plot clean image
 		ax_img = axes[row, 0]
-		img = pil_image_transform(example['img'])
-		ax_img.imshow(img)
+		ax_img.imshow(pil_image_transform(example['img_clean']))
 		ax_img.axis('off')
+		ax_img.set_title(imagenet_labels[example['true']].capitalize(), fontsize=10, y=0.97)
+
+		if patch is not None or noise is not None:
+			# Plot patch/noise
+			ax_patch_noise = axes[row, 1]
+			ax_patch_noise.imshow(patch if patch is not None else noise)
+			ax_patch_noise.axis('off')
+
+			# Plot adversarial image
+			ax_adversarial_img = axes[row, 2]
+			ax_adversarial_img.imshow(pil_image_transform(example['img_adversarial']))
+			ax_adversarial_img.axis('off')
 
 		# Plot top probs
-		ax_bar = axes[row, 1]
+		ax_bar = axes[row, -1]
 		top_probs, top_indices = torch.topk(example['probs'], k=k)
 		sorted_classes = [imagenet_labels[i.item()] for i in top_indices]
 		colours = [
-			'tab:green' if idx == example['true']
-			else 'tab:red' if idx == target_label
+			'tab:red' if idx == target_label
 			else 'tab:blue'
 			for idx in top_indices
 		]
 		ax_bar.barh(sorted_classes, top_probs, color=colours)
 		ax_bar.invert_yaxis()  # Highest probability at the top
 		ax_bar.set_xlim(0, 1)
-
 		ax_bar.tick_params(axis='y', labelsize=9)
+
 		if row < num_images - 1:
 			ax_bar.tick_params(labelbottom=False)
 
-	axes[0, 0].set_title('Test image', fontsize=11)
-	axes[0, 1].set_title(f'Top {k} softmax probabilities', fontsize=11)
+	if patch is not None or noise is not None:
+		axes[0, 1].set_title('Patch' if patch is not None else 'Noise', fontsize=10, y=0.97)
+		axes[0, 2].set_title('Adversarial', fontsize=10, y=0.97)
+	axes[0, -1].set_title(f'Top {k} softmax probabilities', fontsize=10, y=0.97)
 
 	title = ''
-	if patch_logits is None and noise_logits is None:
+	if patch is None and noise is None:
 		title = 'Model evaluation (no attack)'
-	elif patch_logits is None:
+	elif patch is None:
 		title = f"Model evaluation (perturbation attack, target class = '{target_class_name}')" \
 			if target_class_name else 'Model evaluation (untargeted perturbation attack)'
-	elif noise_logits is None:
-		s = patch_logits.shape[1]
+	elif noise is None:
+		s = patch.shape[1]
 		title = f"Model evaluation ({s}x{s} patch attack, target class = '{target_class_name}')" \
 			if target_class_name else f'Model evaluation (untargeted {s}x{s} patch attack)'
 
 	top1_acc = top1_correct / total
-	top5_acc = top5_correct / total
-	title += f'\nTop-1 accuracy = {top1_acc:.3f}  |  Top-5 accuracy: {top5_acc:.3f}'
+	topk_acc = topk_correct / total
+	title += f'\nTop-1 acc: {top1_acc:.3f}  |  Top-{k} acc: {topk_acc:.3f}'
 
 	if attack_total:
 		attack_success_rate = attack_successes / attack_total
-		title += f'\nAttack success rate = {attack_success_rate:.3f}'
-		plt.subplots_adjust(top=0.85, bottom=0.08)
+		title += f'  |  Attack success rate: {attack_success_rate:.3f}'
 
 	plt.suptitle(title)
 	plt.show()
