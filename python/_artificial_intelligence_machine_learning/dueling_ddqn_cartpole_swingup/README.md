@@ -6,7 +6,7 @@
 
 In regular Q-learning (see [this other project](../reinforcement_learning_basics)), the Q value update is:
 
-$$Q(s_t,a_t|\theta_t)=r_t+\gamma \underset{a \in A}{\mathop{\mathrm{max}}}\bigg(Q(s_{t+1},a|\theta_t)\bigg)$$
+$$Q(s_t,a_t|\theta_t)=r_t+\gamma \max_{a \in A}\bigg(Q(s_{t+1},a|\theta_t)\bigg)$$
 
 Where:
 - $Q(s_t,a_t|\theta_t)$ = estimated value at time $t$ of taking action $a$ in state $s$ given model parameters $\theta$
@@ -18,7 +18,7 @@ This method is prone to maximisation bias, as the same Q-function is used both t
 
 Hence, in Double Q-learning, the Q value update is:
 
-$$Q(s_t,a_t|\theta_t)=r_t+\gamma Q\bigg(s_{t+1},\underset{a \in A}{\mathop{\mathrm{argmax}}}\bigg(Q(s_{t+1},a|\theta_t)\bigg)|\theta'_t\bigg)$$
+$$Q(s_t,a_t|\theta_t)=r_t+\gamma Q\bigg(s_{t+1}, \underset{a \in A}{\mathrm{argmax}}\bigg(Q(s_{t+1},a|\theta_t)\bigg)|\theta'_t\bigg)$$
 
 The target model isn't directly optimised via gradient descent, but its parameters are gradually synchronised with those of the policy model after each training step, using a small value $\tau$:
 

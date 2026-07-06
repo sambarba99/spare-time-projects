@@ -29,6 +29,7 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -176,15 +177,13 @@ if __name__ == '__main__':
 	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
-		# Train model
-
 		print('\n----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(target=model, patience=500, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 			model.train()
 
 			for x_train, y_train in prog_bar:
@@ -205,7 +204,7 @@ if __name__ == '__main__':
 			val_preds = val_probs.round()
 			val_loss = loss_func(logits, y_val).item()
 			val_f1 = f1_score(y_val, val_preds)
-			prog_bar.finish(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):
 				early_stopping.print_stop_message()

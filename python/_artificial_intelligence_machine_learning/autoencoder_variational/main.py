@@ -23,6 +23,7 @@ from model import VariationalAutoencoder
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -99,15 +100,13 @@ if __name__ == '__main__':
 	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
-		# Train model
-
 		print('\n----- TRAINING -----\n')
 
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(target=model, patience=20, mode='min')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 			kl_weight = (epoch - 1) / (NUM_EPOCHS - 1)
 
 			model.train()
@@ -126,7 +125,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				val_reconstructed, mu, log_var = model(x_val_corrputed.to(DEVICE))
 			val_loss = model.loss(val_reconstructed.cpu(), x_val_ground_truth, mu, log_var, kl_weight).item()
-			prog_bar.finish(f'val_loss={val_loss:.2f}')
+			prog_bar.finish(f'{val_loss=:.2f}')
 
 			if early_stopping(val_loss):
 				early_stopping.print_stop_message(precision=2)

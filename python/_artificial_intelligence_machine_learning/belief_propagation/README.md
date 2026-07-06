@@ -6,7 +6,7 @@ Based on this graphical model of a coffee machine:
 	<img src="images/coffee_machine_graphical_model.png"/>
 </p>
 
-Where e.g. `cw` &rarr; `pl` $= P(\text{pl|cw}) = P(\text{power light switches on | circuitry works})$
+Where e.g. `cw` &rarr; `pl` $= P(\text{pl | cw}) = P(\text{power light switches on | circuitry works})$
 
 1. First, we calculate the distribution of the random variables (both marginal and conditional) given the raw observations:
 

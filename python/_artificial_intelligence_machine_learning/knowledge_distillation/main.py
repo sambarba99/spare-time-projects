@@ -25,6 +25,7 @@ from conv_nets import Teacher, Student
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -102,7 +103,7 @@ def train(model, save_path):
 	early_stopping = EarlyStopping(target=model, patience=20, mode='max')
 
 	for epoch in range(1, NUM_EPOCHS + 1):
-		prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+		prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 		model.train()
 
 		for x_train, y_train in prog_bar:
@@ -122,7 +123,7 @@ def train(model, save_path):
 
 		val_loss = loss_func(logits, y_val).item()
 		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='weighted')
-		prog_bar.finish(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+		prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 		if early_stopping(val_f1):
 			early_stopping.print_stop_message()
@@ -142,7 +143,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 	teacher_model.eval()
 
 	for epoch in range(1, NUM_EPOCHS + 1):
-		prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+		prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 		student_model.train()
 
 		for x_train, y_train in prog_bar:
@@ -180,7 +181,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 
 		val_loss = loss_func(logits, y_val).item()
 		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='weighted')
-		prog_bar.finish(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+		prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 		if early_stopping(val_f1):
 			early_stopping.print_stop_message()

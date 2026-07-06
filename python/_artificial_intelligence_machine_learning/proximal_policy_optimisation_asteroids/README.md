@@ -30,7 +30,7 @@ but with Generalised Advantage Estimation (GAE) in step 4 instead of returns-to-
 
 Rewritten policy objective to maximise (step 6):
 
-$$L^{CLIP}(\theta)=\hat{\mathbb{E}}_t\bigg[\mathrm{min}\bigg(r_t(\theta)\hat{A}_t,\mathrm{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat{A}_t\bigg)\bigg]$$
+$$L^{CLIP}(\theta)=\hat{\mathbb{E}}_t\bigg[\min\bigg(r_t(\theta)\hat{A}_t,\mathrm{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat{A}_t\bigg)\bigg]$$
 
 Where:
 - $\theta$ = policy function (actor network) parameters

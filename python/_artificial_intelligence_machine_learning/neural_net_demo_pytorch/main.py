@@ -157,8 +157,6 @@ if __name__ == '__main__':
 	print(f'Model:\n{model}')
 	plot_torch_model(model, (num_features,))
 
-	# Training
-
 	print('\n----- TRAINING -----\n')
 
 	if task_choice == 'B':

@@ -31,8 +31,7 @@ class DownBlock(nn.Module):
 
 class UpBlock(nn.Module):
 	"""
-	Upsamples the input via a transposed convolution, concatenation
-	with the corresponding skip connection, and a convolution
+	Upsamples the input via a transposed convolution, concatenation with the corresponding skip connection, and a convolution
 	"""
 
 	def __init__(self, in_channels, out_channels):
@@ -113,10 +112,9 @@ class SelfAttention(nn.Module):
 
 class DDPM(nn.Module):
 	"""
-	The main UNet-based architecture that stacks DownBlocks and UpBlocks with concatenation-based
-	skip connections between the corresponding layers. The timestep positional encodings are
-	inspired by those used in transformers (https://arxiv.org/pdf/1706.03762), and are useful for
-	representing time information in the diffusion process.
+	The main UNet-based architecture that stacks DownBlocks and UpBlocks with concatenation-based skip connections
+	between the corresponding layers. The timestep positional encodings are inspired by those used in transformers
+	(https://arxiv.org/pdf/1706.03762), and are useful for representing time information in the diffusion process.
 	"""
 
 	def __init__(self, *, num_timesteps, encoding_dim, device):

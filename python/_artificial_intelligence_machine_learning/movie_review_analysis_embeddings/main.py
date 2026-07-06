@@ -8,7 +8,7 @@ Created 2024-03-26
 from collections import Counter
 from pathlib import Path
 
-import nltk
+# import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import pandas as pd
@@ -33,6 +33,7 @@ pd.set_option('display.max_columns', 5)
 pd.set_option('display.width', None)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -97,7 +98,7 @@ if __name__ == '__main__':
 	# Define and train model
 
 	model = MovieReviewClf(vocab_size=vocab_size, embedding_dim=EMBEDDING_DIM, hidden_dim=HIDDEN_DIM).to(DEVICE)
-	plot_torch_model(model, (SEQUENCE_LEN,), device=DEVICE)
+	plot_torch_model(model, (SEQUENCE_LEN,), dtypes=[torch.long], device=DEVICE)
 
 	loss_func = torch.nn.BCEWithLogitsLoss()
 
@@ -105,11 +106,12 @@ if __name__ == '__main__':
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
 		print('\n----- TRAINING -----\n')
+
 		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
 		early_stopping = EarlyStopping(target=model, patience=20, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 
 			for x_train, y_train in prog_bar:
 				logits = model(x_train.to(DEVICE)).squeeze()
@@ -127,7 +129,7 @@ if __name__ == '__main__':
 			val_preds = val_probs.round().detach()
 			val_loss = loss_func(logits, y_val).item()
 			val_f1 = f1_score(y_val, val_preds)
-			prog_bar.finish(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):
 				early_stopping.print_stop_message()

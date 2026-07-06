@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 MNIST classification with a TensorFlow Convolutional Neural Network
 
@@ -101,8 +103,6 @@ if __name__ == '__main__':
 			expand_nested=True,
 			show_layer_activations=True
 		)
-
-		# Train model
 
 		print('\n----- TRAINING -----\n')
 

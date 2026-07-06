@@ -63,14 +63,16 @@ class ProgressBar:
 		elapsed = time.time() - self.start_time
 
 		progress = self.done_count / self.total
-		if progress == 1:
-			bar = '█' * self.length
+		if progress >= 1:
+			bar = '▇' * self.length
 			eta_str = '00:00'
 		else:
 			sub_units = progress * self.length * 10
 			full_blocks, partial = divmod(round(sub_units), 10)
-			partial_chr = str(partial) if partial > 0 else '-'
-			bar = '█' * full_blocks + partial_chr + '-' * (self.length - full_blocks - 1)
+			bar = '▇' * full_blocks
+			if full_blocks < self.length:
+				bar += str(partial) if partial > 0 else '-'
+				bar += '-' * (self.length - len(bar))
 
 			eta = max(elapsed / progress - elapsed, 0) if progress > 0 else None
 			eta_str = '?' if eta is None else self._format_time(eta)
@@ -88,5 +90,6 @@ class ProgressBar:
 			f'[{self.done_count}/{self.total}, {self._format_time(elapsed)}<{eta_str}, {rate}] '
 			f'{self.postfix}{RESET}'
 		)
-		sys.stdout.write((f'\r{GREEN}{self.desc}: ' if self.desc else f'\r{GREEN}') + line)
+		line = (f'{GREEN}{self.desc}: ' if self.desc else GREEN) + line
+		sys.stdout.write('\r\033[2K' + line)   # Erase last line
 		sys.stdout.flush()

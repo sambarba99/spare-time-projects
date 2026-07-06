@@ -26,6 +26,7 @@ from _utils.progress_bar import ProgressBar
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -129,8 +130,6 @@ if __name__ == '__main__':
 	if os.path.exists('./mnist_model.pth'):
 		model.load_state_dict(torch.load('./mnist_model.pth', map_location=DEVICE))
 	else:
-		# Train model
-
 		print('----- TRAINING -----\n')
 
 		loss_func = torch.nn.CrossEntropyLoss()
@@ -138,7 +137,7 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(target=model, patience=20, mode='max')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 			model.train()
 
 			for x_train, y_train in prog_bar:
@@ -156,7 +155,7 @@ if __name__ == '__main__':
 				*_, logits = model(x_val.to(DEVICE))
 			val_loss = loss_func(logits.cpu(), y_val).item()
 			val_f1 = f1_score(y_val, logits.cpu().argmax(dim=1), average='weighted')
-			prog_bar.finish(f'val_loss={val_loss:.4f}, val_F1={val_f1:.4f}')
+			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):
 				early_stopping.print_stop_message()

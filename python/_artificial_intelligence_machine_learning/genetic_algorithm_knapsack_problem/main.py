@@ -5,150 +5,159 @@ Author: Sam Barba
 Created 2021-09-17
 """
 
-from copy import deepcopy
+from dataclasses import dataclass
+import random
 
 import matplotlib.pyplot as plt
-import numpy as np
-
-from item import Item
-from knapsack import Knapsack
 
 
-plt.rcParams['figure.figsize'] = (7, 5)
-np.random.seed(1)
+random.seed(1)
+plt.rcParams['figure.figsize'] = (8, 5)
 
-KNAPSACK_CAPACITY = 100
-NUM_ITEMS = 100
-GENERATIONS = 50
-POP_SIZE = 100
-MUTATION_RATE = 0.4
+TOTAL_ITEMS = 100
+MAX_ITEM_WEIGHT = 40
+MAX_ITEM_VALUE = 10
+KNAPSACK_CAPACITY = 50
+GENERATIONS = 100
+POP_SIZE = 500
 ELITISM_RATE = 0.02  # Proportion of the fittest individuals to avoid mutation
-CROSSOVER_RATE = 0.8
-
-all_items = None
-
-
-def initialise_population():
-	"""Initialise population of individuals with random items"""
-
-	population = []
-
-	for _ in range(POP_SIZE):
-		individual = Knapsack([False] * NUM_ITEMS)
-		indices = np.random.permutation(NUM_ITEMS)
-
-		for i in indices:
-			if individual.total_weight(all_items, NUM_ITEMS) + all_items[i].weight <= KNAPSACK_CAPACITY:
-				individual.item_config[i] = True
-
-		population.append(individual)
-
-	return population
+CROSSOVER_RATE = 0.75
+MUTATION_RATE = 0.05
 
 
-def selection(population):
+@dataclass
+class Item:
+	idx: int
+	weight: float
+	value: float
+
+	def __repr__(self):
+		return f'idx={self.idx}, weight={self.weight:.2f}, value={self.value:.2f}'
+
+
+all_items = [
+	Item(
+		i,
+		random.uniform(1, MAX_ITEM_WEIGHT),
+		random.uniform(1, MAX_ITEM_VALUE)
+	)
+	for i in range(TOTAL_ITEMS)
+]
+total_weight = sum(i.weight for i in all_items)
+total_value = sum(i.value for i in all_items)
+item_prob = KNAPSACK_CAPACITY / total_weight
+
+
+class Knapsack:
+	def __init__(self, chromosome=None):
+		if chromosome is None:
+			# 1 means item is in knapsack; 0 means it isn't
+			chromosome = [1 if random.random() < item_prob else 0 for _ in all_items]
+
+		self.chromosome = chromosome[:]
+		self.total_weight = None
+		self.total_value = None
+		self.fitness = None
+		self.calc_fitness()
+
+	def calc_fitness(self):
+		self.total_weight = 0
+		self.total_value = 0
+		for gene, item in zip(self.chromosome, all_items):
+			if gene:
+				self.total_weight += item.weight
+				self.total_value += item.value
+
+		if self.total_weight <= KNAPSACK_CAPACITY:
+			self.fitness = self.total_value
+		else:
+			self.fitness = 0  # Invalid solution
+
+	def copy(self):
+		return Knapsack(self.chromosome)
+
+	def __repr__(self):
+		return f'weight={self.total_weight:.2f}, value={self.total_value:.2f}'
+
+
+def select(population):
 	"""Roulette wheel selection"""
 
-	total_fitness = sum([p.fitness for p in population])
-	probs = [p.fitness / total_fitness for p in population]
-	parents = list(np.random.choice(population, size=POP_SIZE, p=probs))
+	fitnesses = [i.fitness for i in population]
 
-	return parents
+	if max(fitnesses) == 0:
+		return random.choice(population)
+
+	return random.choices(population, weights=fitnesses)[0]
 
 
-def crossover(parents):
+def crossover(parent1, parent2):
 	"""Single-point crossover"""
 
-	offspring = deepcopy(parents)
+	if random.random() < CROSSOVER_RATE:
+		point = random.randint(1, len(parent1.chromosome) - 1)
 
-	for i in range(POP_SIZE - 1):
-		if np.random.random() > CROSSOVER_RATE:
-			continue
+		child1_chromosome = parent1.chromosome[:point] + parent2.chromosome[point:]
+		child2_chromosome = parent2.chromosome[:point] + parent1.chromosome[point:]
 
-		p1_config = parents[i].item_config
-		p2_config = parents[i + 1].item_config
+		return Knapsack(child1_chromosome), Knapsack(child2_chromosome)
 
-		c = np.random.choice(NUM_ITEMS)
-
-		off1_config = p1_config[:c] + p2_config[c:]
-		off2_config = p2_config[:c] + p1_config[c:]
-
-		off1 = Knapsack(off1_config)
-		off2 = Knapsack(off2_config)
-		evaluate(off1, off2)
-
-		offspring[i] = find_fittest(off1, off2)
-
-	return offspring
+	return parent1.copy(), parent2.copy()
 
 
-def mutation(offspring):
+def mutate(individual):
 	"""Single bit-flip mutation"""
 
-	mutants = deepcopy(offspring)
-	mutants.sort(key=lambda ind: ind.fitness, reverse=True)
-
-	for i in range(int(ELITISM_RATE * POP_SIZE), POP_SIZE):
-		if np.random.random() > MUTATION_RATE:
-			continue
-
-		r = np.random.choice(NUM_ITEMS)
-		mutants[i].item_config[r] = not mutants[i].item_config[r]
-
-	return mutants
-
-
-def evaluate(*population):
-	if isinstance(population[0], list):
-		population = population[0]
-
-	for individual in population:
-		individual.calc_fitness(all_items, NUM_ITEMS, KNAPSACK_CAPACITY)
-
-
-def find_fittest(*population):
-	if isinstance(population[0], list):
-		population = population[0]
-
-	return max(population, key=lambda ind: ind.fitness)
+	if random.random() < MUTATION_RATE:
+		bit = random.randrange(len(individual.chromosome))
+		individual.chromosome[bit] ^= 1
+		individual.calc_fitness()
 
 
 if __name__ == '__main__':
-	# Generate random items
-	item_weights = np.random.uniform(1, KNAPSACK_CAPACITY, size=NUM_ITEMS)
-	item_values = np.random.uniform(1, 100, size=NUM_ITEMS)
-	all_items = [Item(i + 1, item_weights[i], item_values[i]) for i in range(NUM_ITEMS)]
-
+	print('\nAll items:\n')
 	for item in all_items:
 		print(item)
 
-	print('\nTotal value:', sum(item_values))
-	print('Total weight:', sum(item_weights))
-	print('Knapsack capacity:', KNAPSACK_CAPACITY)
+	print(f'\nTotal weight: {total_weight:.2f}')
+	print(f'Total value: {total_value:.2f}')
+	print(f'Knapsack capacity: {KNAPSACK_CAPACITY}')
 
-	population = initialise_population()
+	population = [Knapsack() for _ in range(POP_SIZE)]
 
-	best_knapsack = population[0]
+	elite_count = int(POP_SIZE * ELITISM_RATE)
+
 	mean_fitnesses, best_fitnesses = [], []
 
 	for _ in range(GENERATIONS):
-		evaluate(population)
-		parents = selection(population)
-		offspring = crossover(parents)
-		evaluate(offspring)
-		mutants = mutation(offspring)
-		population = deepcopy(mutants)
-		evaluate(population)
+		population.sort(key=lambda i: i.fitness, reverse=True)
 
-		best_pop_knapsack = find_fittest(population)
-		if best_pop_knapsack.fitness > best_knapsack.fitness:
-			best_knapsack = best_pop_knapsack
+		new_population = []
 
-		mean_fitness = sum(ind.fitness for ind in population) / POP_SIZE
+		# Elitism
+		for i in range(elite_count):
+			new_population.append(population[i].copy())
+
+		# Produce offspring
+		while len(new_population) < POP_SIZE:
+			parent1 = select(population)
+			parent2 = select(population)
+
+			child1, child2 = crossover(parent1, parent2)
+
+			mutate(child1)
+			mutate(child2)
+
+			new_population.append(child1)
+			if len(new_population) < POP_SIZE:
+				new_population.append(child2)
+
+		population = new_population
+
+		mean_fitness = sum(i.fitness for i in population) / POP_SIZE
+		best_fitness = max(i.fitness for i in population)
 		mean_fitnesses.append(mean_fitness)
-		best_fitnesses.append(best_pop_knapsack.fitness)
-
-		# Plot evolution graph
+		best_fitnesses.append(best_fitness)
 		plt.cla()
 		plt.plot(mean_fitnesses, label='Mean fitness')
 		plt.plot(best_fitnesses, label='Best fitness')
@@ -156,15 +165,15 @@ if __name__ == '__main__':
 		plt.ylabel('Fitness')
 		plt.title('Mean and best fitness per generation')
 		plt.legend()
-
 		plt.draw()
-		plt.pause(0.1)
+		plt.pause(1e-6)
 
-	# Display best items
-
-	items = [all_items[i] for i in range(NUM_ITEMS) if best_knapsack.item_config[i]]
-	print('\nBest items:', ', '.join(str(item.index) for item in items))
-	print('Value:', sum(item.value for item in items))
-	print('Weight left:', KNAPSACK_CAPACITY - sum(item.weight for item in items))
+	population.sort(key=lambda i: i.fitness, reverse=True)
+	best = population[0]
+	print('\nBest knapsack:', best)
+	print('Items:')
+	for gene, item in zip(best.chromosome, all_items):
+		if gene:
+			print(item)
 
 	plt.show()

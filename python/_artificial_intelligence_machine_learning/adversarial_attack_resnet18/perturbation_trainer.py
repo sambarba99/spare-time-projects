@@ -16,6 +16,7 @@ from utils import *
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -76,21 +77,18 @@ def train_perturbation(target_class_name=None):
 				if target_label is None:
 					# Untargeted attack success rate: prediction != true label
 					successes += (preds != y_val).sum().item()
-					total += len(y_val)
+					total += y_val.shape[0]
 				else:
 					# Targeted attack success rate: prediction = target label
 					mask = y_val != target_label
 					successes += (preds[mask] == target_label).sum().item()
 					total += mask.sum().item()
 
-		attack_success_rate = successes / total
-		prog_bar.set_postfix(
-			f'val_attack_success_rate={attack_success_rate:.4f}, '
-			f"lr={optimiser.param_groups[0]['lr']:.3e}"
-		)
-		scheduler.step(attack_success_rate)
+		val_attack_success_rate = successes / total
+		prog_bar.set_postfix(f"{val_attack_success_rate=:.4f}, lr={optimiser.param_groups[0]['lr']:.3e}")
+		scheduler.step(val_attack_success_rate)
 
-		if early_stopping(attack_success_rate):  # Aim to maximise validation ASR
+		if early_stopping(val_attack_success_rate):  # Aim to maximise validation ASR
 			prog_bar.finish()
 			early_stopping.print_stop_message()
 			break

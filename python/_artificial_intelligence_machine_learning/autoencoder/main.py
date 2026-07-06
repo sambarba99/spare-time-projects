@@ -26,6 +26,7 @@ from tabular_autoencoder import TabularAutoencoder
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -76,7 +77,7 @@ def do_mnist():
 		val_loss_history = []
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 
 			for x_train in prog_bar:
 				x_train = x_train.to(DEVICE)
@@ -93,7 +94,7 @@ def do_mnist():
 				val_reconstructed = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(val_reconstructed, x_val).item()
 			val_loss_history.append(val_loss)
-			prog_bar.finish(f'val_loss={val_loss:.4f}')
+			prog_bar.finish(f'{val_loss=:.4f}')
 
 			if early_stopping(val_loss):
 				early_stopping.print_stop_message()
@@ -211,7 +212,7 @@ if __name__ == '__main__':
 			val_loss_history = []
 
 			for epoch in range(1, NUM_EPOCHS + 1):
-				prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+				prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 
 				for x_train in prog_bar:
 					reconstructed = model(x_train)
@@ -227,7 +228,7 @@ if __name__ == '__main__':
 					val_reconstructed = model(x_val)
 				val_loss = loss_func(val_reconstructed, x_val).item()
 				val_loss_history.append(val_loss)
-				prog_bar.finish(f'val_loss={val_loss:.4f}')
+				prog_bar.finish(f'{val_loss=:.4f}')
 
 				if early_stopping(val_loss):
 					early_stopping.print_stop_message()

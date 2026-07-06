@@ -29,6 +29,7 @@ pd.set_option('display.width', None)
 pd.set_option('max_colwidth', None)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -187,8 +188,6 @@ if __name__ == '__main__':
 	if Path('./model.pth').exists():
 		model.load_state_dict(torch.load('./model.pth', map_location=DEVICE))
 	else:
-		# Train model
-
 		print('\n----- TRAINING -----\n')
 
 		optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
@@ -196,7 +195,7 @@ if __name__ == '__main__':
 		history = {'age_val_MAE': [], 'gender_val_F1': [], 'race_val_F1': []}
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 			model.train()
 
 			for x_train, y_train_age, y_train_gender, y_train_race in prog_bar:
@@ -266,12 +265,12 @@ if __name__ == '__main__':
 			race_val_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='weighted')
 
 			prog_bar.finish(
-				f'age_val_loss={age_val_loss:.2f}, '
-				f'age_val_MAE={age_val_mae:.2f}, '
-				f'gender_val_loss={gender_val_loss:.4f}, '
-				f'gender_val_F1={gender_val_f1:.4f}, '
-				f'race_val_loss={race_val_loss:.4f}, '
-				f'race_val_F1={race_val_f1:.4f}'
+				f'{age_val_loss=:.2f}, '
+				f'{age_val_mae=:.2f}, '
+				f'{gender_val_loss=:.4f}, '
+				f'{gender_val_f1=:.4f}, '
+				f'{race_val_loss=:.4f}, '
+				f'{race_val_f1=:.4f}'
 			)
 
 			torch.save(

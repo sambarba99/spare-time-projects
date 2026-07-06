@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 TensorFlow neural network demo for binary classification, multiclass classification, or regression
 
@@ -158,8 +160,6 @@ if __name__ == '__main__':
 		expand_nested=True,
 		show_layer_activations=True
 	)
-
-	# Train model
 
 	print('\n----- TRAINING -----\n')
 

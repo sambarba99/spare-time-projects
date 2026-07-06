@@ -113,9 +113,12 @@ def plot_image_grid(
 		cv.destroyAllWindows()
 
 
-def plot_torch_model(model, *input_shapes, device='cpu', out_file='./images/model_architecture'):
+def plot_torch_model(model, *input_shapes, dtypes=None, device='cpu', out_file='./images/model_architecture'):
+	if dtypes is None:
+		dtypes = [torch.float] * len(input_shapes)
+
 	# Add batch size of 1
-	x = [torch.zeros(1, *shape, device=device) for shape in input_shapes]
+	x = [torch.zeros(1, *shape, device=device, dtype=dtype) for shape, dtype in zip(input_shapes, dtypes)]
 
 	g = draw_graph(model, input_data=x)
 	g.render(out_file, view=True, cleanup=True, format='png')
@@ -124,9 +127,10 @@ def plot_torch_model(model, *input_shapes, device='cpu', out_file='./images/mode
 def get_cnn_learned_filters(conv_model, model_type='pytorch'):
 	assert model_type in ('pytorch', 'tensorflow')
 
-	conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)] \
-		if model_type == 'pytorch' else \
-		[layer for layer in conv_model.layers if isinstance(layer, Conv2D)]
+	conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)]
+	# conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)] \
+	# 	if model_type == 'pytorch' else \
+	# 	[layer for layer in conv_model.layers if isinstance(layer, Conv2D)]
 
 	layer_filters = []
 
@@ -167,10 +171,11 @@ def get_cnn_feature_maps(conv_model, input_img, model_type='pytorch'):
 		conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)]
 		feature_maps = [get_feature_map(layer) for layer in conv_layers]
 	else:
-		conv_layers = [layer for layer in conv_model.layers if isinstance(layer, Conv2D)]
-		outputs = [layer.output for layer in conv_layers]
-		short_model = Model(inputs=conv_model.inputs, outputs=outputs)
-		feature_maps = short_model.predict(np.expand_dims(input_img, 0), verbose=0)
+		# conv_layers = [layer for layer in conv_model.layers if isinstance(layer, Conv2D)]
+		# outputs = [layer.output for layer in conv_layers]
+		# short_model = Model(inputs=conv_model.inputs, outputs=outputs)
+		# feature_maps = short_model.predict(np.expand_dims(input_img, 0), verbose=0)
+		return
 
 	layer_feature_maps = []
 

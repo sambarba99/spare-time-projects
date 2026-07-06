@@ -12,7 +12,7 @@ Test set performance:
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 
-Model architecture (input size = 250 tokens):
+Model architecture (input = first 250 tokens):
 
 <p align="center">
 	<img src="images/model_architecture.png"/>

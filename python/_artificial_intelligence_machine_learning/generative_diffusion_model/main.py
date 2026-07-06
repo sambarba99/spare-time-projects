@@ -24,6 +24,7 @@ from model import DDPM
 
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
@@ -97,12 +98,12 @@ if __name__ == '__main__':
 		early_stopping = EarlyStopping(target=model, patience=50, mode='min')
 
 		for epoch in range(1, NUM_EPOCHS + 1):
-			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batches', auto_finish=False)
+			prog_bar = ProgressBar(train_loader, desc=f'Epoch {epoch}/{NUM_EPOCHS}', unit='batch', auto_finish=False)
 			total_loss = 0
 
 			for img_batch in prog_bar:
 				# Uniformly sample a batch of timesteps
-				batch_size = len(img_batch)
+				batch_size = img_batch.shape[0]
 				t = torch.randint(0, T, (batch_size,), device=DEVICE)
 
 				# Add noise to images based on sampled timesteps
@@ -124,7 +125,7 @@ if __name__ == '__main__':
 				prog_bar.set_postfix(f'loss={loss.item():.4f}')
 
 			mean_loss = total_loss / len(train_loader)
-			prog_bar.finish(f"mean_loss={mean_loss:.4f}, lr={optimiser.param_groups[0]['lr']:.3e}")
+			prog_bar.finish(f"{mean_loss=:.4f}, lr={optimiser.param_groups[0]['lr']:.3e}")
 			scheduler.step(mean_loss)
 
 			if early_stopping(mean_loss):

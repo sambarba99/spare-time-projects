@@ -46,11 +46,11 @@ def creation_ops_wrapper(_orig_op: Callable[..., Any], model_graph: ComputationG
 		input_recorder_tensor: RecorderTensor = input_tensor.as_subclass(RecorderTensor)
 		input_node = TensorNode(
 			tensor=input_recorder_tensor,
-			depth=current_depth,  # type: ignore[arg-type]
+			depth=current_depth,
 			name='Input tensor' if current_depth == 0 else 'Hidden tensor',
 			context=current_context
 		)
-		current_context.append(input_node)  # type: ignore[attr-defined]
+		current_context.append(input_node)
 		input_recorder_tensor.tensor_nodes = [input_node]
 
 		return input_recorder_tensor
@@ -149,7 +149,7 @@ class RecorderTensor(torch.Tensor):
 	@staticmethod
 	def __new__(cls: Any, x: Any, tensor_nodes: Any, *args: Any, **kwargs: Any) -> Any:
 		# pylint: disable=unused-argument
-		return super().__new__(cls, x, *args, **kwargs)  # type: ignore[call-arg]
+		return super().__new__(cls, x, *args, **kwargs)
 
 	def __init__(self, x: Any, tensor_node: TensorNode | list[TensorNode]):
 		if isinstance(tensor_node, TensorNode):
