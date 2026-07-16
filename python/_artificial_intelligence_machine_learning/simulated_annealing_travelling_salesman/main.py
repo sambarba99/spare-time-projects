@@ -24,10 +24,10 @@ def calc_distance(candidate):
 	diff = np.diff(candidate, axis=0)
 
 	# Distances between points
-	distances = np.sum(diff ** 2, axis=1) ** 0.5
-	loop_back_distance = sum((candidate[0] - candidate[-1]) ** 2) ** 0.5
+	distances = np.linalg.norm(diff, axis=1)
+	loop_back_distance = np.linalg.norm(candidate[0] - candidate[-1])
 
-	total_dist = sum(distances) + loop_back_distance
+	total_dist = distances.sum() + loop_back_distance
 
 	return total_dist
 
@@ -71,12 +71,11 @@ def plot_progress(candidate):
 	ax_temp_vs_iteration.set_ylabel('Temperature')
 	ax_temp_vs_iteration.set_title(f'Temperature vs iteration ({temp_history[-1]:.2f})')
 
-	# Make path a loop
+	# Make route into a loop
 	coords = np.vstack((candidate, candidate[0]))
 
 	ax_current_candidate.plot(*coords.T, color='red', linewidth=1, zorder=1)
 	ax_current_candidate.scatter(*coords.T, color='black', s=18, zorder=2)
-	ax_current_candidate.axis('scaled')
 	ax_current_candidate.set_xticks([])
 	ax_current_candidate.set_yticks([])
 	ax_current_candidate.set_title(f'Current solution (iteration {iter_num:,} / {max_iters:,})')
@@ -98,6 +97,7 @@ if __name__ == '__main__':
 	ax_dist_vs_iteration = plt.axes([0.08, 0.57, 0.45, 0.33])
 	ax_temp_vs_iteration = plt.axes([0.08, 0.1, 0.45, 0.33])
 	ax_current_candidate = plt.axes([0.58, 0.1, 0.38, 0.8])
+	ax_current_candidate.axis('scaled')
 
 	while temperature > TEMP_THRESHOLD:
 		iter_num += 1

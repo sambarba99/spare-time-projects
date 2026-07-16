@@ -30,7 +30,7 @@ def plot_tree(tree, features, labels):
 		if level == 0:
 			s = labels[tree.class_idx] \
 				if tree.is_leaf \
-				else f'{features[tree.feature_idx]} <= {round(tree.split_threshold, 2)}'
+				else f'{features[tree.feature_idx]} <= {tree.split_threshold:.2f}'
 			nodes.append(s)
 		else:
 			get_level(tree.left, level - 1, nodes)

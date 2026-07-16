@@ -19,7 +19,7 @@ class XGBoostClassifier:
 
 	def __softmax(self, x):
 		exps = np.exp(x - x.max(axis=1, keepdims=True))
-		return exps / np.sum(exps, axis=1, keepdims=True)
+		return exps / exps.sum(axis=1, keepdims=True)
 
 	def __calculate_gradient(self, y_true, y_pred):
 		return y_true - self.__softmax(y_pred)

@@ -17,6 +17,7 @@ class KMeans:
 		self.distance_metric = []
 
 		_, (ax_clusters, ax_distance_metric) = plt.subplots(ncols=2, figsize=(9, 5))
+		ax_clusters.axis('scaled')
 		self.ax_clusters = ax_clusters
 		self.ax_distance_metric = ax_distance_metric
 
@@ -74,7 +75,6 @@ class KMeans:
 			self.distance_metric.append(get_sum_of_squares())
 			self.ax_distance_metric.plot(self.distance_metric)
 
-			self.ax_clusters.axis('scaled')
 			self.ax_clusters.set_title(title)
 			self.ax_distance_metric.set_xlabel('Step no.')
 			self.ax_distance_metric.set_title('Total inter-cluster sum of squares')

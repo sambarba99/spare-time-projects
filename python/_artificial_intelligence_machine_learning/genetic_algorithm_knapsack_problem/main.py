@@ -1,5 +1,5 @@
 """
-Demo of a Genetic Algorithm applied to the Knapsack Problem
+Genetic Algorithm applied to the Knapsack Problem
 
 Author: Sam Barba
 Created 2021-09-17

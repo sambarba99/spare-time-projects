@@ -28,9 +28,9 @@ def plot_tree(tree, features):
 			return nodes
 
 		if level == 0:
-			s = f'{round(tree.value, 2)}' \
+			s = f'{tree.value:.2f}' \
 				if tree.is_leaf \
-				else f'{features[tree.feature_idx]} <= {round(tree.split_threshold, 2)}'
+				else f'{features[tree.feature_idx]} <= {tree.split_threshold:.2f}'
 			nodes.append(s)
 		else:
 			get_level(tree.left, level - 1, nodes)
