@@ -29,10 +29,10 @@ class EarlyStopping:
 		"""
 
 		assert isinstance(target, (torch.nn.Module, torch.nn.Parameter)), 'target to track must be nn.Module or nn.Parameter'
-		assert patience >= 1
+		assert isinstance(patience, int) and patience >= 1
 		assert mode in ('min', 'max')
 		assert track_best_weights in (True, False)
-		assert min_delta >= 0
+		assert isinstance(min_delta, (float, int)) and min_delta >= 0
 
 		self.target = target
 		self.is_module = isinstance(target, torch.nn.Module)

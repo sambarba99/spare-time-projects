@@ -65,14 +65,14 @@ def gen_data(mode):
 	x = torch.tensor(x).float()
 	y = torch.tensor(y).float() if num_classes == 2 else torch.tensor(y).long()
 
-	build_model()
+	make_model()
 	plot_decision_boundary()
 	ax_classification.set_title('Start (random weights)')
 	# plt.savefig(f'./0000.png')
 	plt.show()
 
 
-def build_model():
+def make_model():
 	global model
 
 	model = nn.Sequential(
@@ -84,8 +84,8 @@ def build_model():
 	).cpu()
 
 
-def build_and_train_model(*_):
-	build_model()
+def make_and_train_model(*_):
+	make_model()
 	loss_func = nn.BCEWithLogitsLoss() if num_classes == 2 else nn.CrossEntropyLoss()
 	optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 
@@ -163,6 +163,6 @@ if __name__ == '__main__':
 	gen_circles_btn.on_clicked(lambda _: gen_data('circles'))
 	gen_moons_btn.on_clicked(lambda _: gen_data('moons'))
 	gen_spirals_btn.on_clicked(lambda _: gen_data('spirals'))
-	train_model_btn.on_clicked(build_and_train_model)
+	train_model_btn.on_clicked(make_and_train_model)
 
 	gen_data('clusters')
