@@ -47,6 +47,14 @@ Some perturbations in action:
 	<img src="images/perturbation_violin.png"/>
 </p>
 
+Saliency maps for some clean images:
+
+<p align="center">
+	<img src="images/saliency_map1.png"/>
+	<br/>
+	<img src="images/saliency_map2.png"/>
+</p>
+
 Sources:
 - [Tutorial 10: Adversarial attacks](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial10/Adversarial_Attacks.html) (University of Amsterdam Deep Learning Course)
 - [Towards Evaluating the Robustness of Neural Networks](https://arxiv.org/pdf/1608.04644) (Carlini, Wagner 2016)

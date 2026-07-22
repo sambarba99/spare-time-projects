@@ -228,6 +228,15 @@ if __name__ == '__main__':
 		early_stopping.restore_best_weights()
 		torch.save(model.state_dict(), './model.pth')
 
+	model.eval()
+
+	# Plot saliency maps for some sample images
+
+	x_val, _ = next(iter(val_loader))
+
+	for img in x_val:
+		plot_saliency_map(model, img.to(DEVICE), labels)
+
 	# Plot the model's learned filters, and corresponding feature maps of a sample image
 
 	layer_filters = get_cnn_learned_filters(model)
@@ -239,7 +248,6 @@ if __name__ == '__main__':
 			save_path=f'./images/conv{idx}_filters.png'
 		)
 
-	x_val, _ = next(iter(val_loader))
 	layer_feature_maps = get_cnn_feature_maps(model, input_img=x_val[0].to(DEVICE))
 	for idx, (feature_map, rows, scale_factor) in enumerate(zip(layer_feature_maps, (1, 2, 4), (0.5, 1, 2)), start=1):
 		cols = len(feature_map) // rows
@@ -256,7 +264,6 @@ if __name__ == '__main__':
 	loss_total = 0
 	all_y_labels, all_y_preds = [], []
 
-	model.eval()
 	with torch.inference_mode():
 		for x_test, y_test in test_loader:
 			logits = model(x_test.to(DEVICE)).cpu()

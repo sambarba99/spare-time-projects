@@ -44,7 +44,6 @@ def plot_image_grid(
 		if transform:
 			img = transform(img)
 
-		# Squeeze image
 		img = img.squeeze()
 
 		# Convert to numpy
@@ -122,6 +121,51 @@ def plot_torch_model(model, *input_shapes, dtypes=None, device='cpu', out_file='
 
 	g = draw_graph(model, input_data=x)
 	g.render(out_file, view=True, cleanup=True, format='png')
+
+
+def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
+	# Enable gradients for input
+	input_img.requires_grad = True
+
+	# Forward pass
+	output = model(input_img.unsqueeze(dim=0))
+
+	# Predicted class and confidence
+	probabilities = torch.softmax(output, dim=1)
+	pred_label = output.argmax(dim=1).item()
+	pred_class = pred_label if labels is None else labels[pred_label]
+	confidence = probabilities[0, pred_label].item()
+
+	# Clear any existing gradients from previous backward passes (ensure only the image contributes to the gradients)
+	model.zero_grad()
+
+	# Backward pass for output class
+	loss = output[0, pred_label]
+	loss.backward()
+
+	# Get gradients w.r.t input
+	saliency = input_img.grad.data.abs()
+
+	# Take max over the channel dimension
+	saliency, _ = torch.max(saliency, dim=0)
+
+	_, (ax_input, ax_saliency) = plt.subplots(ncols=2, figsize=(8, 4))
+
+	input_img = input_img.detach().cpu()
+
+	if image_plot_transform is not None:
+		ax_input.imshow(image_plot_transform(input_img))
+	elif input_img.ndim == 3 and input_img.shape[0] == 3:
+		ax_input.imshow(input_img.permute(1, 2, 0))  # (C, H, W) -> (H, W, C)
+	else:
+		ax_input.imshow(input_img.squeeze(), cmap='gray')
+
+	ax_input.set_title('Input image')
+	ax_input.axis('off')
+	ax_saliency.imshow(saliency.cpu(), cmap='inferno')
+	ax_saliency.set_title(f'Saliency map\nPred class = {pred_class} ({confidence:.1%})')
+	ax_saliency.axis('off')
+	plt.show()
 
 
 def get_cnn_learned_filters(conv_model, model_type='pytorch'):

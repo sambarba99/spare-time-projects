@@ -9,6 +9,7 @@ import tkinter as tk
 
 import torch
 
+from _utils.plotting import plot_saliency_map
 from utils import *
 
 
@@ -31,6 +32,16 @@ if __name__ == '__main__':
 	*_, test_loader = create_data_loaders(BATCH_SIZE)
 	test_loader_iter = iter(test_loader)
 
+	# Plot saliency maps for some clean images
+
+	model.eval()
+	for idx, (x, _) in enumerate(test_loader):
+		x = x.to(DEVICE)
+		for img in x:
+			plot_saliency_map(model, img, imagenet_labels, pil_image_transform)
+		if idx > 3:
+			break
+
 	# Print evaluation results for each attack type (inc. clean input)
 
 	stats = dict()
@@ -39,7 +50,6 @@ if __name__ == '__main__':
 
 	# Evaluate model (no adversarial attacks)
 
-	model.eval()
 	top1_acc, top5_acc = evaluate(model, test_loader)
 	print_row('None', '-', top1_acc, top5_acc)
 	stats['None'] = (top1_acc, top5_acc)

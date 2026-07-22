@@ -12,6 +12,16 @@ Test set performance:
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 
+Saliency maps for some sample images:
+
+<p align="center">
+	<img src="images/saliency_map1.png"/>
+	<br/>
+	<img src="images/saliency_map2.png"/>
+	<br/>
+	<img src="images/saliency_map3.png"/>
+</p>
+
 Learned filters of each conv layer, and corresponding feature maps of a sample image:
 
 <p align="center">
