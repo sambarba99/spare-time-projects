@@ -218,7 +218,7 @@ if __name__ == '__main__':
 					all_y_preds.append(logits.argmax(dim=1))
 
 			val_loss = val_loss_total / len(val_loader)
-			val_f1 = f1_score(torch.cat(all_y_labels), torch.cat(all_y_preds), average='weighted')
+			val_f1 = f1_score(torch.cat(all_y_labels), torch.cat(all_y_preds), average='macro')
 			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):
@@ -276,7 +276,7 @@ if __name__ == '__main__':
 	print('Loss:', loss)
 
 	# Confusion matrix
-	f1 = f1_score(torch.cat(all_y_labels), torch.cat(all_y_preds), average='weighted')
+	f1 = f1_score(torch.cat(all_y_labels), torch.cat(all_y_preds), average='macro')
 	plot_confusion_matrix(
 		torch.cat(all_y_labels),
 		torch.cat(all_y_preds),

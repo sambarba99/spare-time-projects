@@ -106,7 +106,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				logits = model(x_val.to(DEVICE)).cpu()
 			val_loss = loss_func(logits, y_val).item()
-			val_f1 = f1_score(y_val, logits.argmax(dim=1), average='weighted')
+			val_f1 = f1_score(y_val, logits.argmax(dim=1), average='macro')
 			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 	print('Loss:', loss.item())
 
 	# Confusion matrix
-	f1 = f1_score(y_test, preds, average='weighted')
+	f1 = f1_score(y_test, preds, average='macro')
 	labels = [chr(i) for i in range(65, 91)]
 	plot_confusion_matrix(y_test, preds, labels, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 

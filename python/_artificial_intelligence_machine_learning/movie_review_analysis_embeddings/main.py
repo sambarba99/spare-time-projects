@@ -62,12 +62,12 @@ def load_data():
 	all_tokens = [t for tokens in df['tokens'] for t in tokens]
 	token_counts = Counter(all_tokens)
 	sorted_tokens = sorted(token_counts, key=token_counts.get, reverse=True)
-	token_to_idx = {t: idx for idx, t in enumerate(sorted_tokens, start=1)}
-	vocab_size = len(token_to_idx) + 1  # Add 1 for the padding token (0)
+	token2idx = {t: idx for idx, t in enumerate(sorted_tokens, start=1)}
+	vocab_size = len(token2idx) + 1  # Add 1 for the padding token (0)
 
 	# Convert tokens to indices, cropping sequences to length SEQUENCE_LEN
 	df['token_idx'] = df['tokens'].apply(
-		lambda tokens: [token_to_idx[t] for idx, t in enumerate(tokens) if idx < SEQUENCE_LEN]
+		lambda tokens: [token2idx[t] for idx, t in enumerate(tokens) if idx < SEQUENCE_LEN]
 	)
 
 	# Pad shorter sequences with 0s

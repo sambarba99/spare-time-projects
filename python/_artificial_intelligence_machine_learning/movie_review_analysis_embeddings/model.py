@@ -21,8 +21,8 @@ class MovieReviewClf(nn.Module):
 		)
 
 	def forward(self, x):
-		embedded = self.embedding(x)   # -> (N, sequence_len, embedding_dim)
-		pooled = embedded.mean(dim=1)  # -> (N, embedding_dim)
-		out = self.fc_block(pooled)    # -> (N, 1)
+		embedded = self.embedding(x)    # -> (N, sequence_len, embedding_dim)
+		pooled = embedded.mean(dim=1)   # -> (N, embedding_dim)
+		logits = self.fc_block(pooled)  # -> (N, 1)
 
-		return out
+		return logits

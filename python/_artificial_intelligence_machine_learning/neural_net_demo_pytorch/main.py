@@ -205,7 +205,7 @@ if __name__ == '__main__':
 			preds = probs.argmax(dim=1).detach()
 
 			loss = loss_func(logits, y_train)
-			metric = f1_score(y_train, preds, average='weighted')
+			metric = f1_score(y_train, preds, average='macro')
 
 			optimiser.zero_grad()
 			loss.backward()
@@ -216,7 +216,7 @@ if __name__ == '__main__':
 				logits = model(x_val).squeeze()
 			val_preds = logits.argmax(dim=1)  # Same as computing probs then rounding
 			val_loss = loss_func(logits, y_val).item()
-			val_metric = f1_score(y_val, val_preds, average='weighted')
+			val_metric = f1_score(y_val, val_preds, average='macro')
 
 		elif task_choice == 'R':
 			preds = model(x_train).squeeze()
@@ -308,7 +308,7 @@ if __name__ == '__main__':
 			print('Loss:', loss.item())
 
 			# Confusion matrix
-			f1 = f1_score(y_test, preds, average='weighted')
+			f1 = f1_score(y_test, preds, average='macro')
 			plot_confusion_matrix(
 				y_test,
 				preds,

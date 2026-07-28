@@ -114,7 +114,7 @@ class DecisionTree:
 	def evaluate(self, x, y):
 		pred_classes = [self.predict(xi)['class'] for xi in x]
 
-		return f1_score(y, pred_classes, average='binary' if len(np.unique(y)) == 2 else 'weighted')
+		return f1_score(y, pred_classes, average='binary' if len(np.unique(y)) == 2 else 'macro')
 
 	@property
 	def depth(self):

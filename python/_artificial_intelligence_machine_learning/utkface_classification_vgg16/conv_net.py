@@ -70,8 +70,8 @@ class CNN(nn.Module):
 	def forward(self, x):
 		conv_out = self.conv_block(x)
 		fc_out = self.fc_block(conv_out)
-		age_out = self.age_branch(fc_out)
-		gender_out = self.gender_branch(fc_out)
-		race_out = self.race_branch(fc_out)
+		age_logits = self.age_branch(fc_out)
+		gender_logits = self.gender_branch(fc_out)
+		race_logits = self.race_branch(fc_out)
 
-		return age_out, gender_out, race_out
+		return age_logits, gender_logits, race_logits

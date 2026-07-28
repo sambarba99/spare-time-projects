@@ -262,7 +262,7 @@ if __name__ == '__main__':
 			gender_val_loss = gender_val_loss_total / len(val_loader)
 			gender_val_f1 = f1_score(torch.cat(all_gender_labels), torch.cat(all_gender_preds))
 			race_val_loss = race_val_loss_total / len(val_loader)
-			race_val_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='weighted')
+			race_val_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='macro')
 
 			prog_bar.finish(
 				f'{age_val_loss=:.2f}, '
@@ -380,7 +380,7 @@ if __name__ == '__main__':
 	gender_loss = gender_loss_total / len(test_loader)
 	gender_f1 = f1_score(torch.cat(all_gender_labels), torch.cat(all_gender_preds))
 	race_loss = race_loss_total / len(test_loader)
-	race_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='weighted')
+	race_f1 = f1_score(torch.cat(all_race_labels), torch.cat(all_race_preds), average='macro')
 
 	print(f'Age test loss: {age_loss:.2f}')
 	print(f'Age test MAE: {age_mae:.2f}')

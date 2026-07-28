@@ -72,8 +72,8 @@ class CNN(nn.Module):
 		max_pool1_out = self.max_pool(conv1_out)
 		conv2_out = self.leaky_relu(self.conv2(max_pool1_out))
 		max_pool2_out = self.max_pool(conv2_out)
-		flattened = max_pool2_out.flatten(start_dim=1)
-		dropout = self.dropout(flattened)
+		flat = max_pool2_out.flatten(start_dim=1)
+		dropout = self.dropout(flat)
 		linear1_out = self.leaky_relu(self.linear1(dropout))
 		linear2_out = self.linear2(linear1_out)
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 			with torch.inference_mode():
 				*_, logits = model(x_val.to(DEVICE))
 			val_loss = loss_func(logits.cpu(), y_val).item()
-			val_f1 = f1_score(y_val, logits.cpu().argmax(dim=1), average='weighted')
+			val_f1 = f1_score(y_val, logits.cpu().argmax(dim=1), average='macro')
 			prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 			if early_stopping(val_f1):

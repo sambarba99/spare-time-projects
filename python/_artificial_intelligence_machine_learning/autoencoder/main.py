@@ -30,6 +30,8 @@ torch.use_deterministic_algorithms(True)
 torch.manual_seed(1)
 torch.cuda.manual_seed_all(1)
 
+BATCH_SIZE_MNIST = 512
+BATCH_SIZE_TABULAR = 64
 NUM_EPOCHS = 500
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'  # For MNISTAutoencoder
 
@@ -67,10 +69,10 @@ def do_mnist():
 	else:
 		print('\n----- TRAINING -----\n')
 
-		# Don't need labels (y) as we're autoencoding
-		x_train, x_val = train_test_split(x, stratify=y, train_size=0.98, random_state=1)
+		# Don't need labels (y) as we're autoencoding - only use them to stratify
+		x_train, x_val = train_test_split(x, train_size=0.98, stratify=y, random_state=1)
 		train_dataset = CustomDataset(x_train)
-		train_loader = DataLoader(train_dataset, batch_size=512, shuffle=True)
+		train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE_MNIST, shuffle=True)
 		loss_func = torch.nn.MSELoss()
 		optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 		early_stopping = EarlyStopping(target=model, patience=50, mode='min')
@@ -112,7 +114,7 @@ def do_mnist():
 
 	# Visualise the latent space, controlled by the mouse
 
-	encodings = model.encoder_block(x.to(DEVICE)).detach().cpu().numpy()
+	encodings = model.encoder_block(x.to(DEVICE)).detach().cpu()
 
 	fig, (ax_latent, ax_decoded) = plt.subplots(ncols=2, figsize=(9, 5))
 	plt.subplots_adjust(wspace=0.1)
@@ -132,7 +134,7 @@ def do_mnist():
 		mouse_scatter = ax_latent.scatter(mx, my, marker='x', color='black', linewidth=2, s=100)
 
 		latent_vector = torch.tensor([mx, my], device=DEVICE).float().unsqueeze(dim=0)
-		decoded_img = model.decoder_block(latent_vector).detach().cpu().numpy().squeeze()
+		decoded_img = model.decoder_block(latent_vector).detach().cpu().squeeze()
 		img_plot = ax_decoded.imshow(decoded_img, cmap='gray')
 
 		return mouse_scatter, img_plot
@@ -202,10 +204,10 @@ if __name__ == '__main__':
 		else:
 			print('\n----- TRAINING -----\n')
 
-			# Don't need labels (y) as we're autoencoding
-			x_train, x_val = train_test_split(x, stratify=y, train_size=0.9, random_state=1)
+			# Don't need labels (y) as we're autoencoding - only use them to stratify
+			x_train, x_val = train_test_split(x, train_size=0.9, stratify=y, random_state=1)
 			train_dataset = CustomDataset(x_train)
-			train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+			train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE_TABULAR, shuffle=True)
 			loss_func = torch.nn.MSELoss()
 			optimiser = torch.optim.Adam(model.parameters())  # LR = 1e-3
 			early_stopping = EarlyStopping(target=model, patience=50, mode='min')
@@ -246,7 +248,7 @@ if __name__ == '__main__':
 
 		# Visualise the latent space
 
-		encodings = model.encoder_block(x).detach().numpy()
+		encodings = model.encoder_block(x).detach()
 		cmap = 'bwr' if len(labels) == 2 else 'brg'
 
 		plt.figure(figsize=(7, 6))

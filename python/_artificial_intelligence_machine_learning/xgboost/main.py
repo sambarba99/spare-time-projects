@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	test_pred_classes = test_pred_probs.argmax(axis=1)
 
 	# Confusion matrix
-	f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
+	f1 = f1_score(y_test, test_pred_classes, average='binary' if len(labels) == 2 else 'macro')
 	plot_confusion_matrix(
 		y_test,
 		test_pred_classes,

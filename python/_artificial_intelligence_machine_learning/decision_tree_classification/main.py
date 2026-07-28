@@ -138,7 +138,7 @@ if __name__ == '__main__':
 		# Confusion matrix
 		val_preds = [tree.predict(xi) for xi in x_val]
 		val_pred_classes = [p['class'] for p in val_preds]
-		f1 = f1_score(y_val, val_pred_classes, average='binary' if len(labels) == 2 else 'weighted')
+		f1 = f1_score(y_val, val_pred_classes, average='binary' if len(labels) == 2 else 'macro')
 		plot_confusion_matrix(
 			y_val,
 			val_pred_classes,

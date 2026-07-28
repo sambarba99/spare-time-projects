@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
 	# Confusion matrix
 	preds = model.predict(x_test, verbose=0).argmax(axis=1)
-	f1 = f1_score(y_test.argmax(axis=1), preds, average='weighted')
+	f1 = f1_score(y_test.argmax(axis=1), preds, average='macro')
 	plot_confusion_matrix(y_test.argmax(axis=1), preds, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 	# Plot the model's learned filters

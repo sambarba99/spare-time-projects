@@ -122,7 +122,7 @@ def train(model, save_path):
 			logits = model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(logits, y_val).item()
-		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='weighted')
+		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='macro')
 		prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 		if early_stopping(val_f1):
@@ -180,7 +180,7 @@ def train_student_with_kd(teacher_model, student_model, save_path):
 			logits = student_model(x_val.to(DEVICE)).cpu()
 
 		val_loss = loss_func(logits, y_val).item()
-		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='weighted')
+		val_f1 = f1_score(y_val, logits.argmax(dim=1), average='macro')
 		prog_bar.finish(f'{val_loss=:.4f}, {val_f1=:.4f}')
 
 		if early_stopping(val_f1):
@@ -201,7 +201,7 @@ def test(model, plot_title):
 	preds = logits.argmax(dim=1)
 
 	# Confusion matrix
-	f1 = f1_score(y_test, preds, average='weighted')
+	f1 = f1_score(y_test, preds, average='macro')
 	plot_confusion_matrix(
 		y_test,
 		preds,

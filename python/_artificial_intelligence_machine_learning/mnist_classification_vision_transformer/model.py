@@ -115,6 +115,6 @@ class VisionTransformer(nn.Module):
 
 		# Perform classification
 		cls = x[0]                                 # -> (N, embedding_dim)
-		out = self.mlp_head(cls)                   # -> (N, 10)
+		logits = self.mlp_head(cls)                # -> (N, 10)
 
-		return out
+		return logits
