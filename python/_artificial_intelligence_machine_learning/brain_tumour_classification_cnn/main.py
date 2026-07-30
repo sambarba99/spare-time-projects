@@ -230,11 +230,12 @@ if __name__ == '__main__':
 
 	model.eval()
 
-	# Plot saliency maps for some sample images
+	# Plot grad-CAM and saliency maps for some sample images
 
 	x_val, _ = next(iter(val_loader))
 
 	for img in x_val:
+		plot_gradcam(model, img.to(DEVICE), labels)
 		plot_saliency_map(model, img.to(DEVICE), labels)
 
 	# Plot the model's learned filters, and corresponding feature maps of a sample image

@@ -18,9 +18,9 @@ class DBSCAN:
 		"""
 		Args:
 			epsilon (float):
-				radius of local expanding clusters.
+				radius of local expanding clusters
 			min_samples (int):
-				minimum number of points within radius epsilon to qualify as a cluster.
+				minimum number of points within radius epsilon to qualify as a cluster
 		"""
 
 		self.epsilon = epsilon

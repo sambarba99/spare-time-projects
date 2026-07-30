@@ -151,7 +151,7 @@ if __name__ == '__main__':
 	plot_confusion_matrix(y_test.argmax(axis=1), preds, None, f'Test confusion matrix\n(F1 score: {f1:.3f})')
 
 	# Plot the model's learned filters
-	layer_filters = get_cnn_learned_filters(model, model_type='tensorflow')
+	layer_filters = get_cnn_learned_filters(model)
 	for idx, (filters, padding) in enumerate(zip(layer_filters, (15, 10)), start=1):
 		rows = idx
 		cols = len(filters) // rows
@@ -225,7 +225,7 @@ if __name__ == '__main__':
 		pg.display.update()
 
 	# Plot feature maps for user-drawn digit
-	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input, model_type='tensorflow')
+	layer_feature_maps = get_cnn_feature_maps(model, input_img=model_input)
 	for idx, (feature_map, padding, scale_factor) in enumerate(zip(layer_feature_maps, (15, 10), (3, 6)), start=1):
 		rows = idx
 		cols = len(feature_map) // rows

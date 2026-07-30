@@ -160,12 +160,18 @@ def evaluate(clf_model, test_loader, patch_logits=None, perturbation=None, targe
 	also computes the attack success rate.
 
 	Args:
-		clf_model: model to evaluate
-		test_loader: test set DataLoader containing images and labels
-		patch_logits: optional patch logits to apply to images
-		perturbation: optional noise to apply to images
-		target_class_name: if patch or perturbation are targeted, this specifies the target class
-		k: number of highest-confidence predictions to consider when computing top-k accuracy (default: 5).
+		clf_model (torch.nn.Module):
+			model to evaluate
+		test_loader (torch.utils.data.DataLoader):
+			test set DataLoader containing images and labels
+		patch_logits (torch.Tensor):
+			optional patch logits to apply to images
+		perturbation (torch.Tensor):
+			optional noise to apply to images
+		target_class_name (str):
+			if patch or perturbation are targeted, this specifies the target class
+		k (int):
+			number of highest-confidence predictions to consider when computing top-k accuracy (default: 5)
 	"""
 
 	assert patch_logits is None or perturbation is None, 'Can only test one attack type at a time'
@@ -222,13 +228,20 @@ def plot_output(clf_model, test_batch, patch_logits=None, perturbation=None, tar
 	untargeted adversarial patches or noise to inputs.
 
 	Args:
-		clf_model: model whose outputs to plot
-		test_batch: batch of images and labels from test DataLoader
-		patch_logits: optional patch logits to apply to images
-		perturbation: optional noise to apply to images
-		target_class_name: if patch or perturbation are targeted, this specifies the target class
-		k: number of highest-confidence predictions to use when plotting model output (default: 5)
-		title_append: stats computed in evaluate() to append to title.
+		clf_model (torch.nn.Module):
+			model whose outputs to plot
+		test_batch (Iterable[torch.Tensor]):
+			batch of images and labels from test DataLoader
+		patch_logits (torch.Tensor):
+			optional patch logits to apply to images
+		perturbation (torch.Tensor):
+			optional noise to apply to images
+		target_class_name (str):
+			if patch or perturbation are targeted, this specifies the target class
+		k (int):
+			number of highest-confidence predictions to use when plotting model output (default: 5)
+		title_append (str):
+			stats computed in evaluate() to append to title
 	"""
 
 	assert patch_logits is None or perturbation is None, 'Can only test one attack type at a time'

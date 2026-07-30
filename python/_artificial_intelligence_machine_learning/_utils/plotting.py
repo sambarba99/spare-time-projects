@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve
+# import tensorflow as tf
 import torch
 
 from _utils.torchview_modded import draw_graph  # Modified version of https://github.com/mert-kurttutan/torchview
@@ -25,6 +26,38 @@ def plot_image_grid(
 		outer_padding=20, background_rgb=(128, 176, 240), title_rgb=(0, 0, 0),
 		title='', save_path='', show=True
 	):
+	"""
+	Plot a grid of images.
+
+	Args:
+		images (Iterable):
+			iterable of images (grayscale or colour; NumPy arrays or PyTorch tensors)
+		rows (int):
+			number of rows to use in grid plot
+		cols (int):
+			number of columns to use in grid plot
+		padding (int):
+			size (pixels) of gap between images
+		transform (Callable):
+			optional transform to apply to each image
+		scale_factor (float):
+			scale factor to apply to each image (default: ``1``, i.e. don't scale)
+		scale_interpolation (str):
+			type of interpolation to use for scaling (default: ``nearest``)
+		outer_padding (int):
+			size (pixels) of border around image grid
+		background_rgb (Sequence[int]):
+			R, G, B values for plot background (default: ``128, 176, 240``)
+		title_rgb (Sequence[int]):
+			R, G, B values for plot title (default: ``0, 0, 0``)
+		title (str):
+			optional plot title
+		save_path (str):
+			optional path to save plot (if empty, plot image won't save)
+		show (bool):
+			whether to show the plotted image grid
+	"""
+
 	assert len(images) == rows * cols
 	assert scale_interpolation in INTERPOLATION_DICT
 
@@ -113,6 +146,22 @@ def plot_image_grid(
 
 
 def plot_torch_model(model, *input_shapes, dtypes=None, device='cpu', out_file='./images/model_architecture'):
+	"""
+	Plot the architecture of a PyTorch model.
+
+	Args:
+		model (torch.nn.Module):
+			model to plot
+		input_shapes (Sequence[tuple]):
+			each model input shape (excluding batch size), e.g. ``(3, 32, 32), (1,)``
+		dtypes (Sequence[torch.dtype]):
+			optional data type of each model input (defaults to ``torch.float`` if not provided)
+		device (str):
+			device to use when performing forward pass on the model (default: ``cpu``)
+		out_file (str):
+			where to save plot PNG (default: ``./images/model_architecture``)
+	"""
+
 	if dtypes is None:
 		dtypes = [torch.float] * len(input_shapes)
 
@@ -123,7 +172,120 @@ def plot_torch_model(model, *input_shapes, dtypes=None, device='cpu', out_file='
 	g.render(out_file, view=True, cleanup=True, format='png')
 
 
+def plot_gradcam(model, input_img, labels=None, image_plot_transform=None):
+	"""
+	Plot a gradient-weighted Class Acivation Mapping (grad-CAM) heatmap for a model's predicted class.
+	The grad-CAM heatmap is computed using the model's last ``torch.nn.Conv2d`` layer.
+
+	Args:
+		model (torch.nn.Module):
+			model to evaluate (must contain at least one ``torch.nn.Conv2d`` layer)
+		input_img (torch.Tensor):
+			input image with shape ``(C, H, W)`` (passed to the model with batch dimension added)
+		labels (Sequence[str]):
+			optional output class names (if provided, predicted class name will be added to plot title)
+		image_plot_transform (torchvision.transforms):
+			optional transform to apply to input image before displaying (e.g. to undo input normalisation)
+	"""
+
+	activations = gradients = None
+
+	# Forward hook: save feature maps
+	def save_activation(module, input, output):
+		nonlocal activations
+		activations = output.detach()
+
+	# Backward hook: save gradients
+	def save_gradient(module, input, output):
+		nonlocal gradients
+		gradients = output[0].detach()
+
+
+	# Find target layer (last Conv2d layer)
+	last_conv = last_conv_name = None
+
+	for name, module in model.named_modules():
+		if isinstance(module, torch.nn.Conv2d):
+			last_conv = module
+			last_conv_name = name
+
+	# Register hooks
+	forward_handle = last_conv.register_forward_hook(save_activation)
+	backward_handle = last_conv.register_full_backward_hook(save_gradient)
+
+	try:
+		# Forward pass
+		output = model(input_img.unsqueeze(dim=0))
+
+		# Predicted class and confidence
+		probabilities = torch.softmax(output, dim=1)
+		pred_label = output.argmax(dim=1).item()
+		pred_class = pred_label if labels is None else labels[pred_label]
+		confidence = probabilities[0, pred_label].item()
+
+		# Clear any existing gradients from previous backward passes (ensure only the image contributes to the gradients)
+		model.zero_grad()
+
+		# Backward pass for output class score
+		score = output[0, pred_label]
+		score.backward()
+
+		# Remove batch dimension
+		activations = activations[0]
+		gradients = gradients[0]
+
+		# Global average pooling of gradients
+		weights = gradients.mean(dim=(1, 2))
+
+		# Weighted combination of activation maps
+		cam = (weights[:, None, None] * activations).sum(dim=0)
+
+		# Keep only positive contributions
+		cam = torch.nn.functional.relu(cam)
+
+		# Scale to [0,1]
+		cam = (cam - cam.min()) / (cam.max() + 1e-9)
+
+		# Resize to input image size
+		cam = torch.nn.functional.interpolate(cam[None, None], size=input_img.shape[-2:], mode='bilinear')
+
+		_, (ax_input, ax_heatmap) = plt.subplots(ncols=2, figsize=(8, 4))
+
+		if image_plot_transform is not None:
+			ax_input.imshow(image_plot_transform(input_img.cpu()))
+		elif input_img.ndim == 3 and input_img.shape[0] == 3:
+			ax_input.imshow(input_img.permute(1, 2, 0).cpu())  # (C, H, W) -> (H, W, C)
+		else:
+			ax_input.imshow(input_img.squeeze().cpu(), cmap='gray')
+
+		ax_input.set_title('Input image')
+		ax_input.axis('off')
+		ax_heatmap.imshow(cam.squeeze().cpu(), cmap='jet')
+		ax_heatmap.set_title(f'Grad-CAM (layer: {last_conv_name})\nPred class = {pred_class} ({confidence:.1%})')
+		ax_heatmap.axis('off')
+		plt.show()
+	finally:
+		# Remove hooks so they don't accumulate
+		forward_handle.remove()
+		backward_handle.remove()
+
+
 def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
+	"""
+	Plot a saliency map for a model's predicted class. The map is computed using the gradients of the output class score
+	with respect to the input image. The maximum gradient magnitude across the input channels is used to create the map.
+
+	Args:
+		model (torch.nn.Module):
+			model to evaluate
+		input_img (torch.Tensor):
+			input image with shape ``(C, H, W)`` (passed to the model with batch dimension added)
+		labels (Sequence[str]):
+			optional output class names (if provided, predicted class name will be added to plot title)
+		image_plot_transform (torchvision.transforms):
+			optional transform to apply to input image before displaying (e.g. to undo input normalisation)
+	"""
+
 	# Enable gradients for input
 	input_img.requires_grad = True
 
@@ -139,9 +301,9 @@ def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
 	# Clear any existing gradients from previous backward passes (ensure only the image contributes to the gradients)
 	model.zero_grad()
 
-	# Backward pass for output class
-	loss = output[0, pred_label]
-	loss.backward()
+	# Backward pass for output class score
+	score = output[0, pred_label]
+	score.backward()
 
 	# Get gradients w.r.t input
 	saliency = input_img.grad.data.abs()
@@ -149,9 +311,9 @@ def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
 	# Take max over the channel dimension
 	saliency, _ = torch.max(saliency, dim=0)
 
-	_, (ax_input, ax_saliency) = plt.subplots(ncols=2, figsize=(8, 4))
-
 	input_img = input_img.detach().cpu()
+
+	_, (ax_input, ax_saliency) = plt.subplots(ncols=2, figsize=(8, 4))
 
 	if image_plot_transform is not None:
 		ax_input.imshow(image_plot_transform(input_img))
@@ -168,26 +330,44 @@ def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
 	plt.show()
 
 
-def get_cnn_learned_filters(conv_model, model_type='pytorch'):
-	assert model_type in ('pytorch', 'tensorflow')
+def get_cnn_learned_filters(conv_model):
+	"""
+	Extract the learned convolutional filters from a CNN. This function finds all conv layers in a PyTorch or TensorFlow
+	model and computes a 2D representation of each filter by averaging its weights across the input channel dimension.
 
-	conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)]
+	Args:
+		conv_model (torch.nn.Module | tensorflow.keras.Model):
+			CNN from which to extract learned filters
+
+	Returns:
+		list[list[torch.Tensor | numpy.ndarray]]:
+			learned filters grouped by convolutional layer. Each outer-list element corresponds to a conv layer, and
+			each inner-list element contains the channel-averaged 2D filter for one output filter. PyTorch models return
+			PyTorch tensors; TensorFlow models return NumPy arrays.
+	"""
+
+	# assert isinstance(conv_model, (torch.nn.Module, tf.keras.Model))
+	assert isinstance(conv_model, torch.nn.Module)
+
+	is_torch_model = isinstance(conv_model, torch.nn.Module)
+
 	# conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)] \
-	# 	if model_type == 'pytorch' else \
+	# 	if is_torch_model else \
 	# 	[layer for layer in conv_model.layers if isinstance(layer, Conv2D)]
+	conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)]
 
 	layer_filters = []
 
 	for idx, layer in enumerate(conv_layers, start=1):
-		filters, biases = (layer.weight, layer.bias) if model_type == 'pytorch' else layer.get_weights()
-		num_filters = filters.shape[0 if model_type == 'pytorch' else -1]
+		filters, biases = (layer.weight, layer.bias) if is_torch_model else layer.get_weights()
+		num_filters = filters.shape[0 if is_torch_model else -1]
 
 		print(f'Conv layer {idx}/{len(conv_layers)}'
 			f' | Filters shape: {tuple(filters.shape)}'
 			f' | Biases shape: {tuple(biases.shape)}')
 
 		channel_means = [
-			filters[i].mean(0) if model_type == 'pytorch' else filters[..., i].mean(2)
+			filters[i].mean(0) if is_torch_model else filters[..., i].mean(2)
 			for i in range(num_filters)
 		]
 
@@ -196,8 +376,29 @@ def get_cnn_learned_filters(conv_model, model_type='pytorch'):
 	return layer_filters
 
 
-def get_cnn_feature_maps(conv_model, input_img, model_type='pytorch'):
-	assert model_type in ('pytorch', 'tensorflow')
+def get_cnn_feature_maps(conv_model, input_img):
+	"""
+	Extract feature maps from all convolutional layers of a CNN. This function passes an input image through each conv
+	layer of a PyTorch or TensorFlow model and extracts the resulting activation maps. For each conv layer, the
+	individual feature map channels are returned separately.
+
+	Args:
+		conv_model (torch.nn.Module | tensorflow.keras.Model):
+			CNN from which to extract feature maps
+		input_img (torch.Tensor | numpy.ndarray):
+			input image with shape ``(C, H, W)`` for PyTorch model or ``(H, W, C)`` for TensorFlow model (passed to the
+			model with batch dimension added)
+
+	Returns:
+		list[list[torch.Tensor | numpy.ndarray]]:
+			feature maps grouped by convolutional layer. Each outer-list element corresponds to a conv layer, and each
+			inner-list element contains a single 2D feature map channel from that layer.
+	"""
+
+	# assert isinstance(conv_model, (torch.nn.Module, tf.keras.Model))
+	assert isinstance(conv_model, torch.nn.Module)
+
+	is_torch_model = isinstance(conv_model, torch.nn.Module)
 
 	def get_feature_map(layer):
 		def hook_func(module, input, output):
@@ -211,7 +412,7 @@ def get_cnn_feature_maps(conv_model, input_img, model_type='pytorch'):
 		return feature_maps[0]  # Return the feature map of the layer
 
 
-	if model_type == 'pytorch':
+	if is_torch_model:
 		conv_layers = [layer for layer in conv_model.modules() if isinstance(layer, torch.nn.Conv2d)]
 		feature_maps = [get_feature_map(layer) for layer in conv_layers]
 	else:
@@ -226,10 +427,10 @@ def get_cnn_feature_maps(conv_model, input_img, model_type='pytorch'):
 	for idx, feature_map in enumerate(feature_maps, start=1):
 		print(f'Feature map {idx}/{len(feature_maps)} shape: {tuple(feature_map.shape)}')
 
-		map_depth = feature_map.shape[1 if model_type == 'pytorch' else -1]  # No. channels
+		map_depth = feature_map.shape[1 if is_torch_model else -1]  # No. channels
 
 		feature_map_slices = [
-			feature_map[0, i] if model_type == 'pytorch' else feature_map[0, ..., i]
+			feature_map[0, i] if is_torch_model else feature_map[0, ..., i]
 			for i in range(map_depth)
 		]
 

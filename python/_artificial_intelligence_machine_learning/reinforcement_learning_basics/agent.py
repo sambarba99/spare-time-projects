@@ -14,9 +14,12 @@ class Agent:
 	def __init__(self, gamma=0.9, alpha=0.2, epsilon=0.1):
 		"""
 		Args:
-			gamma (float): return discount factor
-			alpha (float): learning rate (for SARSA and Q-learning)
-			epsilon (float): for epsilon-greedy policy.
+			gamma (float):
+				return discount factor
+			alpha (float):
+				learning rate (for SARSA and Q-learning)
+			epsilon (float):
+				for epsilon-greedy policy
 		"""
 
 		self.gamma = gamma

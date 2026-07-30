@@ -47,9 +47,13 @@ Some perturbations in action:
 	<img src="images/perturbation_violin.png"/>
 </p>
 
-Saliency maps for some clean images:
+Grad-CAM + saliency maps for some clean images:
 
 <p align="center">
+	<img src="images/gradcam1.png"/>
+	<br/>
+	<img src="images/gradcam2.png"/>
+	<br/>
 	<img src="images/saliency_map1.png"/>
 	<br/>
 	<img src="images/saliency_map2.png"/>
