@@ -127,6 +127,8 @@ def create_data_loaders(df):
 	for idx, img in enumerate(x_test):
 		x_test[idx] = norm_transform(img)
 
+	norm_min = (0 - mean) / std
+
 	train_dataset = CustomDataset(x_train, y_train)
 	val_dataset = CustomDataset(x_val, y_val)
 	test_dataset = CustomDataset(x_test, y_test)
@@ -134,7 +136,7 @@ def create_data_loaders(df):
 	val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
 	test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
-	return train_loader, val_loader, test_loader, labels
+	return train_loader, val_loader, test_loader, labels, norm_min
 
 
 if __name__ == '__main__':
@@ -176,7 +178,7 @@ if __name__ == '__main__':
 
 	# Define data loaders and model
 
-	train_loader, val_loader, test_loader, labels = create_data_loaders(df)
+	train_loader, val_loader, test_loader, labels, norm_min = create_data_loaders(df)
 
 	model = CNN().to(DEVICE)
 	plot_torch_model(model, (1, IMG_SIZE, IMG_SIZE), device=DEVICE)
@@ -230,13 +232,15 @@ if __name__ == '__main__':
 
 	model.eval()
 
-	# Plot grad-CAM and saliency maps for some sample images
+	# Plot explainability metrics for some sample images
 
 	x_val, _ = next(iter(val_loader))
 
 	for img in x_val:
-		plot_gradcam(model, img.to(DEVICE), labels)
-		plot_saliency_map(model, img.to(DEVICE), labels)
+		img = img.to(DEVICE)
+		plot_gradcam(model=model, input_img=img, labels=labels)
+		plot_occlusion_sensitivity(model=model, input_img=img, patch_size=32, stride=16, baseline=norm_min, labels=labels)
+		plot_saliency_map(model=model, input_img=img, labels=labels)
 
 	# Plot the model's learned filters, and corresponding feature maps of a sample image
 

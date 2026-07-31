@@ -31,31 +31,31 @@ def plot_image_grid(
 
 	Args:
 		images (Iterable):
-			iterable of images (grayscale or colour; NumPy arrays or PyTorch tensors)
+			Iterable of images (grayscale or colour; NumPy arrays or PyTorch tensors).
 		rows (int):
-			number of rows to use in grid plot
+			Number of rows to use in grid plot.
 		cols (int):
-			number of columns to use in grid plot
+			Number of columns to use in grid plot.
 		padding (int):
-			size (pixels) of gap between images
+			Size (pixels) of gap between images.
 		transform (Callable):
-			optional transform to apply to each image
+			Optional transform to apply to each image.
 		scale_factor (float):
-			scale factor to apply to each image (default: ``1``, i.e. don't scale)
+			Scale factor to apply to each image (default: ``1``, i.e. don't scale).
 		scale_interpolation (str):
-			type of interpolation to use for scaling (default: ``nearest``)
+			The type of interpolation to use for scaling (default: ``nearest``).
 		outer_padding (int):
-			size (pixels) of border around image grid
+			Size (pixels) of border around image grid.
 		background_rgb (Sequence[int]):
-			R, G, B values for plot background (default: ``128, 176, 240``)
+			R, G, B values for plot background (default: ``128, 176, 240``).
 		title_rgb (Sequence[int]):
-			R, G, B values for plot title (default: ``0, 0, 0``)
+			R, G, B values for plot title (default: ``0, 0, 0``).
 		title (str):
-			optional plot title
+			Optional plot title.
 		save_path (str):
-			optional path to save plot (if empty, plot image won't save)
+			Optional path to save plot (if empty, plot image won't save).
 		show (bool):
-			whether to show the plotted image grid
+			Whether to show the plotted image grid.
 	"""
 
 	assert len(images) == rows * cols
@@ -151,15 +151,15 @@ def plot_torch_model(model, *input_shapes, dtypes=None, device='cpu', out_file='
 
 	Args:
 		model (torch.nn.Module):
-			model to plot
+			The model whose architecture to plot.
 		input_shapes (Sequence[tuple]):
-			each model input shape (excluding batch size), e.g. ``(3, 32, 32), (1,)``
+			Each model input shape (excluding batch size), e.g. ``(3, 32, 32), (1,)``.
 		dtypes (Sequence[torch.dtype]):
-			optional data type of each model input (defaults to ``torch.float`` if not provided)
+			Optional data type of each model input (defaults to ``torch.float`` if not provided).
 		device (str):
-			device to use when performing forward pass on the model (default: ``cpu``)
+			The device to use when performing forward pass on the model (default: ``cpu``).
 		out_file (str):
-			where to save plot PNG (default: ``./images/model_architecture``)
+			Where to save plot PNG (default: ``./images/model_architecture``).
 	"""
 
 	if dtypes is None:
@@ -179,13 +179,13 @@ def plot_gradcam(model, input_img, labels=None, image_plot_transform=None):
 
 	Args:
 		model (torch.nn.Module):
-			model to evaluate (must contain at least one ``torch.nn.Conv2d`` layer)
+			The model to evaluate (must contain at least one ``torch.nn.Conv2d`` layer).
 		input_img (torch.Tensor):
-			input image with shape ``(C, H, W)`` (passed to the model with batch dimension added)
+			Input image with shape ``(C, H, W)`` (passed to the model with batch dimension added).
 		labels (Sequence[str]):
-			optional output class names (if provided, predicted class name will be added to plot title)
+			Optional output class names (if provided, predicted class name will be added to plot title).
 		image_plot_transform (torchvision.transforms):
-			optional transform to apply to input image before displaying (e.g. to undo input normalisation)
+			Optional transform to apply to input image before displaying (e.g. to undo input normalisation).
 	"""
 
 	activations = gradients = None
@@ -270,6 +270,101 @@ def plot_gradcam(model, input_img, labels=None, image_plot_transform=None):
 		backward_handle.remove()
 
 
+def plot_occlusion_sensitivity(model, input_img, patch_size, stride, baseline=0, labels=None, image_plot_transform=None):
+	"""
+	Plot an occlusion sensitivity heatmap for a model's predicted class. The heatmap is computed by sliding a square
+	patch across the image, replacing each region with the baseline value, and measuring the resulting decrease in the
+	model's confidence for its original predicted class.
+
+	Args:
+		model (torch.nn.Module):
+			The model to evaluate.
+		input_img (torch.Tensor):
+			Input image with shape ``(C, H, W)`` (passed to the model with batch dimension added).
+		patch_size (int):
+			Height and width of the square occlusion patch.
+		stride (int):
+			Number of pixels to move the patch at each step.
+		baseline (float | torch.Tensor):
+			Value used to replace the occluded region (default: ``0``).
+		labels (Sequence[str]):
+			Optional output class names (if provided, predicted class name will be added to plot title).
+		image_plot_transform (torchvision.transforms):
+			Optional transform to apply to input image before displaying (e.g. to undo input normalisation).
+	"""
+
+	# Original prediction
+	with torch.inference_mode():
+		output = model(input_img.unsqueeze(dim=0))
+
+	probabilities = torch.softmax(output, dim=1)
+	pred_label = output.argmax(dim=1).item()
+	pred_class = pred_label if labels is None else labels[pred_label]
+	original_confidence = probabilities[0, pred_label].item()
+
+	_, h, w = input_img.shape
+
+	# Include the final possible patch position even when image dimensions are not exact multiples of the stride
+	y_positions = list(range(0, max(h - patch_size + 1, 1), stride))
+	x_positions = list(range(0, max(w - patch_size + 1, 1), stride))
+
+	final_y = max(h - patch_size, 0)
+	final_x = max(w - patch_size, 0)
+
+	if y_positions[-1] != final_y:
+		y_positions.append(final_y)
+	if x_positions[-1] != final_x:
+		x_positions.append(final_x)
+
+	# Stores the confidence drop at each patch location
+	occlusion_map = torch.zeros(len(y_positions), len(x_positions), device=input_img.device)
+
+	for row, y in enumerate(y_positions):
+		for col, x in enumerate(x_positions):
+			# Copy the image and occlude one region
+			occluded_img = input_img.clone()
+			y_end = min(y + patch_size, h)
+			x_end = min(x + patch_size, w)
+			occluded_img[:, y:y_end, x:x_end] = baseline
+
+			# Confidence for the original predicted class, given this occluded image
+			with torch.inference_mode():
+				occluded_output = model(occluded_img.unsqueeze(dim=0))
+			occluded_probabilities = torch.softmax(occluded_output, dim=1)
+			occluded_confidence = occluded_probabilities[0, pred_label].item()
+
+			# Positive value means confidence decreased after occlusion
+			confidence_drop = original_confidence - occluded_confidence
+			occlusion_map[row, col] = confidence_drop
+
+	# Resize to input image size
+	occlusion_map = torch.nn.functional.interpolate(occlusion_map[None, None], size=(h, w), mode='bilinear')[0, 0]
+
+	# Ignore negative values, as this plot focuses on regions whose occlusion reduces confidence
+	occlusion_map = torch.nn.functional.relu(occlusion_map)
+
+	# Scale to [0, 1]
+	max_value = occlusion_map.max()
+	if max_value > 0:
+		occlusion_map /= max_value
+
+	_, (ax_input, ax_occlusion) = plt.subplots(ncols=2, figsize=(8, 4))
+
+	if image_plot_transform is not None:
+		ax_input.imshow(image_plot_transform(input_img.cpu()))
+	elif input_img.ndim == 3 and input_img.shape[0] == 3:
+		ax_input.imshow(input_img.permute(1, 2, 0).cpu())  # (C, H, W) -> (H, W, C)
+	else:
+		ax_input.imshow(input_img.squeeze().cpu(), cmap='gray')
+
+	ax_input.set_title('Input image')
+	ax_input.axis('off')
+	ax_occlusion.imshow(occlusion_map.cpu(), cmap='jet')
+	ax_occlusion.set_title(f'Occlusion sensitivity\nPred class = {pred_class} ({original_confidence:.1%})')
+	ax_occlusion.axis('off')
+	plt.show()
+
+
 def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
 	"""
 	Plot a saliency map for a model's predicted class. The map is computed using the gradients of the output class score
@@ -277,13 +372,13 @@ def plot_saliency_map(model, input_img, labels=None, image_plot_transform=None):
 
 	Args:
 		model (torch.nn.Module):
-			model to evaluate
+			The model to evaluate.
 		input_img (torch.Tensor):
-			input image with shape ``(C, H, W)`` (passed to the model with batch dimension added)
+			Input image with shape ``(C, H, W)`` (passed to the model with batch dimension added).
 		labels (Sequence[str]):
-			optional output class names (if provided, predicted class name will be added to plot title)
+			Optional output class names (if provided, predicted class name will be added to plot title).
 		image_plot_transform (torchvision.transforms):
-			optional transform to apply to input image before displaying (e.g. to undo input normalisation)
+			Optional transform to apply to input image before displaying (e.g. to undo input normalisation).
 	"""
 
 	# Enable gradients for input
@@ -337,7 +432,7 @@ def get_cnn_learned_filters(conv_model):
 
 	Args:
 		conv_model (torch.nn.Module | tensorflow.keras.Model):
-			CNN from which to extract learned filters
+			The CNN from which to extract learned filters.
 
 	Returns:
 		list[list[torch.Tensor | numpy.ndarray]]:
@@ -384,10 +479,10 @@ def get_cnn_feature_maps(conv_model, input_img):
 
 	Args:
 		conv_model (torch.nn.Module | tensorflow.keras.Model):
-			CNN from which to extract feature maps
+			The CNN from which to extract feature maps.
 		input_img (torch.Tensor | numpy.ndarray):
-			input image with shape ``(C, H, W)`` for PyTorch model or ``(H, W, C)`` for TensorFlow model (passed to the
-			model with batch dimension added)
+			Input image with shape ``(C, H, W)`` for PyTorch model or ``(H, W, C)`` for TensorFlow model (passed to the
+			model with batch dimension added).
 
 	Returns:
 		list[list[torch.Tensor | numpy.ndarray]]:

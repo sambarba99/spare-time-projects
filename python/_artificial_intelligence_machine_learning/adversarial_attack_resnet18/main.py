@@ -9,7 +9,7 @@ import tkinter as tk
 
 import torch
 
-from _utils.plotting import plot_gradcam, plot_saliency_map
+from _utils.plotting import plot_gradcam, plot_occlusion_sensitivity, plot_saliency_map
 from utils import *
 
 
@@ -32,14 +32,35 @@ if __name__ == '__main__':
 	*_, test_loader = create_data_loaders(BATCH_SIZE)
 	test_loader_iter = iter(test_loader)
 
-	# Plot grad-CAM and saliency maps for some clean images
+	# Plot explainability metrics for some clean images
 
+	patch_size = img_size // 8
+	stride = patch_size // 2
 	model.eval()
 	for idx, (x, _) in enumerate(test_loader):
 		x = x.to(DEVICE)
 		for img in x:
-			plot_gradcam(model, img, imagenet_labels, pil_image_transform)
-			plot_saliency_map(model, img, imagenet_labels, pil_image_transform)
+			plot_gradcam(
+				model=model,
+				input_img=img,
+				labels=imagenet_labels,
+				image_plot_transform=pil_image_transform
+			)
+			plot_occlusion_sensitivity(
+				model=model,
+				input_img=img,
+				patch_size=patch_size,
+				stride=stride,
+				baseline=valid_perturbation_min,
+				labels=imagenet_labels,
+				image_plot_transform=pil_image_transform
+			)
+			plot_saliency_map(
+				model=model,
+				input_img=img,
+				labels=imagenet_labels,
+				image_plot_transform=pil_image_transform
+			)
 		if idx > 3:
 			break
 

@@ -161,17 +161,17 @@ def evaluate(clf_model, test_loader, patch_logits=None, perturbation=None, targe
 
 	Args:
 		clf_model (torch.nn.Module):
-			model to evaluate
+			The model to evaluate.
 		test_loader (torch.utils.data.DataLoader):
-			test set DataLoader containing images and labels
+			Test set DataLoader containing images and labels.
 		patch_logits (torch.Tensor):
-			optional patch logits to apply to images
+			Optional patch logits to apply to images.
 		perturbation (torch.Tensor):
-			optional noise to apply to images
+			Optional noise to apply to images.
 		target_class_name (str):
-			if patch or perturbation are targeted, this specifies the target class
+			If the patch or perturbation are targeted, this specifies the target class.
 		k (int):
-			number of highest-confidence predictions to consider when computing top-k accuracy (default: 5)
+			Number of highest-confidence predictions to consider when computing the top-k accuracy (default: ``5``).
 	"""
 
 	assert patch_logits is None or perturbation is None, 'Can only test one attack type at a time'
@@ -229,19 +229,19 @@ def plot_output(clf_model, test_batch, patch_logits=None, perturbation=None, tar
 
 	Args:
 		clf_model (torch.nn.Module):
-			model whose outputs to plot
+			The model whose outputs to plot.
 		test_batch (Iterable[torch.Tensor]):
-			batch of images and labels from test DataLoader
+			A batch of images and labels from a test DataLoader.
 		patch_logits (torch.Tensor):
-			optional patch logits to apply to images
+			Optional patch logits to apply to images.
 		perturbation (torch.Tensor):
-			optional noise to apply to images
+			Optional noise to apply to images.
 		target_class_name (str):
-			if patch or perturbation are targeted, this specifies the target class
+			If the patch or perturbation are targeted, this specifies the target class.
 		k (int):
-			number of highest-confidence predictions to use when plotting model output (default: 5)
+			Number of highest-confidence predictions to use when plotting the model's output (default: ``5``).
 		title_append (str):
-			stats computed in evaluate() to append to title
+			Stats computed in evaluate() to append to the plot title.
 	"""
 
 	assert patch_logits is None or perturbation is None, 'Can only test one attack type at a time'

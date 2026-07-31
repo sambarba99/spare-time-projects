@@ -15,11 +15,17 @@ class Agent:
 		"""
 		Args:
 			gamma (float):
-				return discount factor
+				Return discount factor (0-1) which controls how much future rewards matter compared to immediate
+				rewards. A value closer to 1 gives greater weight to long-term rewards, while a value closer to 0
+				prioritises immediate rewards. Default: ``0.9``.
 			alpha (float):
-				learning rate (for SARSA and Q-learning)
+				Learning rate (0-1) for SARSA and Q-learning that controls how strongly new experiences update the
+				current Q-value estimates. A higher value causes faster learning but may be less stable, while a lower
+				value results in slower, more gradual learning. Default: ``0.2``.
 			epsilon (float):
-				for epsilon-greedy policy
+				Probability (0-1) of selecting a random action during epsilon-greedy action selection. A higher value
+				encourages more exploration, while a lower value exploits the action with the highest estimated Q-value.
+				Default: ``0.1``.
 		"""
 
 		self.gamma = gamma

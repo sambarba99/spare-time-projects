@@ -47,14 +47,18 @@ Some perturbations in action:
 	<img src="images/perturbation_violin.png"/>
 </p>
 
-Grad-CAM + saliency maps for some clean images:
+Explainability metrics for some clean images:
 
 <p align="center">
 	<img src="images/gradcam1.png"/>
 	<br/>
-	<img src="images/gradcam2.png"/>
+	<img src="images/occlusion_sensitivity1.png"/>
 	<br/>
 	<img src="images/saliency_map1.png"/>
+	<br/>
+	<img src="images/gradcam2.png"/>
+	<br/>
+	<img src="images/occlusion_sensitivity2.png"/>
 	<br/>
 	<img src="images/saliency_map2.png"/>
 </p>

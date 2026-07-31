@@ -12,10 +12,12 @@ Test set performance:
 	<img src="images/test_confusion_matrix.png"/>
 </p>
 
-Grad-CAM + saliency map for a sample image:
+Explainability metrics for a sample image:
 
 <p align="center">
 	<img src="images/gradcam.png"/>
+	<br/>
+	<img src="images/occlusion_sensitivity.png"/>
 	<br/>
 	<img src="images/saliency_map.png"/>
 </p>
