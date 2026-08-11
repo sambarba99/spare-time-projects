@@ -56,10 +56,10 @@ if __name__ == '__main__':
 	).upper()
 
 	match choice:
-		case 'B': path = 'C:/Users/sam/Desktop/projects/datasets/boston_housing.csv'
-		case 'C': path = 'C:/Users/sam/Desktop/projects/datasets/car_valuation.csv'
-		case 'M': path = 'C:/Users/sam/Desktop/projects/datasets/medical_costs.csv'
-		case 'P': path = 'C:/Users/sam/Desktop/projects/datasets/parkinsons_scale.csv'
+		case 'B': path = '/home/sam/Desktop/projects/datasets/boston_housing.csv'
+		case 'C': path = '/home/sam/Desktop/projects/datasets/car_valuation.csv'
+		case 'M': path = '/home/sam/Desktop/projects/datasets/medical_costs.csv'
+		case 'P': path = '/home/sam/Desktop/projects/datasets/parkinsons_scale.csv'
 		case _: path = 'sine'
 
 	if path == 'sine':

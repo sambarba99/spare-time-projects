@@ -41,8 +41,6 @@ percep_radius_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 - 7],
 	[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
 max_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
 	[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
-max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
-	[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
 
 do_separation = do_alignment = do_cohesion = True
 
@@ -147,8 +145,6 @@ if __name__ == '__main__':
 								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 39 + 7]]
 							max_force_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 - 7],
 								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 61 + 7]]
-							max_vel_slider = [[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 - 7],
-								[(SLIDER_MIN_X + SLIDER_MAX_X) / 2, 83 + 7]]
 
 							generate_boids()
 						case pg.K_1: do_separation = not do_separation

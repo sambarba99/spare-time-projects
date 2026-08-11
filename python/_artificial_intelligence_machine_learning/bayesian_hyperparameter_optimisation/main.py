@@ -25,7 +25,7 @@ pd.set_option('display.max_columns', 14)
 pd.set_option('display.width', None)
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-DATASET_PATH = 'C:/Users/sam/Desktop/projects/datasets/boston_housing.csv'
+DATASET_PATH = '/home/sam/Desktop/projects/datasets/boston_housing.csv'
 BATCH_SIZE = 32
 NUM_OPTIMISATION_ITERS = 25
 

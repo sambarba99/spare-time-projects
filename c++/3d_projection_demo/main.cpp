@@ -36,13 +36,13 @@ const double ROTATION_SPEED = 0.02;
 const vector<Point3D> VERTICES = {
 	// Face points
 	{0.25, 0.25, 0.25},
-    {-0.25, 0.25, 0.25},
-    {-0.25, -0.25, 0.25},
-    {0.25, -0.25, 0.25},
-    {0.25, 0.25, -0.25},
-    {-0.25, 0.25, -0.25},
-    {-0.25, -0.25, -0.25},
-    {0.25, -0.25, -0.25},
+	{-0.25, 0.25, 0.25},
+	{-0.25, -0.25, 0.25},
+	{0.25, -0.25, 0.25},
+	{0.25, 0.25, -0.25},
+	{-0.25, 0.25, -0.25},
+	{-0.25, -0.25, -0.25},
+	{0.25, -0.25, -0.25},
 	// Axis points
 	{0.5, 0.0, 0.0},
 	{-0.5, 0.0, 0.0},
@@ -82,27 +82,27 @@ sf::Font font;
 
 
 Mat multiply(const Mat& a, const Mat& b) {
-    Mat r;
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            r[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
-    return r;
+	Mat r;
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			r[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
+	return r;
 }
 
 
 Point3D apply_orientation_matrix(const Point3D& p) {
-    return {
-        orientation[0][0] * p.x + orientation[0][1] * p.y + orientation[0][2] * p.z,
-        orientation[1][0] * p.x + orientation[1][1] * p.y + orientation[1][2] * p.z,
-        orientation[2][0] * p.x + orientation[2][1] * p.y + orientation[2][2] * p.z
-    };
+	return {
+		orientation[0][0] * p.x + orientation[0][1] * p.y + orientation[0][2] * p.z,
+		orientation[1][0] * p.x + orientation[1][1] * p.y + orientation[1][2] * p.z,
+		orientation[2][0] * p.x + orientation[2][1] * p.y + orientation[2][2] * p.z
+	};
 }
 
 
 Mat rot_matrix_x(double theta) {
-    double c = cos(theta);
+	double c = cos(theta);
 	double s = sin(theta);
-    return {{
+	return {{
 		{1, 0, 0},
 		{0, c, -s},
 		{0, s, c}
@@ -111,9 +111,9 @@ Mat rot_matrix_x(double theta) {
 
 
 Mat rot_matrix_y(double theta) {
-    double c = cos(theta);
+	double c = cos(theta);
 	double s = sin(theta);
-    return {{
+	return {{
 		{c, 0, s},
 		{0, 1, 0},
 		{-s, 0, c}
@@ -122,9 +122,9 @@ Mat rot_matrix_y(double theta) {
 
 
 Mat rot_matrix_z(double theta) {
-    double c = cos(theta);
+	double c = cos(theta);
 	double s = sin(theta);
-    return {{
+	return {{
 		{c, -s, 0},
 		{s, c, 0},
 		{0, 0, 1}
@@ -210,7 +210,7 @@ void draw() {
 int main() {
 	window.setFramerateLimit(FPS);
 	sf::Event event;
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {

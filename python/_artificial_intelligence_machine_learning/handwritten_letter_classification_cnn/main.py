@@ -44,7 +44,7 @@ def load_data():
 
 
 	x_train, y_train, x_val, y_val, x_test, y_test, *_ = load_csv_classification_data(
-		'C:/Users/sam/Desktop/projects/datasets/handwritten_letters.csv',
+		'/home/sam/Desktop/projects/datasets/handwritten_letters.csv',
 		header=None,
 		train_size=0.98,
 		val_size=0.01,

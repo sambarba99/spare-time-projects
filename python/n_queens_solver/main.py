@@ -106,7 +106,7 @@ def draw_grid(solve_status):
 			if board[i, j] == QUEEN:
 				cell_lbl = cell_font.render('Q', True, (220, 150, 0))
 				lbl_rect = cell_lbl.get_rect(
-					center=((j + 0.5) * CELL_SIZE + GRID_OFFSET, (i + 0.5) * CELL_SIZE + GRID_OFFSET + 2)
+					center=((j + 0.5) * CELL_SIZE + GRID_OFFSET, (i + 0.5) * CELL_SIZE + GRID_OFFSET)
 				)
 				scene.blit(cell_lbl, lbl_rect)
 

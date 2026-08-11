@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
 	# Test file compression
 
-	file_path = 'C:/Users/sam/Desktop/projects/python/_artificial_intelligence_machine_learning/autoencoder_variational/model.pth'
+	file_path = '/home/sam/Desktop/projects/python/_artificial_intelligence_machine_learning/autoencoder_variational/model.pth'
 	with open(file_path, 'rb') as f:
 		file_data = f.read()
 

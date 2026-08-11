@@ -175,7 +175,7 @@ void await_click() {
 
 
 int main() {
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 
 	while (true) {
 		for (const auto& [level, flat_board] : PUZZLES) {

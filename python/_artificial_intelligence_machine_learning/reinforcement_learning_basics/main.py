@@ -23,16 +23,17 @@ if __name__ == '__main__':
 	td_methods_lbl = tk.Label(root, text='Temporal Difference methods',
 		font='consolas 12', background='#101010', foreground='white')
 
-	btn_generate_env = tk.Button(root, text='Generate environment', font='consolas 12',
+	btn_generate_env = tk.Button(root, text='Generate environment', font='consolas 11', highlightthickness=0,
 		command=lambda: agent.env.generate())
-	btn_policy_iteration = tk.Button(root, text='Do policy iteration', font='consolas 12',
+	btn_policy_iteration = tk.Button(root, text='Do policy iteration', font='consolas 11', highlightthickness=0,
 		command=lambda: agent.policy_iteration())
-	btn_value_iteration = tk.Button(root, text='Do value iteration', font='consolas 12',
+	btn_value_iteration = tk.Button(root, text='Do value iteration', font='consolas 11', highlightthickness=0,
 		command=lambda: agent.value_iteration())
-	btn_on_policy_mc = tk.Button(root, text='Do on-policy first-visit MC control', font='consolas 12',
+	btn_on_policy_mc = tk.Button(root, text='Do on-policy first-visit MC control', font='consolas 11', highlightthickness=0,
 		command=lambda: agent.on_policy_first_visit_mc_control())
-	btn_sarsa = tk.Button(root, text='Do SARSA', font='consolas 12', command=lambda: agent.sarsa())
-	btn_q_learning = tk.Button(root, text='Do Q-learning', font='consolas 12',
+	btn_sarsa = tk.Button(root, text='Do SARSA', font='consolas 11', highlightthickness=0,
+		command=lambda: agent.sarsa())
+	btn_q_learning = tk.Button(root, text='Do Q-learning', font='consolas 11', highlightthickness=0,
 		command=lambda: agent.q_learning())
 
 	dp_methods_lbl.place(width=468, height=35, relx=0.5, y=102, anchor='center')

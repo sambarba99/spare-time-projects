@@ -78,17 +78,14 @@ if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('Root/Stationary Point Finder')
 	root.config(width=400, height=200, background='#101010')
-	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
 	enter_coeffs_lbl = tk.Label(root, text='Enter polynomial coefficients\n(e.g. for 3x^2 - 5 enter: 3 0 -5):',
 		font='consolas 12', background='#101010', foreground='white')
-
-	entry_box = tk.Entry(root, font='consolas 12', justify='center')
-
-	btn_find_root = tk.Button(root, text='Find root', font='consolas 12',
+	entry_box = tk.Entry(root, font='consolas 12', justify='center', highlightthickness=0)
+	btn_find_root = tk.Button(root, text='Find root', font='consolas 12', highlightthickness=0,
 		command=lambda: handle_button_click(coefficients=entry_box.get(), find_root=True))
-	btn_find_stat_point = tk.Button(root, text='Find stationary point', font='consolas 12',
+	btn_find_stat_point = tk.Button(root, text='Find stationary point', font='consolas 12', highlightthickness=0,
 		command=lambda: handle_button_click(coefficients=entry_box.get(), find_root=False))
 
 	enter_coeffs_lbl.place(width=360, height=40, relx=0.5, y=34, anchor='center')

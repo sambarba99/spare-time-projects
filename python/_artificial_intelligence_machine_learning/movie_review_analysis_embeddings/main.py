@@ -47,7 +47,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def load_data():
-	df = pd.read_csv('C:/Users/sam/Desktop/projects/datasets/imdb_movie_reviews.csv')
+	df = pd.read_csv('/home/sam/Desktop/projects/datasets/imdb_movie_reviews.csv')
 	print(f'\nRaw data:\n{df}')
 	print('\nPreprocessing...')
 

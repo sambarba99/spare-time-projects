@@ -50,7 +50,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 	])
 
-	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'))
+	img_paths = list(Path('/home/sam/Desktop/projects/datasets/utkface').glob('*.jpg'))
 	x = [
 		transform(Image.open(p)) for p in
 		ProgressBar(img_paths, desc='Preprocessing images', unit='imgs')
@@ -278,33 +278,32 @@ if __name__ == '__main__':
 	root.config(width=450, height=300, background='#101010')
 	root.resizable(False, False)
 
-	age_lbl = tk.Label(root, text='Select age bin:',
-		font='consolas 10', background='#101010', foreground='white')
+	age_lbl = tk.Label(root, text='Select age bin:', font='consolas 10', background='#101010', foreground='white')
 	age_var = tk.IntVar(value=2)
 	age_var.trace_add(mode='write', callback=sample)
 	slider_age = tk.Scale(root, from_=0, to=9, resolution=1, variable=age_var, orient='horizontal', font='consolas 10',
 		background='#101010', foreground='white', activebackground='#30a0e0', highlightbackground='#101010', borderwidth=0)
 
-	gender_lbl = tk.Label(root, text='Select gender:',
-		font='consolas 10', background='#101010', foreground='white')
+	gender_lbl = tk.Label(root, text='Select gender:', font='consolas 10', background='#101010', foreground='white')
 	stringv_gender = tk.StringVar(value='male')
 	stringv_gender.trace_add(mode='write', callback=sample)
 	radio_btn_male = tk.Radiobutton(root, text='Male', font='consolas 10', variable=stringv_gender,
 		value='male', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 	radio_btn_female = tk.Radiobutton(root, text='Female', font='consolas 10', variable=stringv_gender,
 		value='female', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 
-	race_lbl = tk.Label(root, text='Select/interpolate race:',
-		font='consolas 10', background='#101010', foreground='white')
+	race_lbl = tk.Label(root, text='Select/interpolate race:', font='consolas 10', background='#101010', foreground='white')
 	stringv_race1 = tk.StringVar(value='white')
 	stringv_race2 = tk.StringVar(value='black')
 	stringv_race1.trace_add(mode='write', callback=sample)
 	stringv_race2.trace_add(mode='write', callback=sample)
 	race_option_menu1 = tk.OptionMenu(root, stringv_race1, *DATASET_DICT['race'])
 	race_option_menu1.config(font='consolas 10', indicatoron=0, highlightthickness=0)
+	race_option_menu1['menu'].config(font='consolas 10')
 	race_option_menu2 = tk.OptionMenu(root, stringv_race2, *DATASET_DICT['race'])
+	race_option_menu2['menu'].config(font='consolas 10')
 	race_option_menu2.config(font='consolas 10', indicatoron=0, highlightthickness=0)
 	race_var = tk.DoubleVar(value=0)
 	race_var.trace_add(mode='write', callback=sample)
@@ -315,7 +314,8 @@ if __name__ == '__main__':
 	plt.subplots_adjust(left=0.05, right=0.95, bottom=0.05, hspace=0.03, wspace=0.03)
 	plt.gcf().set_facecolor('black')
 
-	btn_sample = tk.Button(root, text='Sample images', font='consolas 11', command=lambda: sample(randomise_noise=True))
+	btn_sample = tk.Button(root, text='Sample images', font='consolas 11', highlightthickness=0,
+		command=lambda: sample(randomise_noise=True))
 
 	age_lbl.place(width=120, height=29, relx=0.5, y=21, anchor='center')
 	slider_age.place(width=200, relx=0.5, y=50, anchor='center')

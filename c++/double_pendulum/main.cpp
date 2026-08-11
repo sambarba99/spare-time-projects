@@ -172,7 +172,7 @@ int main() {
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
 		// std::ostringstream file_path;
-		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// file_path << "/home/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
 		// screenshot.saveToFile(file_path.str());
 		// screenshot_counter++;
 	}

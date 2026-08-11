@@ -137,7 +137,7 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for p in Path('C:/Users/sam/Desktop/projects/datasets/parkinsons').rglob('*.png'):
+	for p in Path('/home/sam/Desktop/projects/datasets/parkinsons').rglob('*.png'):
 		data.append((str(p), p.parent.name))
 
 	df = pd.DataFrame(data, columns=['img_path', 'class'])

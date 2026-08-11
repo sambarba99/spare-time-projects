@@ -30,9 +30,9 @@ selected_dir = None
 def select_dir():
 	global selected_dir
 
-	selected_dir = Path.home().as_posix()
+	selected_dir = Path.home()
 	selected_dir = filedialog.askdirectory(
-		title=f'{" " * 26}{"=" * 20}  Select a directory to walk  {"=" * 20}',
+		title='===== Select a directory to walk =====',
 		initialdir=selected_dir
 	)
 
@@ -165,15 +165,17 @@ def sort_column(col):
 
 	table.yview_moveto(0)
 
-	# Reverse the sort order of this column for next time
+	# Reverse the sort order of this column for next time, and reset others
 	descending_orders[col] = not descending_orders[col]
+	for other_col in TBL_COLS:
+		if other_col != col:
+			descending_orders[other_col] = False
 
 
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.title('File Directory Walker')
 	root.config(width=1029, height=578, background='#101010')
-	root.eval('tk::PlaceWindow . center')
 	root.resizable(False, False)
 
 	lbl_selected_dir = tk.Label(root, text='Selected directory: None',
@@ -181,9 +183,10 @@ if __name__ == '__main__':
 	)
 	lbl_selected_dir.place(width=1000, height=25, relx=0.5, y=27, anchor='center')
 
-	button_select = tk.Button(root, text='Select directory', font='consolas 11', command=select_dir)
+	button_select = tk.Button(root, text='Select directory', font='consolas 11', highlightthickness=0,
+		command=select_dir)
 	button_select.place(width=170, height=35, x=468, y=63, anchor='center')
-	button_walk = tk.Button(root, text='Walk', font='consolas 11', command=walk_dir)
+	button_walk = tk.Button(root, text='Walk', font='consolas 11', highlightthickness=0, command=walk_dir)
 	button_walk.place(width=90, height=35, x=602, y=63, anchor='center')
 
 	lbl_discovered_files = tk.Label(root, text='Discovered files',
@@ -195,7 +198,10 @@ if __name__ == '__main__':
 	for col, col_dict in TBL_COLS.items():
 		table.column(col, anchor='center', width=col_dict['width'])
 		table.heading(col, text=col, command=lambda col_=col: sort_column(col_))
-	ttk.Style().configure('Treeview.Heading', font=('Arial', 10, 'bold'))
+	table.bind("<<TreeviewSelect>>", lambda _: table.selection_remove(table.selection()))
+	style = ttk.Style()
+	style.configure('Treeview.Heading', font=('arial', 10, 'bold'))
+	style.configure('Treeview', font='arial 10', rowheight=18)
 	scrollbar = ttk.Scrollbar(root, command=table.yview)
 	table.configure(yscrollcommand=scrollbar.set)
 	table.place(height=426, x=506, y=340, anchor='center')

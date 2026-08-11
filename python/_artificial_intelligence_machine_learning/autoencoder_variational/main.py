@@ -53,7 +53,7 @@ def create_data_loaders():
 		transforms.ToTensor()  # Scale to [0,1]
 	])
 
-	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'))
+	img_paths = list(Path('/home/sam/Desktop/projects/datasets/utkface').glob('*.jpg'))
 	x_ground_truth = [
 		transform(Image.open(p)) for p in
 		ProgressBar(img_paths, desc='Preprocessing images', unit='imgs')

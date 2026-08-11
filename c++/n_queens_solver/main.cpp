@@ -97,7 +97,7 @@ bool solve(int row = 0) {
 
 
 int main() {
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 	num_backtracks = 0;
 	high_resolution_clock::time_point start = high_resolution_clock::now();
 	sf::Event event;

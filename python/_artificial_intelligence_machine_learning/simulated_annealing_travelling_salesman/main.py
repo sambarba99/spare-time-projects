@@ -81,7 +81,7 @@ def plot_progress(candidate):
 	ax_current_candidate.set_title(f'Current solution (iteration {iter_num:,} / {max_iters:,})')
 
 	# if iter_num in (1, max_iters) or (iter_num % 4) == 0:
-	# 	plt.savefig(f'C:/Users/sam/Desktop/frames/{iter_num:0>6}.png')
+	# 	plt.savefig(f'/home/sam/Desktop/frames/{iter_num:0>6}.png')
 
 
 if __name__ == '__main__':

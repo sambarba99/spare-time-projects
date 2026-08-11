@@ -198,7 +198,7 @@ void handle_click(const int mouse_x, const int mouse_y) {
 
 
 int main() {
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 	fill(&board[0][0], &board[0][0] + sizeof(board) / sizeof(board[0][0]), NONE);
 	status_text = "Your turn (or 'A' to make AI go first)";
 	squares_left = 9;

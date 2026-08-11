@@ -1,4 +1,4 @@
-## Demo of A* and Dijkstra algorithms (for solving labyrinths, mazes and graphs)
+## Graph algorithm demo (for solving labyrinths, mazes and graphs)
 
 A* vs Dijkstra for labyrinth solving:
 

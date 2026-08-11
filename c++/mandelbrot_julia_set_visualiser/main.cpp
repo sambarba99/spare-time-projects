@@ -278,7 +278,7 @@ void plot_mandelbrot_zoom(const complex<double> c, const int num_steps, const do
 		max_iters = pixel_iters[i];
 		compute_region_threaded();
 		std::ostringstream file_path;
-		file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << i << ".png";
+		file_path << "/home/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << i << ".png";
 		fractal_image.saveToFile(file_path.str());
 
 		if (i == num_steps)
@@ -300,7 +300,7 @@ void plot_julia_rotation(const double r, const int num_steps) {
 		complex<double> c = r * complex<double>(cos(a), sin(a));
 		compute_region_threaded(0, 0, WIDTH, HEIGHT, c);
 		std::ostringstream file_path;
-		file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		file_path << "/home/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
 		fractal_image.saveToFile(file_path.str());
 		screenshot_counter++;
 	}
@@ -321,7 +321,7 @@ int main() {
 	bool left_btn_down = false;
 	sf::Vector2i drag_origin, mouse_pos;
 	sf::Event event;
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 	zoom_preview.setFillColor(sf::Color(255, 0, 128, 64));  // Translucent pink
 
 	compute_region_threaded();

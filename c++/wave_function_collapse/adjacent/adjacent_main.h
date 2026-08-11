@@ -268,7 +268,7 @@ namespace adjacent {
 			"Wave Function Collapse (adjacent tiling algorithm)"
 		);
 		window.setFramerateLimit(FPS);
-		font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+		font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 
 		vector<vector<Cell*>> grid(COLLAGE_HEIGHT, vector<Cell*>(COLLAGE_WIDTH));
 		bool starting = true;

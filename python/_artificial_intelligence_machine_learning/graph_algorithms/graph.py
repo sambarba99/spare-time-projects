@@ -1,5 +1,5 @@
 """
-Graph class for A* and Dijkstra demo
+Graph class for graph algorithm demo
 
 Author: Sam Barba
 Created 2024-10-05

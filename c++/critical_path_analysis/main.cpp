@@ -21,6 +21,7 @@ Created 2021-12-15
 */
 
 #include <algorithm>
+#include <climits>
 #include <iomanip>
 #include <iostream>
 #include <vector>

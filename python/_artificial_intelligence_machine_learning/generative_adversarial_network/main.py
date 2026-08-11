@@ -43,7 +43,7 @@ def create_train_loader():
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 	])
 
-	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
+	img_paths = list(Path('/home/sam/Desktop/projects/datasets/celeba').glob('*.jpg'))
 	x = [
 		transform(Image.open(p)) for p in
 		ProgressBar(img_paths, desc='Preprocessing images', unit='imgs')

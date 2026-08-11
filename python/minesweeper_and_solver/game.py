@@ -213,11 +213,6 @@ class Game:
 		)
 		self.handle_click(cell.y, cell.x, mouse_button='left')
 
-		# Flag cells guaranteed to be mines
-		for cell in self:
-			if cell.mine_prob == 100 and not cell.is_flagged:
-				self.handle_click(cell.y, cell.x, mouse_button='right')
-
 	def auto_play(self):
 		while not self.game_over:
 			self.solver_step()

@@ -93,7 +93,7 @@ def draw_grid(status):
 			cell_lbl = cell_font.render(str_val, True, FOREGROUND)
 
 		lbl_rect = cell_lbl.get_rect(
-			center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 3)
+			center=((x + 0.5) * CELL_SIZE + GRID_OFFSET, (y + 0.5) * CELL_SIZE + GRID_OFFSET + 2)
 		)
 		scene.blit(cell_lbl, lbl_rect)
 

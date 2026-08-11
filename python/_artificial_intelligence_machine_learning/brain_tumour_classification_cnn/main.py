@@ -143,7 +143,7 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for p in Path('C:/Users/sam/Desktop/projects/datasets/brain_tumours').rglob('*.jpg'):
+	for p in Path('/home/sam/Desktop/projects/datasets/brain_tumours').rglob('*.jpg'):
 		class_name = p.parent.name
 		if class_name == 'notumor':
 			class_name = 'no tumour'

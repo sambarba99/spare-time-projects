@@ -322,7 +322,7 @@ void draw() {
 
 int main() {
 	window.setFramerateLimit(FPS);
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 
 	// Start at top-left, looking towards centre
 	player_x = player_y = POINT_RADIUS + 1;  // Border wall width = 1px

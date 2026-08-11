@@ -15,6 +15,7 @@ Author: Sam Barba
 Created 2022-11-14
 */
 
+#include <climits>
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -181,7 +182,7 @@ int main() {
 	sf::Clock simulation_clock;
 	sf::Event event;
 
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 	randomise_live_cells();
 
 	while (window.isOpen()) {
@@ -296,7 +297,7 @@ int main() {
 		// texture.update(window);
 		// screenshot = texture.copyToImage();
 		// std::ostringstream file_path;
-		// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+		// file_path << "/home/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
 		// screenshot.saveToFile(file_path.str());
 		// screenshot_counter++;
 	}

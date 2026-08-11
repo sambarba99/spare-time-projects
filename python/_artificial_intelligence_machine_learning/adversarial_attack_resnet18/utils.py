@@ -64,7 +64,7 @@ pil_image_transform = transforms.Compose([
 def create_data_loaders(batch_size):
 	# Sample a few images from every class
 	path_groups_by_class = defaultdict(list)
-	for p in Path('C:/Users/sam/Desktop/projects/datasets/imagenet').rglob('*.jpg'):
+	for p in Path('/home/sam/Desktop/projects/datasets/imagenet').rglob('*.jpg'):
 		clean_class = clean_label(p.parent.name)
 		if clean_class in imagenet_labels:
 			path_groups_by_class[p.parent.name].append(p)

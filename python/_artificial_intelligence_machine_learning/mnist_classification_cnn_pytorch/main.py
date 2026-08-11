@@ -45,7 +45,7 @@ def load_data():
 
 
 	x_train, y_train, x_val, y_val, x_test, y_test, *_ = load_csv_classification_data(
-		'C:/Users/sam/Desktop/projects/datasets/mnist.csv',
+		'/home/sam/Desktop/projects/datasets/mnist.csv',
 		header=None,
 		train_size=0.96,
 		val_size=0.02,

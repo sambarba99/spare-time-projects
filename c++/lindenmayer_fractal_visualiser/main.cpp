@@ -250,7 +250,7 @@ bool execute_instructions(const string& instructions, const double start_heading
 	// texture.update(window);
 	// screenshot = texture.copyToImage();
 	// std::ostringstream file_path;
-	// file_path << "C:/Users/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
+	// file_path << "/home/sam/Desktop/frames/" << std::setw(4) << std::setfill('0') << screenshot_counter << ".png";
 	// screenshot.saveToFile(file_path.str());
 	// screenshot_counter++;
 
@@ -276,7 +276,7 @@ void await_click() {
 
 
 int main() {
-	font.loadFromFile("C:/Windows/Fonts/consola.ttf");
+	font.loadFromFile("/usr/local/share/fonts/c/consola.ttf");
 
 	// Draw each fractal, each from iteration 0 to its max iteration
 	vector<Fractal> all_fractals = {BINARY_TREE, H_FIGURE, SIERPINSKI_TRIANGLE, SIERPINSKI_ARROWHEAD, KOCH_SNOWFLAKE,

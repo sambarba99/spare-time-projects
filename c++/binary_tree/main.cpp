@@ -6,6 +6,7 @@ Created 2021-09-08
 */
 
 #include <algorithm>
+#include <climits>
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -51,7 +52,7 @@ void display_tree_info(Tree* tree) {
 }
 
 
-Tree* make_balanced_bst(const vector<string>& data, const int lo = 0, int hi = INT_MIN) {
+Tree* make_balanced_bst(vector<string>& data, const int lo = 0, int hi = INT_MIN) {
 	// Make a balanced binary search tree
 
 	sort(data.begin(), data.end());

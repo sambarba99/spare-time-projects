@@ -114,27 +114,24 @@ if __name__ == '__main__':
 	root.config(width=380, height=180, background='#101010')
 	root.resizable(False, False)
 
-	attack_type_lbl = tk.Label(root, text='Attack type:',
-		font='consolas 10', background='#101010', foreground='white')
+	attack_type_lbl = tk.Label(root, text='Attack type:', font='consolas 10', background='#101010', foreground='white')
 	stringv_attack_type = tk.StringVar(value='none')
 	radio_btn_none = tk.Radiobutton(root, text='None', font='consolas 10', variable=stringv_attack_type,
 		value='none', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 	radio_btn_patch = tk.Radiobutton(root, text='Patch', font='consolas 10', variable=stringv_attack_type,
 		value='patch', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 	radio_btn_perturbation = tk.Radiobutton(root, text='Perturbation', font='consolas 10', variable=stringv_attack_type,
 		value='perturbation', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 
-	patch_size_lbl = tk.Label(root, text='Patch size:',
-		font='consolas 10', background='#101010', foreground='white')
+	patch_size_lbl = tk.Label(root, text='Patch size:', font='consolas 10', background='#101010', foreground='white')
 	intv_patch_size = tk.IntVar(value=PATCH_SIZES[0])
 	patch_size_option_menu = tk.OptionMenu(root, intv_patch_size, *PATCH_SIZES)
 	patch_size_option_menu.config(font='consolas 10', indicatoron=0, highlightthickness=0)
 
-	target_class_lbl = tk.Label(root, text='Target class:',
-		font='consolas 10', background='#101010', foreground='white')
+	target_class_lbl = tk.Label(root, text='Target class:', font='consolas 10', background='#101010', foreground='white')
 	stringv_target_class = tk.StringVar(value='untargeted')
 	cleaned_labels = ['untargeted'] + [clean_label(i) for i in CLASS_SUBSET]
 	target_class_option_menu = tk.OptionMenu(root, stringv_target_class, *cleaned_labels)
@@ -178,7 +175,8 @@ if __name__ == '__main__':
 			title_append=title_append
 		)
 
-	btn_sample_batch = tk.Button(root, text='Next batch', font='consolas 11', command=next_test_batch)
+	btn_sample_batch = tk.Button(root, text='Next batch', font='consolas 11', highlightthickness=0,
+		command=next_test_batch)
 
 	attack_type_lbl.place(width=100, height=29, x=13, y=10)
 	radio_btn_none.place(width=60, height=29, x=108, y=10)

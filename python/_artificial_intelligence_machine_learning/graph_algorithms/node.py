@@ -1,5 +1,5 @@
 """
-Node class for A* and Dijkstra demo
+Node class for graph algorithm demo
 
 Author: Sam Barba
 Created 2021-09-20

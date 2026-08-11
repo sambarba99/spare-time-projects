@@ -40,7 +40,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 def create_data_loaders():
 	transform = transforms.ToTensor()  # Scale to [0,1]
 
-	img_paths = list(Path('C:/Users/sam/Desktop/projects/datasets/cifar10').rglob('*.png'))
+	img_paths = list(Path('/home/sam/Desktop/projects/datasets/cifar10').rglob('*.png'))
 	x = [
 		transform(Image.open(p)) for p in
 		ProgressBar(img_paths, desc='Preprocessing images', unit='imgs')

@@ -132,7 +132,7 @@ if __name__ == '__main__':
 	# Convert data to dataframe
 
 	data = []
-	for p in Path('C:/Users/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
+	for p in Path('/home/sam/Desktop/projects/datasets/utkface').glob('*.jpg'):
 		age, gender, race = p.name.split('_')[:3]
 		data.append((str(p), int(age), int(gender), int(race)))
 

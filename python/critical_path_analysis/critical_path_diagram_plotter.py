@@ -14,9 +14,9 @@ def plot_critical_path_diagram(df, duration):
 	lbl = f'Critical path diagram\n(critical path duration: {duration})'
 	g = Digraph(
 		name='critical path diagram',
-		graph_attr={'rankdir': 'LR', 'fontsize': '20', 'fontname': 'consolas', 'label': lbl, 'labelloc': 't'},
+		graph_attr={'rankdir': 'LR', 'fontname': 'consolas', 'fontsize': '14', 'label': lbl, 'labelloc': 't'},
 		node_attr={
-			'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'label': '',
+			'style': 'filled,setlinewidth(0)', 'fontname': 'consolas', 'fontsize': '11', 'label': '',
 			'shape': 'rect', 'fillcolor': '#80c0ff'
 		}
 	)

@@ -1,5 +1,5 @@
 """
-A* and Dijkstra demo
+Graph algorithm demo
 
 Author: Sam Barba
 Created 2021-09-20
@@ -236,31 +236,36 @@ def draw(open_set, closed_set, is_solved):
 
 if __name__ == '__main__':
 	pg.init()
-	pg.display.set_caption('A* and Dijkstra demo')
+	pg.display.set_caption('Graph Algorithm Demo')
 	scene = pg.display.set_mode((WIDTH, HEIGHT))
 	clock = pg.time.Clock()
 
 	root = tk.Tk()
-	root.title('A*/Dijkstra Demo')
+	root.title('Graph Algorithm Demo')
 	root.config(width=380, height=235, background='#101010')
 	root.resizable(False, False)
 
 	stringv_type = tk.StringVar(value='labyrinth')
 	radio_btn_labyrinth = tk.Radiobutton(root, text='Labyrinth', font='consolas 10', variable=stringv_type,
 		value='labyrinth', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 	radio_btn_maze = tk.Radiobutton(root, text='Maze', font='consolas 10', variable=stringv_type,
 		value='maze', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 	radio_btn_graph = tk.Radiobutton(root, text='Graph', font='consolas 10', variable=stringv_type,
 		value='graph', background='#101010', foreground='white',
-		activebackground='#101010', activeforeground='white', selectcolor='#101010')
+		activebackground='#101010', activeforeground='white', selectcolor='#101010', highlightthickness=0)
 
-	btn_generate = tk.Button(root, text='Generate', font='consolas 12', command=generate_graph)
-	btn_solve_astar = tk.Button(root, text='Solve with A*', font='consolas 12', command=astar)
-	btn_solve_dijkstra = tk.Button(root, text='Solve with Dijkstra', font='consolas 12', command=dijkstra)
-	btn_solve_dfs = tk.Button(root, text='Solve with DFS', font='consolas 12', command=lambda: graph_traversal('dfs'))
-	btn_solve_bfs = tk.Button(root, text='Solve with BFS', font='consolas 12', command=lambda: graph_traversal('bfs'))
+	btn_generate = tk.Button(root, text='Generate', font='consolas 11', highlightthickness=0,
+		command=generate_graph)
+	btn_solve_astar = tk.Button(root, text='Solve with A*', font='consolas 11', highlightthickness=0,
+		command=astar)
+	btn_solve_dijkstra = tk.Button(root, text='Solve with Dijkstra', font='consolas 11', highlightthickness=0,
+		command=dijkstra)
+	btn_solve_dfs = tk.Button(root, text='Solve with DFS', font='consolas 11', highlightthickness=0,
+		command=lambda: graph_traversal('dfs'))
+	btn_solve_bfs = tk.Button(root, text='Solve with BFS', font='consolas 11', highlightthickness=0,
+		command=lambda: graph_traversal('bfs'))
 
 	radio_btn_labyrinth.place(width=95, height=32, x=20, y=40, anchor='w')
 	radio_btn_maze.place(width=65, height=32, x=115, y=40, anchor='w')
