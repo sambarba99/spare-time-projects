@@ -1,5 +1,5 @@
 """
-Graphical model (Bayes net) and factor graph plotter using GraphViz
+Graphical model (Bayes net) and factor graph plotter using Graphviz
 
 Author: Sam Barba
 Created 2022-12-02

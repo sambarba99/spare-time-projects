@@ -1,5 +1,5 @@
 """
-Binary tree plotter using GraphViz
+Binary tree plotter using Graphviz
 
 Author: Sam Barba
 Created 2022-10-19

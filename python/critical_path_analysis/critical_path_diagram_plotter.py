@@ -1,5 +1,5 @@
 """
-Critical path diagram plotter using GraphViz
+Critical path diagram plotter using Graphviz
 
 Author: Sam Barba
 Created 2022-11-06

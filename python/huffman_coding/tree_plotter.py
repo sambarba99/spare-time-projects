@@ -1,5 +1,5 @@
 """
-Huffman tree plotter using GraphViz
+Huffman tree plotter using Graphviz
 
 Author: Sam Barba
 Created 2022-11-22

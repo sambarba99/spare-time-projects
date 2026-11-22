@@ -1,5 +1,5 @@
 """
-Decision tree plotter using GraphViz
+Decision tree plotter using Graphviz
 
 Author: Sam Barba
 Created 2022-10-19
@@ -44,7 +44,7 @@ def plot_tree(tree, features, labels):
 	for i in range(tree.depth + 1):
 		level = get_level(tree, i)
 		for idx, node in enumerate(level):
-			# GraphViz requires unique labels, so do this
+			# Graphviz requires unique labels, so do this
 			# E.g. a tree may have multiple 'setosa' leaf nodes
 			# or multiple 'petal width <= 1.5' nodes
 			level[idx] = f'{n}--{node}'
